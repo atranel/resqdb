@@ -1,0 +1,88 @@
+Variable Name,Description,UNITS,Response Type,Response Options - text,Response Options - value
+AGE_EN,Age:,years,text,text,text
+GENDER_EN,Gender:,,single-select,"Male, Female","1,2"
+VISIT_DATE_EN,Last seen normal date ,DD-MM-YYYY,text,date,date
+VISIT_TIME_EN,Last seen normal time: ,HH:MM,text,time,time
+HOSPITAL_DATE_EN,Date of admission to the first hospital:,DD-MM-YYYY,text,date,date
+HOSPITAL_TIME_EN,Time of admission to the first hospital:,HH:MM,text,time,time
+HOSPITAL_STROKE_EN,Stroke in the hospital:,,single-select,"Yes, No, Not known","1,2,3"
+RECURRENT_STROKE_EN,Recurrent stroke:,,single-select,"Yes, No, Not known","1,2,3"
+DEPARTMENT_TYPE_EN,Department type:,,single-select,"neurology, neurosurgery, anesthesiology/resuscitation/critical care department, internal medicine, geriatrics, other","1,2,3,4,5,6"
+HOSPITALIZED_IN_EN,The patient was hospitalized in:,,single-select,"Stroke unit / ICU, Other monitored bed (telemetry), Standard bed","1,2,3"
+ASSESSED_FOR_REHAB_EN,The patient was assessed for rehabilitation needs by PT/OT/S within the first 72 hours after the admission to the hospital:,,single-select,"Yes, No, Not known","1,2,3"
+STROKE_TYPE_EN,Stroke type:,,single-select,"Ischemic stroke, Intracerebral hemorrhage, Transient ischemic attack - TIA, Subarachnoid hemorrhage, Cerebral venous thrombosis, Undetermined","1,2,3,4,5,6"
+CONSCIOUSNESS_LEVEL_EN,Level of consciousness on admission:,,single-select,"Alert, Drowsy, Comatose, Glasgow coma scale (GCS), Not known","1,2,3,4,5"
+GCS_EN,Glasgow coma scale (GCS):,,single-select,"15 - 13,12 - 8,< 8","1,2,3"
+NIHSS_EN,NIHSS on admission:,,single-select,"Not performed, Performed, Not known","1,2,3"
+NIHSS_SCORE_EN,Score:,,text,text,text
+CT_MRI_EN,Head CT/MRI:,,single-select,"Not performed, Performed, Not known","1,2,3"
+CT_TIME_EN,Time performed:,,single-select,"Within 1 hour after admission, Later than 1 hour after admission","1,2"
+VENTILATOR_EN,Was the patient put on a ventilator?,,single-select,"Yes, No, Not known","1,2,3"
+RECANALIZATION_PROCEDURES_EN,Recanalization procedures:,,single-select,"Not done - primary centre / comprehensive centre, IV tPa - primary centre / comprehensive centre, IV tPa + endovascular treatment - comprehensive centre, Endovascular treatment alone - comprehensive centre, IV tPa + referred to another centre for endovascular treatment - primary centre, Referred to another centre for endovascular treatment - primary centre, Patient referred to another centre for endovascular treatment and hospitalization continues at the referred to centre - comprehensive centre, Patient referred for endovascular treatment and patient is returned to the initial centre - comprehensive centre, Patient was returned to the initial centre after recanalization procedures were performed at another centre","1,2,3,4,5,6,7,8,9"
+IVT_ONLY_EN,IV tPA:,,single-select,"Door to needle time, Bolus time","1,2"
+IVT_ONLY_NEEDLE_TIME_EN,Door to needle time:,minutes,text,text,text
+IVT_ONLY_ADMISSION_TIME_EN,Admission time:,HH:MM,text,text,text
+IVT_ONLY_BOLUS_TIME_EN,Bolus time:,HH:MM,text,text,text
+IVT_TBY_EN,IV tPa + endovascular treatment - comprehensive centre:,,single-select,"Door to needle time, Bolus time","1,2"
+IVT_TBY_NEEDLE_TIME_EN,Door to needle time (time from admission to treatment):,minutes,text,text,text
+IVT_TBY_GROIN_TIME_EN,Door to groin puncture time:,minutes,text,text,text
+IVT_TBY_ADMISSION_TIME_EN,Admission time:,HH:MM,text,text,text
+IVT_TBY_BOLUS_TIME_EN,Bolus time:,HH:MM,text,text,text
+IVT_TBY_GROIN_PUNCTURE_TIME_EN,Groin puncture time:,HH:MM,text,text,text
+TBY_ONLY_EN,Endovascular treatment alone:,,single-select,"Door to groin puncture time, Groin puncture time","1,2"
+TBY_ONLY_GROIN_PUNCTURE_TIME_EN,Door to groin puncture time:,minutes,text,text,text
+TBY_ONLY_ADMISSION_TIME_EN,Admission time:,HH:MM,text,text,text
+TBY_ONLY_PUNCTURE_TIME_EN,Groin puncture time:,HH:MM,text,text,text
+IVT_TBY_REFER_EN,IV tPa + referred to another center for endovascular treatment:,,single-select,"Door to needle time, Bolus time","1,2"
+IVT_TBY_REFER_NEEDLE_TIME_EN,Door to needle time:,minutes,text,text,text
+IVT_TBY_REFER_DIDO_TIME_EN,Door in - door out time:,minutes,text,text,text
+IVT_TBY_REFER_ADMISSION_TIME_EN,Admission time:,HH:MM,text,text,text
+IVT_TBY_REFER_BOLUS_TIME_EN,Bolus time:,HH:MM,text,text,text
+IVT_TBY_REFER_DISCHARGE_TIME_EN,Discharge time:,HH:MM,text,text,text
+TBY_REFER_EN,Referred to another center for endovascular treatment - primary centre:,,single-select,"Door in - door out time, Discharge time","1,2"
+TBY_REFER_DIDO_TIME_EN,Door in - door out time:,minutes,text,time,text
+TBY_REFER_ADMISSION_TIME_EN,Admission time:,HH:MM,text,time,text
+TBY_REFER_DISCHARGE_TIME_EN,Discharge time:,HH:MM,text,time,text
+TBY_REFER_ALL_EN,Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre - comprehensive centre:,,single-select,"Door in - door out time, Discharge time","1,2"
+TBY_REFER_ALL_DIDO_TIME_EN,Door in - door out time:,minutes,text,time,text
+TBY_REFER_ALL_ADMISSION_TIME_EN,Admission time:,HH:MM,text,time,text
+TBY_REFER_ALL_DISCHARGE_TIME_EN,Discharge time,HH:MM,text,time,text
+TBY_REFER_LIM_EN,Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre - comprehensive centre:,,single-select,"Door in - door out time, Discharge time","1,2"
+TBY_REFER_LIM_DIDO_TIME_EN,Door in - door out time:,minutes,text,time,text
+TBY_REFER_LIM_ADMISSION_TIME_EN,Admission time:,HH:MM,text,time,text
+TBY_REFER_LIM_DISCHARGE_TIME_EN,Discharge time:,HH:MM,text,time,text
+DYSPHAGIA_SCREENING_EN,Dysphagia screening:,,single-select,"Yes\, Guss test, Yes\, other test,Was performed at another center, No, Patient could not be tested (intubated), Not known","1,2,3,4,5,6"
+DYSPHAGIA_SCREENING_TIME_EN,Time performed:,,single-select,"Within the first 24 hours after admission to the hospital, After the first 24 hours after admission to the hospital","1,2"
+AFIB_FLUTTER_EN,Atrial fibrillation / flutter:,,single-select,"Known aFib, Newly-detected at admission, Detected during hospitalization, Not detected, Not known","1,2,3,4,5"
+AFIB_DETECTION_METHOD_EN,Method of detection:,,checkbox,"Telemetry with monitor allowing automatic detection of aFib, Telemetry without monitor allowing automatic detection of aFib, Holter-type monitoring, EKG monitoring in an ICU bed with automatic detection of aFib, EKG monitoring in an ICU bed without automatic detection of aFib","1,2,3,4,5"
+AFIB_OTHER_RECS_EN,Was ambulatory heart rhythm monitoring recommended?,,single-select,"Yes, No","1,2"
+CAROTID_ARTERIES_IMAGING_EN,Carotid arteries imaging within 7 calendar days after admission to the hospital:,,single-select,"Yes, No, Not known","1,2,3"
+HEMICRANIECTOMY_EN,Was decompressive craniectomy performed?,,single-select,"Yes, No, Referred to another centre","1,2,3"
+VT_TREATMENT_EN,Treatment:,,checkbox,"Anticoagulation, Endovascular intervention - thrombectomy, Endovascular intervention - local thrombolysis, Neurosurgical treatment (decompressive craniectomy)","1,2,3,4"
+ANTITHROMBOTICS_EN,Which antithrombotic medication was prescribed on discharge?,,single-select,"antiplatelets, Vitamin K antagonist, dabigatran, rivaroxaban, apixaban, edoxaban, LMWH or heparin in prophylactic dose, LMWH or heparin in full anticoagulant dose, Not prescribed\, but recommended, Nothing","1,2,3,4,5,6,7,8,9,10"
+STATIN_EN,Was the patient discharged on a statin?,,single-select,"Yes, No, Not known","1,2,3"
+CAROTID_STENOSIS_EN,Symptomatic carotid stenosis:,,single-select,"50% - 70%, >70%, No, Not known","1,2,3,4"
+CAROTID_STENOSIS_FOLLOWUP_EN,Was carotid endarterectomy or angioplasty/stenting done within first two weeks after the stroke onset?,,single-select,"Yes, No, No\, but planned later, Referred to another centre","1,2,3,4"
+CTA_MRA_DSA_EN,Procedures performed to identify cause:,,checkbox,"CTA,MRA,DSA,None","1,2,3,4"
+NEUROSURGERY_EN,Was neurosurgery performed?,,single-select,"Yes, No, Not known","1,2,3"
+NEUROSURGERY_TYPE_EN,"If neurosurgery was performed, select the type:",,single-select,"Intracranial hematoma evacuation, External ventricular drainage, Decompresive craniectomy, Referred to another centre","1,2,3,4"
+BLEEDING_REASON_EN,The reason for bleeding was:,,checkbox,"Arterial hypertension, Aneurysm, Arterio-venous malformation, Anticoagulation therapy, Amyloid angiopathy, Other / Not known","1,2,3,4,5,6"
+BLEEDING_SOURCE_EN,The reason for bleeding was known:,,single-select,"Yes, No","1,2"
+INTERVENTION_EN,Intervention:,,checkbox,"Endovascular (coiling), Neurosurgical (clipping), Other neurosurgical treatment (decompression\, drainage), Patient referred to another hospital for intervention, No intervention, None","1,2,3,4,5,6"
+SMOKING_CESSATION_EN,"If the patient is a smoker, was he recommended to a smoking cessation program?",,single-select,"Yes, No, Not a smoker","1,2,3"
+ANTIHYPERTENSIVE_EN,Was antihypertensive medication prescribed to the patient before discharge from the hospital? ,,single-select,"Yes, No, Not known","1,2,3"
+CEREBROVASCULAR_EXPERT_EN,Was the patient recommended to see a cerebrovascular expert?,,single-select,"Recommended\, and appointment was made, Recommended\, but the appointment was not made, Not recommended","1,2,3"
+DISCHARGE_DESTINATION_EN,Discharge destination:,,single-select,"Home, Transferred within the same centre, Transferred to another centre, Social care facility, Dead","1,2,3,4,5"
+DISCHARGE_SAME_FACILITY_EN,Department transferred to within the same centre:,,single-select,"Acute rehabilitation, Post-care bed, Another department","1,2,3"
+DISCHARGE_OTHER_FACILITY_EN,Type of centre transferred to:,,single-select,"Stroke centre, Comprehensive stroke centre, Another hospital","1,2,3"
+DISCHARGE_OTHER_FACILITY_O1_EN,Type of department transferred to within another centre - stroke centre:,,single-select,"Acute rehabilitation, Post-care bed, Neurology, Another department","1,2,3,4"
+DISCHARGE_OTHER_FACILITY_O2_EN,Type of department transferred to within another centre - comprehensive stroke centre: ,,single-select,"Acute rehabilitation, Post-care bed, Neurology, Another department","1,2,3,4"
+DISCHARGE_OTHER_FACILITY_O3_EN,Type of department transferred to within another centre - another hospital: ,,single-select,"Acute rehabilitation, Post-care bed, Neurology, Another department","1,2,3,4"
+DISCHARGE_MRS_EN,mRS on discharge,,single-select,"unknown / calculate,0,1,2,3,4,5,6","1,2,3,4,5,6,7,8"
+D_MRS_A_EN,Can the patient walk on their own?,,single-select,"Yes, No","1,2"
+D_MRS_B_EN,Can the patient walk on their own?,,single-select,"Yes, No","1,2"
+D_MRS_C_EN,"If the patient can walk on their own (includes walking aids) do they need help with simple usual personal activities (toilet, bathing, dressing, cooking, household tasks, simple finances)?",,single-select,"Yes, No","1,2"
+D_MRS_D_EN,"If they can perform simple personal activities do they need help with more complex usual activities (driving, golf, finances, household bills, work tasks)?",,single-select,"Yes, No","1,2"
+D_MRS_E_EN,If they have no disability do they have any symptoms?,,single-select,"Yes, No","1,2"
+D_MRS_SCORE_EN,Discharge mRS derived score,,text,,
+DISCHARGE_DATE_EN,Date of discharge:,DD-MM-YYYY,text,date,text
