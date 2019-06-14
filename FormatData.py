@@ -422,12 +422,6 @@ class GenerateFormattedAngelsAwards:
                                                 'format': green})
             row += 1
 
-        for row in range(0, nrow - 2):
-            if (statistics[row][index] == False):            
-                awards.append("NONE")
-            else:
-                awards.append("TRUE")
-
 
         def angels_awards_ivt_60(column_name, coln):
             """Add conditional formatting to angels awards for ivt < 60."""
@@ -449,15 +443,6 @@ class GenerateFormattedAngelsAwards:
                                                     'value': 75,
                                                     'format': black})
                 row += 1
-
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) >= 50 and float(statistics[row][coln]) <= 74.99):
-                        awards[row] = "GOLD"
-                    elif (float(statistics[row][coln]) >= 75):
-                        awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
 
         index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
         column = xl_col_to_name(index)
@@ -490,22 +475,11 @@ class GenerateFormattedAngelsAwards:
                                                     'format': black})
                 row += 1
 
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) <= 49.99):
-                        if (awards[row] != "GOLD" or awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 50):
-                        if (awards[row] != "GOLD"):
-                            awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
-
-        index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
+        index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
         column = xl_col_to_name(index)
         angels_awards_ivt_60(column, coln=index)
 
-        index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
+        index = column_names.index('% patients treated with door to thrombectomy < 60 minutes')
         column = xl_col_to_name(index)
         angels_awards_ivt_60(column, coln=index)
 
@@ -540,20 +514,6 @@ class GenerateFormattedAngelsAwards:
                                                     'value': 25,
                                                     'format': black})
                 row += 1
-
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) >= 5 and float(statistics[row][coln]) <= 14.99):
-                        if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                            awards[row] = "GOLD"
-                    elif (float(statistics[row][coln]) >= 15 and float(statistics[row][coln]) <= 24.99):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 25):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] == "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
 
         index = column_names.index('% recanalization rate out of total ischemic incidence')
         angels_awards_recan(column_name=xl_col_to_name(index), coln=index)
@@ -592,20 +552,6 @@ class GenerateFormattedAngelsAwards:
                                                     'value': 90,
                                                     'format': black})
                 row += 1
-            if (count):
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 80 and float(statistics[row][coln]) <= 84.99):
-                            if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 85 and float(statistics[row][coln]) <= 89.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 90):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
         index = column_names.index('% suspected stroke patients undergoing CT/MRI')
         angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
@@ -641,17 +587,6 @@ class GenerateFormattedAngelsAwards:
                                                     'value': 0.99,
                                                     'format': black})
                 row += 1
-
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) <= 0.99):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 1):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
 
         
         index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
@@ -2004,13 +1939,6 @@ class GenerateFormattedStats:
                                                     'format': green})
                 row += 1
 
-            for row in range(0, nrow - 2):
-                if (statistics[row][index] == False):            
-                    awards.append("NONE")
-                else:
-                    awards.append("TRUE")
-
-
             def angels_awards_ivt_60(column_name, coln):
                 """Add conditional formatting to angels awards for ivt < 60."""
                 row = 4
@@ -2032,14 +1960,6 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 50 and float(statistics[row][coln]) <= 74.99):
-                            awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 75):
-                            awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
             index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
             column = xl_col_to_name(index)
@@ -2070,16 +1990,6 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) <= 49.99):
-                            if (awards[row] != "GOLD" or awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 50):
-                            if (awards[row] != "GOLD"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
             index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
             column = xl_col_to_name(index)
@@ -2121,19 +2031,6 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 5 and float(statistics[row][coln]) <= 14.99):
-                            if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 15 and float(statistics[row][coln]) <= 24.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 25):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] == "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
             index = column_names.index('% recanalization rate out of total ischemic incidence')
             column = xl_col_to_name(index)
@@ -2172,20 +2069,6 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                if (count):
-                    for row in range(nrow - 2):
-                        if (awards[row] != "NONE"):
-                            if (float(statistics[row][coln]) >= 80 and float(statistics[row][coln]) <= 84.99):
-                                if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                    awards[row] = "GOLD"
-                            elif (float(statistics[row][coln]) >= 85 and float(statistics[row][coln]) <= 89.99):
-                                if (awards[row] == "DIAMOND"):
-                                    awards[row] = "PLATINUM"
-                            elif (float(statistics[row][coln]) >= 90):
-                                if (awards[row] == "DIAMOND"):
-                                    awards[row] = "DIAMOND"
-                            else:
-                                awards[row] = "NONE"
 
             index = column_names.index('% suspected stroke patients undergoing CT/MRI')
             column = xl_col_to_name(index)
@@ -2223,17 +2106,6 @@ class GenerateFormattedStats:
                                                         'value': 0.99,
                                                         'format': black})
                     row += 1
-
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) <= 0.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 1):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
             index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
             column = xl_col_to_name(index)

@@ -178,63 +178,94 @@ class Calculation(Filtration):
         """ Return dataframe with patients treated with door to recanalization therapy time < 60 minutes. """
         try:
             # Filter recanalization procedures 
-            recan_df = self.df[self.df['recanalization_procedures_es'].isin([1,2])].copy()
-            #recan_df = self.df[self.df['recanalization_procedures_es'].isin([1,2,3])].copy()
-            # Check if recanalization procedure dataframe is not empty
-            if not recan_df.empty:
+            #recan_df = self.df[self.df['recanalization_procedures_es'].isin([1,2])].copy()
+            thrombolysis_df = self.df[self.df['recanalization_procedures_es'].isin([1,2])].copy()
+            thrombectomy_df = self.df[self.df['recanalization_procedures_es'].isin([3,4])].copy()
+
+            if not thrombolysis_df.empty:
                 # Calculate DTN if the patient got IV tPa
-                recan_df['DTN_IVT_ONLY'] = recan_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_only_bolus_time_es']) if (x['recanalization_procedures_es'] == 1 and x['ivt_only_bolus_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
+                thrombolysis_df['DTN_IVT_ONLY'] = thrombolysis_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_only_bolus_time_es']) if (x['recanalization_procedures_es'] == 1 and x['ivt_only_bolus_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
                 # Calculate DTN if the patient got IVtPa and TBY
-                recan_df['DTN_IVT_TBY'] = recan_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_tby_bolus_time_es']) if (x['recanalization_procedures_es'] == 2 and x['ivt_tby_bolus_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
+                thrombolysis_df['DTN_IVT_TBY'] = thrombolysis_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_tby_bolus_time_es']) if (x['recanalization_procedures_es'] == 2 and x['ivt_tby_bolus_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
                 # Sum two columns with DTN in one
-                recan_df['DTN'] = recan_df.apply(lambda x: x['DTN_IVT_ONLY'] + x['DTN_IVT_TBY'], axis=1, result_type='expand')
-                
-                # Calculate DTG if the patient got IVtPa and TBY
-                recan_df['DTG_IVT_TBY'] = recan_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_tby_groin_puncture_time_es']) if (x['recanalization_procedures_es'] == 2 and x['ivt_tby_groin_puncture_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
-                # Calculate DTG if the patient got TBY
-                recan_df['DTG_TBY'] = recan_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['tby_only_puncture_time_es']) if (x['recanalization_procedures_es'] == 3 and x['tby_only_puncture_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
-                # Sum two columns with DTG in one
-                recan_df['DTG'] = recan_df.apply(lambda x: x['DTG_IVT_TBY'] + x['DTG_TBY'], axis=1, result_type='expand')
-                
-                # Get only patients who have DTG or DTN greater than 0
-                #recan_df = recan_df[(recan_df['DTN'] > 0) | (recan_df['DTG'] > 0)]
-                recan_df = recan_df[(recan_df['DTN'] > 0)]
-                # Check if recan df is not still empty
-                if not recan_df.empty:
-                    # Count recanalization patients
-                    
-                    recan_patients = recan_df.groupby(['site_id']).size().reset_index(name="tmp_patients")
-                    # Get only patients who had DTN or DTG (if both select higher one) < 60
-                    #recan_df['recan_below_60'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], x['DTG'], 60), axis=1)
-                    recan_df['recan_below_60'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], 0, 60), axis=1)
+                thrombolysis_df['DTN'] = thrombolysis_df.apply(lambda x: x['DTN_IVT_ONLY'] + x['DTN_IVT_TBY'], axis=1, result_type='expand')
+
+                thrombolysis_df = thrombolysis_df[(thrombolysis_df['DTN'] > 0)]
+
+                if not thrombolysis_df.empty:
+                    thrombolysis_pts = thrombolysis_df.groupby(['site_id']).size().reset_index(name="tmp_patients")
+                    thrombolysis_df['recan_below_60'] =  thrombolysis_df.apply(lambda x: self.get_recan_below(x['DTN'], 0, 60), axis=1) 
                     # Get only patients with DTN < 60 or DTG < 60
-                    recan_below_60_df = recan_df[recan_df['recan_below_60'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to recanalization therapy < 60 minutes')
+                    recan_below_60_df = thrombolysis_df[thrombolysis_df['recan_below_60'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombolysis < 60 minutes')
                     # Merge with recan_patients
-                    tmp = pd.merge(recan_patients, recan_below_60_df, how="left", on="site_id")
+
+                    tmp = pd.merge(thrombolysis_pts, recan_below_60_df, how="left", on="site_id")
+
                     # Calculate % for DTN or DTG < 60
-                    tmp['% patients treated with door to recanalization therapy < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to recanalization therapy < 60 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
-                    # Add line in log
-                    logging.info('Calculation: Get recanalization procedures < 60 minutes.')
+                    tmp['% patients treated with door to thrombolysis < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 60 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+
                     # Get only patients with DTN < 45
                     #recan_df['recan_below_45'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], x['DTG'], 45), axis=1)
-                    recan_df['recan_below_45'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], 0, 45), axis=1)
-                    print(recan_df[['DTN', 'DTG', 'recan_below_45']])
+                    thrombolysis_df['recan_below_45'] = thrombolysis_df.apply(lambda x: self.get_recan_below(x['DTN'], 0, 45), axis=1)
                     # Get only patients with DTN below 45
-                    recan_below_45_df = recan_df[recan_df['recan_below_45'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to recanalization therapy < 45 minutes')
+                    recan_below_45_df = thrombolysis_df[thrombolysis_df['recan_below_45'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombolysis < 45 minutes')
                     # Merge with recan_patients
                     tmp = pd.merge(tmp, recan_below_45_df, how="left", on="site_id")
                     # Calculate % for DTN or DTG < 45
-                    tmp['% patients treated with door to recanalization therapy < 45 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to recanalization therapy < 45 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    tmp['% patients treated with door to thrombolysis < 45 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 45 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
                     # Add line in log
-                    logging.info('Calculation: Get recanalization procedures < 45 minutes.')
+                    logging.info('Calculation: Thrombolysis time < 60 minutes and < 45 minutes has been calculated.')
                     # Remove temporary column
                     tmp.drop(['tmp_patients'], axis=1, inplace=True)
-                    self.stats_df = pd.merge(self.stats_df, tmp, how="left", on="site_id")     
+                    self.stats_df = pd.merge(self.stats_df, tmp, how="left", on="site_id")  
             else:
-                self.stats_df['# patients treated with door to recanalization therapy < 60 minutes'] = 0
-                self.stats_df['% patients treated with door to recanalization therapy < 60 minutes'] = 0
-                self.stats_df['# patients treated with door to recanalization therapy < 45 minutes'] = 0
-                self.stats_df['% patients treated with door to recanalization therapy < 45 minutes'] = 0
+                self.stats_df['# patients treated with door to thrombolysis < 60 minutes'] = 0
+                self.stats_df['% patients treated with door to thrombolysis < 60 minutes'] = 0
+                self.stats_df['# patients treated with door to thrombolysis < 45 minutes'] = 0
+                self.stats_df['% patients treated with door to thrombolysis < 45 minutes'] = 0
+
+            if not thrombectomy_df.empty:
+                # Calculate DTG if the patient got IVtPa and TBY
+                thrombectomy_df['DTG_IVT_TBY'] = thrombectomy_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['ivt_tby_groin_puncture_time_es']) if (x['recanalization_procedures_es'] == 2 and x['ivt_tby_groin_puncture_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
+                # Calculate DTG if the patient got TBY
+                thrombectomy_df['DTG_TBY'] = thrombectomy_df.apply(lambda x: self.time_diff(x['hospital_time_es'], x['tby_only_puncture_time_es']) if (x['recanalization_procedures_es'] == 3 and x['tby_only_puncture_time_es'] is not None and x['hospital_time_es'] is not None) else 0, axis=1)
+                # Sum two columns with DTG in one
+                thrombectomy_df['DTG'] = thrombectomy_df.apply(lambda x: x['DTG_IVT_TBY'] + x['DTG_TBY'], axis=1, result_type='expand')
+
+                thrombectomy_df = thrombectomy_df[(thrombectomy_df['DTG'] > 0)]
+
+                if not thrombectomy_df.empty:
+                    thrombectomy_pts = thrombectomy_df.groupby(['site_id']).size().reset_index(name="tmp_patients")
+                    thrombectomy_df['recan_below_90'] =  thrombectomy_df.apply(lambda x: self.get_recan_below(x['DTG'], 0, 90), axis=1) 
+                    # Get only patients with DTN < 60 or DTG < 60
+                    recan_below_90_df = thrombectomy_df[thrombectomy_df['recan_below_90'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombectomy < 90 minutes')
+                    # Merge with recan_patients
+
+                    tmp = pd.merge(thrombectomy_pts, recan_below_90_df, how="left", on="site_id")
+
+                    # Calculate % for DTN or DTG < 60
+                    tmp['% patients treated with door to thrombectomy < 90 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 90 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+
+                    # Get only patients with DTN < 45
+                    #recan_df['recan_below_45'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], x['DTG'], 45), axis=1)
+                    thrombectomy_df['recan_below_45'] = thrombectomy_df.apply(lambda x: self.get_recan_below(x['DTG'], 0, 60), axis=1)
+                    # Get only patients with DTN below 45
+                    recan_below_60_df = thrombectomy_df[thrombectomy_df['recan_below_45'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombectomy < 60 minutes')
+                    # Merge with recan_patients
+                    tmp = pd.merge(tmp, recan_below_60_df, how="left", on="site_id")
+                    # Calculate % for DTN or DTG < 45
+                    tmp['% patients treated with door to thrombectomy < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 60 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    # Add line in log
+                    logging.info('Calculation: Thrombectomy time < 90 minutes and < 60 minutes has been calculated.')
+                    # Remove temporary column
+                    tmp.drop(['tmp_patients'], axis=1, inplace=True)
+                    self.stats_df = pd.merge(self.stats_df, tmp, how="left", on="site_id") 
+            else:
+                self.stats_df['# patients treated with door to thrombectomy < 90 minutes'] = 0
+                self.stats_df['% patients treated with door to thrombectomy < 90 minutes'] = 0
+                self.stats_df['# patients treated with door to thrombectomy < 60 minutes'] = 0
+                self.stats_df['% patients treated with door to thrombectomy < 60 minutes'] = 0
+            
             logging.info('Recanalization procedures: OK')
         except:
             logging.info('Recanalization procedures: ERROR')
@@ -903,41 +934,47 @@ class FormatStatistic():
         coln = coln + 17
         worksheet.write_column(3, coln, awards)
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = 'U' + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'NONE',
-                                                'format': green})
-            row += 1
+        # set color for proposed angel award
+        def proposed_award(column_name, coln):
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'NONE',
+                                                    'format': green})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = 'U' + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'GOLD',
-                                                'format': gold})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'GOLD',
+                                                    'format': gold})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = 'U' + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'PLATINUM',
-                                                'format': plat})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'PLATINUM',
+                                                    'format': plat})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = 'U' + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'DIAMOND',
-                                                'format': black})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'DIAMOND',
+                                                    'format': black})
+                row += 1
+
+        index = column_names.index('Proposed Award')
+        column = xl_col_to_name(index)
+        proposed_award(column, coln=index)
 
         workbook1.close()
 
