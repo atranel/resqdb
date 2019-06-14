@@ -103,7 +103,7 @@ class ComputeStats:
     comparison -- True if we are compare the data (e.g. countries between each other)
     """
 
-    def __init__(self, df, country = False, country_code = "", comparison=False):
+    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0):
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
