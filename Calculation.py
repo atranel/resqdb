@@ -2343,11 +2343,11 @@ class ComputeStats:
         # Create temporary dataframe only with rows where trombectomy was performed under 60 minutes
         recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
         
-        self.statsDf['# patients treated with door to thrombectomy < 90 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
+        self.statsDf['# patients treated with door to thrombectomy < 90 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_90)
 
         self.statsDf['% patients treated with door to thrombectomy < 90 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 90 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
-        self.statsDf['# patients treated with door to thrombectomy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
+        self.statsDf['# patients treated with door to thrombectomy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_45)
 
         self.statsDf['% patients treated with door to thrombectomy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 60 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
@@ -2477,7 +2477,7 @@ class ComputeStats:
 
         self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
         self.statsDf['Proposed Award'] = self.angels_awards_tmp['Proposed Award'] 
-        
+
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
 
         self.sites = self._get_sites(self.statsDf)
@@ -2488,7 +2488,7 @@ class ComputeStats:
             award = "NONE"
         else:
             award = "TRUE"
-    
+
         thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
         if award == "TRUE":
             if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
@@ -2515,9 +2515,11 @@ class ComputeStats:
             thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
             if award != "NONE":
                 if (float(thrombectomy_therapy_lt_90min) >= 50 and float(thrombectomy_therapy_lt_90min) <= 74.99):
-                    award = "GOLD"
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
                 elif (float(thrombectomy_therapy_lt_90min) >= 75):
-                    award = "DIAMOND"
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
                 else: 
                     award = "NONE"
 
@@ -2527,7 +2529,7 @@ class ComputeStats:
                     if (award != "GOLD" or award == "DIAMOND"):
                         award = "PLATINUM"
                 elif (float(thrombectomy_therapy_lt_60min) >= 50):
-                    if (award != "GOLD"):
+                    if (award == "DIAMOND"):
                         award = "DIAMOND"
                 else:
                     award = "NONE"
@@ -2545,7 +2547,7 @@ class ComputeStats:
                     award = "DIAMOND"
             else:
                 award = "NONE"
-        
+
         ct_mri = x['% suspected stroke patients undergoing CT/MRI']
         if award != "NONE":
             if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
@@ -2559,7 +2561,7 @@ class ComputeStats:
                     award = "DIAMOND"
             else:
                 award = "NONE"
-        
+
         dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
         if award != "NONE":
             if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):

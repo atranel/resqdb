@@ -1995,7 +1995,7 @@ class GenerateFormattedStats:
             # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
             awards = []
             row = 4
-            index = column_names.index('# total patients >= 30')
+            index = column_names.index(self.total_patients_column)
             while row < nrow + 2:
                 cell_n = xl_col_to_name(index) + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
