@@ -107,6 +107,7 @@ class ComputeStats:
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
+        self.patient_limit = patient_limit
 
         # Get short Protocol IDs - it means RESQ-v - PL_001 will be PL_001
         def get_country_name(value):
@@ -2306,8 +2307,45 @@ class ComputeStats:
         # ANGEL AWARDS #
         ################
         #### TOTAL PATIENTS #####
-        self.statsDf['# total patients >= 30'] = self.statsDf['Total Patients'] >= 30
+        self.statsDf['# total patients >= 30'] = self.statsDf['Total Patients'] >= self.patient_limit
 
+        #### DOOR TO THROMBOLYSIS THERAPY - MINUTES ####
+        # TO DO:
+        # THROMBOLYSIS - UNDER 60
+        # THROMBOLYSIS - UNDER 45
+        # THROMBECTOMY - UNDER 90
+        # THROMBECTOMY - UNDER 60
+        # If thrombectomy done not at all, take the possible lowest award they can get
+        
+        self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+
+        # patients treated with door to recanalization therapy < 60 minutes
+        # for tby, we are only looking at patients that have had ONLY tby, not tpa + tby, as we awould be counting those patients twice (penalizing twice)
+        recanalization_procedure_tby_only_dtg =  recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['RECANALIZATION_PROCEDURES'].isin([4])]
+        
+        recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 60)]
+        #recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 60]
+
+        recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
+        #recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 60]
+        
+        # patients treated with door to recanalization therapy < 60 minutes
+        self.statsDf['# patients treated with door to recanalization therapy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_60)
+
+        # % patients treated with door to recanalization therapy < 60 minutes
+        self.statsDf['% patients treated with door to recanalization therapy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 60 minutes']/x['# patients recanalized']) * 100), 2) if x['# patients recanalized'] > 0 else 0, axis=1)
+
+        recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 45)]
+        recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 45)]
+        #recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 45]
+        #recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 45]
+
+        # patients treated with door to recanalization therapy < 45 minutes
+        self.statsDf['# patients treated with door to recanalization therapy < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_45)
+
+        # % patients treated with door to recanalization therapy < 45 minutes
+        self.statsDf['% patients treated with door to recanalization therapy < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 45 minutes']/x['# patients recanalized']) * 100), 2) if x['# patients recanalized'] > 0 else 0, axis=1)
+        '''
         if country_code == 'PT':
             #### DOOR TO THROMBOLYSIS THERAPY - MINUTES ####
             self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
@@ -2369,7 +2407,7 @@ class ComputeStats:
 
             # % patients treated with door to recanalization therapy < 45 minutes
             self.statsDf['% patients treated with door to recanalization therapy < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 45 minutes']/x['# patients recanalized']) * 100), 2) if x['# patients recanalized'] > 0 else 0, axis=1)
-
+        '''
         #### RECANALIZATION RATE ####
         # recanalization rate out of total ischemic incidence
         self.statsDf['# recanalization rate out of total ischemic incidence'] = self.statsDf['# patients recanalized']
