@@ -288,11 +288,12 @@ class GenerateFormattedAngelsAwards:
     """
     This class generate formatted statistics only for angels awards. 
     """
-    def __init__(self, df, report=None, quarter=None):
+    def __init__(self, df, report=None, quarter=None, minimum_patients=0):
 
         self.df = df
         self.report = report
         self.quarter = quarter
+        self.minimum_patients = minimum_patients
 
         self.formate(self.df)
 
@@ -317,7 +318,6 @@ class GenerateFormattedAngelsAwards:
 
         col = []
         column_names = df.columns.tolist()
-        column_names.append('Proposed Award')
         for i in range(0, ncol + 1):
             tmp = {}
             tmp['header'] =column_names[i]
@@ -409,11 +409,12 @@ class GenerateFormattedAngelsAwards:
         # total number of rows
         number_of_rows = len(statistics) + 2
 
+        self.total_patients_column = '# total patients >= {0}'.format(self.minimum_patients)
         # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
         awards = []
         row = 4
         while row < nrow + 2:
-            index = column_names.index('# total patients >= 30')
+            index = column_names.index(self.total_patients_column)
             cell_n = xl_col_to_name(index) + str(row)
             worksheet.conditional_format(cell_n, {'type': 'text',
                                                 'criteria': 'containing',
@@ -458,8 +459,14 @@ class GenerateFormattedAngelsAwards:
                     else:
                         awards[row] = "NONE"
 
-        index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
-        angels_awards_ivt_60(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
+
+        index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
+
         # angels_awards_ivt_60('D')
 
 
@@ -494,10 +501,13 @@ class GenerateFormattedAngelsAwards:
                     else:
                         awards[row] = "NONE"
 
-        index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
-        angels_awards_ivt_45(column_name=xl_col_to_name(index), coln=index)
-        #angels_awards_ivt_45('E')
+        index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
 
+        index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
 
         # setting colors of cells according to their values
         def angels_awards_recan(column_name, coln):
@@ -647,44 +657,49 @@ class GenerateFormattedAngelsAwards:
         index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
         angels_awards_hosp(column_name=xl_col_to_name(index), coln=index)
 
-        worksheet.write_column(3, len(column_names)-1, awards)
+        
+        # set color for proposed angel award
+        def proposed_award(column_name, coln):
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'NONE',
+                                                    'format': green})
+                row += 1
 
-        cell = xl_col_to_name(len(column_names)-1)
-        row = 4
-        while row < nrow + 2:
-            cell_n = cell + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'NONE',
-                                                'format': green})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'GOLD',
+                                                    'format': gold})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = cell + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'GOLD',
-                                                'format': gold})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'PLATINUM',
+                                                    'format': plat})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = cell + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'PLATINUM',
-                                                'format': plat})
-            row += 1
+            row = 4
+            while row < nrow + 2:
+                cell_n = column + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'text',
+                                                    'criteria': 'containing',
+                                                    'value': 'DIAMOND',
+                                                    'format': black})
+                row += 1
 
-        row = 4
-        while row < nrow + 2:
-            cell_n = cell + str(row)
-            worksheet.conditional_format(cell_n, {'type': 'text',
-                                                'criteria': 'containing',
-                                                'value': 'DIAMOND',
-                                                'format': black})
-            row += 1
+        index = column_names.index('Proposed Award')
+        column = xl_col_to_name(index)
+        proposed_award(column, coln=index)
+        #worksheet.write_column(3, index, awards)
 
         workbook1.close()
 
@@ -702,7 +717,7 @@ class GenerateFormattedStats:
         report: the report name (default: None)
         quarter: the quarter name (default: None)
     """
-    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False):
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=0):
 
         self.df_unformatted = df.copy()
         self.df = df.copy()
@@ -710,6 +725,8 @@ class GenerateFormattedStats:
         self.report = report
         self.quarter = quarter
         self.comp = comp
+        self.minimum_patients = minimum_patients
+        self.total_patients_column = '# total patients >= {0}'.format(self.minimum_patients)
 
         def delete_columns(columns):
             for i in columns:
@@ -793,7 +810,6 @@ class GenerateFormattedStats:
         nrow = len(df) + 2
 
         column_names = df.columns.tolist()
-        column_names.append('Proposed Award')
         col = []
         for i in range(0, ncol + 1):
             tmp = {}
@@ -1906,8 +1922,7 @@ class GenerateFormattedStats:
         awards_color = workbook1.add_format({
             'fg_color': colors.get("angel_awards")})
 
-
-        first_index = column_names.index('# total patients >= 30')
+        first_index = column_names.index(self.total_patients_column)
         last_index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
         first_cell = xl_rowcol_to_cell(0, first_index)
         last_cell = xl_rowcol_to_cell(0, last_index)

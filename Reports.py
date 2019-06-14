@@ -146,6 +146,7 @@ class Reports:
 
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
+        self.names = self.filtered_dfs.keys()
         self.thrombolysis_stats_df = self.calculate_thrombolysis()
         self.thrombectomy_stats_df = self.calculate_thrombectomy()
         self.statistic_region_dfs = self.calculate_statistic_per_region()
@@ -487,227 +488,411 @@ class GeneratePresentation(Reports):
     def _generate_graphs(self):
         """Generate graphs into presentation."""
         
-        # master_pptx = self.country_code + ".pptx"
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        master_pptx = "master.pptx"
-        self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
+        for i in self.names:
 
-        # If country is used as site, the country name is selected from countries dictionary by country code. :) 
-        if self.country == 'UZB':
-            self.country = 'UZ'
-        self.country_name = pytz.country_names[self.country]
+            if i == self.month:
+                # master_pptx = self.country_code + ".pptx"
+                script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+                master_pptx = "master.pptx"
+                self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
-        prs = Presentation(self.master)
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == 'UZB':
+                    self.country = 'UZ'
+                self.country_name = pytz.country_names[self.country]
 
-        first_slide = prs.slides[0]
-        shape = first_slide.shapes[5]
-        text_frame = shape.text_frame
+                prs = Presentation(self.master)
 
-        first_slide_text = self.country_name + "\nReports"
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
 
-        p = text_frame.paragraphs[0]
-        run = p.add_run()
-        run.text = first_slide_text
+                first_slide_text = self.country_name + "\nReports"
 
-        font = run.font
-        font.name = 'Century Gothic'
-        font.size = Pt(24)
-        font.color.rgb = RGBColor(250,250,250)
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
 
-        main_col = 'Site Name'
-        first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
-        if self.year == datetime.today().year:
-            last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
-            #last_month = datetime.today().strftime("%b")
-        else:
-            last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
+                font = run.font
+                font.name = 'Century Gothic'
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
 
-        # Iterate through dictionaries with statistics
-        for name, df in self.thrombolysis_stats_df.items():
-            # MEDIAN DNT
-            column_name = 'Median DTN (minutes)'
-            axis_title = "Čas [min]"
-            content = ["Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby."]
+                main_col = 'Site Name'
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
+                if self.year == datetime.today().year:
+                    last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                    #last_month = datetime.today().strftime("%b")
+                else:
+                    last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
 
-            tmp_df_orig = df[[main_col, column_name]]
-            tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
-            tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
-            tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
-            
-            if name == str(self.year):
-                title = "Medián door-to-needle time pro intravenózní trombolýzu - " + first_month + "-" + last_month + " " + str(self.year)
+                # Iterate through dictionaries with statistics
+                print(self.thrombolysis_stats_df[self.names[i], self.names[i+1]].items())
+                for name, df in self.thrombolysis_stats_df.items():
+                    # MEDIAN DNT
+                    column_name = 'Median DTN (minutes)'
+                    axis_title = "Čas [min]"
+                    content = ["Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby."]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = "Medián door-to-needle time pro intravenózní trombolýzu - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Medián door-to-needle time pro intravenózní trombolýzu - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+
+                # Iterate through dictionaries with statistics
+                for name, df in self.thrombolysis_stats_df.items():
+                    # MEDIAN DGT
+                    column_name = '# IVT'
+                    axis_title = 'Počet trombolýz'
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = "Počet IVT na IC/KCC - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Počet IVT na IC/KCC - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Iterate through dictionaries with statistics
+                for name, df in self.thrombolysis_stats_df.items():
+                    # MEDIAN last seen normal
+                    column_name = 'Median last seen normal'
+                    axis_title = "Čas [min]"
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Number of IVT per region
+                for name, df in self.statistic_region_dfs.items():
+                    column_name = 'Total patients'
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = "Počet IVT provedených v jednotlivých krajích - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Počet IVT provedených v jednotlivých krajích - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # IVT per population
+                for name, df in self.statistic_region_dfs.items():
+                    column_name = '# IVT per population'
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # Iterate through dictionaries with statistics
+                for name, df in self.thrombolysis_stats_df.items():
+                    # incorrect times
+                    column_name = '% incorrect IVtPa times'
+                    axis_title = 'Procento [%]'
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                for name, df in self.thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = 'Median DTG (minutes)'
+                    axis_title = "Čas [min]"
+                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = "Medián door-to-groin time - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Medián door-to-groin time - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                    
+
+                for name, df in self.thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = 'Median DTG (minutes) - first hospital'
+                    axis_title = "Čas [min]"
+                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+
+                for name, df in self.thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = 'Median DTG (minutes) - second hospital'
+                    axis_title = "Čas [min]"
+                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                for name, df in self.thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = '# TBY'
+                    axis_title = 'Počet MT'
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = "Počet MT na nemocnici - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                for name, df in self.thrombectomy_stats_df.items():
+                    # incorrect times
+                    column_name = '% incorrect TBY times'
+                    axis_title = 'Procento [%]'
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + first_month + "-" + last_month + " " + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                        title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # set pptx output name (for cz it'll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + "_" + str(self.year) + ".pptx"
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+                prs.save(presentation_path)
+
             else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                # master_pptx = self.country_code + ".pptx"
+                script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+                master_pptx = "master.pptx"
+                self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
+
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == 'UZB':
+                    self.country = 'UZ'
+                self.country_name = pytz.country_names[self.country]
+
+                prs = Presentation(self.master)
+
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
+
+                first_slide_text = self.country_name + "\nReports"
+
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
+
+                font = run.font
+                font.name = 'Century Gothic'
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                main_col = 'Site Name'
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
+                if self.year == datetime.today().year:
+                    last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                    #last_month = datetime.today().strftime("%b")
+                else:
+                    last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # MEDIAN DNT
+                column_name = 'Median DTN (minutes)'
+                axis_title = "Čas [min]"
+                content = ["Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby."]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Medián door-to-needle time pro intravenózní trombolýzu - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
 
-        # Iterate through dictionaries with statistics
-        for name, df in self.thrombolysis_stats_df.items():
-            # MEDIAN DGT
-            column_name = '# IVT'
-            axis_title = 'Počet trombolýz'
-            tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-            
-            if name == str(self.year):
-                title = "Počet IVT na IC/KCC - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                column_name = '# IVT'
+                axis_title = 'Počet trombolýz'
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT na IC/KCC - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
-        # Iterate through dictionaries with statistics
-        for name, df in self.thrombolysis_stats_df.items():
-            # MEDIAN last seen normal
-            column_name = 'Median last seen normal'
-            axis_title = "Čas [min]"
-            tmp_df_orig = df[[main_col, column_name]]
-            tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
-            tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
-            tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
-            
-            if name == str(self.year):
-                title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
+                # MEDIAN last seen normal
+                column_name = 'Median last seen normal'
+                axis_title = "Čas [min]"
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                 title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
-        # Number of IVT per region
-        for name, df in self.statistic_region_dfs.items():
-            column_name = 'Total patients'
-            tmp_df = df.sort_values([column_name], ascending=True)
+                # Number of IVT per region
+                df = self.statistic_region_dfs[i]
+                column_name = 'Total patients'
+                tmp_df = df.sort_values([column_name], ascending=True)
 
-            if name == str(self.year):
-                title = "Počet IVT provedených v jednotlivých krajích - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT provedených v jednotlivých krajích - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
-        # IVT per population
-        for name, df in self.statistic_region_dfs.items():
-            column_name = '# IVT per population'
-            tmp_df = df.sort_values([column_name], ascending=True)
+                # IVT per population
+                column_name = '# IVT per population'
+                tmp_df = df.sort_values([column_name], ascending=True)
 
-            if name == str(self.year):
-                title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
-        # Iterate through dictionaries with statistics
-        for name, df in self.thrombolysis_stats_df.items():
-            # incorrect times
-            column_name = '% incorrect IVtPa times'
-            axis_title = 'Procento [%]'
-            tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
-            
-            if name == str(self.year):
-                title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # incorrect times
+                column_name = '% incorrect IVtPa times'
+                axis_title = 'Procento [%]'
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+   
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
 
-        for name, df in self.thrombectomy_stats_df.items():
-            # Median DTG
-            column_name = 'Median DTG (minutes)'
-            axis_title = "Čas [min]"
-            content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                # Iterate through dictionaries with statistics
+                df = self.thrombectomy_stats_df[i]
 
-            tmp_df_orig = df[[main_col, column_name]]
-            tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
-            tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
-            tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
-            
-            if name == str(self.year):
-                title = "Medián door-to-groin time - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                column_name = 'Median DTG (minutes)'
+                axis_title = "Čas [min]"
+                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Medián door-to-groin time - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
-            
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = 'Median DTG (minutes) - first hospital'
+                axis_title = "Čas [min]"
+                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
-        for name, df in self.thrombectomy_stats_df.items():
-            # Median DTG
-            column_name = 'Median DTG (minutes) - first hospital'
-            axis_title = "Čas [min]"
-            content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
-
-            tmp_df_orig = df[[main_col, column_name]]
-            tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
-            tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
-            tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
-            
-            if name == str(self.year):
-                title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
 
-        for name, df in self.thrombectomy_stats_df.items():
-            # Median DTG
-            column_name = 'Median DTG (minutes) - second hospital'
-            axis_title = "Čas [min]"
-            content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                # Median DTG
+                column_name = 'Median DTG (minutes) - second hospital'
+                axis_title = "Čas [min]"
+                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
-            tmp_df_orig = df[[main_col, column_name]]
-            tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
-            tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
-            tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
-            
-            if name == str(self.year):
-                title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
-        
-        for name, df in self.thrombectomy_stats_df.items():
-            # Median DTG
-            column_name = '# TBY'
-            axis_title = 'Počet MT'
-            tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-            
-            if name == str(self.year):
-                title = "Počet MT na nemocnici - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = '# TBY'
+                axis_title = 'Počet MT'
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                 title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
-        for name, df in self.thrombectomy_stats_df.items():
-            # incorrect times
-            column_name = '% incorrect TBY times'
-            axis_title = 'Procento [%]'
-            tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
-            
-            if name == str(self.year):
-                title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + first_month + "-" + last_month + " " + str(self.year)
-            else:
+                # incorrect times
+                column_name = '% incorrect TBY times'
+                axis_title = 'Procento [%]'
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                 title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
 
-            GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
 
-        # set pptx output name (for cz it'll be presentation_CZ.pptx)
-        working_dir = os.getcwd()
-        pptx = self.country + "_" + str(self.year) + ".pptx"
-        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+                # set pptx output name (for cz it'll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + "_" + month_name + ".pptx"
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
-        prs.save(presentation_path)
+                prs.save(presentation_path)  
 
             
     def generate_presentation(self):
