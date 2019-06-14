@@ -146,7 +146,8 @@ class Reports:
 
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
-        self.names = self.filtered_dfs.keys()
+        self.names = list(self.filtered_dfs.keys())
+        print(self.names)
         self.thrombolysis_stats_df = self.calculate_thrombolysis()
         self.thrombectomy_stats_df = self.calculate_thrombectomy()
         self.statistic_region_dfs = self.calculate_statistic_per_region()
@@ -488,9 +489,15 @@ class GeneratePresentation(Reports):
     def _generate_graphs(self):
         """Generate graphs into presentation."""
         
-        for i in self.names:
+        df_names = self.names.copy()
+        del df_names[-1]
 
+        for i in df_names:  
             if i == self.month:
+                
+                wanted_keys = [i, self.names[self.names.index(i) + 1]]
+                dictfilt = lambda x, y: dict([ (i,x[i]) for i in x if i in set(y) ])
+
                 # master_pptx = self.country_code + ".pptx"
                 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
                 master_pptx = "master.pptx"
@@ -526,9 +533,12 @@ class GeneratePresentation(Reports):
                 else:
                     last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
 
+                thrombolysis_stats_df = dictfilt(self.thrombolysis_stats_df, wanted_keys)
+                statistic_region_dfs = dictfilt(self.statistic_region_dfs, wanted_keys)
+                thrombectomy_stats_df = dictfilt(self.thrombectomy_stats_df, wanted_keys)
                 # Iterate through dictionaries with statistics
-                print(self.thrombolysis_stats_df[self.names[i], self.names[i+1]].items())
-                for name, df in self.thrombolysis_stats_df.items():
+                for name, df in thrombolysis_stats_df.items():
+
                     # MEDIAN DNT
                     column_name = 'Median DTN (minutes)'
                     axis_title = "Čas [min]"
@@ -548,7 +558,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
 
                 # Iterate through dictionaries with statistics
-                for name, df in self.thrombolysis_stats_df.items():
+                for name, df in thrombolysis_stats_df.items():
                     # MEDIAN DGT
                     column_name = '# IVT'
                     axis_title = 'Počet trombolýz'
@@ -563,7 +573,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
                 # Iterate through dictionaries with statistics
-                for name, df in self.thrombolysis_stats_df.items():
+                for name, df in thrombolysis_stats_df.items():
                     # MEDIAN last seen normal
                     column_name = 'Median last seen normal'
                     axis_title = "Čas [min]"
@@ -581,7 +591,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
                 # Number of IVT per region
-                for name, df in self.statistic_region_dfs.items():
+                for name, df in statistic_region_dfs.items():
                     column_name = 'Total patients'
                     tmp_df = df.sort_values([column_name], ascending=True)
 
@@ -594,7 +604,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
                 # IVT per population
-                for name, df in self.statistic_region_dfs.items():
+                for name, df in statistic_region_dfs.items():
                     column_name = '# IVT per population'
                     tmp_df = df.sort_values([column_name], ascending=True)
 
@@ -607,7 +617,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
                 # Iterate through dictionaries with statistics
-                for name, df in self.thrombolysis_stats_df.items():
+                for name, df in thrombolysis_stats_df.items():
                     # incorrect times
                     column_name = '% incorrect IVtPa times'
                     axis_title = 'Procento [%]'
@@ -621,7 +631,7 @@ class GeneratePresentation(Reports):
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
 
-                for name, df in self.thrombectomy_stats_df.items():
+                for name, df in thrombectomy_stats_df.items():
                     # Median DTG
                     column_name = 'Median DTG (minutes)'
                     axis_title = "Čas [min]"
@@ -641,7 +651,7 @@ class GeneratePresentation(Reports):
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
                     
 
-                for name, df in self.thrombectomy_stats_df.items():
+                for name, df in thrombectomy_stats_df.items():
                     # Median DTG
                     column_name = 'Median DTG (minutes) - first hospital'
                     axis_title = "Čas [min]"
@@ -660,7 +670,7 @@ class GeneratePresentation(Reports):
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
 
-                for name, df in self.thrombectomy_stats_df.items():
+                for name, df in thrombectomy_stats_df.items():
                     # Median DTG
                     column_name = 'Median DTG (minutes) - second hospital'
                     axis_title = "Čas [min]"
@@ -679,7 +689,7 @@ class GeneratePresentation(Reports):
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
                 
-                for name, df in self.thrombectomy_stats_df.items():
+                for name, df in thrombectomy_stats_df.items():
                     # Median DTG
                     column_name = '# TBY'
                     axis_title = 'Počet MT'
@@ -693,7 +703,7 @@ class GeneratePresentation(Reports):
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
-                for name, df in self.thrombectomy_stats_df.items():
+                for name, df in thrombectomy_stats_df.items():
                     # incorrect times
                     column_name = '% incorrect TBY times'
                     axis_title = 'Procento [%]'
@@ -872,7 +882,7 @@ class GeneratePresentation(Reports):
                 axis_title = 'Počet MT'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
                 
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
@@ -882,7 +892,7 @@ class GeneratePresentation(Reports):
                 axis_title = 'Procento [%]'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
 
-                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
