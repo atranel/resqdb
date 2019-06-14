@@ -36,7 +36,15 @@ from pptx.oxml.xmlchemy import OxmlElement
 class Reports:
     """ Generate SITS-like reports for recanalization procedures. """
 
-    def __init__(self, df, year, country):
+    def __init__(self, df, year, month, country):
+        ''' Generate SITS-like reports for recanalization procedure. 
+
+        Args: 
+            df: preprocessed data
+            year: year for which you would like to generate reports
+            country: the country code
+            month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
+        '''
 
         # create dataframe with regions, to each region assign population and hospitals
         self.regions = {
@@ -119,6 +127,7 @@ class Reports:
         self.df = df
         self.year = year
         self.country = country
+        self.month = month
 
         # Get site names to hospitals_mt
         self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first')
@@ -155,7 +164,7 @@ class Reports:
         # Get current date
         current_year = datetime.today().year
         #current_month = datetime.today().month
-        current_month = 2
+        current_month = self.month
 
         # Filter dataframe per month
         if current_year == self.year:
@@ -508,7 +517,7 @@ class GeneratePresentation(Reports):
         main_col = 'Site Name'
         first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
         if self.year == datetime.today().year:
-            last_month = (datetime(self.year, 3, 1, 0, 0) - timedelta(days=1)).strftime("%b")
+            last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
             #last_month = datetime.today().strftime("%b")
         else:
             last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
