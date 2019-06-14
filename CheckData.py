@@ -53,6 +53,27 @@ class CheckData:
         else:
             self.preprocessed_data = self.get_preprocessed_data(self.df)
 
+    def time_diff(self, visit_date, hospital_date):
+        """ Calculate difference in minutes between two dates. 
+
+        Args:
+            visit_date: visit date
+            hospital_date: date when patient was hospitalized
+        Returns:
+            The calculated difference in minutes.
+        """
+        if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+            time_diff = hospital_date - visit_date
+            # Convert difference to minutes
+            total_minutes = time_diff.total_seconds() / 60.0
+        else:
+            total_minutes = 0
+
+        if total_minutes < 0 or total_minutes > 40000:
+            total_minutes = 0
+        
+        return total_minutes
+
     def get_preprocessed_data(self, df, n=None, name=None):         
         
         if self.nprocess is not None:
@@ -70,6 +91,11 @@ class CheckData:
 
             # Fix hospital/discharge date if hospital days < 0 or > 300
             preprocessed_data['VISIT_DATE'], preprocessed_data['HOSPITAL_DATE'], preprocessed_data['DISCHARGE_DATE'], preprocessed_data['HOSPITAL_DAYS'], preprocessed_data['HOSPITAL_DAYS_FIXED'] = zip(*preprocessed_data.apply(lambda x: self._fix_dates(visit_date=x['VISIT_DATE_OLD'], hosp_date=x['HOSPITAL_DATE_OLD'], disc_date=x['DISCHARGE_DATE_OLD']) if (x['HOSPITAL_DAYS_OLD'] < 0 or x['HOSPITAL_DAYS_OLD'] > 300) else (x['VISIT_DATE_OLD'], x['HOSPITAL_DATE_OLD'], x['DISCHARGE_DATE_OLD'], x['HOSPITAL_DAYS_OLD'], False), axis=1))
+
+            preprocessed_data['VISIT_TIMESTAMP'] = datetime.combine(preprocessed_data['VISIT_DATE'], preprocessed_data['VISIT_TIME'])
+            preprocessed_data['HOSPITAL_TIMESTAMP'] = datetime.combine(preprocessed_data['HOSPITAL_DATE'], preprocessed_data['HOSPITAL_TIME'])
+            preprocessed_data['LAST_SEEN_NORMAL'] = preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
+
             if n is not None:
                 logging.info("Process{0}: Dates were fixed.".format(n))
             else:
@@ -87,7 +113,6 @@ class CheckData:
         else:
             """ Return preprocessed data. """
             preprocessed_data = df.copy()
-            print(preprocessed_data)
             # Calculate hospital days
             preprocessed_data['HOSPITAL_DAYS'] = preprocessed_data.apply(lambda x: self._get_hospital_days(x['HOSPITAL_DATE'], x['DISCHARGE_DATE']), axis=1)
             if self.nprocess is not None:
@@ -100,7 +125,12 @@ class CheckData:
 
             # Fix hospital/discharge date if hospital days < 0 or > 300
             preprocessed_data['VISIT_DATE'], preprocessed_data['HOSPITAL_DATE'], preprocessed_data['DISCHARGE_DATE'], preprocessed_data['HOSPITAL_DAYS'], preprocessed_data['HOSPITAL_DAYS_FIXED'] = zip(*preprocessed_data.apply(lambda x: self._fix_dates(visit_date=x['VISIT_DATE_OLD'], hosp_date=x['HOSPITAL_DATE_OLD'], disc_date=x['DISCHARGE_DATE_OLD']) if (x['HOSPITAL_DAYS_OLD'] < 0 or x['HOSPITAL_DAYS_OLD'] > 300) else (x['VISIT_DATE_OLD'], x['HOSPITAL_DATE_OLD'], x['DISCHARGE_DATE_OLD'], x['HOSPITAL_DAYS_OLD'], False), axis=1))
-            print(preprocessed_data['HOSPITAL_DATE', 'HOSPITAL_DATE_OLD', 'DISCHARGE_DATE', 'DISCHARGE_DATE_OLD'])
+
+            preprocessed_data['VISIT_TIMESTAMP'] = datetime.combine(preprocessed_data['VISIT_DATE'], preprocessed_data['VISIT_TIME'])
+            preprocessed_data['HOSPITAL_TIMESTAMP'] = datetime.combine(preprocessed_data['HOSPITAL_DATE'], preprocessed_data['HOSPITAL_TIME'])
+            preprocessed_data['LAST_SEEN_NORMAL'] = preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
+            
+
             if self.nprocess is not None:
                 logging.info("Process{0}: Dates were fixed.".format(self.nprocess))
             else:
