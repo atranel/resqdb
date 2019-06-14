@@ -2156,6 +2156,7 @@ class GenerateFormattedStats:
                                                         'value': 90,
                                                         'format': black})
                     row += 1
+
                 if (count):
                     for row in range(nrow - 2):
                         if (awards[row] != "NONE"):
@@ -2223,45 +2224,50 @@ class GenerateFormattedStats:
             column = xl_col_to_name(index)
             angels_awards_hosp(column, coln=index)
 
+            # set color for proposed angel award
+            def proposed_award(column_name, coln):
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'NONE',
+                                                        'format': green})
+                    row += 1
+
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'GOLD',
+                                                        'format': gold})
+                    row += 1
+
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'PLATINUM',
+                                                        'format': plat})
+                    row += 1
+
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'DIAMOND',
+                                                        'format': black})
+                    row += 1
+
             index = column_names.index('Proposed Award')
             column = xl_col_to_name(index)
-            worksheet.write_column(3, index, awards)
+            proposed_award(column, coln=index)
+            #worksheet.write_column(3, index, awards)
 
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
-                worksheet.conditional_format(cell_n, {'type': 'text',
-                                                    'criteria': 'containing',
-                                                    'value': 'NONE',
-                                                    'format': green})
-                row += 1
-
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
-                worksheet.conditional_format(cell_n, {'type': 'text',
-                                                    'criteria': 'containing',
-                                                    'value': 'GOLD',
-                                                    'format': gold})
-                row += 1
-
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
-                worksheet.conditional_format(cell_n, {'type': 'text',
-                                                    'criteria': 'containing',
-                                                    'value': 'PLATINUM',
-                                                    'format': plat})
-                row += 1
-
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
-                worksheet.conditional_format(cell_n, {'type': 'text',
-                                                    'criteria': 'containing',
-                                                    'value': 'DIAMOND',
-                                                    'format': black})
-                row += 1
+            
         else:
             pass
 
