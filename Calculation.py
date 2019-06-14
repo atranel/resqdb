@@ -2303,15 +2303,17 @@ class ComputeStats:
         self.statsDf = self.statsDf.merge(positive_hospital_days.groupby(['Protocol ID']).HOSPITAL_DAYS.agg(['median']).rename(columns={'median': 'Median hospital stay (days)'})['Median hospital stay (days)'].reset_index(), how='outer')
         self.statsDf.fillna(0, inplace=True)
 
+        self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+
+        self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'], axis=1)
+
+
         ################
         # ANGEL AWARDS #
         ################
         #### TOTAL PATIENTS #####
-        self.statsDf['# total patients >= 30'] = self.statsDf['Total Patients'] >= self.patient_limit
-
-        self.statsDf.loc[:, 'patients_elegible_thrombolysis'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
-
-        self.statsDf.loc[:, 'patients_elegible_thrombectomy'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'], axis=1)
+        self.total_patient_column = '# total patients >= {0}'.format(self.patient_limit)
+        self.statsDf[self.total_patient_column] = self.statsDf['Total Patients'] >= self.patient_limit
 
         #### DOOR TO THROMBOLYSIS THERAPY - MINUTES ####
         # TO DO:
@@ -2327,12 +2329,11 @@ class ComputeStats:
 
         self.statsDf['# patients treated with door to thrombolysis < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
 
-        self.statsDf['% patients treated with door to thrombolysis < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 60 minutes']/x['patients_elegible_thrombolysis']) * 100), 2) if x['patients_elegible_thrombolysis'] > 0 else 0, axis=1)
+        self.statsDf['% patients treated with door to thrombolysis < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 60 minutes']/x['# patients eligible thrombolysis']) * 100), 2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
 
         self.statsDf['# patients treated with door to thrombolysis < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
 
-        self.statsDf['% patients treated with door to thrombolysis < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 45 minutes']/x['patients_elegible_thrombolysis']) * 100), 2) if x['patients_elegible_thrombolysis'] > 0 else 0, axis=1)
-
+        self.statsDf['% patients treated with door to thrombolysis < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 45 minutes']/x['# patients eligible thrombolysis']) * 100), 2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
 
         # for tby, we are only looking at patients that have had ONLY tby, not tpa + tby, as we awould be counting those patients twice (penalizing twice)
         recanalization_procedure_tby_only_dtg =  recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['RECANALIZATION_PROCEDURES'].isin([3, 4])]
@@ -2344,11 +2345,11 @@ class ComputeStats:
         
         self.statsDf['# patients treated with door to thrombectomy < 90 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
 
-        self.statsDf['% patients treated with door to thrombectomy < 90 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 90 minutes']/x['patients_elegible_thrombectomy']) * 100), 2) if x['patients_elegible_thrombectomy'] > 0 else 0, axis=1)
+        self.statsDf['% patients treated with door to thrombectomy < 90 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 90 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
         self.statsDf['# patients treated with door to thrombectomy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
 
-        self.statsDf['% patients treated with door to thrombectomy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 60 minutes']/x['patients_elegible_thrombectomy']) * 100), 2) if x['patients_elegible_thrombectomy'] > 0 else 0, axis=1)
+        self.statsDf['% patients treated with door to thrombectomy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 60 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
         #### RECANALIZATION RATE ####
         # recanalization rate out of total ischemic incidence
@@ -2470,15 +2471,149 @@ class ComputeStats:
         # % stroke patients treated in a dedicated stroke unit / ICU (2nd)
         self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU (2nd)'] = self.statsDf['% patients hospitalized in stroke unit / ICU']
 
+        # Create temporary dataframe to calculate final award 
+        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombectomy < 90 minutes', '% patients treated with door to thrombectomy < 60 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU (2nd)', '# patients eligible thrombectomy']]
         self.statsDf.fillna(0, inplace=True)
 
+        self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
+        self.statsDf['Proposed Award'] = self.angels_awards_tmp['Proposed Award'] 
+        
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
 
-        # Save results into .csv
-        #self.statsDf.to_csv('results.csv', sep=',', index=False)
-        #print(self.statsDf)
-
         self.sites = self._get_sites(self.statsDf)
+
+    def _get_final_award(self, x):
+        # Check if site gets some award
+        if x[self.total_patient_column] == False:
+            award = "NONE"
+        else:
+            award = "TRUE"
+    
+        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        if award == "TRUE":
+            if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                award = "GOLD"
+            elif (float(thrombolysis_therapy_lt_60min) >= 75):
+                award = "DIAMOND"
+            else: 
+                award = "NONE"
+
+        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+
+        if award != "NONE":
+            if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                if (award != "GOLD" or award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                if (award != "GOLD"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        thrombectomy_pts = x['# patients eligible thrombectomy']
+        if thrombectomy_pts != 0:
+            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_90min) >= 50 and float(thrombectomy_therapy_lt_90min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombectomy_therapy_lt_90min) >= 75):
+                    award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+            thrombectomy_therapy_lt_60min = x['% patients treated with door to thrombectomy < 60 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_60min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombectomy_therapy_lt_60min) >= 50):
+                    if (award != "GOLD"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+
+        recan_rate = x['% recanalization rate out of total ischemic incidence']
+        if award != "NONE":
+            if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(recan_rate) >= 15 and float(recan_rate) <= 24.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(recan_rate) >= 25):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+        
+        ct_mri = x['% suspected stroke patients undergoing CT/MRI']
+        if award != "NONE":
+            if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(ct_mri) >= 85 and float(ct_mri) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(ct_mri) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+        
+        dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
+        if award != "NONE":
+            if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(dysphagia_screening) >= 85 and float(dysphagia_screening) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(dysphagia_screening) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
+        if award != "NONE":
+            if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_antiplatelets_final) >= 85 and float(discharged_with_antiplatelets_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_antiplatelets_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
+        if award != "NONE":
+            if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_anticoagulants_final) >= 85 and float(discharged_with_anticoagulants_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_anticoagulants_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU (2nd)']
+        if award != "NONE":
+            if (float(stroke_unit) <= 0.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(stroke_unit) >= 1):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        return award
 
     def _count_patients(self, dataframe):
         """ Returns the column with number of patients group by Protocol ID. 
