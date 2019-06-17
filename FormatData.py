@@ -477,11 +477,11 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column, coln=index)
+        angels_awards_ivt_45(column, coln=index)
 
         index = column_names.index('% patients treated with door to thrombectomy < 60 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column, coln=index)
+        angels_awards_ivt_45(column, coln=index)
 
         # setting colors of cells according to their values
         def angels_awards_recan(column_name, coln):

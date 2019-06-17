@@ -2341,13 +2341,13 @@ class ComputeStats:
         # Create temporary dataframe only with rows where trombectomy was performed under 90 minutes
         recanalization_procedure_tby_only_dtg_under_90 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 90)]
         # Create temporary dataframe only with rows where trombectomy was performed under 60 minutes
-        recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
+        recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
         
         self.statsDf['# patients treated with door to thrombectomy < 90 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_90)
 
         self.statsDf['% patients treated with door to thrombectomy < 90 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 90 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
-        self.statsDf['# patients treated with door to thrombectomy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_45)
+        self.statsDf['# patients treated with door to thrombectomy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_60)
 
         self.statsDf['% patients treated with door to thrombectomy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 60 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
@@ -2489,26 +2489,36 @@ class ComputeStats:
         else:
             award = "TRUE"
 
+        thrombolysis_pts = x['# patients eligible thrombolysis']
+        
         thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        
+
         if award == "TRUE":
-            if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
-                award = "GOLD"
-            elif (float(thrombolysis_therapy_lt_60min) >= 75):
+            if thrombolysis_pts == 0:
                 award = "DIAMOND"
-            else: 
-                award = "NONE"
+            else:
+                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombolysis_therapy_lt_60min) >= 75):
+                    award = "DIAMOND"
+                else: 
+                    award = "NONE"
 
         thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
 
         if award != "NONE":
-            if (float(thrombolysis_therapy_lt_45min) <= 49.99):
-                if (award != "GOLD" or award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(thrombolysis_therapy_lt_45min) >= 50):
-                if (award != "GOLD"):
-                    award = "DIAMOND"
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
             else:
-                award = "NONE"
+                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                    if (award != "GOLD"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
 
         thrombectomy_pts = x['# patients eligible thrombectomy']
         if thrombectomy_pts != 0:
