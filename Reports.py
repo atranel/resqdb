@@ -147,7 +147,6 @@ class Reports:
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
         self.names = list(self.filtered_dfs.keys())
-        print(self.names)
         self.thrombolysis_stats_df = self.calculate_thrombolysis()
         self.thrombectomy_stats_df = self.calculate_thrombectomy()
         self.statistic_region_dfs = self.calculate_statistic_per_region()
@@ -165,35 +164,24 @@ class Reports:
 
         # Get current date
         current_year = datetime.today().year
-        #current_month = datetime.today().month
+        # Month from argument
         current_month = self.month
 
         # Filter dataframe per month
-        if current_year == self.year:
-            for month in range(1, current_month + 1):
-                start_date = datetime(self.year, month, 1, 0, 0)
-                end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+        for month in range(1, current_month + 1):
+            start_date = datetime(self.year, month, 1, 0, 0)
+            end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
 
-                # Create object FilterDataset
-                fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+            # Create object FilterDataset
+            fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
 
-                # Add dataframe into dictionary
-                dfs[month] = fd_ojb.fdf
-        else:
-            for month in range(1, 12 + 1):
-                start_date = datetime(self.year, month, 1, 0, 0)
-                end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
-
-                # Create object FilterDataset
-                fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
-
-                # Add dataframe into dictionary
-                dfs[month] = fd_ojb.fdf
+            # Add dataframe into dictionary
+            dfs[month] = fd_ojb.fdf
 
         # Filter dataframe for whole year
         start_date = datetime(self.year, 1, 1, 0, 0)
-        #end_date = datetime(self.year, 12, 31, 0, 0)
-        end_date = datetime(self.year, 3, 1, 0, 0) - timedelta(days=1)
+        # End date from current_month
+        end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
         fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
         dfs[str(self.year)] = fd_obj.fdf
         
@@ -527,11 +515,7 @@ class GeneratePresentation(Reports):
 
                 main_col = 'Site Name'
                 first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
-                if self.year == datetime.today().year:
-                    last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
-                    #last_month = datetime.today().strftime("%b")
-                else:
-                    last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
+                last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime("%b")
 
                 thrombolysis_stats_df = dictfilt(self.thrombolysis_stats_df, wanted_keys)
                 statistic_region_dfs = dictfilt(self.statistic_region_dfs, wanted_keys)
@@ -754,11 +738,7 @@ class GeneratePresentation(Reports):
 
                 main_col = 'Site Name'
                 first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
-                if self.year == datetime.today().year:
-                    last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
-                    #last_month = datetime.today().strftime("%b")
-                else:
-                    last_month = datetime(self.year, 12, 1, 0, 0).strftime("%b")
+                last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
 
                 # Iterate through dictionaries with statistics
                 df = self.thrombolysis_stats_df[i]
