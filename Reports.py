@@ -272,7 +272,7 @@ class Reports:
                 # Add one day if time was after midnight (1 day = 86400 seconds = 1440 minutes)
                 tdelta_min = tdelta_min + 1440
 
-            if tdelta_min < 0 or tdelta_min > maximum:
+            if tdelta_min <= 0 or tdelta_min > maximum:
                 incorrect = True
             else:
                 incorrect = False
@@ -311,7 +311,9 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_REFER_ADMISSION_TIME'], x['IVT_TBY_REFER_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 5 and x['IVT_TBY_REFER'] == 2 else x['INCORRECT_TIMES'], axis=1)
-                thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if x['IVTPA'] <= 0 or x['IVTPA'] > 400 else x['INCORRECT_TIMES'], axis=1)
+                thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY_REFER'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True]
 
@@ -387,10 +389,11 @@ class Reports:
                 thrombectomy_df['INCORRECT_TIMES'] = False
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if x['TBY'] <= 0 or x['TBY'] > 700 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
-
+                print(incorrect_tby_times[['TBY_ONLY_GROIN_PUNCTURE_TIME', 'IVT_TBY_GROIN_TIME']])
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
 
                 thrombectomy = thrombectomy_df[(thrombectomy_df['TBY'] > 0) & (thrombectomy_df['TBY'] < 700)].copy()
