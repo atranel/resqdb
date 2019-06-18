@@ -2303,10 +2303,20 @@ class ComputeStats:
         self.statsDf = self.statsDf.merge(positive_hospital_days.groupby(['Protocol ID']).HOSPITAL_DAYS.agg(['median']).rename(columns={'median': 'Median hospital stay (days)'})['Median hospital stay (days)'].reset_index(), how='outer')
         self.statsDf.fillna(0, inplace=True)
 
-        self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+        wrong_ivtpa = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 0]
 
-        self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'], axis=1)
+        self.statsDf['wrong_ivtpa'] = self._count_patients(dataframe=wrong_ivtpa)
+        print(self.statsDf['wrong_ivtpa'])
 
+        self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment']) - x['wrong_ivtpa'], axis=1)
+        self.statsDf.drop(['wrong_ivtpa'], inplace=True, axis=1)
+
+        wrong_tby = recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['TBY'] <= 0]
+
+        self.statsDf['wrong_tby'] = self._count_patients(dataframe=wrong_tby)
+
+        self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone']) - x['wrong_tby'], axis=1)
+        self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
 
         ################
         # ANGEL AWARDS #
@@ -2472,7 +2482,7 @@ class ComputeStats:
         self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU (2nd)'] = self.statsDf['% patients hospitalized in stroke unit / ICU']
 
         # Create temporary dataframe to calculate final award 
-        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombectomy < 90 minutes', '% patients treated with door to thrombectomy < 60 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU (2nd)', '# patients eligible thrombectomy']]
+        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombectomy < 90 minutes', '% patients treated with door to thrombectomy < 60 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU (2nd)', '# patients eligible thrombectomy', '# patients eligible thrombolysis']]
         self.statsDf.fillna(0, inplace=True)
 
         self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
