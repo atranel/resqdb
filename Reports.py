@@ -30,6 +30,8 @@ from pptx.util import Cm, Pt, Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE
 from pptx.oxml.xmlchemy import OxmlElement
+import xlsxwriter
+
 
 
 
@@ -150,6 +152,8 @@ class Reports:
         self.thrombolysis_stats_df = self.calculate_thrombolysis()
         self.thrombectomy_stats_df = self.calculate_thrombectomy()
         self.statistic_region_dfs = self.calculate_statistic_per_region()
+
+        self.save_excel()
 
 
     def filter_dataframe(self):
@@ -470,6 +474,112 @@ class Reports:
         
         return stats_dfs
 
+    def save_excel(self):
+        ''' Save excel file with more sheets. '''
+
+        # Create workbook
+        output_filename = "SITSlike_reports_stats" + datetime.now().strftime('%d-%m-%Y') + ".xlsx"
+        workbook = xlsxwriter.Workbook()
+        logging.info('Preprocessed data: The workbook was created.')
+        # Create worksheets
+        sheets = {}
+        
+        for name, df in self.thrombolysis_stats_df.items():
+            if name == self.year:
+                sheet_name = "thrombolysis_" + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                sheet_name = "thrombolysis_" + month_name + "_" + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp['header'] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {'data': values,
+                   'header_row': True,
+                   'columns': col,
+                   'style': 'Table Style Light 1'
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
+
+        for name, df in self.thrombectomy_stats_df.items():
+            if name == self.year:
+                sheet_name = "thrombectomy_" + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                sheet_name = "thrombectomy_" + month_name + "_" + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp['header'] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {'data': values,
+                   'header_row': True,
+                   'columns': col,
+                   'style': 'Table Style Light 1'
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
+        
+        for name, df in self.statistic_region_dfs.items():
+            if name == self.year:
+                sheet_name = "region_" + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
+                sheet_name = "region_" + month_name + "_" + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp['header'] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {'data': values,
+                   'header_row': True,
+                   'columns': col,
+                   'style': 'Table Style Light 1'
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
+            
 
 class GeneratePresentation(Reports):
     """ Genearte presentation for SITS-like reports. """
