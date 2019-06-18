@@ -132,7 +132,8 @@ class Reports:
         self.month = month
 
         # Get site names to hospitals_mt
-        self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first')
+        self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first').reset_index()
+        self.site_id_mapped_to_site_name.drop(['index'], inplace=True, axis=1)
 
         debug = 'reports_debug_' + datetime.now().strftime('%d-%m-%Y') + '.log'
         # Create log file in the working folder
@@ -310,9 +311,11 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_REFER_ADMISSION_TIME'], x['IVT_TBY_REFER_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 5 and x['IVT_TBY_REFER'] == 2 else x['INCORRECT_TIMES'], axis=1)
+                thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if x['IVTPA'] <= 0 or x['IVTPA'] > 400 else x['INCORRECT_TIMES'], axis=1)
+
                 incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True]
 
-                statistic['ivt_total_patients'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+                statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
                 
                 thrombolysis = thrombolysis_df[(thrombolysis_df['IVTPA'] > 0) & (thrombolysis_df['IVTPA'] < 400)].copy()
 
@@ -325,7 +328,7 @@ class Reports:
                         statistic['% incorrect IVtPa times'] = 0
                     else:
                         statistic['# incorrect IVtPa times'] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
-                        statistic['% incorrect IVtPa times'] = round((statistic['# incorrect IVtPa times'] / statistic['ivt_total_patients'])*100, 2)
+                        statistic['% incorrect IVtPa times'] = round((statistic['# incorrect IVtPa times'] / statistic['Total patients undergone IVT'])*100, 2)
                 else:
                     thrombolysis_grouped = thrombolysis.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index() # calculate median DTN per site
                     statistic = statistic.merge(thrombolysis_grouped, how='outer') # Merge with statistic dataframe
@@ -344,7 +347,7 @@ class Reports:
                         statistic['% incorrect IVtPa times'] = 0
                     else:
                         statistic['# incorrect IVtPa times'] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
-                        statistic['% incorrect IVtPa times'] = round((statistic['# incorrect IVtPa times'] / statistic['ivt_total_patients'])*100, 2)
+                        statistic['% incorrect IVtPa times'] = round((statistic['# incorrect IVtPa times'] / statistic['Total patients undergone IVT'])*100, 2)
 
             statistic.fillna(0, inplace=True)
 
@@ -384,9 +387,11 @@ class Reports:
                 thrombectomy_df['INCORRECT_TIMES'] = False
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
-                incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
-                statistic['tby_total_patients'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if x['TBY'] <= 0 or x['TBY'] > 700 else x['INCORRECT_TIMES'], axis=1)
 
+                incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
+
+                statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
 
                 thrombectomy = thrombectomy_df[(thrombectomy_df['TBY'] > 0) & (thrombectomy_df['TBY'] < 700)].copy()
 
@@ -398,7 +403,7 @@ class Reports:
                         statistic['% incorrect TBY times'] = 0
                     else:
                         statistic['# incorrect TBY times'] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
-                        statistic['% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['tby_total_patients'])*100, 2)
+                        statistic['% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['Total patients undergone TBY'])*100, 2)
                     statistic['Median DTG (minutes) - first hospital'] = 0
                     statistic['Median DTG (minutes) - second hospital'] = 0
                 else:
@@ -410,13 +415,12 @@ class Reports:
                     thrombectomy_grouped = thrombectomy.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
                     statistic = statistic.merge(thrombectomy_grouped, how='outer') # Merge with statistic dataframe
 
-                    
                     if incorrect_tby_times.empty:
                         statistic['# incorrect TBY times'] = 0
                         statistic['% incorrect TBY times'] = 0
                     else:
                         statistic['# incorrect TBY times'] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
-                        statistic['% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['tby_total_patients'])*100, 2)
+                        statistic['% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['Total patients undergone TBY'])*100, 2)
 
                     # Median DTG for first hospital arrival
                     thrombectomy_first = thrombectomy[thrombectomy['FIRST_HOSPITAL'] == 1].copy()
@@ -478,14 +482,14 @@ class Reports:
         ''' Save excel file with more sheets. '''
 
         # Create workbook
-        output_filename = "SITSlike_reports_stats" + datetime.now().strftime('%d-%m-%Y') + ".xlsx"
-        workbook = xlsxwriter.Workbook()
+        output_filename = "SITSlike_reports_stats_" + datetime.now().strftime('%d-%m-%Y') + ".xlsx"
+        workbook = xlsxwriter.Workbook(output_filename)
         logging.info('Preprocessed data: The workbook was created.')
         # Create worksheets
         sheets = {}
         
         for name, df in self.thrombolysis_stats_df.items():
-            if name == self.year:
+            if name == str(self.year):
                 sheet_name = "thrombolysis_" + str(self.year)
             else:
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
@@ -514,10 +518,11 @@ class Reports:
                 }
             
             sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
             logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
 
         for name, df in self.thrombectomy_stats_df.items():
-            if name == self.year:
+            if name == str(self.year):
                 sheet_name = "thrombectomy_" + str(self.year)
             else:
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
@@ -546,10 +551,11 @@ class Reports:
                 }
             
             sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
             logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
         
         for name, df in self.statistic_region_dfs.items():
-            if name == self.year:
+            if name == str(self.year):
                 sheet_name = "region_" + str(self.year)
             else:
                 month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
@@ -578,8 +584,10 @@ class Reports:
                 }
             
             sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
             logging.info('Statistics: {0} sheet was added into excel file!'.format(sheet_name))
             
+        workbook.close()
 
 class GeneratePresentation(Reports):
     """ Genearte presentation for SITS-like reports. """
@@ -588,6 +596,7 @@ class GeneratePresentation(Reports):
         """Generate graphs into presentation."""
         
         df_names = self.names.copy()
+        # Delete last item from list of names (the whole year)
         del df_names[-1]
 
         for i in df_names:  
