@@ -2306,7 +2306,7 @@ class ComputeStats:
         wrong_ivtpa = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 0]
 
         self.statsDf['wrong_ivtpa'] = self._count_patients(dataframe=wrong_ivtpa)
-        print(self.statsDf['wrong_ivtpa'])
+        #print(self.statsDf['wrong_ivtpa'])
 
         self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment']) - x['wrong_ivtpa'], axis=1)
         self.statsDf.drop(['wrong_ivtpa'], inplace=True, axis=1)
