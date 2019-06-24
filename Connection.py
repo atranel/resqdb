@@ -25,7 +25,7 @@ class Connection():
     >>> conn = Connection()
     """
 
-    def __init__(self, nprocess=1):
+    def __init__(self, nprocess=1, data='resq'):
 
         start = time.time()
 
@@ -45,122 +45,128 @@ class Connection():
 
         # Set section
         datamix = 'datamix'
-        # Create empty dictionary
-        self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from resq_ivttby_mix', 'SELECT * from atalaia_mix']
-        # List of dataframe names
-        self.names = ['resq', 'ivttby']
+        # Check which data should be exported
+        if data == 'resq':
+            # Create empty dictionary
+            self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from resq_ivttby_mix']
+            # List of dataframe names
+            self.names = ['resq', 'ivttby']
+        elif data == 'atalaia': 
+            self.sqls = ['SELECT * from atalaia_mix']
+            self.names = []
         # Dictionary initialization - db dataframes
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
         self.dict_df = {}
 
         if nprocess == 1:
-            for i in range(0, len(self.names)):
-                df_name = self.names[i]
-                self.connect(self.sqls[i], datamix, nprocess, df_name=df_name)
-            
-            self.connect(self.sqls[2], datamix, nprocess, df_name='resq_ivttby_mix')
-            self.resq_ivttby_mix = self.dictdb_df['resq_ivttby_mix']
-            self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
-            del self.dictdb_df['resq_ivttby_mix']
+            if data == 'resq':
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    self.connect(self.sqls[i], datamix, nprocess, df_name=df_name)
+                
+                self.connect(self.sqls[2], datamix, nprocess, df_name='resq_ivttby_mix')
+                self.resq_ivttby_mix = self.dictdb_df['resq_ivttby_mix']
+                self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
+                del self.dictdb_df['resq_ivttby_mix']
 
-            self.connect(self.sqls[3], datamix, nprocess, df_name='atalaia_mix')
-            self.atalaiadb_df = self.dictdb_df['atalaia_mix']
-            self.atalaia_preprocessed_date = self.prepare_atalaia_df(self.atalaiadb_df)
-            del self.dictdb_df['atalaia_mix']
+                for k, v in self.dictdb_df.items():
+                    self.prepare_resq_df(df=v, name=k)
 
-            for k, v in self.dictdb_df.items():
-                self.prepare_resq_df(df=v, name=k)
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!".format(self.names[i]))
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Get preprocessed data
+                self.preprocessed_data = self.check_data(df=self.df)
 
-            self.df = pd.DataFrame()
-            for i in range(0, len(self.names)):
-                self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
-                logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!".format(self.names[i]))
-            # Get all country code in dataframe
-            self.countries = self._get_countries(df=self.df)
-            # Get preprocessed data
-            self.preprocessed_data = self.check_data(df=self.df)
-
+            elif data == 'atalaia':
+                self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
+                self.atalaiadb_df = self.dictdb_df['atalaia_mix']
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df['atalaia_mix']
         else:
-            threads = []
-            for i in range(0, len(self.names)):
-                df_name = self.names[i]
-                process = Thread(target=self.connect(self.sqls[i], datamix, i, df_name=df_name))
-                process.start()
-                threads.append(process)
-               # logging.info('The process with id {0} is running.'.format(process))
+            if data == 'resq':
+                threads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.connect(self.sqls[i], datamix, i, df_name=df_name))
+                    process.start()
+                    threads.append(process)
+                # logging.info('The process with id {0} is running.'.format(process))
 
-            process = Thread(target=self.connect(self.sqls[2], datamix, 1, df_name='resq_ivttby_mix'))
-            process.start()
-            threads.append(process)
-
-            process = Thread(target=self.connect(self.sqls[3], datamix, nprocess, df_name='atalaia_mix'))
-            process.start()
-            threads.append(process)
-
-            for process in threads:
-                process.join()
-            
-            end = time.time()
-            tdelta = (end-start)/60
-            logging.info('The database data were exported in {0} minutes.'.format(tdelta))
-
-            self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
-            del self.dictdb_df['resq_ivttby_mix']
-
-            self.atalaiadb_df = self.dictdb_df['atalaia_mix']
-            self.atalaia_preprocessed_date = self.prepare_atalaia_df(self.atalaiadb_df)
-            del self.dictdb_df['atalaia_mix']
-
-            treads = []
-            for i in range(0, len(self.names)):
-                df_name = self.names[i]
-                process = Thread(target=self.prepare_df(df=self.dictdb_df[df_name], name=df_name))
+                process = Thread(target=self.connect(self.sqls[2], datamix, 1, df_name='resq_ivttby_mix'))
                 process.start()
                 threads.append(process)
 
-            for process in threads:
-                process.join()
-
-            end = time.time()
-            tdelta = (end-start)/60
-            logging.info('The database data were prepared in {0} minutes.'.format(tdelta))
-
-            self.df = pd.DataFrame()
-            for i in range(0, len(self.names)):
-                self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
-                logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!.".format(self.names[i]))
-
+                for process in threads:
+                    process.join()
             
-            subject_ids = self.df['Subject ID'].tolist()
-            duplicates = [item for item, count in collections.Counter(subject_ids).items() if count > 1]
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info('The database data were exported in {0} minutes.'.format(tdelta))
 
+                self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
+                del self.dictdb_df['resq_ivttby_mix']
+
+                treads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.prepare_df(df=self.dictdb_df[df_name], name=df_name))
+                    process.start()
+                    threads.append(process)
+
+                for process in threads:
+                    process.join()
+
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info('The database data were prepared in {0} minutes.'.format(tdelta))
+
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!.".format(self.names[i]))
+
+                
+                subject_ids = self.df['Subject ID'].tolist()
+                duplicates = [item for item, count in collections.Counter(subject_ids).items() if count > 1]
+
+                for i in duplicates:
+                    duplicates_rows = self.df[self.df['Subject ID'] == i]
+                    set_tmp = set(duplicates_rows['Protocol ID'])
+                    if len(set_tmp) == 1:
+                        crfs = duplicates_rows['crf_parent_name'].tolist()
+                        #print(duplicates_rows[['Subject ID', 'Protocol ID']])
+                        for i in crfs:
+                            if 'RESQV12' in i:
+                                keep_crf = i
+                            if 'RESQV20' in i:
+                                keep_crf = i
+                            if 'IVT_TBY' in i and 'DEVCZ10' not in i:
+                                keep_crf = i
+                    
+                        index = duplicates_rows.index[duplicates_rows['crf_parent_name'] != keep_crf].tolist()
+                        self.df.drop(index, inplace=True)
+
+                        #print(duplicates_rows['crf_parent_name'])
+                        #print("Keep form: {0}, deleted row: {1}".format(keep_crf, index))
+                    
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Cal check data function
+                self.preprocessed_data = self.check_data(self.df, nprocess=nprocess)
+                #self.preprocessed_data = self.check_data(self.df, nprocess=None)   
             
-            for i in duplicates:
-                duplicates_rows = self.df[self.df['Subject ID'] == i]
-                set_tmp = set(duplicates_rows['Protocol ID'])
-                if len(set_tmp) == 1:
-                    crfs = duplicates_rows['crf_parent_name'].tolist()
-                    #print(duplicates_rows[['Subject ID', 'Protocol ID']])
-                    for i in crfs:
-                        if 'RESQV12' in i:
-                            keep_crf = i
-                        if 'RESQV20' in i:
-                            keep_crf = i
-                        if 'IVT_TBY' in i and 'DEVCZ10' not in i:
-                            keep_crf = i
-                
-                    index = duplicates_rows.index[duplicates_rows['crf_parent_name'] != keep_crf].tolist()
-                    self.df.drop(index, inplace=True)
-
-                    #print(duplicates_rows['crf_parent_name'])
-                    #print("Keep form: {0}, deleted row: {1}".format(keep_crf, index))
-                
-            # Get all country code in dataframe
-            self.countries = self._get_countries(df=self.df)
-            # Cal check data function
-            self.preprocessed_data = self.check_data(self.df, nprocess=nprocess)
-            #self.preprocessed_data = self.check_data(self.df, nprocess=None)
+            elif data == 'atalaia':
+                self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
+                self.atalaiadb_df = self.dictdb_df['atalaia_mix']
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df['atalaia_mix']
 
         end = time.time()
         tdelta = (end-start)/60
@@ -535,6 +541,7 @@ class Connection():
 
         return chd.preprocessed_data
 
+
     def prepare_atalaia_df(self, df):
         """ Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. """
 
@@ -563,5 +570,4 @@ class Connection():
 
         res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
         logging.info("Connection: Column names in RESQ were changed successfully.")
-
         return res

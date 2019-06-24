@@ -2493,6 +2493,13 @@ class ComputeStats:
         self.sites = self._get_sites(self.statsDf)
 
     def _get_final_award(self, x):
+        ''' Get the final award. Based on values in the given columns calculate the proposed award for each row in the resulted statistics. 
+        
+        Args:
+            x: the row from the dataframe (self.angels_awards_tmp)
+        Returns:
+            award: the proposed award (NONE, DIAMOND, PLATINUM, GOLD)
+        '''
         # Check if site gets some award
         if x[self.total_patient_column] == False:
             award = "NONE"
@@ -2682,7 +2689,6 @@ class ComputeStats:
         Returns:
             dataframe (dataframe): The statsDf to which new created column was appended. 
         """		
-        #if df is None:
         if (self.tmp[column_name].dtype != np.number):
             value = str(value)
         else:
@@ -2760,7 +2766,7 @@ class ComputeStats:
         return factorDf
 
     def _get_ctmri_delta(self, hosp_time, ct_time):
-        """ Calculate differnce between two times. 
+        """ Calculate difference between two times. 
 
         Args:
             hospital_time: The time of hospitalization

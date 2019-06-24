@@ -12,6 +12,7 @@ from datetime import date, timedelta, datetime, time
 from dateutil.relativedelta import relativedelta
 import logging
 import xlsxwriter
+from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
 
 class CheckTimes():
 
@@ -193,7 +194,7 @@ class Calculation(Filtration):
                 thrombolysis_df = thrombolysis_df[(thrombolysis_df['DTN'] > 0)]
 
                 if not thrombolysis_df.empty:
-                    thrombolysis_pts = thrombolysis_df.groupby(['site_id']).size().reset_index(name="tmp_patients")
+                    thrombolysis_pts = thrombolysis_df.groupby(['site_id']).size().reset_index(name="# patients eligible thrombolysis")
                     thrombolysis_df['recan_below_60'] =  thrombolysis_df.apply(lambda x: self.get_recan_below(x['DTN'], 0, 60), axis=1) 
                     # Get only patients with DTN < 60 or DTG < 60
                     recan_below_60_df = thrombolysis_df[thrombolysis_df['recan_below_60'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombolysis < 60 minutes')
@@ -202,7 +203,7 @@ class Calculation(Filtration):
                     tmp = pd.merge(thrombolysis_pts, recan_below_60_df, how="left", on="site_id")
 
                     # Calculate % for DTN or DTG < 60
-                    tmp['% patients treated with door to thrombolysis < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 60 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    tmp['% patients treated with door to thrombolysis < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 60 minutes']/x['# patients eligible thrombolysis'])*100,2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
 
                     # Get only patients with DTN < 45
                     #recan_df['recan_below_45'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], x['DTG'], 45), axis=1)
@@ -212,11 +213,10 @@ class Calculation(Filtration):
                     # Merge with recan_patients
                     tmp = pd.merge(tmp, recan_below_45_df, how="left", on="site_id")
                     # Calculate % for DTN or DTG < 45
-                    tmp['% patients treated with door to thrombolysis < 45 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 45 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    tmp['% patients treated with door to thrombolysis < 45 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombolysis < 45 minutes']/x['# patients eligible thrombolysis'])*100,2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
                     # Add line in log
                     logging.info('Calculation: Thrombolysis time < 60 minutes and < 45 minutes has been calculated.')
                     # Remove temporary column
-                    tmp.drop(['tmp_patients'], axis=1, inplace=True)
                     self.stats_df = pd.merge(self.stats_df, tmp, how="left", on="site_id")  
             else:
                 self.stats_df['# patients treated with door to thrombolysis < 60 minutes'] = 0
@@ -235,7 +235,7 @@ class Calculation(Filtration):
                 thrombectomy_df = thrombectomy_df[(thrombectomy_df['DTG'] > 0)]
 
                 if not thrombectomy_df.empty:
-                    thrombectomy_pts = thrombectomy_df.groupby(['site_id']).size().reset_index(name="tmp_patients")
+                    thrombectomy_pts = thrombectomy_df.groupby(['site_id']).size().reset_index(name="# patients eligible thrombectomy")
                     thrombectomy_df['recan_below_90'] =  thrombectomy_df.apply(lambda x: self.get_recan_below(x['DTG'], 0, 90), axis=1) 
                     # Get only patients with DTN < 60 or DTG < 60
                     recan_below_90_df = thrombectomy_df[thrombectomy_df['recan_below_90'] == True].groupby(['site_id']).size().reset_index(name='# patients treated with door to thrombectomy < 90 minutes')
@@ -244,7 +244,7 @@ class Calculation(Filtration):
                     tmp = pd.merge(thrombectomy_pts, recan_below_90_df, how="left", on="site_id")
 
                     # Calculate % for DTN or DTG < 60
-                    tmp['% patients treated with door to thrombectomy < 90 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 90 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    tmp['% patients treated with door to thrombectomy < 90 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 90 minutes']/x['# patients eligible thrombectomy'])*100,2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
 
                     # Get only patients with DTN < 45
                     #recan_df['recan_below_45'] = recan_df.apply(lambda x: self.get_recan_below(x['DTN'], x['DTG'], 45), axis=1)
@@ -254,11 +254,10 @@ class Calculation(Filtration):
                     # Merge with recan_patients
                     tmp = pd.merge(tmp, recan_below_60_df, how="left", on="site_id")
                     # Calculate % for DTN or DTG < 45
-                    tmp['% patients treated with door to thrombectomy < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 60 minutes']/x['tmp_patients'])*100,2) if x['tmp_patients'] > 0 else 0, axis=1)
+                    tmp['% patients treated with door to thrombectomy < 60 minutes'] = tmp.apply(lambda x: round((x['# patients treated with door to thrombectomy < 60 minutes']/x['# patients eligible thrombectomy'])*100,2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
                     # Add line in log
                     logging.info('Calculation: Thrombectomy time < 90 minutes and < 60 minutes has been calculated.')
                     # Remove temporary column
-                    tmp.drop(['tmp_patients'], axis=1, inplace=True)
                     self.stats_df = pd.merge(self.stats_df, tmp, how="left", on="site_id") 
             else:
                 self.stats_df['# patients treated with door to thrombectomy < 90 minutes'] = 0
@@ -413,7 +412,7 @@ class Calculation(Filtration):
         self.stats_df['# ischemic stroke patients discharged (home) with antiplatelets'] = self.stats_df.apply(lambda x: x['# ischemic stroke patients discharged with antiplatelets'] if x['% ischemic stroke patients discharged with antiplatelets'] > x['% ischemic stroke patients discharged home with antiplatelets'] else x['# ischemic stroke patients discharged home with antiplatelets'], axis=1)
         self.stats_df['% ischemic stroke patients discharged (home) with antiplatelets'] = self.stats_df.apply(lambda x: x['% ischemic stroke patients discharged with antiplatelets'] if x['% ischemic stroke patients discharged with antiplatelets'] > x['% ischemic stroke patients discharged home with antiplatelets'] else x['% ischemic stroke patients discharged home with antiplatelets'], axis=1)
 
-        self.stats_df.drop(['# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets'], axis=1, inplace=True)
+        #self.stats_df.drop(['# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets'], axis=1, inplace=True)
 
     def get_afib_discharged_with_anticoagulants(self):
         """ Return dataframe with patients who have been discharged with anticoagulant and were detected for aFib. """
@@ -474,7 +473,7 @@ class Calculation(Filtration):
         self.stats_df['# afib patients discharged (home) with anticoagulants'] = self.stats_df.apply(lambda x: x['# afib patients discharged with anticoagulants'] if x['% afib patients discharged with anticoagulants'] > x['% afib patients discharged home with anticoagulants'] else x['# afib patients discharged home with anticoagulants'], axis=1)
         self.stats_df['% afib patients discharged (home) with anticoagulants'] = self.stats_df.apply(lambda x: x['% afib patients discharged with anticoagulants'] if x['% afib patients discharged with anticoagulants'] > x['% afib patients discharged home with anticoagulants'] else x['% afib patients discharged home with anticoagulants'], axis=1)
 
-        self.stats_df.drop(['# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants'], axis=1, inplace=True)
+        #self.stats_df.drop(['# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants'], axis=1, inplace=True)
 
     def get_hospitalized_in(self):
         """ Return dataframe with stroke patients hospitalized in a dedicated stroke unit / ICU. """
@@ -493,6 +492,157 @@ class Calculation(Filtration):
             logging.info('Hospitalized in stroke unit: OK')
         except:
             logging.info('Hospitalized in stroke unit: ERROR')
+
+    def _get_final_award(self, x):
+        ''' Get the final award. Based on values in the given columns calculate the proposed award for each row in the resulted statistics. 
+        
+        Args:
+            x: the row from the dataframe (self.angels_awards_tmp)
+        Returns:
+            award: the proposed award (NONE, DIAMOND, PLATINUM, GOLD)
+        '''
+        # Check if site gets some award
+        if x['Total Patients'] == False:
+            award = "NONE"
+        else:
+            award = "TRUE"
+
+        thrombolysis_pts = x['# patients eligible thrombolysis']
+        
+        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        
+        if award == "TRUE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombolysis_therapy_lt_60min) >= 75):
+                    award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+
+        if award != "NONE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                    if (award != "GOLD"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+
+        thrombectomy_pts = x['# patients eligible thrombectomy']
+        if thrombectomy_pts != 0:
+            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_90min) >= 50 and float(thrombectomy_therapy_lt_90min) <= 74.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(thrombectomy_therapy_lt_90min) >= 75):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+            thrombectomy_therapy_lt_60min = x['% patients treated with door to thrombectomy < 60 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_60min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombectomy_therapy_lt_60min) >= 50):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+
+        recan_rate = x['% recanalization rate out of total ischemic incidence']
+        if award != "NONE":
+            if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(recan_rate) >= 15 and float(recan_rate) <= 24.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(recan_rate) >= 25):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        ct_mri = x['% suspected stroke patients undergoing CT/MRI']
+        if award != "NONE":
+            if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(ct_mri) >= 85 and float(ct_mri) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(ct_mri) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
+        if award != "NONE":
+            if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(dysphagia_screening) >= 85 and float(dysphagia_screening) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(dysphagia_screening) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
+        if award != "NONE":
+            if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_antiplatelets_final) >= 85 and float(discharged_with_antiplatelets_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_antiplatelets_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
+        if award != "NONE":
+            if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_anticoagulants_final) >= 85 and float(discharged_with_anticoagulants_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_anticoagulants_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU']
+        if award != "NONE":
+            if (float(stroke_unit) <= 0.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(stroke_unit) >= 1):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        return award
 
 
     def get_stats_df(self):
@@ -515,6 +665,12 @@ class Calculation(Filtration):
             self.get_patients_discharged_with_antiplatelets()
             self.get_afib_discharged_with_anticoagulants()
             self.get_hospitalized_in()
+            self.stats_df['Proposed Award'] = self.stats_df.apply(lambda x: self._get_final_award(x), axis=1)
+            # Delete redundant columns
+            columns_to_delete = ['# patients eligible thrombectomy', '# patients eligible thrombolysis']
+            for i in columns_to_delete:
+                if i in self.stats_df.columns:
+                    self.stats_df.drop([i], axis=1, inplace=True)
             self.rename_column()
             # Replace all Nan with 0
             self.stats_df.fillna(0, inplace=True)
@@ -584,8 +740,8 @@ class FormatStatistic():
         worksheet = workbook1.add_worksheet()
 
         # set width of columns
-        worksheet.set_column(0, 2, 50)
-        worksheet.set_column(3, 20, 60)
+        worksheet.set_column(0, 2, 15)
+        worksheet.set_column(3, 20, 40)
 
         ncol = len(df.columns) - 1
         nrow = len(df) + 2
@@ -622,36 +778,13 @@ class FormatStatistic():
         awards_color = workbook1.add_format({
             'fg_color': colors.get("angel_awards")})
 
-        worksheet.merge_range('C1:T1', 'ESO ANGELS AWARDS', awards)
-        worksheet.write('C2', '', awards_color)
-        worksheet.write('D2', '', awards_color)
-        worksheet.write('E2', '', awards_color)
-        worksheet.write('F2', '', awards_color)
-        worksheet.write('G2', '', awards_color)
-        worksheet.write('H2', '', awards_color)
-        worksheet.write('I2', '', awards_color)
-        worksheet.write('J2', '', awards_color)
-        worksheet.write('K2', '', awards_color)
-        worksheet.write('L2', '', awards_color)
-        worksheet.write('M2', '', awards_color)
-        worksheet.write('N2', '', awards_color)
-        worksheet.write('O2', '', awards_color)
-        worksheet.write('P2', '', awards_color)
-        worksheet.write('Q2', '', awards_color)
-        worksheet.write('R2', '', awards_color)
-        worksheet.write('S2', '', awards_color)
-        worksheet.write('T2', '', awards_color)
-
-        worksheet.set_column('C:C', None, None, {'hidden': True})
-        worksheet.set_column('E:E', None, None, {'hidden': True})
-        worksheet.set_column('G:G', None, None, {'hidden': True})
-        worksheet.set_column('I:I', None, None, {'hidden': True})
-        worksheet.set_column('K:K', None, None, {'hidden': True})
-        worksheet.set_column('M:M', None, None, {'hidden': True})
-        worksheet.set_column('O:O', None, None, {'hidden': True})
-        worksheet.set_column('Q:Q', None, None, {'hidden': True})
-        worksheet.set_column('S:S', None, None, {'hidden': True})
-
+        first_cell = xl_rowcol_to_cell(0, 2)
+        last_cell = xl_rowcol_to_cell(0, ncol)
+        worksheet.merge_range(first_cell + ":" + last_cell, 'ESO ANGELS AWARDS', awards)
+        for i in range(2, ncol+1):
+            cell = xl_rowcol_to_cell(1, i)
+            worksheet.write(cell, '', awards_color)
+       
         # format for green color
         green = workbook1.add_format({
             'bold': 2,
@@ -701,29 +834,31 @@ class FormatStatistic():
         # total number of rows
         number_of_rows = len(statistics) + 2
 
-        # column where angels awards starts
-        coln = 3
+        column_names = df.columns.tolist()
+
+        hidden_columns = ['# total patients', '# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# patients treated with door to thrombectomy < 60 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
+
+        for i in hidden_columns:
+            index = column_names.index(i)
+            column = xl_col_to_name(index)
+
+            print('Column name: {0} - index: {1} - column: {2}'.format(i, index, column))
+            worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
+
         # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
         awards = []
         row = 4
         while row < nrow + 2:
-            cell_n = 'D' + str(row)
+            index = column_names.index('Total Patients')
+            cell_n = xl_col_to_name(index) + str(row)
             worksheet.conditional_format(cell_n, {'type': 'text',
                                                 'criteria': 'containing',
                                                 'value': 'TRUE',
                                                 'format': green})
             row += 1
 
-        for row in range(0, nrow - 2):
-            if (statistics[row][coln] == "FALSE"):   
-                awards.append("NONE")
-            else:
-                awards.append("TRUE")
-
-
-        def angels_awards_ivt_60(column_name, coln=coln):
+        def angels_awards_ivt_60(column_name, coln):
             """Add conditional formatting to angels awards for ivt < 60."""
-            coln = coln + 2
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
@@ -743,21 +878,17 @@ class FormatStatistic():
                                                     'format': black})
                 row += 1
 
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) >= 50 and float(statistics[row][coln]) <= 74.99):
-                        awards[row] = "GOLD"
-                    elif (float(statistics[row][coln]) >= 75):
-                        awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
+        index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
 
-        angels_awards_ivt_60('F')
+        index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
 
 
-        def angels_awards_ivt_45(column_name, coln=coln):
+        def angels_awards_ivt_45(column_name, coln):
             """Add conditional formatting to angels awards for ivt < 45."""
-            coln = coln + 4
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
@@ -776,25 +907,17 @@ class FormatStatistic():
                                                     'format': black})
                 row += 1
 
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) <= 49.99):
-                        if (awards[row] != "GOLD" or awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 50):
-                        if (awards[row] != "GOLD"):
-                            awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
+        index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_45(column, coln=index)
 
-        angels_awards_ivt_45('H')
-
+        index = column_names.index('% patients treated with door to thrombectomy < 60 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_45(column, coln=index)
 
         # setting colors of cells according to their values
-        def angels_awards_recan(column_name, coln=coln):
+        def angels_awards_recan(column_name, coln):
             """Add conditional formatting to angels awards for recaalization procedures."""
-            coln = coln + 6
-
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
@@ -824,28 +947,13 @@ class FormatStatistic():
                                                     'format': black})
                 row += 1
 
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) >= 5 and float(statistics[row][coln]) <= 14.99):
-                        if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                            awards[row] = "GOLD"
-                    elif (float(statistics[row][coln]) >= 15 and float(statistics[row][coln]) <= 24.99):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 25):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] == "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
-
-        angels_awards_recan('J')
+        index = column_names.index('% recanalization rate out of total ischemic incidence')
+        angels_awards_recan(column_name=xl_col_to_name(index), coln=index)
 
 
-        def angels_awards_processes(column_name, n, coln=coln, count=True):
+        def angels_awards_processes(column_name, coln, count=True):
             """Add conditional formatting to angels awards for processes."""
             count = count
-            num = n
-            coln = coln + num
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
@@ -875,31 +983,19 @@ class FormatStatistic():
                                                     'value': 90,
                                                     'format': black})
                 row += 1
-            if (count):
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 80 and float(statistics[row][coln]) <= 84.99):
-                            if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 85 and float(statistics[row][coln]) <= 89.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 90):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
-        angels_awards_processes('L', 8)
-        angels_awards_processes('N', 10)
-        angels_awards_processes('P', 12)
-        angels_awards_processes('R', 14)
+        index = column_names.index('% suspected stroke patients undergoing CT/MRI')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% all stroke patients undergoing dysphagia screening')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% afib patients discharged (home) with anticoagulants')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
 
         # setting colors of cells according to their values
-        def angels_awards_hosp(column_name, n, coln=coln):
+        def angels_awards_hosp(column_name, coln):
             """Add conditional formatting to angels awards for hospitalization."""
-            num = n
-            coln = coln + num
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
@@ -918,21 +1014,9 @@ class FormatStatistic():
                                                     'format': black})
                 row += 1
 
-            for row in range(nrow - 2):
-                if (awards[row] != "NONE"):
-                    if (float(statistics[row][coln]) <= 0.99):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "PLATINUM"
-                    elif (float(statistics[row][coln]) >= 1):
-                        if (awards[row] == "DIAMOND"):
-                            awards[row] = "DIAMOND"
-                    else:
-                        awards[row] = "NONE"
-
-        angels_awards_hosp('T', 16)
-
-        coln = coln + 17
-        worksheet.write_column(3, coln, awards)
+        
+        index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
+        angels_awards_hosp(column_name=xl_col_to_name(index), coln=index)
 
         # set color for proposed angel award
         def proposed_award(column_name, coln):
