@@ -1498,8 +1498,6 @@ class GenerateYearsCompGraphs:
         self.category_font_size = Pt(8)
         self.data_label_font_size = Pt(9)
 
-        print(title)
-        print(outcome)
         if outcome:
             self.categories_column = 'Patient Group'
         else:
@@ -1655,10 +1653,6 @@ class GenerateYearsCompGraphs:
         if graph_type == "normal":
             # Get column names of dataframe
             column_names = df.columns.tolist()
-            print("Column_names")
-            print(column_names)
-            print("Categories column: ")
-            print(self.categories_column)
             index = column_names.index(self.categories_column)   
 
             # 1st chart (left side) - nationally sample
