@@ -841,8 +841,6 @@ class FormatStatistic():
         for i in hidden_columns:
             index = column_names.index(i)
             column = xl_col_to_name(index)
-
-            print('Column name: {0} - index: {1} - column: {2}'.format(i, index, column))
             worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
 
         # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
