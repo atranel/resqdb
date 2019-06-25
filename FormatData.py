@@ -589,7 +589,7 @@ class GenerateFormattedAngelsAwards:
                 row += 1
 
         
-        index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
+        index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
         angels_awards_hosp(column_name=xl_col_to_name(index), coln=index)
 
         
@@ -1858,7 +1858,7 @@ class GenerateFormattedStats:
             'fg_color': colors.get("angel_awards")})
 
         first_index = column_names.index(self.total_patients_column)
-        last_index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
+        last_index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
         first_cell = xl_rowcol_to_cell(0, first_index)
         last_cell = xl_rowcol_to_cell(0, last_index)
 
@@ -1870,7 +1870,7 @@ class GenerateFormattedStats:
             else:
                 worksheet.write(xl_rowcol_to_cell(1, i), '', awards_color)
 
-        hidden_columns = ['# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# patients treated with door to thrombectomy < 60 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU', '% stroke patients treated in a dedicated stroke unit / ICU']
+        hidden_columns = ['# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# patients treated with door to thrombectomy < 60 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
         				
         for i in hidden_columns:
             index = column_names.index(i)
@@ -2107,7 +2107,7 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-            index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU (2nd)')
+            index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
             column = xl_col_to_name(index)
             angels_awards_hosp(column, coln=index)
 

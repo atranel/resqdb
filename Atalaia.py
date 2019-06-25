@@ -1045,6 +1045,7 @@ class FormatStatistic():
 
         workbook1.close()
 
+
 class GeneratePreprocessedData():
     """ Class generating preprocessed data in the excel format containing calculated statistics with intermediate columns! 
     
