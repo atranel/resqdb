@@ -26,7 +26,7 @@ class FilterDataset:
     :param df: the dataframe containing preprocessed data
     :type df: dataframe
     :param country: the country code to be included in the data
-    :type counry: str
+    :type country: str
     :param date1: the first date included in the filtered dataframe
     :type date1: date
     :param date2: the last date included in the filtered dataframe
@@ -92,7 +92,7 @@ class ComputeStats:
     :param df: the dataframe containing preprocessed data
     :type df: dataframe
     :param country: the results for whole country included in the statistics
-    :type counry: bool
+    :type country: bool
     :param country_code: the country code used in the names of output files
     :type country_code: str
     :param comparison: the value saying if it is comparative statistics
@@ -1849,6 +1849,7 @@ class ComputeStats:
         :type ct_time: time
         :returns: tdelta between two times in minutes
         """
+
         timeformat = '%H:%M:%S'
 
         # Check if both time are not None if yes, return 0 else return tdelta

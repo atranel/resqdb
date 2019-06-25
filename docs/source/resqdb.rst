@@ -20,14 +20,6 @@ resqdb.Calculation module
     :undoc-members:
     :show-inheritance:
 
-resqdb.CalculationCZ module
----------------------------
-
-.. automodule:: resqdb.CalculationCZ
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 resqdb.CalculationSK module
 ---------------------------
 

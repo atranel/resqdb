@@ -328,45 +328,43 @@
 <dt id="resqdb.Calculation.ComputeStats">
 <em class="property">class </em><code class="descclassname">resqdb.Calculation.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em>, <em>patient_limit=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Calculation.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Calculation.ComputeStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This module compute statistics from the raw data.</p>
-<p>Keyword arguments:
-df – the raw dataframe
-country – True if country should be included as site into results (default False)
-country_code – the country code of country if data were filtered (default “”)
-comparison – True if we are compare the data (e.g. countries between each other)</p>
+<p>The class calculating the general statistics from the preprocessed and filtered data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dataframe</em>) – the dataframe containing preprocessed data</li>
+<li><strong>country</strong> – the results for whole country included in the statistics</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code used in the names of output files</li>
+<li><strong>comparison</strong> (<em>bool</em>) – the value saying if it is comparative statistics</li>
+<li><strong>patient_limit</strong> – the number of patients used as limit when evaluating angels awards</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.Calculation.FilterDataset">
 <em class="property">class </em><code class="descclassname">resqdb.Calculation.</code><code class="descname">FilterDataset</code><span class="sig-paren">(</span><em>df</em>, <em>country=None</em>, <em>date1=None</em>, <em>date2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Calculation.html#FilterDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Calculation.FilterDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filter dataset by country and the time period.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>df: The preprocessed dataframe
-country: The country code of country which should be included in the resulted calculation (default: None)
-date1: The first daate included in the filtered dataframe (default: None)
-date2: The last date included in the filtered dataframe (default: None)</dd>
-<dt>Returns:</dt>
-<dd>The filtered dataframe.</dd>
-</dl>
-</dd></dl>
-
-</div>
-<div class="section" id="module-resqdb.CalculationCZ">
-<span id="resqdb-calculationcz-module"></span><h2>resqdb.CalculationCZ module<a class="headerlink" href="#module-resqdb.CalculationCZ" title="Permalink to this headline">¶</a></h2>
-<p>Created on Thu Jul 09 13:28:05 2017</p>
-<p>&#64;author: Marie Jankujova</p>
-<dl class="class">
-<dt id="resqdb.CalculationCZ.ComputeStats">
-<em class="property">class </em><code class="descclassname">resqdb.CalculationCZ.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationCZ.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationCZ.ComputeStats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This module compute statistics from the raw data.</p>
-<p>Keyword arguments:
-df – the raw dataframe
-country – True if country should be included as site into results (default False)
-country_code – the country code of country if data were filtered (default “”)
-comparison – True if we are compare the data (e.g. countries between each other)</p>
+<p>The class filtrating the dataframe by date or by country.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dataframe</em>) – the dataframe containing preprocessed data</li>
+<li><strong>country</strong> – the country code to be included in the data</li>
+<li><strong>date1</strong> (<em>date</em>) – the first date included in the filtered dataframe</li>
+<li><strong>date2</strong> (<em>date</em>) – the last date included in the filtered dataframe</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
