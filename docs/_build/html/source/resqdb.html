@@ -45,92 +45,120 @@
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_afib_discharged_with_anticoagulants">
 <code class="descname">get_afib_discharged_with_anticoagulants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_afib_discharged_with_anticoagulants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_afib_discharged_with_anticoagulants" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe with patients who have been discharged with anticoagulant and were detected for aFib.</p>
+<dd><p>The function calculating number of patients who have been discharged with prescribed anticoagulants with aFib. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_ct_mri">
 <code class="descname">get_ct_mri</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_ct_mri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_ct_mri" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe expanded on CT/MRI columns.</p>
+<dd><p>The function calculating number of patients with IS, TIA and ICH stroke who have undergone the CT/MRI. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_dysphagia_screening">
 <code class="descname">get_dysphagia_screening</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_dysphagia_screening"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_dysphagia_screening" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe for all patients who underwent dysphagia screening.</p>
+<dd><p>The function calculating number of patients with IS and ICH stroke who have undergone the dysphagia screening. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_hospitalized_in">
 <code class="descname">get_hospitalized_in</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_hospitalized_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_hospitalized_in" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe with stroke patients hospitalized in a dedicated stroke unit / ICU.</p>
+<dd><p>The function calculating number of patients who have been hospitalized in a dedicated stroke unit / ICU. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_patients_discharged_with_antiplatelets">
 <code class="descname">get_patients_discharged_with_antiplatelets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_patients_discharged_with_antiplatelets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_patients_discharged_with_antiplatelets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe with ischemic patients who have been discharged with prescribed antiplatelets.</p>
+<dd><p>The function calculating number of ischemic patients who have been discharged with prescribed antiplatelets. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_recan_below">
 <code class="descname">get_recan_below</code><span class="sig-paren">(</span><em>dtn</em>, <em>dtg</em>, <em>top</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_below"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_below" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get True/False if bigger from pair DTN and DTN is &lt; max.</p>
+<dd><p>The function checking if at least one from the pair of number is lesser then maximum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dtn</strong> (<em>int</em>) – door to needle time value</li>
+<li><strong>dtg</strong> (<em>int</em>) – door to groin time value</li>
+<li><strong>top</strong> (<em>int</em>) – limit value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>True</cite> if one from the pair is lesser then maximum, <cite>False</cite> otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_recan_rate">
 <code class="descname">get_recan_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe expanded on recanalization rate.</p>
+<dd><p>The function calculating number of ischemic patients treated by recanalization procedure. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_recan_therapy">
 <code class="descname">get_recan_therapy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_therapy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_therapy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe with patients treated with door to recanalization therapy time &lt; 60 minutes.</p>
+<dd><p>The function calculating number of patients treated within 60/45 minutes by thrombolysis and within 90/60 by thrombectomy. The results are merged with the dataframe containing resulted statistic!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_stats_df">
 <code class="descname">get_stats_df</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_stats_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_stats_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the final stats dataframe.</p>
+<dd><p>The function calculating the statistics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">stats_df – dataframe with calculated statistics</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.get_total_patients">
 <code class="descname">get_total_patients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_total_patients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_total_patients" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate total patients per site. Return dataframe with total patients grouped by Site ID.</p>
-<dl class="docutils">
-<dt>Return:</dt>
-<dd><dl class="first last docutils">
-<dt>dataframe</dt>
-<dd>Return dataframe grouped by Site ID and Total Patients as second column.</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>The function calculating total number of patients per site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the temporary dataframe containing Site ID and total number of patients</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.rename_column">
 <code class="descname">rename_column</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.rename_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.rename_column" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rename first two column name.</p>
+<dd><p>The function renaming site_id and facility_name column names to Site ID and Site Name!</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Atalaia.Calculation.time_diff">
 <code class="descname">time_diff</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.time_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate difference between two times.</p>
-<dl class="docutils">
-<dt>Parameters:</dt>
-<dd>start : time
-end : time</dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>int</dt>
-<dd>Difference between two times in minutes.</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>The function calculating difference between two times.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> (<em>time</em>) – the first time</li>
+<li><strong>end</strong> (<em>time</em>) – the end time</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – difference in minutes</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -203,13 +231,7 @@ end : time</dd>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int – the number of days</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">date – fixed hospital date</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">date – fixed discharge date</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fixed hospital days, the fixed hospital date, the fixed discharge date</p>
 </td>
 </tr>
 </tbody>
@@ -222,16 +244,19 @@ end : time</dd>
 <dt id="resqdb.Atalaia.Filtration">
 <em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">Filtration</code><span class="sig-paren">(</span><em>df</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Filtration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Filtration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#resqdb.Atalaia.CheckTimes" title="resqdb.Atalaia.CheckTimes"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Atalaia.CheckTimes</span></code></a></p>
-<p>Filter dataframe by discharge date.</p>
+<p>Class filtrating dataframe by discharge date.</p>
 <dl class="method">
 <dt id="resqdb.Atalaia.Filtration.filter_by_date">
 <code class="descname">filter_by_date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Filtration.filter_by_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Filtration.filter_by_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe which contains only rows where discharge date was between these two dates. The dataframe is filter by discharge date.</p>
-<dl class="docutils">
-<dt>Params: </dt>
-<dd>start_date: the first day included in the dataframe &lt;start_date,end_date&gt;
-end_date: the last day included in the dataframe.</dd>
-</dl>
+<dd><p>Filter dataframe by discharge date. The start date and end date were defined in <a class="reference internal" href="#resqdb.Atalaia.CheckTimes" title="resqdb.Atalaia.CheckTimes"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Atalaia.CheckTimes</span></code></a> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the filtered dataframe</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -240,11 +265,32 @@ end_date: the last day included in the dataframe.</dd>
 <dt id="resqdb.Atalaia.FormatStatistic">
 <em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">FormatStatistic</code><span class="sig-paren">(</span><em>df</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#FormatStatistic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.FormatStatistic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate formatted excel file for calculated statistics.</p>
+<p>Class generating formatted excel file containing the calculated statistics!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>path</strong> (<em>str</em>) – the path where the output file should be saved</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.Atalaia.FormatStatistic.format">
 <code class="descname">format</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#FormatStatistic.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.FormatStatistic.format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The function creating excel file and add formatting!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>df</strong> (<em>dataframe</em>) – the dataframe with the statistics</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -252,16 +298,23 @@ end_date: the last day included in the dataframe.</dd>
 <dt id="resqdb.Atalaia.GeneratePreprocessedData">
 <em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class generate the preprocessed data as excel spreadsheet. The preprocessed data are formatted as table.</p>
-<dl class="docutils">
-<dt>Params:</dt>
-<dd>df: the preprocessed data with additional columns (fixed dates, etc.)
-path: the absolute path to the document which should be created</dd>
-</dl>
+<p>Class generating preprocessed data in the excel format containing calculated statistics with intermediate columns!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>path</strong> (<em>str</em>) – the path where the output file should be saved</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.Atalaia.GeneratePreprocessedData.generate_preprocessed_data">
 <code class="descname">generate_preprocessed_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#GeneratePreprocessedData.generate_preprocessed_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.GeneratePreprocessedData.generate_preprocessed_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function called to create workbook and append preprocessed data.</p>
+<dd><p>The function creating workbook and sheet with preprocessed data!</p>
 </dd></dl>
 
 </dd></dl>
@@ -535,7 +588,7 @@ Version: v1.0
 Version comment: This script is used to generate formatted preprocessed data, presentations or excel files.</p>
 <dl class="class">
 <dt id="resqdb.FormatData.GenerateFormattedAngelsAwards">
-<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedAngelsAwards</code><span class="sig-paren">(</span><em>df</em>, <em>report=None</em>, <em>quarter=None</em>, <em>minimum_patients=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedAngelsAwards</code><span class="sig-paren">(</span><em>df</em>, <em>report=None</em>, <em>quarter=None</em>, <em>minimum_patients=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class generate formatted statistics only for angels awards.</p>
 <dl class="method">
@@ -547,7 +600,7 @@ Version comment: This script is used to generate formatted preprocessed data, pr
 
 <dl class="class">
 <dt id="resqdb.FormatData.GenerateFormattedStats">
-<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em>, <em>minimum_patients=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em>, <em>minimum_patients=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class generate formatted statistics in .xslx file. For angel awards are set colored conditions.</p>
 <dl class="docutils">
@@ -824,7 +877,14 @@ country - name of country (if dataset was filtered based on country) (default = 
 <dt id="resqdb.Reports.Reports">
 <em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">Reports</code><span class="sig-paren">(</span><em>df</em>, <em>year</em>, <em>month</em>, <em>country</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate SITS-like reports for recanalization procedures.</p>
+<p>Generate SITS-like reports for recanalization procedure.</p>
+<dl class="docutils">
+<dt>Args: </dt>
+<dd>df: preprocessed data
+year: year for which you would like to generate reports
+country: the country code
+month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)</dd>
+</dl>
 <dl class="method">
 <dt id="resqdb.Reports.Reports.calculate_statistic_per_region">
 <code class="descname">calculate_statistic_per_region</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_statistic_per_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_statistic_per_region" title="Permalink to this definition">¶</a></dt>
