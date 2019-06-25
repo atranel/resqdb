@@ -849,25 +849,19 @@ class ComputeStats:
             """
             set_vals = list(set(vals)) # remove duplicate values
             
-            if len(set_vals) == 1: # If 
-                if set_vals[0] == 2:
+            if len(set_vals) == 1: 
+                if set_vals[0] == 2: # no antithrombotics prescribed
                     res = 2
                 elif set_vals[0] == 0:
                     res = None
                 else:
-                    res = 1
+                    res = 1 # antitrhbomtics prescribed
             else:
-                res = 1      
+                res = 1 # if both values (1, 2) in set_vals then antithrombotics prescribed we don't care about which were prescribed
 
-           # print(set_vals, res)
             return res
 
-
-       # is_tia['ANTITHROMBOTICS'] = is_tia.apply(lambda x:  (x['UKON_WARFARIN'] == 2 and x['UKON_DABIGATRAN'] == 2 and x['UKON_RIVAROXABAN'] == 2 and x['UKON_APIXABAN'] == 2  and x['UKON_EDOXABAN'] == 2 and x['UKON_LMW'] == 2 and x['UKON_ANTIKOAGULANCIA'] == 2  and x['UKON_HEPARIN_VTE'] == 2 and x['UKON_ASA'] == 2 and x['UKON_CLOPIDOGREL'] == 2) else 1, axis=1)
-
         is_tia.loc[:, 'ANTITHROMBOTICS'] = is_tia.apply(lambda x: get_antithrombotics([x['UKON_WARFARIN'], x['UKON_DABIGATRAN'], x['UKON_RIVAROXABAN'], x['UKON_APIXABAN'], x['UKON_EDOXABAN'], x['UKON_LMW'],x['UKON_ANTIKOAGULANCIA'], x['UKON_HEPARIN_VTE'], x['UKON_ASA'], x['UKON_CLOPIDOGREL']]), axis=1)
-
-        #print(is_tia['ANTITHROMBOTICS'])
 
         # filter not dead patient with ischemic and transient CMP
         antithrombotics = is_tia[~is_tia['DISCHARGE_DESTINATION'].isin([5])].copy()
@@ -886,103 +880,66 @@ class ComputeStats:
         antithrombotics['ANTIPLATELETS'] = antithrombotics.apply(lambda x: 2 if x['UKON_ASA'] == 2 and x['UKON_CLOPIDOGREL'] == 2 else 1, axis=1)
         self.tmp = antithrombotics.groupby(['Protocol ID', 'ANTIPLATELETS']).size().to_frame('count').reset_index()
 
-        # Get patients receiving antiplatelets
         self.statsDf = self._get_values_for_factors(column_name="ANTIPLATELETS", value=1, new_column_name='# patients receiving antiplatelets')
-
-        # Get % patients receiving antiplatelets
         self.statsDf['% patients receiving antiplatelets'] = self.statsDf.apply(lambda x: round(((x['# patients receiving antiplatelets']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_WARFARIN']).size().to_frame('count').reset_index()
-        # Get patients receiving Vit. K antagonist
-        self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
 
-        # Get % patients receiving Vit. K antagonist
-        #self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
+        # self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_DABIGATRAN']).size().to_frame('count').reset_index()
-        # Get patients receiving dabigatran
         self.statsDf = self._get_values_for_factors(column_name="UKON_DABIGATRAN", value=1, new_column_name='# patients receiving dabigatran')
-
-        # Get % patients receiving dabigatran
-        #self.statsDf['% patients receiving dabigatran'] = self.statsDf.apply(lambda x: round(((x['# patients receiving dabigatran']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving dabigatran'] = self.statsDf.apply(lambda x: round(((x['# patients receiving dabigatran']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_RIVAROXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving rivaroxaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_RIVAROXABAN", value=1, new_column_name='# patients receiving rivaroxaban')
-
-        # Get % patients receiving rivaroxaban
-        #self.statsDf['% patients receiving rivaroxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving rivaroxaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving rivaroxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving rivaroxaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_APIXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving apixaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_APIXABAN", value=1, new_column_name='# patients receiving apixaban')
-
-        # Get % patients receiving apixaban
-        #self.statsDf['% patients receiving apixaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving apixaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving apixaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving apixaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_EDOXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving edoxaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_EDOXABAN", value=1, new_column_name='# patients receiving edoxaban')
-
-        # Get % patients receiving edoxaban
-        #self.statsDf['% patients receiving edoxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving edoxaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving edoxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving edoxaban']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_HEPARIN_VTE']).size().to_frame('count').reset_index()
-        # Get patients receiving LMWH or heparin in prophylactic dose
         self.statsDf = self._get_values_for_factors(column_name="UKON_HEPARIN_VTE", value=1, new_column_name='# patients receiving LMWH or heparin in prophylactic dose')
-
-        # Get % patients receiving LMWH or heparin in prophylactic dose
-        #self.statsDf['% patients receiving LMWH or heparin in prophylactic dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in prophylactic dose']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving LMWH or heparin in prophylactic dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in prophylactic dose']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         antithrombotics['UKON_LMW_ANTICOAGULACNI'] = antithrombotics.apply(lambda x: 2 if x['UKON_LMW'] == 2 and x['UKON_ANTIKOAGULANCIA'] == 2 else 1, axis=1)
         self.tmp = antithrombotics.groupby(['Protocol ID', 'UKON_LMW_ANTICOAGULACNI']).size().to_frame('count').reset_index()
-        # Get patients receiving LMWH or heparin in full anticoagulant dose
+
         self.statsDf = self._get_values_for_factors(column_name="UKON_LMW_ANTICOAGULACNI", value=1, new_column_name='# patients receiving LMWH or heparin in full anticoagulant dose')
-
-        # Get % patients receiving LMWH or heparin in full anticoagulant dose
-        #self.statsDf['% patients receiving LMWH or heparin in full anticoagulant dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in full anticoagulant dose']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
+        # self.statsDf['% patients receiving LMWH or heparin in full anticoagulant dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in full anticoagulant dose']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
         
-        # Get patients not prescribed antithrombotics, but recommended
         self.statsDf['# patients not prescribed antithrombotics, but recommended'] = 0
-        #self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=9, new_column_name='# patients not prescribed antithrombotics, but recommended')
-
-        # Get % patients not prescribed antithrombotics, but recommended
+        # self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=9, new_column_name='# patients not prescribed antithrombotics, but recommended')
         self.statsDf['% patients not prescribed antithrombotics, but recommended'] = self.statsDf.apply(lambda x: round(((x['# patients not prescribed antithrombotics, but recommended']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
-        # Get patients neither receiving antithrombotics nor recommended
         self.statsDf['# patients neither receiving antithrombotics nor recommended'] = 0
-        #self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=10, new_column_name='# patients neither receiving antithrombotics nor recommended')
-
-        # Get % patients neither receiving antithrombotics nor recommended
+        # self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=10, new_column_name='# patients neither receiving antithrombotics nor recommended')
         self.statsDf['% patients neither receiving antithrombotics nor recommended'] = self.statsDf.apply(lambda x: round(((x['# patients neither receiving antithrombotics nor recommended']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
         ## ANTITHROMBOTICS - PATIENTS PRESCRIBED + RECOMMENDED
-        # patients prescribed antithrombotics
-        #self.statsDf.loc[:, '# patients prescribed antithrombotics'] = self.statsDf.apply(lambda x: x['# patients receiving antiplatelets'] + x['# patients receiving Vit. K antagonist'] + x['# patients receiving dabigatran'] + x['# patients receiving rivaroxaban'] + x['# patients receiving apixaban'] + x['# patients receiving edoxaban'] + x['# patients receiving LMWH or heparin in prophylactic dose'] + x['# patients receiving LMWH or heparin in full anticoagulant dose'], axis=1)
+        # self.statsDf.loc[:, '# patients prescribed antithrombotics'] = self.statsDf.apply(lambda x: x['# patients receiving antiplatelets'] + x['# patients receiving Vit. K antagonist'] + x['# patients receiving dabigatran'] + x['# patients receiving rivaroxaban'] + x['# patients receiving apixaban'] + x['# patients receiving edoxaban'] + x['# patients receiving LMWH or heparin in prophylactic dose'] + x['# patients receiving LMWH or heparin in full anticoagulant dose'], axis=1)
         self.tmp = antithrombotics.groupby(['Protocol ID', 'ANTITHROMBOTICS']).size().to_frame('count').reset_index()
 
-        # Get patients receiving antiplatelets
         self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=1, new_column_name='# patients prescribed antithrombotics')
-
-
-        # Get % patients prescribed antithrombotics
-        #self.statsDf['% patients prescribed antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics']/(x['is_tia_cvt_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended'])) * 100), 2) if (x['is_tia_cvt_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended']) > 0 else 0, axis=1)
+        # self.statsDf['% patients prescribed antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics']/(x['is_tia_cvt_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended'])) * 100), 2) if (x['is_tia_cvt_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended']) > 0 else 0, axis=1)
         self.statsDf['% patients prescribed antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics']/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100), 2) if (x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0 else 0, axis=1)
 
-        
-        #  patients prescribed or recommended antithrombotics
         self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=1, new_column_name='# patients prescribed or recommended antithrombotics')
-
-        # Get % patients prescribed or recommended antithrombotics
         # From patients prescribed or recommended antithrombotics remove patient who had prescribed antithrombotics and were dead (nominator)
-        #self.statsDf['% patients prescribed or recommended antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed or recommended antithrombotics'] - x['ischemic_transient_dead_patients_prescribed'])/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended'])) * 100, 2) if ((x['is_tia_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended']) > 0) else 0, axis=1)
+        # self.statsDf['% patients prescribed or recommended antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed or recommended antithrombotics'] - x['ischemic_transient_dead_patients_prescribed'])/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended'])) * 100, 2) if ((x['is_tia_patients'] - x['ischemic_transient_dead_patients'] - x['# patients not prescribed antithrombotics, but recommended']) > 0) else 0, axis=1)
         self.statsDf['% patients prescribed or recommended antithrombotics'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed or recommended antithrombotics'] - x['ischemic_transient_dead_patients_prescribed'])/(x['is_tia_patients'] - x['ischemic_transient_dead_patients'])) * 100, 2) if ((x['is_tia_patients'] - x['ischemic_transient_dead_patients']) > 0) else 0, axis=1)
         
-        #.round(decimals=2)) 
         self.statsDf.drop(['# patients receiving Vit. K antagonist', '# patients receiving dabigatran', '# patients receiving rivaroxaban', '# patients receiving apixaban', '# patients receiving edoxaban', '# patients receiving LMWH or heparin in prophylactic dose','# patients receiving LMWH or heparin in full anticoagulant dose'], axis=1, inplace=True)
 
         self.statsDf.fillna(0, inplace=True)
+
         ###########################################
         # ANTIPLATELETS - PRESCRIBED WITHOUT AFIB #
         ###########################################
@@ -1003,10 +960,7 @@ class ComputeStats:
 
         self.tmp = afib_flutter_not_detected_or_not_known.groupby(['Protocol ID', 'ANTIPLATELETS']).size().to_frame('count').reset_index()
         
-        # Get patients receiving antiplatelets
         self.statsDf = self._get_values_for_factors(column_name="ANTIPLATELETS", value=1, new_column_name='# patients prescribed antiplatelets without aFib')
-
-        # Get % patients receiving antiplatelets
         self.statsDf['% patients prescribed antiplatelets without aFib'] =  self.statsDf.apply(lambda x: round(((x['# patients prescribed antiplatelets without aFib'] - x['prescribed_antiplatelets_no_afib_dead_patients'])/(x['afib_flutter_not_detected_or_not_known_patients'] - x['afib_flutter_not_detected_or_not_known_dead_patients'])) * 100, 2) if ((x['afib_flutter_not_detected_or_not_known_patients'] - x['afib_flutter_not_detected_or_not_known_dead_patients']) > 0) else 0, axis=1)
 
         #########################################
@@ -1027,66 +981,42 @@ class ComputeStats:
         self.statsDf['# patients prescribed anticoagulants with aFib'] = self._count_patients(dataframe=anticoagulants_prescribed)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_WARFARIN']).size().to_frame('count').reset_index()
-        # Additional calculation 
-        # Get patients receiving Vit. K antagonist
-        self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
-
-        # Get % patients receiving Vit. K antagonist
-        #self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/x['# patients prescribed anticoagulants with aFib']) * 100), 2) if x['# patients prescribed anticoagulants with aFib'] > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
+        # self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/x['# patients prescribed anticoagulants with aFib']) * 100), 2) if x['# patients prescribed anticoagulants with aFib'] > 0 else 0, axis=1)
         self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_DABIGATRAN']).size().to_frame('count').reset_index()
-        # Get patients receiving dabigatran
         self.statsDf = self._get_values_for_factors(column_name="UKON_DABIGATRAN", value=1, new_column_name='# patients receiving dabigatran')
-
-        # Get % patients receiving dabigatran
         self.statsDf['% patients receiving dabigatran'] = self.statsDf.apply(lambda x: round(((x['# patients receiving dabigatran']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_RIVAROXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving rivaroxaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_RIVAROXABAN", value=1, new_column_name='# patients receiving rivaroxaban')
-
-        # Get % patients receiving rivaroxaban
         self.statsDf['% patients receiving rivaroxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving rivaroxaban']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_APIXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving apixaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_APIXABAN", value=1, new_column_name='# patients receiving apixaban')
-
-        # Get % patients receiving apixaban
         self.statsDf['% patients receiving apixaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving apixaban']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_EDOXABAN']).size().to_frame('count').reset_index()
-        # Get patients receiving edoxaban
         self.statsDf = self._get_values_for_factors(column_name="UKON_EDOXABAN", value=1, new_column_name='# patients receiving edoxaban')
-
-        # Get % patients receiving edoxaban
         self.statsDf['% patients receiving edoxaban'] = self.statsDf.apply(lambda x: round(((x['# patients receiving edoxaban']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_HEPARIN_VTE']).size().to_frame('count').reset_index()
-        # Get patients receiving LMWH or heparin in prophylactic dose
         self.statsDf = self._get_values_for_factors(column_name="UKON_HEPARIN_VTE", value=1, new_column_name='# patients receiving LMWH or heparin in prophylactic dose')
-
-        # Get % patients receiving LMWH or heparin in prophylactic dose
         self.statsDf['% patients receiving LMWH or heparin in prophylactic dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in prophylactic dose']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         anticoagulants_prescribed['UKON_LMW_ANTICOAGULACNI'] = anticoagulants_prescribed.apply(lambda x: 2 if x['UKON_LMW'] == 2 and x['UKON_ANTIKOAGULANCIA'] == 2 else 1, axis=1)
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_LMW_ANTICOAGULACNI']).size().to_frame('count').reset_index()
-        # Get patients receiving LMWH or heparin in full anticoagulant dose
         self.statsDf = self._get_values_for_factors(column_name="UKON_LMW_ANTICOAGULACNI", value=1, new_column_name='# patients receiving LMWH or heparin in full anticoagulant dose')
-
-        # Get % patients receiving LMWH or heparin in full anticoagulant dose
         self.statsDf['% patients receiving LMWH or heparin in full anticoagulant dose'] = self.statsDf.apply(lambda x: round(((x['# patients receiving LMWH or heparin in full anticoagulant dose']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
         
-        #anticoagulants_recommended = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([9])].copy()
-        #self.statsDf['anticoagulants_recommended_patients'] = self._count_patients(dataframe=anticoagulants_recommended)
+        # anticoagulants_recommended = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([9])].copy()
+        # self.statsDf['anticoagulants_recommended_patients'] = self._count_patients(dataframe=anticoagulants_recommended)
         self.statsDf['anticoagulants_recommended_patients'] = 0
 
         afib_flutter_detected_dead = afib_flutter_detected[afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['afib_flutter_detected_dead_patients'] = self._count_patients(dataframe=afib_flutter_detected_dead)
-
-        # Get % patients receiving antiplatelets
         self.statsDf['% patients prescribed anticoagulants with aFib'] =  self.statsDf.apply(lambda x: round(((x['# patients prescribed anticoagulants with aFib']/(x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'])) * 100), 2) if (x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients']) > 0 else 0, axis=1)
 
         ##########################################
@@ -1095,12 +1025,9 @@ class ComputeStats:
         # patients not reffered 
         antithrombotics_prescribed = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([1]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['# patients prescribed antithrombotics with aFib'] = self._count_patients(dataframe=antithrombotics_prescribed)
-
-        #recommended_antithrombotics_with_afib_alive = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([9]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
-        #self.statsDf['recommended_antithrombotics_with_afib_alive_patients'] = self._count_patients(dataframe=recommended_antithrombotics_with_afib_alive)
+        # recommended_antithrombotics_with_afib_alive = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([9]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
+        # self.statsDf['recommended_antithrombotics_with_afib_alive_patients'] = self._count_patients(dataframe=recommended_antithrombotics_with_afib_alive)
         self.statsDf['recommended_antithrombotics_with_afib_alive_patients'] = 0
-
-        # Get % patients receiving antiplatelets
         self.statsDf['% patients prescribed antithrombotics with aFib'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics with aFib']/(x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients'])) * 100), 2) if (x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients']) > 0 else 0, axis=1)
         
         ###########
@@ -1108,22 +1035,13 @@ class ComputeStats:
         ###########
         self.tmp = is_tia.groupby(['Protocol ID', 'STATIN']).size().to_frame('count').reset_index()
 
-        # Get patients prescribed statins - Yes
         self.statsDf = self._get_values_for_factors(column_name="STATIN", value=1, new_column_name='# patients prescribed statins - Yes')
-
-        # Get % patients prescribed statins - Yes
         self.statsDf['% patients prescribed statins - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed statins - Yes']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
-        # Get patients prescribed statins - No
         self.statsDf = self._get_values_for_factors(column_name="STATIN", value=2, new_column_name='# patients prescribed statins - No')
-
-        # Get % patients prescribed statins - No
         self.statsDf['% patients prescribed statins - No'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed statins - No']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
-        # Get patients prescribed statins - Not known
         self.statsDf = self._get_values_for_factors(column_name="STATIN", value=3, new_column_name='# patients prescribed statins - Not known')
-
-        # Get % patients prescribed statins - Not known
         self.statsDf['% patients prescribed statins - Not known'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed statins - Not known']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
         #########################
@@ -1131,34 +1049,19 @@ class ComputeStats:
         #########################
         self.tmp = discharge_subset.groupby(['Protocol ID', 'DISCHARGE_DESTINATION']).size().to_frame('count').reset_index()
 
-        # Get discharge destination - Home
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_DESTINATION", value=1, new_column_name='# discharge destination - Home')
-
-        # Get % discharge destination - Home
         self.statsDf['% discharge destination - Home'] = self.statsDf.apply(lambda x: round(((x['# discharge destination - Home']/x['discharge_subset_patients']) * 100), 2) if x['discharge_subset_patients'] > 0 else 0, axis=1)
 
-        # Get discharge destination - Transferred within the same centre
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_DESTINATION", value=2, new_column_name='# discharge destination - Transferred within the same centre')
-
-        # Get % discharge destination - Transferred within the same centre
         self.statsDf['% discharge destination - Transferred within the same centre'] = self.statsDf.apply(lambda x: round(((x['# discharge destination - Transferred within the same centre']/x['discharge_subset_patients']) * 100), 2) if x['discharge_subset_patients'] > 0 else 0, axis=1)
 
-        # Get discharge destination - Transferred to another centre
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_DESTINATION", value=3, new_column_name='# discharge destination - Transferred to another centre')
-
-        # Get % discharge destination - Transferred to another centre
         self.statsDf['% discharge destination - Transferred to another centre'] = self.statsDf.apply(lambda x: round(((x['# discharge destination - Transferred to another centre']/x['discharge_subset_patients']) * 100), 2) if x['discharge_subset_patients'] > 0 else 0, axis=1)
 
-        # Get discharge destination - Social care facility
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_DESTINATION", value=4, new_column_name='# discharge destination - Social care facility')
-
-        # Get % discharge destination - Social care facility
         self.statsDf['% discharge destination - Social care facility'] = self.statsDf.apply(lambda x: round(((x['# discharge destination - Social care facility']/x['discharge_subset_patients']) * 100), 2) if x['discharge_subset_patients'] > 0 else 0, axis=1)
 
-        # Get discharge destination - Dead
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_DESTINATION", value=5, new_column_name='# discharge destination - Dead')
-
-        # Get % discharge destination - Dead
         self.statsDf['% discharge destination - Dead'] = self.statsDf.apply(lambda x: round(((x['# discharge destination - Dead']/x['discharge_subset_patients']) * 100), 2) if x['discharge_subset_patients'] > 0 else 0, axis=1)
 
         #######################################
@@ -1169,22 +1072,13 @@ class ComputeStats:
 
         self.tmp = discharge_subset_same_centre.groupby(['Protocol ID', 'DISCHARGE_SAME_FACILITY']).size().to_frame('count').reset_index()
 
-        # Get transferred within the same centre - Acute rehabilitation
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=1, new_column_name='# transferred within the same centre - Acute rehabilitation')
-
-        # Get % transferred within the same centre - Acute rehabilitation
         self.statsDf['% transferred within the same centre - Acute rehabilitation'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Acute rehabilitation']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
-        # Get transferred within the same centre - Post-care bed
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=2, new_column_name='# transferred within the same centre - Post-care bed')
-
-        # Get % transferred within the same centre - Post-care bed
         self.statsDf['% transferred within the same centre - Post-care bed'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Post-care bed']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
-        # Get transferred within the same centre - Another department
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=3, new_column_name='# transferred within the same centre - Another department')
-
-        # Get % transferred within the same centre - Another department
         self.statsDf['% transferred within the same centre - Another department'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Another department']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
         ################
@@ -1194,68 +1088,52 @@ class ComputeStats:
         self.statsDf['# total patients >= 30'] = self.statsDf['Total Patients'] >= 30
 
         #### DOOR TO THROMBOLYSIS THERAPY - MINUTES ####
-        #self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+        # self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
         self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
 
-        #self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+        # self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
 
         # patients treated with door to recanalization therapy < 60 minutes
         # for tby, we are only looking at patients that have had ONLY tby, not tpa + tby, as we awould be counting those patients twice (penalizing twice)
         recanalization_procedure_tby_only_dtg =  recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['RECANALIZATION_PROCEDURES'].isin([4])]
 
         recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 60)]
-        #recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 60]
-        #recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] < 60]
+        # recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 60]
+        # recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] < 60]
 
         recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
-        #recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 60]
-        #recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] < 60]
+        # recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 60]
+        # recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] < 60]
         
-        # patients treated with door to recanalization therapy < 60 minutes
         self.statsDf['# patients treated with door to recanalization therapy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_60)
-        #self.statsDf['# patients treated with door to recanalization therapy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
-
-
-        # % patients treated with door to recanalization therapy < 60 minutes
+        # self.statsDf['# patients treated with door to recanalization therapy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
         self.statsDf['% patients treated with door to recanalization therapy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 60 minutes']/x['patients_eligible_recanalization']) * 100), 2) if x['patients_eligible_recanalization'] > 0 else 0, axis=1)
 
         recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 45)]
-        #recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 45]
+        # recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 45]
         recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 45)]
-        #recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 45]
+        # recanalization_procedure_tby_only_dtg_under_45 = recanalization_procedure_tby_only_dtg[recanalization_procedure_tby_only_dtg['TBY'] <= 45]
 
-        # patients treated with door to recanalization therapy < 45 minutes
         self.statsDf['# patients treated with door to recanalization therapy < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_45)
-        #self.statsDf['# patients treated with door to recanalization therapy < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
-
-        # % patients treated with door to recanalization therapy < 45 minutes
+        # self.statsDf['# patients treated with door to recanalization therapy < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
         self.statsDf['% patients treated with door to recanalization therapy < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 45 minutes']/x['patients_eligible_recanalization']) * 100), 2) if x['patients_eligible_recanalization'] > 0 else 0, axis=1)
 
         # Get % patients recanalized
-        #self.statsDf['patient_recan_%'] = self.statsDf.apply(lambda x: round(((x['patients_eligible_recanalization']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'] - x['# recanalization procedures - Endovascular treatment alone'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'] - x['# recanalization procedures - Endovascular treatment alone']) > 0 else 0, axis=1)
+        # self.statsDf['patient_recan_%'] = self.statsDf.apply(lambda x: round(((x['patients_eligible_recanalization']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'] - x['# recanalization procedures - Endovascular treatment alone'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'] - x['# recanalization procedures - Endovascular treatment alone']) > 0 else 0, axis=1)
         self.statsDf['patient_recan_%'] = self.statsDf.apply(lambda x: round(((x['patients_eligible_recanalization']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
 
         #### RECANALIZATION RATE ####
-        # recanalization rate out of total ischemic incidence
         self.statsDf['# recanalization rate out of total ischemic incidence'] = self.statsDf['patients_eligible_recanalization']
-
-        # % recanalization rate out of total ischemic incidence
         self.statsDf['% recanalization rate out of total ischemic incidence'] = self.statsDf['patient_recan_%']
 
         self.statsDf.drop(['patient_recan_%'], inplace=True, axis=1)
 
         #### CT/MRI ####
-        # suspected stroke patients undergoing CT/MRI
         self.statsDf['# suspected stroke patients undergoing CT/MRI'] = self.statsDf['# CT/MRI - performed']
-
-        # % suspected stroke patients undergoing CT/MRI
         self.statsDf['% suspected stroke patients undergoing CT/MRI'] = self.statsDf['% CT/MRI - performed']
 
         #### DYSPHAGIA SCREENING ####
-        # all stroke patients undergoing dysphagia screening
         self.statsDf['# all stroke patients undergoing dysphagia screening'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test']
-
-        # % all stroke patients undergoing dysphagia screening
         self.statsDf['% all stroke patients undergoing dysphagia screening'] = self.statsDf.apply(lambda x: round(((x['# all stroke patients undergoing dysphagia screening']/(x['# all stroke patients undergoing dysphagia screening'] + x['# dysphagia screening - Not done'])) * 100), 2) if (x['# all stroke patients undergoing dysphagia screening'] + x['# dysphagia screening - Not done']) > 0 else 0, axis=1)
 
         #### ISCHEMIC STROKE + NO AFIB + ANTIPLATELETS ####
@@ -1274,9 +1152,7 @@ class ComputeStats:
         self.statsDf['except_recommended_patients'] = self._count_patients(dataframe=except_recommended)
         # Get temporary dataframe groupby protocol ID and antithrombotics column
         self.tmp = antiplatelets.groupby(['Protocol ID', 'ANTIPLATELETS']).size().to_frame('count').reset_index()
-        # ischemic stroke patients discharged with antiplatelets
         self.statsDf = self._get_values_for_factors(column_name="ANTIPLATELETS", value=1, new_column_name='# ischemic stroke patients discharged with antiplatelets')
-        # % ischemic stroke patients discharged with antiplatelets
         self.statsDf['% ischemic stroke patients discharged with antiplatelets'] = self.statsDf.apply(lambda x: round(((x['# ischemic stroke patients discharged with antiplatelets']/x['except_recommended_patients']) * 100), 2) if x['except_recommended_patients'] > 0 else 0, axis=1)
 
         # discharged home
@@ -1285,9 +1161,7 @@ class ComputeStats:
         if (antiplatelets_discharged_home.empty):
             # Get temporary dataframe groupby protocol ID and antithrombotics column
             self.tmp = antiplatelets.groupby(['Protocol ID', 'ANTIPLATELETS']).size().to_frame('count').reset_index()
-            # ischemic stroke patients discharged with antiplatelets
             self.statsDf = self._get_values_for_factors(column_name="ANTIPLATELETS", value=1, new_column_name='# ischemic stroke patients discharged home with antiplatelets')
-            # % ischemic stroke patients discharged with antiplatelets
             self.statsDf['% ischemic stroke patients discharged home with antiplatelets'] = self.statsDf.apply(lambda x: round(((x['# ischemic stroke patients discharged home with antiplatelets']/x['except_recommended_patients']) * 100), 2) if x['except_recommended_patients'] > 0 else 0, axis=1)
             self.statsDf['except_recommended_discharged_home_patients'] = self.statsDf['except_recommended_patients']
         else:
@@ -1298,9 +1172,7 @@ class ComputeStats:
 
             # Get number of patients who have prescribed antithrombotics and ischemic stroke, have not been detected or not known for aFib flutter.
             self.statsDf['except_recommended_discharged_home_patients'] = self._count_patients(dataframe=except_recommended_discharged_home)
-            # ischemic stroke patients discharged with antiplatelets
             self.statsDf = self._get_values_for_factors(column_name="ANTIPLATELETS", value=1, new_column_name='# ischemic stroke patients discharged home with antiplatelets')
-            # % ischemic stroke patients discharged with antiplatelets
             self.statsDf['% ischemic stroke patients discharged home with antiplatelets'] = self.statsDf.apply(lambda x: round(((x['# ischemic stroke patients discharged home with antiplatelets']/x['except_recommended_discharged_home_patients']) * 100), 2) if x['except_recommended_discharged_home_patients'] > 0 else 0, axis=1)
 
         self.statsDf['# ischemic stroke patients discharged (home) with antiplatelets'] = self.statsDf.apply(lambda x: x['# ischemic stroke patients discharged with antiplatelets'] if x['# ischemic stroke patients discharged with antiplatelets'] > x['# ischemic stroke patients discharged home with antiplatelets'] else x['# ischemic stroke patients discharged home with antiplatelets'], axis=1)
