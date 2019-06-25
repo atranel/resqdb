@@ -1,8 +1,8 @@
-#### Filename: Connection.py
+#### Filename: CalculationSK.py
 #### Version: v1.0
 #### Author: Marie Jankujova
 #### Date: March 4, 2019
-#### Description: Connect to database and get atalaia dataframe.
+#### Description: Connect to database, export Slovakia data and calculate statistics. 
 
 import psycopg2
 import sys
@@ -23,24 +23,24 @@ import pytz
 import xlsxwriter
 
 class Connection:
-    """ A connection with one property: a section. 
+    """ The class connecting to the database and exporting the data for the Slovakia. 
 
-    To use:
-    >>> conn = Connection()
+    :param nprocess: number of processes
+    :type nprocess: int
     """
 
     def __init__(self, nprocess=1):
 
         start = time.time()
 
-        # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
-        logging.info('Connecting to datamix database!')   
+        logging.info('CalculationSK: Connecting to datamix database!')   
 
         # Get absolute path
         path = os.path.dirname(__file__)
@@ -50,19 +50,18 @@ class Connection:
         # Set section
         datamix = 'datamix'
         # Create empty dictionary
-        #self.sqls = ['SELECT * from slovakia']
         self.sqls = ['SELECT * from slovakia', 'SELECT * from slovakia_2018']
         # List of dataframe names
-        #self.names = ['slovakia']
         self.names = ['slovakia', 'slovakia_2018']
-        # Dictionary initialization - db dataframes
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
         self.dict_df = {}
 
+        # Export data from the database for slovakia
         df_name = self.names[0]
         self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
 
+        # Export data from the database for slovakia_2018
         df_name = self.names[1]
         self.connect(self.sqls[1], datamix, nprocess, df_name=df_name)
         
@@ -71,11 +70,9 @@ class Connection:
 
         self.df = pd.DataFrame()
         for i in range(0, len(self.names)):
-            #print(self.dict_df[self.names[i]])
             self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
             logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!".format(self.names[i]))
 
-        # Get all country code in dataframe
         self.countries = self._get_countries(df=self.df)
         # Get preprocessed data
         # self.preprocessed_data = self.check_data(df=self.df)
@@ -86,68 +83,77 @@ class Connection:
 
     
     def config(self, section):
-        """ Read and parse the config database file. 
-        
-        Raises: 
-            Exception: If the section couldn't be find in the database.ini file)
-        Returns: 
-            The dictionary of parameters to enable connection to database.
+        """ The function
+        Read and parse the config database file. 
+
+        :param section: the name of the section in database.ini file
+        :type section: str
+        :returns: the dictionary with the parsed section values
+        :raises: Exception
         """
-        # Create a parser object
         parser = ConfigParser()
-        # Read config file
         parser.read(self.database_ini)
 
-        # Get section, default to postgresql
         db = {}
         if parser.has_section(section):
             params = parser.items(section)
             for param in params:
                 db[param[0]] = param[1]
         else:
-            logging.error('Connection: Section {0} not found in the {1} file'.format(section, self.database_ini))
+            logging.error('CalculationSK: Section {0} not found in the {1} file'.format(section, self.database_ini))
             raise Exception('Section {0} not found in the {1} file'.format(section, self.database_ini))
 
         return db
 
-    
     def connect(self, sql, section, nprocess, df_name=None):
-        """ Connects to the database specified in the databse.ini file.
-        
-        Args:
-            sql: The SQL query run to get dataframe from the database.
-        Raises: 
-            Exception: If the connection was not successful. 
-        Returns: 
-            The new dataframe containing data from database.
+        """ The function connecting to te database. 
+
+        :param sql: the sql query 
+        :type sql: str
+        :param section: the section from the database.ini
+        :type section: str
+        :param nprocess: the number of processes run simultaneously
+        :type nprocess: int
+        :param df_name: the name of the dataframe used as key in the dictionary
+        :type df_name: str
+        :raises: Exception
         """
         conn = None    
         try: 
-            # Read connection parameters
-            params = self.config(section)
+            params = self.config(section) # Get parameters from config file
 
-            # Connect to the PostgreSQL server
             logging.info('Process{0}: Connecting to the PostgreSQL database... '.format(nprocess))
-            conn = psycopg2.connect(**params)
+            conn = psycopg2.connect(**params) # Connect to server
 
-            # Create dataframe for given sql query
             if df_name is not None:
+                # For each sql query create new dataframe in the dictionary using df_name as key 
                 self.dictdb_df[df_name] = pd.read_sql_query(sql, conn)
-                logging.info('Process{0}: Dataframe {1} has been created created.'.format(nprocess, df_name))
+                logging.info('CalculationSK: Process{0}: Dataframe {1} has been created created.'.format(nprocess, df_name))
             else:
-                logging.info('Process{0}: Name of dataframe is missing.'.format(nprocess))
+                logging.info('CalculationSK: Process{0}: Name of dataframe is missing.'.format(nprocess))
 
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error(error)
 
         finally:
             if conn is not None:
-                conn.close()
+                conn.close() # Close connection
                 logging.info('Process{0}: Database connection has been closed.'.format(nprocess))
 
 
     def _calculate_time(self, ct_date, hospital_date, rec_date, used_col=None):
-        """ Calculate needle time or groin time. """
+        """ The function calculating difference between two times in minutes. The function checking if hospital date is after recanalization date, and if it's TRUE then CT date is used as hospitalization date.
+        
+        :param ct_date: the date when CT/MRI was performed
+        :type ct_date: date
+        :param hospital_date: the date of hospitalization
+        :type hospital_date: date
+        :param rec_date: the date when recanalization procedure was performed
+        :type rec_date: date
+        :param used_col: the column which was used for calculation of DTN
+        :type used_col: str
+        :returns: tdeltamin, used_col
+        """
         
         rec_time = rec_date - hospital_date
         tdeltamin = rec_time.total_seconds()/60.0
@@ -191,7 +197,14 @@ class Connection:
         return tdeltamin, used_col
 
     def _calculate_ct_time(self, hospital_date, ct_date):
-        """ Calculate CT/TIME and return 1 if CT under 1 hour else return 2. """
+        """ The function calculating door to CT date time in minutes. 
+        
+        :param hospital_date: the date of hospitalization
+        :type hospital_date: timestamp
+        :param ct_date: the date when the CT/MRI was performed
+        :type ct_date: timestamp
+        :returns: 1 if datetime > 0 and < 60, else returns 2
+        """
 
         ct_diff = ct_date - hospital_date
         tdeltamin = ct_diff.total_seconds()/60.0
@@ -202,7 +215,13 @@ class Connection:
             return 1
     
     def prepare_df(self, df, name):
-        """ Rename column names and map values. """
+        """ The function preparing the raw data from the database to be used for statistic calculation. The prepared dataframe is entered into dict_df and the name is used as key.
+        
+        :param df: the raw dataframe exported from the database
+        :type df: pandas dataframe
+        :param name: the name of the database
+        :type name: str
+        """
 
         if name == 'slovakia':
             res = df.copy()
@@ -220,20 +239,18 @@ class Connection:
 
             res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
 
-
+            # Calculate the needle time in the minutes from hospital date and needle time. If hospital date is > needle time then as hospital time ct time is used
             res['NEEDLE_TIME_MIN'], res['USED_COL'] = zip(*res.apply(lambda x: self._calculate_time(x['CT_TIME'], x['HOSPITAL_DATE'], x['NEEDLE_TIME']) if x['NEEDLE_TIME'].date else (np.nan, None), axis=1))
-
+            # Calculate the groin time in the minutes from hospital date and groin time. If hospital date is > groin time then as hospital time ct time is used
             res['GROIN_TIME_MIN'], res['USED_COL'] = zip(*res.apply(lambda x: self._calculate_time(x['CT_TIME'], x['HOSPITAL_DATE'], x['GROIN_TIME'], x['USED_COL']) if x['GROIN_TIME'].date else (np.nan, None), axis=1))
-
+            # Get values if CT was performed within 1 hour after admission or after
             res['CT_TIME_WITHIN'] = res.apply(lambda x: self._calculate_ct_time(x['HOSPITAL_DATE'], x['CT_TIME']) if x['CT_MRI'] == 2 else np.nan, axis=1)
 
             res.drop(['USED_COL'], inplace=True, axis=1)
             
-            #res['CRF'] = 'SLOVAKIA_2019'
-
             res.rename(columns={'DOOR_TO_NEEDLE': 'DOOR_TO_NEEDLE_OLD', 'NEEDLE_TIME_MIN': 'DOOR_TO_NEEDLE', 'DOOR_TO_GROIN': 'DOOR_TO_GROIN_OLD', 'GROIN_TIME_MIN': 'DOOR_TO_GROIN', 'CT_TIME': 'CT_DATE', 'CT_TIME_WITHIN': 'CT_TIME'}, inplace=True)
 
-            logging.info("Connection: Column names in Slovakia were changed successfully.")
+            logging.info("CalculationSK: Connection: Column names in Slovakia were changed successfully.")
 
             self.dict_df[name] = res
 
@@ -254,22 +271,16 @@ class Connection:
 
             res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
 
-            #print(list(res.columns))
-
+            # Calculate the needle time in the minutes from hospital date and needle time. If hospital date is > needle time then as hospital time ct time is used
             res['NEEDLE_TIME_MIN'], res['USED_COL'] = zip(*res.apply(lambda x: self._calculate_time(x['CT_TIME'], x['HOSPITAL_DATE'], x['NEEDLE_TIME']) if x['NEEDLE_TIME'].date else (np.nan, None), axis=1))
-
+            # Calculate the groin time in the minutes from hospital date and groin time. If hospital date is > groin time then as hospital time ct time is used
             res['GROIN_TIME_MIN'], res['USED_COL'] = zip(*res.apply(lambda x: self._calculate_time(x['CT_TIME'], x['HOSPITAL_DATE'], x['GROIN_TIME'], x['USED_COL']) if x['GROIN_TIME'].date else (np.nan, None), axis=1))
-
+            # Get values if CT was performed within 1 hour after admission or after
             res['CT_TIME_WITHIN'] = res.apply(lambda x: self._calculate_ct_time(x['HOSPITAL_DATE'], x['CT_TIME']) if x['CT_MRI'] == 2 else np.nan, axis=1)
-
+            
             res.drop(['USED_COL'], inplace=True, axis=1)
             
-            #res['CRF'] = 'SLOVAKIA_2019'
-
             res.rename(columns={'DOOR_TO_NEEDLE': 'DOOR_TO_NEEDLE_OLD', 'NEEDLE_TIME_MIN': 'DOOR_TO_NEEDLE', 'DOOR_TO_GROIN': 'DOOR_TO_GROIN_OLD', 'GROIN_TIME_MIN': 'DOOR_TO_GROIN', 'CT_TIME': 'CT_DATE', 'CT_TIME_WITHIN': 'CT_TIME'}, inplace=True)
-
-
-            #res['CRF'] = 'SLOVAKIA_2018'
 
             logging.info("Connection: Column names in Slovakia_2018 were changed successfully.")
 
@@ -277,37 +288,36 @@ class Connection:
 
     
     def _get_countries(self, df):
-        """Return list of countries present in the dataframe.
+        """ The function obtaining all possible countries in the dataframe. 
 
-        Args:
-            df: The raw dataframe
-        Returns:
-            The list of country codes present in the dataframe.
+        :param df: the preprossed dataframe
+        :type df: pandas dataframe
+        :returns: the list of countries
         """
-        site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
-        countriesSet = set(site_ids[0])
-        countriesList = list(countriesSet)
 
-        logging.info("Data: Countries in the dataset: {0}.".format(countriesList))
-        return countriesList
+        site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
+        countries_list = list(set(site_ids[0]))
+
+        logging.info("calculationSK: Data: Countries in the dataset: {0}.".format(countries_list))
+        return countries_list
             
 
 class FilterDataset:
-    """ Filter dataset by country and the time period. 
+    """ The class filtering preprocessed data by country or by date. 
 
-    Args:
-        df: The preprocessed dataframe
-        country: The country code of country which should be included in the resulted calculation (default: None)
-        date1: The first daate included in the filtered dataframe (default: None)
-        date2: The last date included in the filtered dataframe (default: None)
-    Returns:
-        The filtered dataframe. 
+    :param df: the preprocessed dataframe
+    :type df: pandas dataframe
+    :param country: the country code of country included in the resulted dataframe
+    :type country: str
+    :param date1: the first date included in the filtered dataframe
+    :type date1: date object
+    :param date2: the last date included in the filtered dataframe
+    :type date2: date object
     """
-
     def __init__(self, df, country=None, date1=None, date2=None):
 
-        # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -322,61 +332,51 @@ class FilterDataset:
         if self.country is not None:
             # Append "_" to the country code, because e.g. ES_MD was included in dataset for MD as well.
             country = self.country + "_" 
-
-            self.fdf = self._filter_by_country(country=country)
-            logging.info('FilterDataset: Data have been filtered for country {0}!'.format(self.country)) 
+            self.fdf = self._filter_by_country()
+            logging.info('CalculationSK: FilterDataset: Data have been filtered for country {0}!'.format(self.country)) 
         
         if self.date1 is not None and self.date2 is not None:
-
             self.fdf = self._filter_by_date()
-            logging.info('FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
+            logging.info('CalculationSK: FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
         
+    def _filter_by_country(self):
+        """ The function filtering the dataframe by country. 
         
-    def _filter_by_country(self, country):
-        """ Return dataframe containing only rows for the given country. 
-        
-        Args:
-            country: The changed country code.
-        Returns:
-            The filtered dataframe. 
+        :returns: filtered dataframe including only rows belongs to the country
         """
         df = self.fdf[self.fdf['Protocol ID'].str.startswith(self.country) == True]
 
         return df
 
     def _filter_by_date(self):
-        """ Return dataframe containing only rows where discharge date is between these two dates. 
+        """ The function filtering the dataframe by time period. 
 
-        Args: 
-            date1: The first date included in the filtered dataframe
-            date2: The last date included in the filtered dataframe
-        Returns: 
-            The filtered dataframe
+        :returns: filtered dataframe including only rows where discharge date is between date1 and date2
         """
-        
         df = self.fdf[(self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2)]
 
         return df
 
-
 class GeneratePreprocessedData:
-    """
-    Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.    
+    """ The class generating the preprocessed data and legend data in the excel file. 
+
+    :param df: the preprocessed data dataframe
+    :type df: pandas dataframe
+    :param split_sites: True if for each site should be generated individual reports including whole country
+    :type split_sites: bool
+    :param site: site ID
+    :type site: str
+    :param report: the type of the report (quater, year, half)
+    :type report: str
+    :param quarter: the type of the period (Q1_2019, H1_2019, ...)
+    :type quarter: str
+
     """
 
     def __init__(self, df, split_sites=False, site=None, report=None, quarter=None, country_code=None):
-        """Create object of preprocessed data. 
-
-        Args:
-            df: preprocessed data in datafraem
-            split_sites: True if preprocessed data has to be generated per site (default: False)
-            site: Protocol ID of site (default: None)
-            country_code: country code (default: None)
-            report: type of the report, eg. quarter (default: None)
-            period: type of the period, eg. H1_2018 (default: None)
-        """
-        # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -392,81 +392,78 @@ class GeneratePreprocessedData:
         # If Site is not None, filter dataset according to site code
         if site is not None:
             df = self.df[self.df['Protocol ID'].str.contains(site) == True]
-            # Generate preprocessed data for site
             self._generate_preprocessed_data(df=df, site_code=site)
-            logging.info('Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
+            logging.info('CalculationSK: Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
         
         # Generate formatted statistics per site + country as site is included
         if (split_sites) and site is None:
-            logging.info('Preprocessed data: Generate preprocessed data per site.')
+            logging.info('CalculationSK: Preprocessed data: Generate preprocessed data per site.')
             # Get set of all site ids
             site_ids = set(self.df['Protocol ID'].tolist())
-            #site_ids = set(site_ids)  
+
             for i in site_ids:
                 df = self.df[self.df['Protocol ID'].str.contains(i) == True]
                 self._generate_preprocessed_data(df=df, site_code=i)
-                logging.info('Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
+                logging.info('CalculationSK: Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
 
         self._generate_preprocessed_data(self.df, site_code=None)
-        logging.info('Preprocessed data: The preprocessed data were generate for all data.')
+        logging.info('CalculationSK: Preprocessed data: The preprocessed data were generate for all data.')
 
+
+    def convert_to_string(datetime, format):
+        """ The function converting the date, timestamp or time to the string.
+
+        :param datetime: the date, timestamp or time value to be converted
+        :type datetime: date/timestamp/time
+        :param format: the format of the date, timestamp or time
+        :type format: the string
+        :returns: the datetime argument in the string
+
+        """
+        if datetime is None or datetime is np.nan:
+            return datetime
+        else:
+            return datetime.strftime(format)
+                
     def _generate_preprocessed_data(self, df, site_code):
-        """
-        Generate preprocessed data with legend. 
+        """ The function creating the workbook and generating the preprocessed data in the excel file. 
 
-        Keyword arguments: 
-            df = filtered dataframe
-            site_code = code of site included in the dataframe
+        :param df: the dataframe with preprocessed data
+        :type df: pandas dataframe
+        :param site_code: the site code if split sites is True
+        :type site_code: str
+
         """
-        
         if site_code is not None:
             output_file = self.report + "_" + site_code + "_" + self.quarter + "_preprocessed_data.xlsx"
         else:
             output_file = self.report + "_" + self.country_code + "_" + self.quarter + "_preprocessed_data.xlsx"
-        
-        #output_file = "preprocessed_data.xlsx"
-        
+                
         df = df.copy()
         
-        # Convert dates to strings
+        # Set date/timestamp/time formats
         dateformat = "%Y-%m-%d"
         timestamp = "%Y-%m-%d %H:%M"
         timeformat = "%H:%M"
-        def convert_to_string(datetime, format):
-            if datetime is None or datetime is np.nan:
-                return datetime
-            else:
-                return datetime.strftime(format)
         
-        
-       # if df['VISIT_DATE'].dtype != np.object:
         df['VISIT_DATE'] = df.apply(lambda x: convert_to_string(x['VISIT_DATE'], dateformat), axis=1)
-       # if df['VISIT_DATE_OLD'].dtype != np.object:
-        #if df['VISIT_TIME'].dtype != np.object:
         df['VISIT_TIME'] = df.apply(lambda x: convert_to_string(x['VISIT_TIME'], timeformat), axis=1)
         df['HOSPITAL_DATE'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE'], timestamp), axis=1)
-        #if df['HOSPITAL_TIME'].dtype != np.object:
        # df['HOSPITAL_TIME'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_TIME'], timeformat), axis=1)
         df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], timestamp), axis=1)
         
-        
-
-        # Replace NAN values with 0
         df.fillna(value="", inplace=True)
 
-        # Create workbook
         workbook = xlsxwriter.Workbook(output_file)
         logging.info('Preprocessed data: The workbook was created.')
-        # Create worksheets
-        preprocessed_data_sheet = workbook.add_worksheet('Preprocessed_raw_data')
-        legend_sheet = workbook.add_worksheet('Legend_v2.0')
-        additional_desc_sheet = workbook.add_worksheet('Additional_description')
 
-        ### PREPROCESSED DATA
+        preprocessed_data_sheet = workbook.add_worksheet('Preprocessed_raw_data')
+
+        ### PREPROCESSED DATA ###
         preprocessed_data = df.values.tolist()
         # Set width of columns
         preprocessed_data_sheet.set_column(0, 150, 30)
-        # Number of columns/rows
+
         ncol = len(df.columns) - 1
         nrow = len(df)
 
@@ -487,17 +484,18 @@ class GeneratePreprocessedData:
     
         workbook.close()
 
-
 class ComputeStats:
+    """ The class calculating the statistics from Slovakia data. 
 
-    """
-    This module compute statistics from the raw data. 
-    
-    Keyword arguments:
-    df -- the raw dataframe
-    country -- True if country should be included as site into results (default False)
-    country_code -- the country code of country if data were filtered (default "")
-    comparison -- True if we are compare the data (e.g. countries between each other)
+    :param df: the dataframe with preprocessed data
+    :type df: pandas dataframe
+    :param country: `True` if country should be included as site into results 
+    :type country: bool
+    :param country_code: the country code of country
+    :type country_code: str
+    :param comparison: `True` if comparison statistic is generated
+    :type comparison: bool
+
     """
 
     def __init__(self, df, country = False, country_code = "", comparison=False):
@@ -505,8 +503,13 @@ class ComputeStats:
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
 
-        # Get short Protocol IDs - it means RESQ-v - PL_001 will be PL_001
         def get_country_name(value):
+            """ The function obtaining the country name for the given country code.
+            
+            :param value: the country code
+            :type value: str
+            :returns: country name
+            """
             if value == "UZB":
                 value = 'UZ'
             country_name = pytz.country_names[value]
@@ -516,13 +519,11 @@ class ComputeStats:
             self.df['Protocol ID'] = self.df.apply(lambda row: row['Protocol ID'].split()[2] if (len(row['Protocol ID'].split()) == 3) else row['Protocol ID'].split()[0], axis=1)
             # uncomment if you want stats between countries and set comparison == True
             #self.df['Protocol ID'] = self.df.apply(lambda x: x['Protocol ID'].split("_")[0], axis=1)
-        #print(set(list(self.df['Protocol ID'])))
 
         # If you want to compare, instead of Site Names will be Country names. 
         if comparison:
             if self.df['Protocol ID'].dtype == np.object:
                 self.df['Site Name'] = self.df.apply(lambda x: get_country_name(x['Protocol ID']) if get_country_name(x['Protocol ID']) != "" else x['Protocol ID'], axis=1)
-        
         
         if (country):
             country = self.df.copy()
@@ -534,17 +535,13 @@ class ComputeStats:
             self.country_name = ""
         
         if comparison == False:
-            # Get Protocol IDs and Total Patients 
             self.statsDf = self.df.groupby(['Protocol ID']).size().reset_index(name="Total Patients")
             self.statsDf['Site Name'] = ""
             self.statsDf = self.statsDf[['Protocol ID', 'Site Name', 'Total Patients']]
         else:
-            # Get Protocol IDs and Total Patients 
             self.statsDf = self.df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")
 
-        # Median age
         self.statsDf['Median patient age'] = self.df.groupby(['Protocol ID']).AGE.agg(['median']).rename(columns={'median': 'Median patient age'})['Median patient age'].tolist()
-
 
         self.df.drop(['ANTITHROMBOTICS'], inplace=True, axis=1)
 
@@ -559,9 +556,11 @@ class ComputeStats:
         # get patietns with ischemic stroke (IS), intracerebral hemorrhage (ICH), or cerebral venous thrombosis (CVT) (1, 2, 5)
         is_ich_cvt = self.df[self.df['STROKE_TYPE'].isin([1, 2, 5])]
         self.statsDf['is_ich_cvt_patients'] = self._count_patients(dataframe=is_ich_cvt)
+
         # Get dataframe with patients who had ischemic stroke (IS) or intracerebral hemorrhage (ICH)
         is_ich = self.df[self.df['STROKE_TYPE'].isin([1,2])]
         self.statsDf['is_ich_patients'] = self._count_patients(dataframe=is_ich)
+
         # get patietns with ischemic stroke (IS) and transient ischemic attack (TIA) (1, 3)
         is_tia = self.df[self.df['STROKE_TYPE'].isin([1, 3])]
         self.statsDf['is_tia_patients'] = self._count_patients(dataframe=is_tia)
@@ -598,103 +597,52 @@ class ComputeStats:
         discharge_subset_alive = self.df[~self.df['DISCHARGE_DESTINATION'].isin([5])]
         self.statsDf['discharge_subset_alive_patients'] = self._count_patients(dataframe=discharge_subset_alive)
 
-
         ##########
         # GENDER #
         ##########
-        # Get gender calculation in one table 
         self.tmp = self.df.groupby(['Protocol ID', 'GENDER']).size().to_frame('count').reset_index()
 
-        # Get female patients 
         self.statsDf = self._get_values_for_factors(column_name="GENDER", value=2, new_column_name='# patients female')
-
-        # Get only female patients in % out of total patients. 
         self.statsDf['% patients female'] = self.statsDf.apply(lambda x: round(((x['# patients female']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-
-        # Get male patients 
+        
         self.statsDf = self._get_values_for_factors(column_name="GENDER", value=1, new_column_name='# patients male')
-
-        # Get % of male patients
         self.statsDf['% patients male'] = self.statsDf.apply(lambda x: round(((x['# patients male']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-
-        #self.statsDf['sum'] = self.statsDf['% patients female'] + self.statsDf['% patients male'] 
-        #self.statsDf['% patients female'] = self.statsDf.apply(lambda x: x['% patients female']-0.01 if x['sum'] > 100.00 else x['% patients female'], axis=1)
-
-        # Drop tmp column 
-        #self.statsDf.drop(['sum'], inplace=True, axis=1)
 
         ###################
         # HOSPITALIZED IN #
         ###################
-        # Get hospitalized in one table 
         self.tmp = self.df.groupby(['Protocol ID', 'HOSPITALIZED_IN']).size().to_frame('count').reset_index()
 
-        # Get patients hospitalized in stroke unit / ICU
         self.statsDf = self._get_values_for_factors(column_name="HOSPITALIZED_IN", value=1, new_column_name='# patients hospitalized in stroke unit / ICU')
-
-        # Get % patients hospitalized in stroke unit / ICU
         self.statsDf['% patients hospitalized in stroke unit / ICU'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in stroke unit / ICU']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-
-        # Get patients hospitalized in monitored bed with telemetry
         self.statsDf = self._get_values_for_factors(column_name="HOSPITALIZED_IN", value=2, new_column_name='# patients hospitalized in monitored bed with telemetry')
-
-        # Get % patients hospitalized in monitored bed with telemetry
         self.statsDf['% patients hospitalized in monitored bed with telemetry'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in monitored bed with telemetry']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get patients hospitalized in standard bed
         self.statsDf = self._get_values_for_factors(column_name="HOSPITALIZED_IN", value=3, new_column_name='# patients hospitalized in standard bed')
-
-        # Get % patients hospitalized in standard bed
         self.statsDf['% patients hospitalized in standard bed'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in standard bed']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-
-        # Check if sum of % is > 100 (100.01)
-        #self.statsDf['sum'] = self.statsDf['% patients hospitalized in stroke unit / ICU'] + self.statsDf['% patients hospitalized in monitored bed with telemetry'] + self.statsDf['% patients hospitalized in standard bed']
-        #self.statsDf['% patients hospitalized in stroke unit / ICU'] = self.statsDf.apply(lambda x: x['% patients hospitalized in stroke unit / ICU']-0.01 if x['sum'] > 100.00 else x['% patients hospitalized in stroke unit / ICU'], axis=1)
-
-        # Drop tmp column 
-        #self.statsDf.drop(['sum'], inplace=True, axis=1)
 
         ###############
         # STROKE TYPE #
         ###############
-        # Get stroke type in one table 
         self.tmp = self.df.groupby(['Protocol ID', 'STROKE_TYPE']).size().to_frame('count').reset_index()
 
-        # Get stroke type - ischemic stroke
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=1, new_column_name='# stroke type - ischemic stroke')
-
-        # Get % stroke type - ischemic stroke
         self.statsDf['% stroke type - ischemic stroke'] = self.statsDf.apply(lambda x: round(((x['# stroke type - ischemic stroke']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get stroke type - intracerebral hemorrhage
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=2, new_column_name='# stroke type - intracerebral hemorrhage')
-
-        # Get % stroke type - intracerebral hemorrhage
         self.statsDf['% stroke type - intracerebral hemorrhage'] = self.statsDf.apply(lambda x: round(((x['# stroke type - intracerebral hemorrhage']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get stroke type - transient ischemic attack
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=3, new_column_name='# stroke type - transient ischemic attack')
-
-        # Get % stroke type - transient ischemic attack
         self.statsDf['% stroke type - transient ischemic attack'] = self.statsDf.apply(lambda x: round(((x['# stroke type - transient ischemic attack']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get stroke type - subarrachnoid hemorrhage
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=4, new_column_name='# stroke type - subarrachnoid hemorrhage')
-
-        # Get % stroke type - subarrachnoid hemorrhage
         self.statsDf['% stroke type - subarrachnoid hemorrhage'] = self.statsDf.apply(lambda x: round(((x['# stroke type - subarrachnoid hemorrhage']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get stroke type - cerebral venous thrombosis
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=5, new_column_name='# stroke type - cerebral venous thrombosis')
-
-        # Get % stroke type - cerebral venous thrombosis
         self.statsDf['% stroke type - cerebral venous thrombosis'] = self.statsDf.apply(lambda x: round(((x['# stroke type - cerebral venous thrombosis']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
-        # Get stroke type - undetermined stroke
         self.statsDf = self._get_values_for_factors(column_name="STROKE_TYPE", value=6, new_column_name='# stroke type - undetermined stroke')
-
-        # Get % stroke type - undetermined stroke
         self.statsDf['% stroke type - undetermined stroke'] = self.statsDf.apply(lambda x: round(((x['# stroke type - undetermined stroke']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
         #########
@@ -702,7 +650,6 @@ class ComputeStats:
         #########
         # Get Median of NIHSS score
         tmpDf = is_ich_cvt.groupby(['Protocol ID']).NIHSS_SCORE.agg(['median']).rename(columns={'median': 'NIHSS median score'})
-        #self.statsDf['NIHSS median score'] = nihss.groupby(['Protocol ID']).NIHSS_SCORE.agg(['median']).rename(columns={'median': 'NIHSS median score'})['NIHSS median score'].tolist()
         factorDf = self.statsDf.merge(tmpDf, how='outer', left_on='Protocol ID', right_on='Protocol ID')
         factorDf.fillna(0, inplace=True)
         self.statsDf['NIHSS median score'] = factorDf['NIHSS median score']
@@ -710,167 +657,105 @@ class ComputeStats:
         ##########
         # CT/MRI #
         ##########
-        # Get CT/MRI in one table
         self.tmp = is_ich_tia_cvt.groupby(['Protocol ID', 'CT_MRI']).size().to_frame('count').reset_index()
 
-        # Get patients CT/MRI not performed
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=3, new_column_name='# CT/MRI - In other hospital')
-
-        # Get % CT/MRI Not performed	
         self.statsDf['% CT/MRI - In other hospital'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - In other hospital']/x['is_ich_tia_cvt_patients']) * 100), 2) if x['is_ich_tia_cvt_patients'] > 0 else 0, axis=1)        
 
-        # Get patients CT/MRI performed
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=2, new_column_name='# CT/MRI - performed')
-
-        # Get % CT/MRI performed	
         self.statsDf['% CT/MRI - performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - performed']/(x['is_ich_tia_cvt_patients'] - x['# CT/MRI - In other hospital'])) * 100), 2) if (x['is_ich_tia_cvt_patients'] - x['# CT/MRI - In other hospital']) > 0 else 0, axis=1)
 
-        # Get patients CT/MRI not known
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=1, new_column_name='# CT/MRI - Not performed')
-
-        # Get % CT/MRI not known	
         self.statsDf['% CT/MRI - Not performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Not performed']/(x['is_ich_tia_cvt_patients'] - x['# CT/MRI - In other hospital'])) * 100), 2) if (x['is_ich_tia_cvt_patients'] - x['# CT/MRI - In other hospital']) > 0 else 0, axis=1)
-
         
         # Get CT/MRI performed subset
         ct_mri = is_ich_tia_cvt[is_ich_tia_cvt['CT_MRI'].isin([2])]
 
-        # Get CT/MRI time in one table
         self.tmp = ct_mri.groupby(['Protocol ID', 'CT_TIME']).size().to_frame('count').reset_index()
-        #print(self.tmp)
 
-        # Get patients CT/MRI within first hour after admission
         self.statsDf = self._get_values_for_factors(column_name="CT_TIME", value=1, new_column_name='# CT/MRI - Performed within 1 hour after admission')
-
-        # Get % CT/MRI within first hour after admission	
         self.statsDf['% CT/MRI - Performed within 1 hour after admission'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Performed within 1 hour after admission']/x['# CT/MRI - performed']) * 100), 2) if x['# CT/MRI - performed'] > 0 else 0, axis=1)
 
-        # Get patients CT/MRI within first hour after admission
         self.statsDf = self._get_values_for_factors(column_name="CT_TIME", value=2, new_column_name='# CT/MRI - Performed later than 1 hour after admission')
-
-        # Get % CT/MRI within first hour after admission	
         self.statsDf['% CT/MRI - Performed later than 1 hour after admission'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Performed later than 1 hour after admission']/x['# CT/MRI - performed']) * 100), 2) if x['# CT/MRI - performed'] > 0 else 0, axis=1)
         
-
         #############################
         # RECANALIZATION PROCEDURES #
         #############################
+        # Filter negative or too high door to needle times
         needle = isch.loc[(isch['DOOR_TO_NEEDLE'] < 0) | (isch['DOOR_TO_NEEDLE'] > 400)].copy()
+        # Filter negative and too high door to groin time
         groin = isch.loc[(isch['DOOR_TO_NEEDLE'] == 0) & ((isch['DOOR_TO_GROIN'] < 0) | (isch['DOOR_TO_GROIN'] > 700))].copy()
-        #indexes = isch.loc[((isch['DOOR_TO_NEEDLE'] < 0) & (isch['DOOR_TO_NEEDLE'] > 400)) | ((isch['DOOR_TO_NEEDLE'] == 0) & (isch['DOOR_TO_GROIN'] < 0) & (isch['DOOR_TO_GROIN'] > 700))].copy()
         number_of_patients = len(needle.index.values) + len(groin.index.values)
-        #print('Number of patients removed: {0}.'.format(number_of_patients))
+
         recan_tmp = isch.drop(needle.index.values)
         recan_tmp.drop(groin.index.values, inplace=True)
         recan_tmp.to_csv('recan_tmp.csv', sep=',')
         self.tmp = recan_tmp.groupby(['Protocol ID', 'RECANALIZATION_PROCEDURES']).size().to_frame('count').reset_index()
 
-        # Get patients recanalization procedures - Not done
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=1, new_column_name='# recanalization procedures - Not done')
-
-        # Get % patients recanalization procedures - Not done
         self.statsDf['% recanalization procedures - Not done'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Not done']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - IV tPa
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=2, new_column_name='# recanalization procedures - IV tPa')
-
-        # Get % patients recanalization procedures - IV tPa
         self.statsDf['% recanalization procedures - IV tPa'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - IV tPa + endovascular treatment
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=3, new_column_name='# recanalization procedures - IV tPa + endovascular treatment')
-
-        # Get % patients recanalization procedures - IV tPa + endovascular treatment
         self.statsDf['% recanalization procedures - IV tPa + endovascular treatment'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - IV tPa + endovascular treatment']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - Endovascular treatment alone
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=4, new_column_name='# recanalization procedures - Endovascular treatment alone')
-
-        # Get % patients recanalization procedures - Endovascular treatment alone
         self.statsDf['% recanalization procedures - Endovascular treatment alone'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Endovascular treatment alone']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - IV tPa + referred to another centre for endovascular treatment
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=5, new_column_name='# recanalization procedures - IV tPa + referred to another centre for endovascular treatment')
-
-        # Get % patients recanalization procedures - IV tPa + referred to another centre for endovascular treatment
         self.statsDf['% recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - Referred to another centre for endovascular treatment
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=6, new_column_name='# recanalization procedures - Referred to another centre for endovascular treatment')
-
-        # Get % patients recanalization procedures - Referred to another centre for endovascular treatment
         self.statsDf['% recanalization procedures - Referred to another centre for endovascular treatment'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Referred to another centre for endovascular treatment']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=7, new_column_name='# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre')
-
-        # Get % patients recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre
         self.statsDf['% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=8, new_column_name='# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre')
-
-        # Get % patients recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre
         self.statsDf['% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=9, new_column_name='# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre')
-
-        # Get % patients recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre
         self.statsDf['% recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'] = self.statsDf.apply(lambda x: round(((x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        # Get patients recanalized
         self.statsDf['# patients recanalized'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] +  x['# recanalization procedures - Endovascular treatment alone'], axis=1)
-
-        # Get % patients recanalized
         self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
 
-        
         ##############
         # MEDIAN DTN #
         ##############
         # Get patients receiving IV tpa
         self.statsDf.loc[:, '# IV tPa'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
-
-        # Get patients receiving IV tpa %
         self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
         # Get only patients recanalized
-       # recanalization_procedure_iv_tpa = isch.loc[(isch['RECANALIZATION_PROCEDURES'].isin([2, 3, 5])) & (isch['DOOR_TO_NEEDLE'] > 0) & (isch['DOOR_TO_NEEDLE'] <= 400)]
+        # recanalization_procedure_iv_tpa = isch.loc[(isch['RECANALIZATION_PROCEDURES'].isin([2, 3, 5])) & (isch['DOOR_TO_NEEDLE'] > 0) & (isch['DOOR_TO_NEEDLE'] <= 400)]
         recanalization_procedure_iv_tpa = isch[isch['RECANALIZATION_PROCEDURES'].isin([2, 3, 5])].copy()
 
-        # Replace NA values by 0
         recanalization_procedure_iv_tpa.fillna(0, inplace=True)
         recanalization_procedure_iv_tpa['IVTPA'] = recanalization_procedure_iv_tpa['DOOR_TO_NEEDLE']
-        #print(recanalization_procedure_iv_tpa['IVTPA'].tolist())
 
         tmp = recanalization_procedure_iv_tpa.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index()
-        #print(tmp)
         self.statsDf = self.statsDf.merge(tmp, how='outer')
         self.statsDf.fillna(0, inplace=True)
-
-        #self.statsDf = self.statsDf.merge(interval_vals_df, how='outer')
         
         ##############
         # MEDIAN DTG #
         ##############
         # Get patients receiving TBY
         self.statsDf.loc[:, '# TBY'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + endovascular treatment'], axis=1)
-
-        # Get patients receiving TBY %
         self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
-        
         # Get only patients recanalized TBY
         recanalization_procedure_tby_dtg = isch[isch['RECANALIZATION_PROCEDURES'].isin([4, 3])].copy()
         #recanalization_procedure_tby_dtg = isch.loc[(isch['RECANALIZATION_PROCEDURES'].isin([4, 3])) & (isch['DOOR_TO_GROIN'] > 0) & (isch['DOOR_TO_GROIN'] <= 700)]
         recanalization_procedure_tby_dtg.fillna(0, inplace=True)
 
-        # Get IVTPA in minutes
         recanalization_procedure_tby_dtg['TBY'] = recanalization_procedure_tby_dtg['DOOR_TO_GROIN']
 
         tmp = recanalization_procedure_tby_dtg.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
-        #print(tmp)
         self.statsDf = self.statsDf.merge(tmp, how='outer')
         self.statsDf.fillna(0, inplace=True)
 
@@ -879,40 +764,22 @@ class ComputeStats:
         #######################
         self.tmp = is_ich_cvt.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING']).size().to_frame('count').reset_index()
 
-        # Get patients dysphagia screening - not known
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=6, new_column_name='# dysphagia screening - not known')
-
-        # Get % patients dysphagia screening - not known
         self.statsDf['% dysphagia screening - not known'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - not known']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
 
-        # Get patients dysphagia screening - Guss test
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=1, new_column_name='# dysphagia screening - Guss test')
-
-        # Get % patients dysphagia screening - Guss test
         self.statsDf['% dysphagia screening - Guss test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Guss test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
 
-        # Get patients dysphagia screening - Other test
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=2, new_column_name='# dysphagia screening - Other test')
-
-        # Get % patients dysphagia screening - Other test
         self.statsDf['% dysphagia screening - Other test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Other test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
 
-        # Get patients dysphagia screening - Another centre
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=3, new_column_name='# dysphagia screening - Another centre')
-
-        # Get % patients dysphagia screening - Another centre
         self.statsDf['% dysphagia screening - Another centre'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Another centre']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
 
-        # Get patients dysphagia screening - Not done
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=4, new_column_name='# dysphagia screening - Not done')
-
-        # Get % patients dysphagia screening - Not done
         self.statsDf['% dysphagia screening - Not done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Not done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
 
-        # Get patients dysphagia screening - Unable to test
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=5, new_column_name='# dysphagia screening - Unable to test')
-
-        # Get % patients dysphagia screening - Unable to test
         self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
 
         self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test'] + self.statsDf['# dysphagia screening - Another centre']
@@ -923,16 +790,10 @@ class ComputeStats:
         ############################
         self.tmp = self.df.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING_TIME']).size().to_frame('count').reset_index()
 
-        # Get patients dysphagia screening time - Within first 24 hours
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING_TIME", value=1, new_column_name='# dysphagia screening time - Within first 24 hours')
-
-        # Get patients dysphagia screening time - After first 24 hours
         self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING_TIME", value=2, new_column_name='# dysphagia screening time - After first 24 hours')
 
-        # Get % patients dysphagia screening time - Within first 24 hours
         self.statsDf['% dysphagia screening time - Within first 24 hours'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening time - Within first 24 hours']/(x['# dysphagia screening time - Within first 24 hours'] + x['# dysphagia screening time - After first 24 hours'])) * 100), 2) if (x['# dysphagia screening time - Within first 24 hours'] + x['# dysphagia screening time - After first 24 hours']) > 0 else 0, axis=1)
-
-        # Get % patients dysphagia screening time - After first 24 hours
         self.statsDf['% dysphagia screening time - After first 24 hours'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening time - After first 24 hours']/(x['# dysphagia screening time - Within first 24 hours'] + x['# dysphagia screening time - After first 24 hours'])) * 100), 2) if (x['# dysphagia screening time - Within first 24 hours'] + x['# dysphagia screening time - After first 24 hours']) > 0 else 0, axis=1)
 
         ########
@@ -946,71 +807,49 @@ class ComputeStats:
         reffered = is_tia[is_tia['RECANALIZATION_PROCEDURES'].isin([7])].copy()
         self.statsDf['reffered_patients'] = self._count_patients(dataframe=reffered)
 
-        # 
         self.tmp = not_reffered.groupby(['Protocol ID', 'AFIB_FLUTTER']).size().to_frame('count').reset_index()
 
-        # Get patients afib/flutter - Known
         self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=1, new_column_name='# afib/flutter - Known')
-
-        # Get % patients afib/flutter - Known
         self.statsDf['% afib/flutter - Known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
 
-        # Get patients afib/flutter - Newly-detected at admission
         self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=2, new_column_name='# afib/flutter - Newly-detected at admission')
-
-        # Get % patients afib/flutter - Newly-detected at admission
         self.statsDf['% afib/flutter - Newly-detected at admission'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Newly-detected at admission']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
 
-        # Get patients afib/flutter - Detected during hospitalization
         self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=3, new_column_name='# afib/flutter - Detected during hospitalization')
-
-        # Get % patients afib/flutter - Detected during hospitalization
         self.statsDf['% afib/flutter - Detected during hospitalization'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Detected during hospitalization']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
-        # Get patients afib/flutter - Not detected
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=4, new_column_name='# afib/flutter - Not detected')
 
-        # Get % patients afib/flutter - Not detected
+        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=4, new_column_name='# afib/flutter - Not detected')
         self.statsDf['% afib/flutter - Not detected'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not detected']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
 
-        # Get patients afib/flutter - Not known
         self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=5, new_column_name='# afib/flutter - Not known')
-
-        # Get % patients afib/flutter - Not known
         self.statsDf['% afib/flutter - Not known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
 
         ############################
         # CAROTID ARTERIES IMAGING #
         ############################
-        # 
         self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
 
-        # Get patients carotid arteries imaging - Not known
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
-
-        # Get % patients carotid arteries imaging - Not known
         self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
-        # Get patients carotid arteries imaging - Yes
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
-
-        # Get % patients carotid arteries imaging - Yes
         self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
 
-        # Get patients carotid arteries imaging - No
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
-
-        # Get % patients carotid arteries imaging - No
         self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
 
-       
         ###############################
         # ANTITHROMBOTICS WITHOUT CVT #
         ###############################
-        # Get patients with prescribed antithrombotics
         def get_antithrombotics(vals):
-            set_vals = list(set(vals))
+            """ The function converting the values for antithrombotics in one value. 
+
+            :param vals: the list of values for antithrombotics
+            :type vals: list
+            """
+            set_vals = list(set(vals)) # remove duplicate values
             
-            if len(set_vals) == 1:
+            if len(set_vals) == 1: # If 
                 if set_vals[0] == 2:
                     res = 2
                 elif set_vals[0] == 0:

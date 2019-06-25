@@ -688,10 +688,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
+                        title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
-                        title = "Medián viděn naposledy zdráv - příjezd do nemocnice - " + month_name + " " + str(self.year)
+                        title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + month_name + " " + str(self.year)
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
