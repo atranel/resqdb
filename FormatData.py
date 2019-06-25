@@ -288,7 +288,7 @@ class GenerateFormattedAngelsAwards:
     """
     This class generate formatted statistics only for angels awards. 
     """
-    def __init__(self, df, report=None, quarter=None, minimum_patients=0):
+    def __init__(self, df, report=None, quarter=None, minimum_patients=30):
 
         self.df = df
         self.report = report
@@ -652,7 +652,7 @@ class GenerateFormattedStats:
         report: the report name (default: None)
         quarter: the quarter name (default: None)
     """
-    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=0):
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=30):
 
         self.df_unformatted = df.copy()
         self.df = df.copy()

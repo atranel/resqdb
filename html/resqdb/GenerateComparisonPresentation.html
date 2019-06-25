@@ -1,0 +1,3801 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>resqdb.GenerateComparisonPresentation API documentation</title>
+<meta name="description" content="File name: GenerateComparisonPresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2018
+Version: v1.0
+Version …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>resqdb.GenerateComparisonPresentation</code></h1>
+</header>
+<section id="section-intro">
+<p>File name: GenerateComparisonPresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2018
+Version: v1.0
+Version comment: The first version of script which generate comaparison into presentation in PPTX format.<br>
+Description: This script is used to generate comparison charts into presentation.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+File name: GenerateComparisonPresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2018
+Version: v1.0
+Version comment: The first version of script which generate comaparison into presentation in PPTX format.  
+Description: This script is used to generate comparison charts into presentation. 
+&#34;&#34;&#34;
+
+
+import pandas as pd
+import sys
+import os
+import sqlite3
+from datetime import datetime, date
+import math
+import pytz
+
+import xlsxwriter
+
+
+import csv
+
+from pptx import Presentation
+from pptx.chart.data import CategoryChartData, ChartData
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.chart import XL_CHART_TYPE, XL_TICK_MARK, XL_TICK_LABEL_POSITION, XL_LEGEND_POSITION, XL_LABEL_POSITION
+from pptx.enum.text import MSO_AUTO_SIZE
+from pptx.util import Cm, Pt, Inches
+from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_LINE
+from pptx.oxml.xmlchemy import OxmlElement
+
+class GeneratePeriodCompPresentation:
+    &#34;&#34;&#34;
+    This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.
+
+    Arguments:
+        ndf1 - dataframe containing data for first period
+        ndf2 - dataframe containing data for second period
+        name1 - name of first period (e.g. 2017)
+        name2 - name of 2nd periodn (e.g. 2018) 
+    &#34;&#34;&#34;
+
+    def __init__(self, ndf1, ndf2, name1, name2):
+
+        self.ndf1 = ndf1
+        self.ndf2 = ndf2
+        self.name1 = name1
+        self.name2 = name2
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        filename = &#34;resq.db&#34;
+        self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        self._generate_graphs()
+    
+    def _generate_graphs(self):
+        &#34;&#34;&#34;This function generates graphs into presentation .pptx.&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Calibri Light&#39;
+        font.size = Pt(26)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        # main_col = &#34;Site Name&#34;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+        
+        title = &#34;Total patients enrolled&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+
+        ###########################################
+        #### PATIENTS RECEIVING RECANALIZATION ####
+        ###########################################
+        column_name = &#39;% patients recanalized&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;% patients receiving recanalization procedures&#34;
+        subtitle = &#34;Calculated out of number of IS&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, subtitle=subtitle, number_of_series=len(legend), legend=legend)
+
+        ##############################
+        #### MEDIAN DTN (MINUTES) ####
+        ##############################
+        column_name = &#39;Median DTN (minutes)&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;Median Door-to-Needle Time (DTN), in minutes&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+
+        ##############################
+        #### MEDIAN DTG (MINUTES) ####
+        ##############################
+        column_name = &#39;Median DTG (minutes)&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;Median Door-to-Needle Time (DTG), in minutes&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+        
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = &#34;comparison_two_periods.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)
+
+
+class GeneratePeriodCompGraph:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation. 
+
+    Arguments:
+        df - dataframe containing values for each period in one column
+        presentation - opened presentation document
+        column_name - the name of column
+        title - the name of slide
+        subtitle - the subtitle of slide (smaller font)
+        number_of_series - number of values in one column (bar) for stacked charplots
+        legend - list of legend names
+    &#34;&#34;&#34;
+    def __init__(self, df, presentation, column_name, title, subtitle=&#34;&#34;, number_of_series=0, legend=None):
+
+        self.df = df        
+        self.presentation = presentation
+        self.title = title
+        self.column_name = column_name
+        self.number_of_series = number_of_series
+        self.font_name = &#39;Roboto&#39;
+        self.legend = legend
+        self.subtitle = subtitle
+
+        self.category_font_size = Pt(10)
+        self.data_label_font_size = Pt(11)
+        self.categories_column = &#39;Site Name&#39;
+
+        self._create_column_clustered_barplot()
+        
+
+    def _get_length_of_legend(self, legend):
+        &#34;&#34;&#34;Return number of letters in legend to adjust the font size of legend.&#34;&#34;&#34;
+        count = 0
+
+        for i in legend:
+            count = count + len(i)
+        
+        return count
+
+    def _create_column_clustered_barplot(self):
+        &#34;&#34;&#34;Create column clustered barplot.&#34;&#34;&#34;
+
+        maximum = 0
+        
+        # Get column names of dataframe
+        column_names = self.df.columns.tolist()
+
+        index = column_names.index(self.categories_column)
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # If subtitle is not set, remove placeholder for the subtitle from page. 
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st chart (left side) - nationally sample
+        chart_data = ChartData()
+        chart_data.categories = self.df[self.categories_column].tolist()
+        # Add data in each category 
+        chart_data.add_series(self.legend[0], self.df[column_names[index+1]].tolist()) 
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.df[column_names[index+2]].tolist())
+
+        # Set margins.
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+        }
+
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.COLUMN_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+
+        # Get plot 
+        plot = chart.plots[0]
+        plot.gap_width = 220
+        plot.overlap = -25
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        &#39;&#39;&#39;
+        plot.has_data_labels = False
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name&#39;&#39;&#39;
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+
+        # Don&#39;t show major gridlines
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.major_tick_mark = XL_TICK_MARK.NONE
+        value_axis.format.line.color.rgb = RGBColor(217, 217, 217)
+        # Set range of axis
+        #value_axis.maximum_scale = ndf_maximum
+        value_axis.minimum_scale = 0
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        category_axis.format.line.color.rgb = RGBColor(217, 217, 217)
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        #category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
+
+class GenerateCountriesCompPresentation:     
+    &#34;&#34;&#34;
+    This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.
+
+    Arguments:
+        ndf - dataframe containing data for first set of countries in given period
+        sldf - dataframe containing data for second set of countries in given period
+        name - name of given period (e.g. 2017)
+        samples - name of countries which should be colored by different color in the main graph
+    &#34;&#34;&#34;
+    def __init__(self, ndf, sldf, name=&#34;&#34;, samples=[]):
+
+        self.ndf = ndf
+        self.sldf = sldf
+        self.name = name
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        filename = &#34;resq.db&#34;
+        self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        def select_country(value):
+            if value == &#34;UZB&#34;:
+                value = &#39;UZ&#39;
+            country_name = pytz.country_names[value]
+            return country_name
+
+
+        # If country is used as site, the country name is selected from countries dictionary by country code. :
+        if len(samples) &gt; 0:
+            self.nationally_countries = []
+            for i in range(0, len(samples)):
+                country = select_country(samples[i])
+                self.nationally_countries.append(country)
+        
+        self._generate_graphs()
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;This function generates graphs into presentation (pptx).&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Century Gothic&#39;
+        font.size = Pt(20)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #    main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        # combine them to one dataframe
+        tmp_df = tmp_ndf.append(tmp_sldf)
+        tmp_df = tmp_df.sort_values([column_name], ascending=True)
+
+        title = &#39;Total number of cases - admission date in {}&#39;.format(self.name)
+        GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name)
+
+        #if self.country_name is not None:
+         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        # combine them to one dataframe
+        tmp_df = tmp_ndf.append(tmp_sldf)
+        tmp_df = tmp_df.sort_values([column_name], ascending=True)
+
+        title = &#39;Total number of cases - admission date in {}&#39;.format(self.name)
+        GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name, samples=self.nationally_countries)
+
+        #if self.country_name is not None:
+         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+        
+        ############################
+        #### MEDIAN PATIENT AGE ####
+        ############################
+        column_name = &#39;Median patient age&#39;
+        title = &#39;Median patient age&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        ###############
+        # STROKE TYPE #
+        ###############
+        column_name = &#39;% stroke type - ischemic stroke&#39;
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Stroke type, ordered by % ischemic stroke&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #######################
+        ### DEPARTMENT TYPE ###
+        #######################
+        column_name = &#39;% department type - neurology&#39;
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Department type, ordered by % neurology&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        ### HOSPITALIZATION DESTINATION ###
+        ###################################
+        column_name = &#39;% patients hospitalized in stroke unit / ICU&#39;
+        legend = [&#39;% stroke unit / ICU&#39;, &#39;% monitored bed with telemetry&#39;, &#39;% standard bed&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Hospitalization type, ordered by % stroke unit&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################
+        ### CT / MRI performed ###
+        ##########################
+        column_name = &#39;% CT/MRI - performed&#39;
+        legend = [&#39;% performed&#39;, &#39;% performed within 1 hour after admission&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% CT/MRI - performed&#39;, &#39;% CT/MRI - Performed within 1 hour after admission&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% CT/MRI - performed&#39;, &#39;% CT/MRI - Performed within 1 hour after admission&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients receiving CT / MRI&#34;
+        subtitle = &#34;- Calculated out of number of IS + ICH + TIA + CVT -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;grouped&#39;, subtitle=subtitle)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients receiving recanalization procedures&#34;
+        subtitle = &#34;- Calculated out of number of IS -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;, subtitle=subtitle)
+
+        ################
+        # % median DTN #
+        ################
+        column_name = &#39;Median DTN (minutes)&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = False)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=False)
+
+        title = &#34;Median Door-to-Needle Time (DTN), in minutes&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        #######################
+        # dysphagia screening #
+        #######################
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        column_names = [&#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]
+        legend = [&#39;% GUSS test&#39;, &#39;% Other test&#39;, &#39;% Another centre&#39;, &#39;% Unable to test&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients screened for dysphagia, ordered by % GUSS test&#34;
+        subtitle = &#34;- Calculated out of number of IS + ICH + CVT -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;, subtitle=subtitle)
+
+        #################################
+        # % ASSESSED FOR REHABILITATION #
+        #################################
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients assessed for rehabilitation within 72 hrs after admission&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        ##################################
+        # CAROTID ARTERIES IMAGING - YES #
+        ##################################
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients receiving carotid arteries imaging&#34;
+        subtitle = &#34;- Calculated out of number of IS + TIA -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ##################################
+        # PRESCRIPTION OF ANTICOAGULANTS #
+        ##################################
+        # column_name = &#39;% patients prescribed anticoagulants with aFib with CVT&#39;
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;Prescription of anticoagulants for patients with atrial fibrillation&#34;
+        subtitle = &#34;- Calculated out of number of patients with atrial fibrillation discharge alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ###################################
+        # PRESCRIPTION OF ANTITHROMBOTICS #
+        ###################################
+        column_name = &#39;% patients prescribed antithrombotics with aFib&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;Prescription of antithrombotics for patients with atrial fibrillation&#34;
+        subtitle = &#34;- Calculated out of number of patients with atrial fibrillation discharge alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ##########################
+        # DISCHARGE WITH STATINS #
+        ##########################
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients discharged on statins&#34;
+        subtitle = &#34;- Calculated out of number of IS + TIA -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+        
+        #############################################################
+        # % ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases #
+        #############################################################
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients prescribed antihypertensives at discharge&#34;
+        subtitle = &#34;- Calculated out of number of patients discharged alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ###########################################################
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        ###########################################################
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients prescribed antihypertensives at discharge&#34;
+        subtitle = &#34;- Calculated out of number of patients discharged alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, subtitle=subtitle, column_name=column_name)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = &#34;comparison.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)
+
+class GenerateCountriesCompGraphs:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation for two sets of countries.  
+
+    Arguments:
+        ndf - dataframe containing values for first set of countries
+        presentation - opened presentation document
+        column_name - the name of column
+        title - the name of slide
+        sldf - dataframe containing values for second set of countries
+        subtitle - the subtitle of slide (smaller font) (default = &#34;&#34;)
+        graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
+        number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
+        legend - list of legend names (default = None)
+        samples - list of samples which should be colored by different color in normal barplot (default = None)
+    &#34;&#34;&#34;
+    def __init__(self, ndf, presentation, column_name, title, sldf=None, subtitle=&#34;&#34;, graph_type=None, number_of_series=0, legend=None, samples=None):
+
+        self.ndf = ndf
+        self.sldf = sldf
+        self.presentation = presentation
+        self.ndf_title = &#34;Nationally representative sample&#34;
+        self.sldf_title = &#34;Site-level representative sample&#34;
+        self.title = title
+        self.column_name = column_name
+        self.number_of_series = number_of_series
+        self.legend = legend
+        self.subtitle = subtitle
+        self.samples = samples
+
+        self.font_name = &#39;Century Gothic&#39;
+        self.category_font_size = Pt(10)
+        self.data_label_font_size = Pt(11)
+        self.categories_column = &#39;Site Name&#39;
+            
+        # Check type of graph
+        if (graph_type == &#39;stacked&#39;):
+            self._create_stacked_barplot()
+        elif (graph_type == &#39;grouped&#39;):
+            self._create_grouped_barplot()
+        else:
+            self._create_barplot()
+
+    def _get_length_of_legend(self, legend):
+        &#34;&#34;&#34;Return number of letters in legend to adjust the legend font size.&#34;&#34;&#34;
+        count = 0
+
+        for i in legend:
+            count = count + len(i)
+        
+        return count
+
+    def _create_barplot(self):
+        &#34;&#34;&#34;Create normal barplot.&#34;&#34;&#34;
+
+        maximum = 0
+
+        # If graph is in %, set maximum valut to 100. 
+        if &#39;%&#39; in self.title.lower():
+            ndf_maximum = 100
+            sldf_maximum = 100
+        elif &#34;total number of cases&#34; in self.title.lower():
+            ndf_maximum = round((max(self.ndf[self.column_name].tolist())),1)
+        else:
+            ndf_maximum = round((max(self.ndf[self.column_name].tolist())),1)
+            sldf_maximum = round((max(self.sldf[self.column_name].tolist())),1)
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # If subtitle is not set, then delete placeholder for subtitle in the slide. 
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st chart (left side) - nationally sample
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        chart_data.add_series(self.column_name, self.ndf[self.column_name].tolist())
+
+        if &#34;total number of cases&#34; in self.title.lower():
+             # Add chart on slide
+            specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+            }
+        else:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+                }
+
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+        
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        if &#34;total number of cases&#34; in self.title.lower() and self.samples is not None:
+            site_names = self.ndf[self.categories_column].tolist()
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                if (site_names[idx] in self.samples):
+                    fill.fore_color.rgb = RGBColor(128,0,0)
+                else:
+                    fill.fore_color.rgb = RGBColor(43, 88, 173)
+        else:
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(43, 88, 173) 
+
+        # Get plot 
+        plot = chart.plots[0]
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        plot.has_data_labels = True
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name
+
+        # Change color of graph title and set color gray
+        if &#34;total number of cases&#34; not in self.title.lower():
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = self.ndf_title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+
+        # Don&#39;t show major gridlines
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+        value_axis.has_major_gridlines = False
+        # Set range of axis
+        value_axis.maximum_scale = ndf_maximum
+        value_axis.minimum_scale = 0
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+
+        if &#34;total number of cases&#34; not in self.title.lower():
+            # 2nd graph (right side) - site-level samples
+            chart_data = ChartData()
+            chart_data.categories = self.sldf[self.categories_column].tolist()
+            chart_data.add_series(self.column_name, self.sldf[self.column_name].tolist())
+
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+                }
+
+            chart = slide.shapes.add_chart(
+                XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+            # Get series of chart
+            series = chart.series[0]
+            
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(43, 88, 173) 
+
+            # Get plot 
+            plot = chart.plots[0]
+            # Set for each bar same color
+            plot.vary_by_categories = False
+            # Show data labels and set font
+            plot.has_data_labels = True
+            data_labels = plot.data_labels
+            data_labels.font.size = self.data_label_font_size
+            data_labels.font.bold = True
+            data_labels.font.name = self.font_name
+
+            # Change color of graph title and set color gray
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = self.sldf_title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = self.category_font_size
+            tick_labels.font.name = self.font_name
+
+            # Don&#39;t show major gridlines
+            value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = False
+            # Set range of axis
+            value_axis.maximum_scale = sldf_maximum
+            value_axis.minimum_scale = 0
+
+            # Value for y-axis (change font size, name, and other things)
+            category_axis = chart.category_axis
+            # Delete tick marks
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_axis.major_unit = 1
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+    
+    def _create_stacked_barplot(self):
+        &#34;&#34;&#34;Generate stacked barplot.&#34;&#34;&#34;
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+        if (self.number_of_series &gt;= 3):
+            chart_data.add_series(self.legend[2], self.ndf[column_names[index+2]].tolist())
+        if (self.number_of_series &gt;= 4):
+            chart_data.add_series(self.legend[3], self.ndf[column_names[index+3]].tolist())
+        if (self.number_of_series &gt;= 5):
+            chart_data.add_series(self.legend[4], self.ndf[column_names[index+4]].tolist())
+        if (self.number_of_series &gt;= 6):
+            chart_data.add_series(self.legend[5], self.ndf[column_names[index+5]].tolist())
+        if (self.number_of_series &gt;= 7):
+            chart_data.add_series(self.legend[6], self.ndf[column_names[index+6]].tolist())
+        if (self.number_of_series &gt;= 8):
+            chart_data.add_series(self.legend[7], self.ndf[column_names[index+7]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(0.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+        if (self.number_of_series &gt;= 3):
+            chart_data.add_series(self.legend[2], self.sldf[column_names[index+2]].tolist())
+        if (self.number_of_series &gt;= 4):
+            chart_data.add_series(self.legend[3], self.sldf[column_names[index+3]].tolist())
+        if (self.number_of_series &gt;= 5):
+            chart_data.add_series(self.legend[4], self.sldf[column_names[index+4]].tolist())
+        if (self.number_of_series &gt;= 6):
+            chart_data.add_series(self.legend[5], self.sldf[column_names[index+5]].tolist())
+        if (self.number_of_series &gt;= 7):
+            chart_data.add_series(self.legend[6], self.sldf[column_names[index+6]].tolist())
+        if (self.number_of_series &gt;= 8):
+            chart_data.add_series(self.legend[7], self.sldf[column_names[index+7]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(17.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
+
+        if (count &gt; 180 or &#39;antithrombotics prescribed&#39; in self.title.lower()):
+            chart.legend.font.size = Pt(11)
+        else:
+            chart.legend.font.size = Pt(12)
+
+    def _create_grouped_barplot(self):
+        &#34;&#34;&#34;Generate grouped barplot.&#34;&#34;&#34;
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(0.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(17.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
+
+class GenerateYearsCompPresentation:
+    &#34;&#34;&#34;
+    This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.
+
+    Arguments:
+        df - dataframe containing data for different times of period in each line
+        name - name of given period (e.g. all)
+    &#34;&#34;&#34;
+
+    def __init__(self, df, name):
+
+        self.df = df
+        self.name = name
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        #filename = &#34;resq.db&#34;
+       # self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        self._generate_graphs()
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;Generate graphs into presentation (pptx).&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Calibri Light&#39;
+        font.size = Pt(26)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        # main_col = &#34;Site Name&#34;
+        years = &#39;, &#39;.join(map(str, self.df[main_col].tolist()))
+        title = &#34;Temporal trends - {}&#34;.format(years)
+
+        titles = []
+        graph_types = []
+        legend = []
+        # Total patients and median age graphst)
+        column_name = &#39;Total Patients&#39;
+        df = self.df[[main_col, column_name]]
+        titles.append(&#34;Total Patients&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        column_name = &#39;Median patient age&#39;
+        df1 = self.df[[main_col, column_name]]
+        titles.append(&#34;Median patient age&#34;)
+        graph_types.append(&#34;normal&#34;)
+        
+        GenerateYearsCompGraphs(df=df, df1=df1, presentation=prs, title=title, titles=titles, graph_types=graph_types)
+
+        legends = []
+        titles = []
+        graph_types = []
+        ### DEPARTMENT TYPE ###
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+        legends.append(legend)
+        titles.append(&#34;Department type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+
+        ### HOSPITALIZATION DESTINATION ###
+        legend = [&#39;stroke unit&#39;, &#39;monitored bed with telemetry&#39;, &#39;standard bed&#39;]
+        legends.append(legend)
+        titles.append(&#34;Hospitalization type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df1 = self.df[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+   
+        ### REHABILIATION ###
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Assessed for rehabilitation (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+
+        # STROKE TYPE #
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+        legends.append(legend)
+        titles.append(&#34;Stroke type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+
+        # CT/MRI performed #
+        column_name = &#39;% CT/MRI - performed&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;CT/MRI (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # patients recanalized
+        column_name = &#39;% patients recanalized&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients recanalized&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+
+        # RECANALIZATION PROCEDURES #
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+        legends.append(legend)
+        titles.append(&#34;Recanalization procedures (%)&#34;)
+
+        df = self.df[[main_col, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        graph_types.append(&#34;stacked&#34;)
+
+        # MEDIAN DTN #
+        column_name = &#39;Median DTN (minutes)&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Median DTN (minutes)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # MEDIAN DTN #
+        column_name = &#39;Median DTG (minutes)&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Median DTG (minutes)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # DYSPHAGIA SCREENING #
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        legend = [&#39;GUSS test&#39;, &#39;Other test&#39;, &#39;Another centre&#39;]
+        legends.append(legend)
+        titles.append(&#34;Dysphagia screening (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]]
+
+        # CAROTID ARTERIES IMAGING #
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Carotid arteries imaging (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Recommended to a cerebrovascular \nexpert (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # PRESCRIBED ANTIPLATELETS #
+        column_name = &#39;% patients prescribed antiplatelets without aFib&#39;
+        df = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antiplatelets without aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed anticoagulants with aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        #  % PATIENTS PRESCRIBED ANTITHROMBOTICS WITH AFIB  #
+        column_name = &#39;% patients prescribed antithrombotics with aFib&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antithrombotics with aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB (HOME) #
+        column_name = &#39;% afib patients discharged home with anticoagulants&#39;
+        df3 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% aFib patients discharged home with anticoagulants&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, df3=df3, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # DISCHARGE WITH STATINS #
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+        df = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed statins&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antihypertensives&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = self.name + &#34;.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)
+
+class GenerateYearsCompGraphs:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).   
+
+    Arguments:
+        presentation - opened presentation document
+        df - dataframe containing statistics, each period is one line
+        df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
+        df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
+        df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
+        title - the title of slide
+        titles - list of graph names (default = None)
+        graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
+        legends - inner list of legend names (default = None) 
+    &#34;&#34;&#34;
+    def __init__(self, presentation, df, df1=None, df2=None, df3=None, title=&#34;&#34;, titles=None, graph_types=None, legends=[], outcome=False):
+
+        self.df = df
+        self.df1 = df1
+        self.df2 = df2
+        self.df3 = df3
+        self.presentation = presentation
+        self.title = title
+        self.titles = titles
+        self.legends = legends
+        self.num_graphs = 0
+        self.graph_types = graph_types
+
+        self.font_name = &#39;Century Gothic&#39;
+        self.category_font_size = Pt(8)
+        self.data_label_font_size = Pt(9)
+
+        if outcome:
+            self.categories_column = &#39;Patient Group&#39;
+        else:
+            self.categories_column = &#39;Site Name&#39;
+
+        if df1 is not None:
+            self.num_graphs += 1
+        if df2 is not None:
+            self.num_graphs += 1
+        if df3 is not None:
+            self.num_graphs += 1
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        self.slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[12])
+        # Get title object
+        title_placeholders = self.slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title.upper()
+
+        subtitle = self.slide.placeholders[1]
+        sp = subtitle.element
+        sp.getparent().remove(sp)
+
+        self.colors = {
+                &#39;blue&#39;: RGBColor(43, 88, 173),
+                &#39;violet&#39;: RGBColor(76, 70, 127),
+                &#39;orange&#39;: RGBColor(237, 145, 49),
+                &#39;green&#39;: RGBColor(146, 208, 80),
+               # &#39;dark_blue&#39;: RGBColor(37, 94, 145),
+                &#39;yellow&#39;: RGBColor(255, 192, 0),
+                &#39;grey&#39;: RGBColor(165, 165, 165)
+            }
+
+        if self.num_graphs == 0:
+
+            if outcome:
+                # Add chart on slide
+                specs = {
+                    &#39;height&#39;: Cm(16.5),
+                    &#39;width&#39;: Cm(32),
+                    &#39;left&#39;: Cm(0.5),
+                    &#39;top&#39;: Cm(2)
+                } 
+            else:
+                specs = {
+                    &#39;height&#39;: Cm(16.5),
+                    &#39;width&#39;: Cm(32),
+                    &#39;left&#39;: Cm(0.7),
+                    &#39;top&#39;: Cm(2)
+                }
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+
+        # If number of graph is equal to 1 (2 graphs on one slide) set specs that each graph will be on one half of slide page
+        if self.num_graphs == 1:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+
+            # Add chart on slide
+            specs1 = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+
+        # If number of graph is equal to 2 (3 graphs on one slide) set specs that one graph will be on half of page, and two graphs on second half
+        if self.num_graphs == 2:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+            # Add chart on slide
+            specs1 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+            # Add chart on slide
+            specs2 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(10.25)
+            }
+
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+            self._create_plot(df=df2, title=titles[2], specs=specs2, graph_type=graph_types[2], ix=2)
+
+        # If number of graph is equal to 3 (4 graphs on one slide) set specs that each graph will be put on quarter of page
+        if self.num_graphs == 3:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+            specs1 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(10.25)
+            } 
+            # Add chart on slide
+            specs2 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+            # Add chart on slide
+            specs3 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(10.25)
+            }
+            
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+            self._create_plot(df=df2, title=titles[2], specs=specs2, graph_type=graph_types[2], ix=2)
+            self._create_plot(df=df3, title=titles[3], specs=specs3, graph_type=graph_types[3], ix=3)
+        
+    def _set_transparency(self, transparency, elm):
+        &#34;&#34;&#34; Set tranparency of element. 
+
+        Args: 
+            transparency: transparency in % 
+            elm: element to be changed
+        &#34;&#34;&#34;
+        a = str(100 - transparency) + &#39;196&#39;
+        
+        alpha = OxmlElement(&#39;a:alpha&#39;)
+        alpha.set(&#39;val&#39;, a)
+        elm.srgbClr.append(alpha)
+
+    def _create_plot(self, df, title, specs, graph_type, legend=None, ix=0):   
+        &#34;&#34;&#34;Create normal barplot.&#34;&#34;&#34;
+
+        if graph_type == &#34;normal&#34;:
+            # Get column names of dataframe
+            column_names = df.columns.tolist()
+            index = column_names.index(self.categories_column)   
+
+            # 1st chart (left side) - nationally sample
+            chart_data = ChartData()
+            chart_data.categories = df[self.categories_column].tolist()
+            chart_data.add_series(column_names[index+1], df[column_names[index+1]].tolist())
+
+            chart = self.slide.shapes.add_chart(
+                XL_CHART_TYPE.COLUMN_CLUSTERED, specs[&#39;left&#39;], specs[&#39;top&#39;], specs[&#39;width&#39;], specs[&#39;height&#39;], chart_data).chart
+
+            # Get series of chart
+            series = chart.series[0]
+            series.points[0].format.fill.solid()
+            series.points[0].format.fill.fore_color.rgb = self.colors[&#39;blue&#39;]
+            series.points[1].format.fill.solid()
+            series.points[1].format.fill.fore_color.rgb = self.colors[&#39;orange&#39;]
+            series.points[2].format.fill.solid()
+            series.points[2].format.fill.fore_color.rgb = self.colors[&#39;green&#39;]
+            
+            # Get plot 
+            plot = chart.plots[0]
+            # Set for each bar same color
+            plot.vary_by_categories = True
+            # Show data labels and set font
+            plot.has_data_labels = True
+            data_labels = plot.data_labels
+            data_labels.font.size = self.data_label_font_size
+            data_labels.font.bold = True
+            data_labels.font.name = self.font_name
+
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = title
+            chart_text.paragraphs[0].font.name = self.font_name
+            chart_text.paragraphs[0].font.size = Pt(14)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = self.category_font_size
+            tick_labels.font.name = self.font_name
+
+            # Don&#39;t show major gridlines
+            #value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = True
+            value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+            value_axis.major_gridlines.format.line.width = Pt(0.5)
+            # Set range of axis
+            value_axis.minimum_scale = 0
+            values = df[column_names[index+1]].tolist()
+            max_value = max(values)
+            if &#39;%&#39; in title and max_value &gt;= 90:
+                value_axis.maximum_scale = 100
+            else:
+                value_axis.maximum_scale = math.ceil(max_value / 10.0) * 10
+            value_axis.visible = False
+
+            # Value for y-axis (change font size, name, and other things)
+            category_axis = chart.category_axis
+            # Delete tick marks
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_axis.major_unit = 1
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+
+        # Create stacked barplot
+        else: 
+            # Get column names of dataframe
+            column_names = df.columns.tolist()
+            index = column_names.index(self.categories_column) + 1
+
+            legend = self.legends[ix]
+            number_of_series = len(legend)
+
+            # 1st dataframe (nationally sample)
+            chart_data = ChartData()
+            chart_data.categories = df[self.categories_column].tolist()
+            # Add data in each category
+            chart_data.add_series(legend[0], df[column_names[index]].tolist())
+            if (number_of_series &gt;= 2):
+                chart_data.add_series(legend[1], df[column_names[index+1]].tolist())
+            if (number_of_series &gt;= 3):
+                chart_data.add_series(legend[2], df[column_names[index+2]].tolist())
+            if (number_of_series &gt;= 4):
+                chart_data.add_series(legend[3], df[column_names[index+3]].tolist())
+            if (number_of_series &gt;= 5):
+                chart_data.add_series(legend[4], df[column_names[index+4]].tolist())
+            if (number_of_series &gt;= 6):
+                chart_data.add_series(legend[5], df[column_names[index+5]].tolist())
+            if (number_of_series &gt;= 7):
+                chart_data.add_series(legend[6], df[column_names[index+6]].tolist())
+            if (number_of_series &gt;= 8):
+                chart_data.add_series(legend[7], df[column_names[index+7]].tolist())
+
+            chart = self.slide.shapes.add_chart(
+                XL_CHART_TYPE.COLUMN_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+            series = chart.series[0]
+            # Get series of chart
+            chart.series[0].format.fill.solid()
+            chart.series[0].format.fill.fore_color.rgb = self.colors[&#39;blue&#39;]
+            if (number_of_series &gt;= 2):
+                chart.series[1].format.fill.solid()
+                chart.series[1].format.fill.fore_color.rgb = self.colors[&#39;orange&#39;]
+            if (number_of_series &gt;= 3):
+                chart.series[2].format.fill.solid()
+                chart.series[2].format.fill.fore_color.rgb = self.colors[&#39;green&#39;]
+            if (number_of_series &gt;= 4):
+                chart.series[3].format.fill.solid()
+                chart.series[3].format.fill.fore_color.rgb = self.colors[&#39;grey&#39;]
+            if (number_of_series &gt;= 5):
+                chart.series[4].format.fill.solid()
+                chart.series[4].format.fill.fore_color.rgb = self.colors[&#39;violet&#39;]
+            if (number_of_series &gt;= 6):
+                chart.series[5].format.fill.solid()
+                chart.series[5].format.fill.fore_color.rgb = self.colors[&#39;yellow&#39;]
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = Pt(11)
+            tick_labels.font.name = self.font_name
+
+            value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+            # Don&#39;t show major gridlines
+            #value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = True
+            value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+            value_axis.major_gridlines.format.line.width = Pt(0.5)
+            # Set range of axis
+            value_axis.minimum_scale = 0
+            value_axis.maximum_scale = 100
+            value_axis.visible = True
+
+             # Set 100% transparency to value axis
+            value_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+            solidFill = value_axis.format.line.color._xFill
+            self._set_transparency(100, solidFill)
+
+
+            category_axis = chart.category_axis
+            category_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+            solidFill = category_axis.format.line.color._xFill
+            self._set_transparency(100, solidFill)
+            
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+            category_labels.tickLblSkip = 1
+
+            
+
+        
+            # Set legend 
+            chart.has_legend = True
+            chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+            chart.legend.include_in_layout = False
+            chart.legend.font.name = self.font_name
+            chart.legend.font.size = Pt(14)
+
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+        </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs"><code class="flex name class">
+<span>class <span class="ident">GenerateCountriesCompGraphs</span></span>
+<span>(</span><span>ndf, presentation, column_name, title, sldf=None, subtitle='', graph_type=None, number_of_series=0, legend=None, samples=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This function generates graphs into given presentation for two sets of countries.
+</p>
+<h2 id="arguments">Arguments</h2>
+<p>ndf - dataframe containing values for first set of countries
+presentation - opened presentation document
+column_name - the name of column
+title - the name of slide
+sldf - dataframe containing values for second set of countries
+subtitle - the subtitle of slide (smaller font) (default = "")
+graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
+number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
+legend - list of legend names (default = None)
+samples - list of samples which should be colored by different color in normal barplot (default = None)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GenerateCountriesCompGraphs:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation for two sets of countries.  
+
+    Arguments:
+        ndf - dataframe containing values for first set of countries
+        presentation - opened presentation document
+        column_name - the name of column
+        title - the name of slide
+        sldf - dataframe containing values for second set of countries
+        subtitle - the subtitle of slide (smaller font) (default = &#34;&#34;)
+        graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
+        number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
+        legend - list of legend names (default = None)
+        samples - list of samples which should be colored by different color in normal barplot (default = None)
+    &#34;&#34;&#34;
+    def __init__(self, ndf, presentation, column_name, title, sldf=None, subtitle=&#34;&#34;, graph_type=None, number_of_series=0, legend=None, samples=None):
+
+        self.ndf = ndf
+        self.sldf = sldf
+        self.presentation = presentation
+        self.ndf_title = &#34;Nationally representative sample&#34;
+        self.sldf_title = &#34;Site-level representative sample&#34;
+        self.title = title
+        self.column_name = column_name
+        self.number_of_series = number_of_series
+        self.legend = legend
+        self.subtitle = subtitle
+        self.samples = samples
+
+        self.font_name = &#39;Century Gothic&#39;
+        self.category_font_size = Pt(10)
+        self.data_label_font_size = Pt(11)
+        self.categories_column = &#39;Site Name&#39;
+            
+        # Check type of graph
+        if (graph_type == &#39;stacked&#39;):
+            self._create_stacked_barplot()
+        elif (graph_type == &#39;grouped&#39;):
+            self._create_grouped_barplot()
+        else:
+            self._create_barplot()
+
+    def _get_length_of_legend(self, legend):
+        &#34;&#34;&#34;Return number of letters in legend to adjust the legend font size.&#34;&#34;&#34;
+        count = 0
+
+        for i in legend:
+            count = count + len(i)
+        
+        return count
+
+    def _create_barplot(self):
+        &#34;&#34;&#34;Create normal barplot.&#34;&#34;&#34;
+
+        maximum = 0
+
+        # If graph is in %, set maximum valut to 100. 
+        if &#39;%&#39; in self.title.lower():
+            ndf_maximum = 100
+            sldf_maximum = 100
+        elif &#34;total number of cases&#34; in self.title.lower():
+            ndf_maximum = round((max(self.ndf[self.column_name].tolist())),1)
+        else:
+            ndf_maximum = round((max(self.ndf[self.column_name].tolist())),1)
+            sldf_maximum = round((max(self.sldf[self.column_name].tolist())),1)
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # If subtitle is not set, then delete placeholder for subtitle in the slide. 
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st chart (left side) - nationally sample
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        chart_data.add_series(self.column_name, self.ndf[self.column_name].tolist())
+
+        if &#34;total number of cases&#34; in self.title.lower():
+             # Add chart on slide
+            specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+            }
+        else:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+                }
+
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+        
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        if &#34;total number of cases&#34; in self.title.lower() and self.samples is not None:
+            site_names = self.ndf[self.categories_column].tolist()
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                if (site_names[idx] in self.samples):
+                    fill.fore_color.rgb = RGBColor(128,0,0)
+                else:
+                    fill.fore_color.rgb = RGBColor(43, 88, 173)
+        else:
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(43, 88, 173) 
+
+        # Get plot 
+        plot = chart.plots[0]
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        plot.has_data_labels = True
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name
+
+        # Change color of graph title and set color gray
+        if &#34;total number of cases&#34; not in self.title.lower():
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = self.ndf_title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+
+        # Don&#39;t show major gridlines
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+        value_axis.has_major_gridlines = False
+        # Set range of axis
+        value_axis.maximum_scale = ndf_maximum
+        value_axis.minimum_scale = 0
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+
+        if &#34;total number of cases&#34; not in self.title.lower():
+            # 2nd graph (right side) - site-level samples
+            chart_data = ChartData()
+            chart_data.categories = self.sldf[self.categories_column].tolist()
+            chart_data.add_series(self.column_name, self.sldf[self.column_name].tolist())
+
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+                }
+
+            chart = slide.shapes.add_chart(
+                XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+            # Get series of chart
+            series = chart.series[0]
+            
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(43, 88, 173) 
+
+            # Get plot 
+            plot = chart.plots[0]
+            # Set for each bar same color
+            plot.vary_by_categories = False
+            # Show data labels and set font
+            plot.has_data_labels = True
+            data_labels = plot.data_labels
+            data_labels.font.size = self.data_label_font_size
+            data_labels.font.bold = True
+            data_labels.font.name = self.font_name
+
+            # Change color of graph title and set color gray
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = self.sldf_title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = self.category_font_size
+            tick_labels.font.name = self.font_name
+
+            # Don&#39;t show major gridlines
+            value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = False
+            # Set range of axis
+            value_axis.maximum_scale = sldf_maximum
+            value_axis.minimum_scale = 0
+
+            # Value for y-axis (change font size, name, and other things)
+            category_axis = chart.category_axis
+            # Delete tick marks
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_axis.major_unit = 1
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+    
+    def _create_stacked_barplot(self):
+        &#34;&#34;&#34;Generate stacked barplot.&#34;&#34;&#34;
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+        if (self.number_of_series &gt;= 3):
+            chart_data.add_series(self.legend[2], self.ndf[column_names[index+2]].tolist())
+        if (self.number_of_series &gt;= 4):
+            chart_data.add_series(self.legend[3], self.ndf[column_names[index+3]].tolist())
+        if (self.number_of_series &gt;= 5):
+            chart_data.add_series(self.legend[4], self.ndf[column_names[index+4]].tolist())
+        if (self.number_of_series &gt;= 6):
+            chart_data.add_series(self.legend[5], self.ndf[column_names[index+5]].tolist())
+        if (self.number_of_series &gt;= 7):
+            chart_data.add_series(self.legend[6], self.ndf[column_names[index+6]].tolist())
+        if (self.number_of_series &gt;= 8):
+            chart_data.add_series(self.legend[7], self.ndf[column_names[index+7]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(0.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+        if (self.number_of_series &gt;= 3):
+            chart_data.add_series(self.legend[2], self.sldf[column_names[index+2]].tolist())
+        if (self.number_of_series &gt;= 4):
+            chart_data.add_series(self.legend[3], self.sldf[column_names[index+3]].tolist())
+        if (self.number_of_series &gt;= 5):
+            chart_data.add_series(self.legend[4], self.sldf[column_names[index+4]].tolist())
+        if (self.number_of_series &gt;= 6):
+            chart_data.add_series(self.legend[5], self.sldf[column_names[index+5]].tolist())
+        if (self.number_of_series &gt;= 7):
+            chart_data.add_series(self.legend[6], self.sldf[column_names[index+6]].tolist())
+        if (self.number_of_series &gt;= 8):
+            chart_data.add_series(self.legend[7], self.sldf[column_names[index+7]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(17.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
+
+        if (count &gt; 180 or &#39;antithrombotics prescribed&#39; in self.title.lower()):
+            chart.legend.font.size = Pt(11)
+        else:
+            chart.legend.font.size = Pt(12)
+
+    def _create_grouped_barplot(self):
+        &#34;&#34;&#34;Generate grouped barplot.&#34;&#34;&#34;
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(0.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(15.26),
+            &#39;left&#39;: Cm(17.5),
+            &#39;top&#39;: Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series &gt;= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name</code></pre>
+</details>
+</dd>
+<dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation"><code class="flex name class">
+<span>class <span class="ident">GenerateCountriesCompPresentation</span></span>
+<span>(</span><span>ndf, sldf, name='', samples=[])</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.</p>
+<h2 id="arguments">Arguments</h2>
+<p>ndf - dataframe containing data for first set of countries in given period
+sldf - dataframe containing data for second set of countries in given period
+name - name of given period (e.g. 2017)
+samples - name of countries which should be colored by different color in the main graph</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GenerateCountriesCompPresentation:     
+    &#34;&#34;&#34;
+    This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.
+
+    Arguments:
+        ndf - dataframe containing data for first set of countries in given period
+        sldf - dataframe containing data for second set of countries in given period
+        name - name of given period (e.g. 2017)
+        samples - name of countries which should be colored by different color in the main graph
+    &#34;&#34;&#34;
+    def __init__(self, ndf, sldf, name=&#34;&#34;, samples=[]):
+
+        self.ndf = ndf
+        self.sldf = sldf
+        self.name = name
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        filename = &#34;resq.db&#34;
+        self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        def select_country(value):
+            if value == &#34;UZB&#34;:
+                value = &#39;UZ&#39;
+            country_name = pytz.country_names[value]
+            return country_name
+
+
+        # If country is used as site, the country name is selected from countries dictionary by country code. :
+        if len(samples) &gt; 0:
+            self.nationally_countries = []
+            for i in range(0, len(samples)):
+                country = select_country(samples[i])
+                self.nationally_countries.append(country)
+        
+        self._generate_graphs()
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;This function generates graphs into presentation (pptx).&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Century Gothic&#39;
+        font.size = Pt(20)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #    main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        # combine them to one dataframe
+        tmp_df = tmp_ndf.append(tmp_sldf)
+        tmp_df = tmp_df.sort_values([column_name], ascending=True)
+
+        title = &#39;Total number of cases - admission date in {}&#39;.format(self.name)
+        GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name)
+
+        #if self.country_name is not None:
+         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        # combine them to one dataframe
+        tmp_df = tmp_ndf.append(tmp_sldf)
+        tmp_df = tmp_df.sort_values([column_name], ascending=True)
+
+        title = &#39;Total number of cases - admission date in {}&#39;.format(self.name)
+        GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name, samples=self.nationally_countries)
+
+        #if self.country_name is not None:
+         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+        
+        ############################
+        #### MEDIAN PATIENT AGE ####
+        ############################
+        column_name = &#39;Median patient age&#39;
+        title = &#39;Median patient age&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+        
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        ###############
+        # STROKE TYPE #
+        ###############
+        column_name = &#39;% stroke type - ischemic stroke&#39;
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Stroke type, ordered by % ischemic stroke&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #######################
+        ### DEPARTMENT TYPE ###
+        #######################
+        column_name = &#39;% department type - neurology&#39;
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Department type, ordered by % neurology&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        ### HOSPITALIZATION DESTINATION ###
+        ###################################
+        column_name = &#39;% patients hospitalized in stroke unit / ICU&#39;
+        legend = [&#39;% stroke unit / ICU&#39;, &#39;% monitored bed with telemetry&#39;, &#39;% standard bed&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;Hospitalization type, ordered by % stroke unit&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################
+        ### CT / MRI performed ###
+        ##########################
+        column_name = &#39;% CT/MRI - performed&#39;
+        legend = [&#39;% performed&#39;, &#39;% performed within 1 hour after admission&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% CT/MRI - performed&#39;, &#39;% CT/MRI - Performed within 1 hour after admission&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% CT/MRI - performed&#39;, &#39;% CT/MRI - Performed within 1 hour after admission&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients receiving CT / MRI&#34;
+        subtitle = &#34;- Calculated out of number of IS + ICH + TIA + CVT -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;grouped&#39;, subtitle=subtitle)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients receiving recanalization procedures&#34;
+        subtitle = &#34;- Calculated out of number of IS -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;, subtitle=subtitle)
+
+        ################
+        # % median DTN #
+        ################
+        column_name = &#39;Median DTN (minutes)&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = False)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=False)
+
+        title = &#34;Median Door-to-Needle Time (DTN), in minutes&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        #######################
+        # dysphagia screening #
+        #######################
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        column_names = [&#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]
+        legend = [&#39;% GUSS test&#39;, &#39;% Other test&#39;, &#39;% Another centre&#39;, &#39;% Unable to test&#39;]
+
+        tmp_ndf = self.ndf[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+
+        tmp_sldf = self.sldf[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;, &#39;% dysphagia screening - Unable to test&#39;]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending = True)
+
+        title = &#34;% patients screened for dysphagia, ordered by % GUSS test&#34;
+        subtitle = &#34;- Calculated out of number of IS + ICH + CVT -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;, subtitle=subtitle)
+
+        #################################
+        # % ASSESSED FOR REHABILITATION #
+        #################################
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients assessed for rehabilitation within 72 hrs after admission&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        ##################################
+        # CAROTID ARTERIES IMAGING - YES #
+        ##################################
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients receiving carotid arteries imaging&#34;
+        subtitle = &#34;- Calculated out of number of IS + TIA -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ##################################
+        # PRESCRIPTION OF ANTICOAGULANTS #
+        ##################################
+        # column_name = &#39;% patients prescribed anticoagulants with aFib with CVT&#39;
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;Prescription of anticoagulants for patients with atrial fibrillation&#34;
+        subtitle = &#34;- Calculated out of number of patients with atrial fibrillation discharge alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ###################################
+        # PRESCRIPTION OF ANTITHROMBOTICS #
+        ###################################
+        column_name = &#39;% patients prescribed antithrombotics with aFib&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;Prescription of antithrombotics for patients with atrial fibrillation&#34;
+        subtitle = &#34;- Calculated out of number of patients with atrial fibrillation discharge alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ##########################
+        # DISCHARGE WITH STATINS #
+        ##########################
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients discharged on statins&#34;
+        subtitle = &#34;- Calculated out of number of IS + TIA -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+        
+        #############################################################
+        # % ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases #
+        #############################################################
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients prescribed antihypertensives at discharge&#34;
+        subtitle = &#34;- Calculated out of number of patients discharged alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, subtitle=subtitle)
+
+        ###########################################################
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        ###########################################################
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = &#34;% patients prescribed antihypertensives at discharge&#34;
+        subtitle = &#34;- Calculated out of number of patients discharged alive -&#34;
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, subtitle=subtitle, column_name=column_name)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = &#34;comparison.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)</code></pre>
+</details>
+</dd>
+<dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph"><code class="flex name class">
+<span>class <span class="ident">GeneratePeriodCompGraph</span></span>
+<span>(</span><span>df, presentation, column_name, title, subtitle='', number_of_series=0, legend=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This function generates graphs into given presentation. </p>
+<h2 id="arguments">Arguments</h2>
+<p>df - dataframe containing values for each period in one column
+presentation - opened presentation document
+column_name - the name of column
+title - the name of slide
+subtitle - the subtitle of slide (smaller font)
+number_of_series - number of values in one column (bar) for stacked charplots
+legend - list of legend names</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GeneratePeriodCompGraph:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation. 
+
+    Arguments:
+        df - dataframe containing values for each period in one column
+        presentation - opened presentation document
+        column_name - the name of column
+        title - the name of slide
+        subtitle - the subtitle of slide (smaller font)
+        number_of_series - number of values in one column (bar) for stacked charplots
+        legend - list of legend names
+    &#34;&#34;&#34;
+    def __init__(self, df, presentation, column_name, title, subtitle=&#34;&#34;, number_of_series=0, legend=None):
+
+        self.df = df        
+        self.presentation = presentation
+        self.title = title
+        self.column_name = column_name
+        self.number_of_series = number_of_series
+        self.font_name = &#39;Roboto&#39;
+        self.legend = legend
+        self.subtitle = subtitle
+
+        self.category_font_size = Pt(10)
+        self.data_label_font_size = Pt(11)
+        self.categories_column = &#39;Site Name&#39;
+
+        self._create_column_clustered_barplot()
+        
+
+    def _get_length_of_legend(self, legend):
+        &#34;&#34;&#34;Return number of letters in legend to adjust the font size of legend.&#34;&#34;&#34;
+        count = 0
+
+        for i in legend:
+            count = count + len(i)
+        
+        return count
+
+    def _create_column_clustered_barplot(self):
+        &#34;&#34;&#34;Create column clustered barplot.&#34;&#34;&#34;
+
+        maximum = 0
+        
+        # Get column names of dataframe
+        column_names = self.df.columns.tolist()
+
+        index = column_names.index(self.categories_column)
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # If subtitle is not set, remove placeholder for the subtitle from page. 
+        if self.subtitle == &#34;&#34;:
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st chart (left side) - nationally sample
+        chart_data = ChartData()
+        chart_data.categories = self.df[self.categories_column].tolist()
+        # Add data in each category 
+        chart_data.add_series(self.legend[0], self.df[column_names[index+1]].tolist()) 
+        if (self.number_of_series &gt;= 2):
+            chart_data.add_series(self.legend[1], self.df[column_names[index+2]].tolist())
+
+        # Set margins.
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+        }
+
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.COLUMN_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+
+        # Get plot 
+        plot = chart.plots[0]
+        plot.gap_width = 220
+        plot.overlap = -25
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        &#39;&#39;&#39;
+        plot.has_data_labels = False
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name&#39;&#39;&#39;
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+
+        # Don&#39;t show major gridlines
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.major_tick_mark = XL_TICK_MARK.NONE
+        value_axis.format.line.color.rgb = RGBColor(217, 217, 217)
+        # Set range of axis
+        #value_axis.maximum_scale = ndf_maximum
+        value_axis.minimum_scale = 0
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        category_axis.format.line.color.rgb = RGBColor(217, 217, 217)
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        #category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name</code></pre>
+</details>
+</dd>
+<dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation"><code class="flex name class">
+<span>class <span class="ident">GeneratePeriodCompPresentation</span></span>
+<span>(</span><span>ndf1, ndf2, name1, name2)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.</p>
+<h2 id="arguments">Arguments</h2>
+<p>ndf1 - dataframe containing data for first period
+ndf2 - dataframe containing data for second period
+name1 - name of first period (e.g. 2017)
+name2 - name of 2nd periodn (e.g. 2018)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GeneratePeriodCompPresentation:
+    &#34;&#34;&#34;
+    This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.
+
+    Arguments:
+        ndf1 - dataframe containing data for first period
+        ndf2 - dataframe containing data for second period
+        name1 - name of first period (e.g. 2017)
+        name2 - name of 2nd periodn (e.g. 2018) 
+    &#34;&#34;&#34;
+
+    def __init__(self, ndf1, ndf2, name1, name2):
+
+        self.ndf1 = ndf1
+        self.ndf2 = ndf2
+        self.name1 = name1
+        self.name2 = name2
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        filename = &#34;resq.db&#34;
+        self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        self._generate_graphs()
+    
+    def _generate_graphs(self):
+        &#34;&#34;&#34;This function generates graphs into presentation .pptx.&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Calibri Light&#39;
+        font.size = Pt(26)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        # main_col = &#34;Site Name&#34;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+        
+        title = &#34;Total patients enrolled&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+
+        ###########################################
+        #### PATIENTS RECEIVING RECANALIZATION ####
+        ###########################################
+        column_name = &#39;% patients recanalized&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;% patients receiving recanalization procedures&#34;
+        subtitle = &#34;Calculated out of number of IS&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, subtitle=subtitle, number_of_series=len(legend), legend=legend)
+
+        ##############################
+        #### MEDIAN DTN (MINUTES) ####
+        ##############################
+        column_name = &#39;Median DTN (minutes)&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;Median Door-to-Needle Time (DTN), in minutes&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+
+        ##############################
+        #### MEDIAN DTG (MINUTES) ####
+        ##############################
+        column_name = &#39;Median DTG (minutes)&#39;
+        # Nationally df
+        tmp_ndf1 = self.ndf1[[main_col, column_name]]
+        tmp_ndf1 = tmp_ndf1.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_ndf2 = self.ndf2[[main_col, column_name]]
+        tmp_ndf2 = tmp_ndf2.sort_values([column_name], ascending=True)
+        # Merge dataframes
+        tmp_df = pd.merge(tmp_ndf1, tmp_ndf2, how=&#39;right&#39;, on=[&#39;Site Name&#39;])
+        tmp_df.fillna(0, inplace=True)
+        tmp_df = tmp_df.sort_values([main_col], ascending=True)
+
+        title = &#34;Median Door-to-Needle Time (DTG), in minutes&#34;
+
+        legend = [self.name1, self.name2]
+        
+        GeneratePeriodCompGraph(df=tmp_df, presentation=prs, column_name=column_name, title=title, number_of_series=len(legend), legend=legend)
+        
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = &#34;comparison_two_periods.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)</code></pre>
+</details>
+</dd>
+<dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs"><code class="flex name class">
+<span>class <span class="ident">GenerateYearsCompGraphs</span></span>
+<span>(</span><span>presentation, df, df1=None, df2=None, df3=None, title='', titles=None, graph_types=None, legends=[], outcome=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).
+</p>
+<h2 id="arguments">Arguments</h2>
+<p>presentation - opened presentation document
+df - dataframe containing statistics, each period is one line
+df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
+df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
+df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
+title - the title of slide
+titles - list of graph names (default = None)
+graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
+legends - inner list of legend names (default = None)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GenerateYearsCompGraphs:
+    &#34;&#34;&#34;
+    This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).   
+
+    Arguments:
+        presentation - opened presentation document
+        df - dataframe containing statistics, each period is one line
+        df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
+        df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
+        df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
+        title - the title of slide
+        titles - list of graph names (default = None)
+        graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
+        legends - inner list of legend names (default = None) 
+    &#34;&#34;&#34;
+    def __init__(self, presentation, df, df1=None, df2=None, df3=None, title=&#34;&#34;, titles=None, graph_types=None, legends=[], outcome=False):
+
+        self.df = df
+        self.df1 = df1
+        self.df2 = df2
+        self.df3 = df3
+        self.presentation = presentation
+        self.title = title
+        self.titles = titles
+        self.legends = legends
+        self.num_graphs = 0
+        self.graph_types = graph_types
+
+        self.font_name = &#39;Century Gothic&#39;
+        self.category_font_size = Pt(8)
+        self.data_label_font_size = Pt(9)
+
+        if outcome:
+            self.categories_column = &#39;Patient Group&#39;
+        else:
+            self.categories_column = &#39;Site Name&#39;
+
+        if df1 is not None:
+            self.num_graphs += 1
+        if df2 is not None:
+            self.num_graphs += 1
+        if df3 is not None:
+            self.num_graphs += 1
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        self.slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[12])
+        # Get title object
+        title_placeholders = self.slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title.upper()
+
+        subtitle = self.slide.placeholders[1]
+        sp = subtitle.element
+        sp.getparent().remove(sp)
+
+        self.colors = {
+                &#39;blue&#39;: RGBColor(43, 88, 173),
+                &#39;violet&#39;: RGBColor(76, 70, 127),
+                &#39;orange&#39;: RGBColor(237, 145, 49),
+                &#39;green&#39;: RGBColor(146, 208, 80),
+               # &#39;dark_blue&#39;: RGBColor(37, 94, 145),
+                &#39;yellow&#39;: RGBColor(255, 192, 0),
+                &#39;grey&#39;: RGBColor(165, 165, 165)
+            }
+
+        if self.num_graphs == 0:
+
+            if outcome:
+                # Add chart on slide
+                specs = {
+                    &#39;height&#39;: Cm(16.5),
+                    &#39;width&#39;: Cm(32),
+                    &#39;left&#39;: Cm(0.5),
+                    &#39;top&#39;: Cm(2)
+                } 
+            else:
+                specs = {
+                    &#39;height&#39;: Cm(16.5),
+                    &#39;width&#39;: Cm(32),
+                    &#39;left&#39;: Cm(0.7),
+                    &#39;top&#39;: Cm(2)
+                }
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+
+        # If number of graph is equal to 1 (2 graphs on one slide) set specs that each graph will be on one half of slide page
+        if self.num_graphs == 1:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+
+            # Add chart on slide
+            specs1 = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+
+        # If number of graph is equal to 2 (3 graphs on one slide) set specs that one graph will be on half of page, and two graphs on second half
+        if self.num_graphs == 2:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(16.5),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+            # Add chart on slide
+            specs1 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+            # Add chart on slide
+            specs2 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(10.25)
+            }
+
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+            self._create_plot(df=df2, title=titles[2], specs=specs2, graph_type=graph_types[2], ix=2)
+
+        # If number of graph is equal to 3 (4 graphs on one slide) set specs that each graph will be put on quarter of page
+        if self.num_graphs == 3:
+            # Add chart on slide
+            specs = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(2)
+            } 
+            specs1 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(0.5),
+                &#39;top&#39;: Cm(10.25)
+            } 
+            # Add chart on slide
+            specs2 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(2)
+            }
+            # Add chart on slide
+            specs3 = {
+                &#39;height&#39;: Cm(8.25),
+                &#39;width&#39;: Cm(15.26),
+                &#39;left&#39;: Cm(17.5),
+                &#39;top&#39;: Cm(10.25)
+            }
+            
+            self._create_plot(df=df, title=titles[0], specs=specs, graph_type=graph_types[0], ix=0)
+            self._create_plot(df=df1, title=titles[1], specs=specs1, graph_type=graph_types[1], ix=1)
+            self._create_plot(df=df2, title=titles[2], specs=specs2, graph_type=graph_types[2], ix=2)
+            self._create_plot(df=df3, title=titles[3], specs=specs3, graph_type=graph_types[3], ix=3)
+        
+    def _set_transparency(self, transparency, elm):
+        &#34;&#34;&#34; Set tranparency of element. 
+
+        Args: 
+            transparency: transparency in % 
+            elm: element to be changed
+        &#34;&#34;&#34;
+        a = str(100 - transparency) + &#39;196&#39;
+        
+        alpha = OxmlElement(&#39;a:alpha&#39;)
+        alpha.set(&#39;val&#39;, a)
+        elm.srgbClr.append(alpha)
+
+    def _create_plot(self, df, title, specs, graph_type, legend=None, ix=0):   
+        &#34;&#34;&#34;Create normal barplot.&#34;&#34;&#34;
+
+        if graph_type == &#34;normal&#34;:
+            # Get column names of dataframe
+            column_names = df.columns.tolist()
+            index = column_names.index(self.categories_column)   
+
+            # 1st chart (left side) - nationally sample
+            chart_data = ChartData()
+            chart_data.categories = df[self.categories_column].tolist()
+            chart_data.add_series(column_names[index+1], df[column_names[index+1]].tolist())
+
+            chart = self.slide.shapes.add_chart(
+                XL_CHART_TYPE.COLUMN_CLUSTERED, specs[&#39;left&#39;], specs[&#39;top&#39;], specs[&#39;width&#39;], specs[&#39;height&#39;], chart_data).chart
+
+            # Get series of chart
+            series = chart.series[0]
+            series.points[0].format.fill.solid()
+            series.points[0].format.fill.fore_color.rgb = self.colors[&#39;blue&#39;]
+            series.points[1].format.fill.solid()
+            series.points[1].format.fill.fore_color.rgb = self.colors[&#39;orange&#39;]
+            series.points[2].format.fill.solid()
+            series.points[2].format.fill.fore_color.rgb = self.colors[&#39;green&#39;]
+            
+            # Get plot 
+            plot = chart.plots[0]
+            # Set for each bar same color
+            plot.vary_by_categories = True
+            # Show data labels and set font
+            plot.has_data_labels = True
+            data_labels = plot.data_labels
+            data_labels.font.size = self.data_label_font_size
+            data_labels.font.bold = True
+            data_labels.font.name = self.font_name
+
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = title
+            chart_text.paragraphs[0].font.name = self.font_name
+            chart_text.paragraphs[0].font.size = Pt(14)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = self.category_font_size
+            tick_labels.font.name = self.font_name
+
+            # Don&#39;t show major gridlines
+            #value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = True
+            value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+            value_axis.major_gridlines.format.line.width = Pt(0.5)
+            # Set range of axis
+            value_axis.minimum_scale = 0
+            values = df[column_names[index+1]].tolist()
+            max_value = max(values)
+            if &#39;%&#39; in title and max_value &gt;= 90:
+                value_axis.maximum_scale = 100
+            else:
+                value_axis.maximum_scale = math.ceil(max_value / 10.0) * 10
+            value_axis.visible = False
+
+            # Value for y-axis (change font size, name, and other things)
+            category_axis = chart.category_axis
+            # Delete tick marks
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_axis.major_unit = 1
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+
+        # Create stacked barplot
+        else: 
+            # Get column names of dataframe
+            column_names = df.columns.tolist()
+            index = column_names.index(self.categories_column) + 1
+
+            legend = self.legends[ix]
+            number_of_series = len(legend)
+
+            # 1st dataframe (nationally sample)
+            chart_data = ChartData()
+            chart_data.categories = df[self.categories_column].tolist()
+            # Add data in each category
+            chart_data.add_series(legend[0], df[column_names[index]].tolist())
+            if (number_of_series &gt;= 2):
+                chart_data.add_series(legend[1], df[column_names[index+1]].tolist())
+            if (number_of_series &gt;= 3):
+                chart_data.add_series(legend[2], df[column_names[index+2]].tolist())
+            if (number_of_series &gt;= 4):
+                chart_data.add_series(legend[3], df[column_names[index+3]].tolist())
+            if (number_of_series &gt;= 5):
+                chart_data.add_series(legend[4], df[column_names[index+4]].tolist())
+            if (number_of_series &gt;= 6):
+                chart_data.add_series(legend[5], df[column_names[index+5]].tolist())
+            if (number_of_series &gt;= 7):
+                chart_data.add_series(legend[6], df[column_names[index+6]].tolist())
+            if (number_of_series &gt;= 8):
+                chart_data.add_series(legend[7], df[column_names[index+7]].tolist())
+
+            chart = self.slide.shapes.add_chart(
+                XL_CHART_TYPE.COLUMN_STACKED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+            series = chart.series[0]
+            # Get series of chart
+            chart.series[0].format.fill.solid()
+            chart.series[0].format.fill.fore_color.rgb = self.colors[&#39;blue&#39;]
+            if (number_of_series &gt;= 2):
+                chart.series[1].format.fill.solid()
+                chart.series[1].format.fill.fore_color.rgb = self.colors[&#39;orange&#39;]
+            if (number_of_series &gt;= 3):
+                chart.series[2].format.fill.solid()
+                chart.series[2].format.fill.fore_color.rgb = self.colors[&#39;green&#39;]
+            if (number_of_series &gt;= 4):
+                chart.series[3].format.fill.solid()
+                chart.series[3].format.fill.fore_color.rgb = self.colors[&#39;grey&#39;]
+            if (number_of_series &gt;= 5):
+                chart.series[4].format.fill.solid()
+                chart.series[4].format.fill.fore_color.rgb = self.colors[&#39;violet&#39;]
+            if (number_of_series &gt;= 6):
+                chart.series[5].format.fill.solid()
+                chart.series[5].format.fill.fore_color.rgb = self.colors[&#39;yellow&#39;]
+
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = Pt(11)
+            tick_labels.font.name = self.font_name
+
+            value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+            # Don&#39;t show major gridlines
+            #value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = True
+            value_axis.major_gridlines.format.line.color.rgb = RGBColor(217, 217, 217)
+            value_axis.major_gridlines.format.line.width = Pt(0.5)
+            # Set range of axis
+            value_axis.minimum_scale = 0
+            value_axis.maximum_scale = 100
+            value_axis.visible = True
+
+             # Set 100% transparency to value axis
+            value_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+            solidFill = value_axis.format.line.color._xFill
+            self._set_transparency(100, solidFill)
+
+
+            category_axis = chart.category_axis
+            category_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+            solidFill = category_axis.format.line.color._xFill
+            self._set_transparency(100, solidFill)
+            
+            category_axis.major_tick_mark = XL_TICK_MARK.NONE
+            category_labels = category_axis.tick_labels
+            category_labels.font.size = self.category_font_size
+            category_labels.font.name = self.font_name
+            category_labels.tickLblSkip = 1
+
+            
+
+        
+            # Set legend 
+            chart.has_legend = True
+            chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+            chart.legend.include_in_layout = False
+            chart.legend.font.name = self.font_name
+            chart.legend.font.size = Pt(14)
+
+            chart_text = chart.chart_title.text_frame
+            chart_text.text = title
+            chart_text.paragraphs[0].font.size = Pt(18)
+            chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)</code></pre>
+</details>
+</dd>
+<dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation"><code class="flex name class">
+<span>class <span class="ident">GenerateYearsCompPresentation</span></span>
+<span>(</span><span>df, name)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.</p>
+<h2 id="arguments">Arguments</h2>
+<p>df - dataframe containing data for different times of period in each line
+name - name of given period (e.g. all)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GenerateYearsCompPresentation:
+    &#34;&#34;&#34;
+    This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.
+
+    Arguments:
+        df - dataframe containing data for different times of period in each line
+        name - name of given period (e.g. all)
+    &#34;&#34;&#34;
+
+    def __init__(self, df, name):
+
+        self.df = df
+        self.name = name
+
+        # Get absolute path to the database.
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        #filename = &#34;resq.db&#34;
+       # self.abs_db_path = os.path.join(script_dir, &#34;database&#34;, filename)
+
+        master_pptx = &#34;countries_comparison.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        self._generate_graphs()
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;Generate graphs into presentation (pptx).&#34;&#34;&#34;
+
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = &#34;Data Comparison&#34;
+    
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Calibri Light&#39;
+        font.size = Pt(26)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col = &#39;Site Name&#39;
+
+        # main_col = &#34;Site Name&#34;
+        years = &#39;, &#39;.join(map(str, self.df[main_col].tolist()))
+        title = &#34;Temporal trends - {}&#34;.format(years)
+
+        titles = []
+        graph_types = []
+        legend = []
+        # Total patients and median age graphst)
+        column_name = &#39;Total Patients&#39;
+        df = self.df[[main_col, column_name]]
+        titles.append(&#34;Total Patients&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        column_name = &#39;Median patient age&#39;
+        df1 = self.df[[main_col, column_name]]
+        titles.append(&#34;Median patient age&#34;)
+        graph_types.append(&#34;normal&#34;)
+        
+        GenerateYearsCompGraphs(df=df, df1=df1, presentation=prs, title=title, titles=titles, graph_types=graph_types)
+
+        legends = []
+        titles = []
+        graph_types = []
+        ### DEPARTMENT TYPE ###
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+        legends.append(legend)
+        titles.append(&#34;Department type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+
+        ### HOSPITALIZATION DESTINATION ###
+        legend = [&#39;stroke unit&#39;, &#39;monitored bed with telemetry&#39;, &#39;standard bed&#39;]
+        legends.append(legend)
+        titles.append(&#34;Hospitalization type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df1 = self.df[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+   
+        ### REHABILIATION ###
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Assessed for rehabilitation (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+
+        # STROKE TYPE #
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+        legends.append(legend)
+        titles.append(&#34;Stroke type (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+
+        # CT/MRI performed #
+        column_name = &#39;% CT/MRI - performed&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;CT/MRI (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # patients recanalized
+        column_name = &#39;% patients recanalized&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients recanalized&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+
+        # RECANALIZATION PROCEDURES #
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+        legends.append(legend)
+        titles.append(&#34;Recanalization procedures (%)&#34;)
+
+        df = self.df[[main_col, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        graph_types.append(&#34;stacked&#34;)
+
+        # MEDIAN DTN #
+        column_name = &#39;Median DTN (minutes)&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Median DTN (minutes)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # MEDIAN DTN #
+        column_name = &#39;Median DTG (minutes)&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Median DTG (minutes)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # DYSPHAGIA SCREENING #
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        legend = [&#39;GUSS test&#39;, &#39;Other test&#39;, &#39;Another centre&#39;]
+        legends.append(legend)
+        titles.append(&#34;Dysphagia screening (%)&#34;)
+        graph_types.append(&#34;stacked&#34;)
+
+        df = self.df[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]]
+
+        # CAROTID ARTERIES IMAGING #
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Carotid arteries imaging (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;Recommended to a cerebrovascular \nexpert (%)&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # PRESCRIBED ANTIPLATELETS #
+        column_name = &#39;% patients prescribed antiplatelets without aFib&#39;
+        df = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antiplatelets without aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed anticoagulants with aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        #  % PATIENTS PRESCRIBED ANTITHROMBOTICS WITH AFIB  #
+        column_name = &#39;% patients prescribed antithrombotics with aFib&#39;
+        df2 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antithrombotics with aFib&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB (HOME) #
+        column_name = &#39;% afib patients discharged home with anticoagulants&#39;
+        df3 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% aFib patients discharged home with anticoagulants&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, df2=df2, df3=df3, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        legends = []
+        titles = []
+        graph_types = []
+        # DISCHARGE WITH STATINS #
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+        df = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed statins&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+        df1 = self.df[[main_col, column_name]]
+        legend = []
+        legends.append(legend)
+        titles.append(&#34;% patients prescribed antihypertensives&#34;)
+        graph_types.append(&#34;normal&#34;)
+
+        GenerateYearsCompGraphs(df=df, df1=df1, presentation=prs, title=title, titles=titles, graph_types=graph_types, legends=legends)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = self.name + &#34;.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="resqdb" href="index.html">resqdb</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs">GenerateCountriesCompGraphs</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation">GenerateCountriesCompPresentation</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph">GeneratePeriodCompGraph</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation">GeneratePeriodCompPresentation</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs">GenerateYearsCompGraphs</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation">GenerateYearsCompPresentation</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

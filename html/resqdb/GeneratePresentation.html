@@ -1,0 +1,1790 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>resqdb.GeneratePresentation API documentation</title>
+<meta name="description" content="File name: GeneratePresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2017
+Version: v1.0
+Version comment: The …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>resqdb.GeneratePresentation</code></h1>
+</header>
+<section id="section-intro">
+<p>File name: GeneratePresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2017
+Version: v1.0
+Version comment: The first version of script which calls class GenerateGraphs and create graphs into presentation.
+Description: This script is used to call class GenerateGraphs and produce graphs into presentation.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+File name: GeneratePresentation.py
+Package: resq
+Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2017
+Version: v1.0
+Version comment: The first version of script which calls class GenerateGraphs and create graphs into presentation. 
+Description: This script is used to call class GenerateGraphs and produce graphs into presentation. 
+&#34;&#34;&#34;
+
+
+import pandas as pd
+import sys
+import os
+from datetime import datetime, date
+import sqlite3
+import pytz
+from resqdb.GenerateGraphs import GenerateGraphs
+import xlsxwriter
+from pptx import Presentation
+from pptx.util import Cm, Pt, Inches
+from pptx.dml.color import RGBColor
+
+class GeneratePresentation:
+    &#34;&#34;&#34;Generate classic presentation with graphs. 
+
+    Keyword arguments:
+        df: the raw dataframe with statistics
+        country: True if the country should be included as siste
+        country_code: the code of country
+        split_sites: True if the presesntation should be generated for each site individually
+        site: the code of site
+        report: the report name
+        quarter: the quarter name
+    &#34;&#34;&#34;
+
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None):
+
+        self.df = df
+        self.country_code = country_code
+        self.report = report
+        self.quarter = quarter
+
+        #master_pptx = self.country_code + &#34;.pptx&#34;
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        master_pptx = &#34;master.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        # Connect to database and get country name according to country code.
+        def select_country(value):
+            country_name = pytz.country_names[value]
+            return country_name
+
+        # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+        if (country):
+            if country_code == &#39;UZB&#39;:
+                country_code = &#39;UZ&#39;
+            self.country_name = select_country(self.country_code)
+        else:
+            self.country_name = None
+
+        # If split_sites is True, then go through dataframe and generate graphs for each site (the country will be included as site in each file).
+        site_ids = self.df[&#39;Site ID&#39;].tolist()
+        # Delete country name from side ids list.
+        try:
+            site_ids.remove(self.country_name)
+        except:
+            pass
+
+        if site is not None:
+            df = self.df[self.df[&#39;Site ID&#39;].isin([site, self.country_name])].copy()
+            self._generate_graphs(df=df, site_code=site)
+
+        # Generate formatted statistics for all sites individualy + country as site is included
+        if (split_sites) and site is None:
+            for i in site_ids:
+                df = self.df[self.df[&#39;Site ID&#39;].isin([i, self.country_name])].copy()
+                self._generate_graphs(df=df, site_code=i)
+    
+        # Produce formatted statistics for all sites + country as site
+        if site is None:
+            self._generate_graphs(df=self.df, site_code=country_code)
+
+    def _generate_graphs(self, df, site_code=None):
+        &#34;&#34;&#34;Generate graphs into presentation.&#34;&#34;&#34;
+        
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = self.country_name + &#34;\nData Summary&#34;
+        #first_slide_text = &#34;\nData Summary&#34;
+
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Century Gothic&#39;
+        font.size = Pt(24)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col =  &#39;Site Name&#39;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        country_patients = str(max(tmp_df[column_name].tolist()))
+        title = &#39;TOTAL PATIENTS (n = {})&#39;.format(country_patients)
+        if self.country_name is not None:
+            tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##########################
+        ### MEDIAN PATIENT AGE ###
+        ##########################
+        column_name = &#39;Median patient age&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN PATIENT AGE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###########################
+        ### GENDER DISTRIBUTION ###
+        ###########################
+        column_name = &#39;% patients female&#39;
+        legend = [&#39;Female&#39;, &#39;Male&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients female&#39;, &#39;% patients male&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;GENDER DISTRIBUTION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################################
+        ### % RECURRENT STROKES OUT OF ALL CASES ###
+        ############################################
+        &#39;&#39;&#39;
+        sheet_name = &#39;recurrent_stroke&#39;
+        column_name = &#39;% recurrent stroke - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECURRENT STROKES out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, title=title, column_name=column_name, sheet_name=sheet_name, writer=writer, workbook=workbook)
+        &#39;&#39;&#39;
+
+        #######################
+        ### DEPARTMENT TYPE ###
+        #######################
+        column_name = &#39;% department type - neurology&#39;
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+
+        tmp_df = df[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DEPARTMENT TYPE ALLOCATION out of all cases&#34; 
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        ### HOSPITALIZATION DESTINATION ###
+        ###################################
+        column_name = &#39;% patients hospitalized in stroke unit / ICU&#39;
+        legend = [&#39;stroke unit&#39;, &#39;monitored bed with telemetry&#39;, &#39;standard bed&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% HOSPITALIZATION DESTINATION out of all cases&#34; 
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###############
+        # STROKE TYPE #
+        ###############
+        column_name = &#39;% stroke type - ischemic stroke&#39;
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+
+        tmp_df = df[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% STROKE TYPE out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ######################
+        # CONSIOUSNESS LEVEL #
+        ######################
+        column_name = &#39;alert_all_perc&#39;
+        legend = [&#39;alert&#39;, &#39;drowsy&#39;, &#39;comatose&#39;]
+
+        tmp_df = df[[main_col, &#39;alert_all_perc&#39;, &#39;drowsy_all_perc&#39;, &#39;comatose_all_perc&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CONSCIOUSNESS LEVEL for IS, ICH, CVT, SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        &#39;&#39;&#39;
+        #######
+        # GCS #
+        #######
+        column_names = [&#39;% GCS - 15-13&#39;, &#39;% GCS - 12-8&#39;, &#39;% GCS - &lt;8&#39;]
+        column_name = &#39;% GCS - 15-13&#39;
+        legend = [&#39;GCS 15 - 13&#39;, &#39;GCS 12 - 8&#39;, &#39;GCS &lt; 8&#39;]
+
+        tmp_df = df[[main_col, &#39;% GCS - 15-13&#39;, &#39;% GCS - 12-8&#39;, &#39;% GCS - &lt;8&#39;]]
+        tmp_df = tmp_df.sort_values(column_names, ascending = [True, True, True])
+
+        title = &#34;% GLASGOW COMA SCALE INTERVALS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+        &#39;&#39;&#39;
+        ###################
+        # NIHSS PERFORMED #
+        ###################
+        column_name = &#39;% NIHSS - Performed&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% NIHSS PERFORMED for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ######################
+        # NIHSS MEDIAN SCORE #
+        ######################
+        column_name = &#39;NIHSS median score&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;NIHSS median score&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        # CT/MRI performed #
+        ####################
+        column_name = &#39;% CT/MRI - performed&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CT/MRI PERFORMED for IS, ICH, CVT, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################
+        # CT/MRI PERFORMED WITHIN 1 HOUR #
+        ##################################
+        column_name = &#39;% CT/MRI - Performed within 1 hour after admission&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CT/MRI PERFORMED WITHIN 1 HOUR AFTER ADMISSION for IS, ICH, CVT, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        # VASCULAR IMAGING #
+        ####################
+        sorted_by = [&#39;vascular_imaging_cta_norm&#39;, &#39;vascular_imaging_mra_norm&#39;, &#39;vascular_imaging_dsa_norm&#39;, &#39;vascular_imaging_none_norm&#39;]
+        column_name = &#39;vascular_imaging_cta_norm&#39;
+        legend = [&#39;CTA&#39;, &#39;MRA&#39;, &#39;DSA&#39;, &#39;none&#39;]
+
+        tmp_df = df[[main_col, &#39;vascular_imaging_cta_norm&#39;, &#39;vascular_imaging_mra_norm&#39;, &#39;vascular_imaging_dsa_norm&#39;, &#39;vascular_imaging_none_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% VASCULAR IMAGING PERFORMED for ICH, SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% IV tPa for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ####################################################
+        # RECANALIZATION TREATMENT IN COMPREHENSIVE CENTRE #
+        ####################################################
+        sorted_by = [&#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;]
+        column_name = &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;
+        legend = [&#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% RECANALIZATION PROCEDURES IN COMPREHENSIVE CENTRES for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################################################
+        # RECANALIZATION TREATMENT IN REFFERED TO ANOTHER CENTRE #
+        ##########################################################
+        sorted_by = [&#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre&#39;, &#39;% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre&#39;]
+        column_name = &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;
+        legend = [&#39;IV tPa + another centre for endovascular treatment&#39;, &#39;another centre for endovascular treatment&#39;, &#39;another centre for endovascular treatment and hospitalization continues&#39;, &#39;another centre for endovascular treatment and returned to the initial centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre&#39;, &#39;% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% PATIENTS TRANSFERRED TO ANOTHER CENTRE FOR RECANALIZATION PROCEDURES FROM PRIMARY CENTRE for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_df = tmp_df.sort_values([&#39;% patients recanalized&#39;], ascending = True)
+
+        title = &#34;% RECANALIZATION PROCEDURES for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################
+        # % median DTN #
+        ################
+        column_name = &#39;Median DTN (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-TO-NEEDLE TIME (minutes) for thrombolyzed patients&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############
+        #  median DTG #
+        ###############
+        column_name = &#39;Median DTG (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-TO-GROIN TIME (minutes) for patients receiving endovascular treatment in a comprehensive centre&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        #  median TBY DIDO #
+        ####################
+        column_name = &#39;Median TBY DIDO (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-IN-DOOR-OUT TIME (minutes) for patients referred from a primary centre to another centre for recanalization therapy&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #######################
+        # dysphagia screening #
+        #######################
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        column_names = [&#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]
+        legend = [&#39;GUSS test&#39;, &#39;Other test&#39;, &#39;Another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]]
+        tmp_df = tmp_df.sort_values(column_names, ascending = True)
+
+        title = &#34;% DYSPHAGIA SCREENING PERFORMED for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ######################################
+        #  dypshagia screening within 1 hour #
+        ######################################
+        column_name = &#39;% dysphagia screening time - Within first 24 hours&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DYSPHAGIA SCREENING TIME WITHIN FIRST 24 HOURS AFTER ADMISSION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###########################
+        # PUT ON VENTILATOR - YES #
+        ###########################
+        column_name = &#39;% patients put on ventilator - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS PUT ON VENTILATOR for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###################
+        # HEMICRANEOCTOMY #
+        ###################
+        column_name = &#39;% hemicraniectomy - Yes&#39;
+        legend = [&#39;Yes&#39;, &#39;Referred to another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% hemicraniectomy - Yes&#39;, &#39;% hemicraniectomy - Referred to another centre&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% HEMICRANIECTOMY PERFORMED for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################
+        # NEUROSURGERY #
+        ################
+        column_name = &#39;% neurosurgery - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% NEUROSURGERY PERFORMED for ICH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #######################################
+        # NEUROSURGERY TYPE (FIRST 3 OPTIONS) #
+        #######################################
+        sorted_by = [&#39;% neurosurgery type - intracranial hematoma evacuation&#39;, &#39;% neurosurgery type - external ventricular drainage&#39;, &#39;% neurosurgery type - decompressive craniectomy&#39;]
+        column_name = &#39;% neurosurgery type - intracranial hematoma evacuation&#39;
+        legend = [&#39;intracranial hematoma evacuation&#39;, &#39;external ventricular drainage&#39;, &#39;decompressive craniectomy&#39;]
+
+        tmp_df = df[[main_col, &#39;% neurosurgery type - intracranial hematoma evacuation&#39;, &#39;% neurosurgery type - external ventricular drainage&#39;, &#39;% neurosurgery type - decompressive craniectomy&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% NEUROSURGERY TYPE PERFORMED for ICH in comprehensive centres&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        # NEUROSURGERY TYPE (LAST OPTION) #
+        ###################################
+        column_name = &#39;% neurosurgery type - Referred to another centre&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS REFERRED TO ANOTHER CENTRE FOR NEUROSURGERY&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###################
+        # BLEEDING REASON #
+        ###################
+        sorted_by = [&#39;bleeding_arterial_hypertension_perc_norm&#39;, &#39;bleeding_aneurysm_perc_norm&#39;, &#39;bleeding_arterio_venous_malformation_perc_norm&#39;, &#39;bleeding_anticoagulation_therapy_perc_norm&#39;, &#39;bleeding_amyloid_angiopathy_perc_norm&#39;, &#39;bleeding_other_perc_norm&#39;]
+        column_name = &#39;bleeding_arterial_hypertension_perc_norm&#39;
+        legend = [&#39;arterial hypertension&#39;, &#39;aneurysm&#39;, &#39;arterio-venous malformation&#39;, &#39;anticoagulation therapy&#39;, &#39;amyloid angiopathy&#39;, &#39;other&#39;]
+
+        tmp_df = df[[main_col, &#39;bleeding_arterial_hypertension_perc_norm&#39;, &#39;bleeding_aneurysm_perc_norm&#39;, &#39;bleeding_arterio_venous_malformation_perc_norm&#39;, &#39;bleeding_anticoagulation_therapy_perc_norm&#39;, &#39;bleeding_amyloid_angiopathy_perc_norm&#39;, &#39;bleeding_other_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% BLEEDING REASON for ICH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################
+        # INTERVENTION PERFORMED #
+        ##########################
+        sorted_by = [&#39;intervention_endovascular_perc_norm&#39;, &#39;intervention_neurosurgical_perc_norm&#39;, &#39;intervention_other_perc_norm&#39;, &#39;intervention_referred_perc_norm&#39;, &#39;intervention_none_perc_norm&#39;]
+        column_name = &#39;intervention_endovascular_perc_norm&#39;
+        legend = [&#39;Endovascular (coiling)&#39;, &#39;Neurosurgical (clipping)&#39;, &#39;Other neurosurgical treatment&#39;, &#39;Patient referred to another centre&#39;, &#39;None&#39;]
+
+        tmp_df = df[[main_col, &#39;intervention_endovascular_perc_norm&#39;, &#39;intervention_neurosurgical_perc_norm&#39;, &#39;intervention_other_perc_norm&#39;, &#39;intervention_referred_perc_norm&#39;, &#39;intervention_none_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% INTERVENTION PERFORMED for SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################################
+        # % PATIENTS ASSESSED FOR REHABILITATION #
+        ##########################################
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% REHABILITATION ASSESSMENT out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############################
+        # VENOUS THROMBOSIS TREATMENT #
+        ###############################
+        sorted_by = [&#39;vt_treatment_anticoagulation_perc_norm&#39;, &#39;vt_treatment_thrombectomy_perc_norm&#39;, &#39;vt_treatment_local_thrombolysis_perc_norm&#39;, &#39;vt_treatment_local_neurological_treatment_perc_norm&#39;]
+        column_name = &#39;vt_treatment_anticoagulation_perc_norm&#39;
+        legend = [&#39;anticoagulation&#39;, &#39;thrombectomy&#39;, &#39;local thrombolysis&#39;, &#39;neurosurgical treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;vt_treatment_anticoagulation_perc_norm&#39;, &#39;vt_treatment_thrombectomy_perc_norm&#39;, &#39;vt_treatment_local_thrombolysis_perc_norm&#39;, &#39;vt_treatment_local_neurological_treatment_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% VENOUS THROMBOSIS TREATMENT for CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################################
+        # ATRIAL FIBRILLATION DETECTED #
+        ################################
+        sorted_by = [&#39;% afib/flutter - Detected during hospitalization&#39;, &#39;% afib/flutter - Newly-detected at admission&#39;, &#39;% afib/flutter - Known&#39;]
+        column_name = &#39;% afib/flutter - Detected during hospitalization&#39;
+        legend = [&#39;detected during hospitalization&#39;, &#39;newly-detected at admission&#39;, &#39;known aFib&#39;]
+
+        tmp_df = df[[main_col, &#39;% afib/flutter - Detected during hospitalization&#39;, &#39;% afib/flutter - Newly-detected at admission&#39;, &#39;% afib/flutter - Known&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ATRIAL FIBRILLATION DETECTED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ########################################
+        # ATRIAL FIBRILLATION DETECTION METHOD #
+        ########################################
+        sorted_by = [&#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Telemetry without monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Holter-type monitoring&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib&#39;]
+        column_name = &#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;
+        legend = [&#39;Telemetry with monitoring&#39;, &#39;Telemetry without monitoring&#39;, &#39;Holter-type monitoring&#39;, &#39;EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;EKG monitoring in an ICU bed without automatic detection of aFib&#39;]
+
+        tmp_df = df[[main_col, &#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Telemetry without monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Holter-type monitoring&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ATRIAL FIBRILLATION DETECTION METHOD&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #######################################
+        # AMBULATORY HEART RHYTHM RECOMMENDED #
+        #######################################
+        column_name = &#39;% other afib detection method - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% AMBULATORY HEART RHYTHM RECOMMENDED for IS, TIA without AFib detection&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################
+        # CAROTID ARTERIES IMAGING - YES #
+        ##################################
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##############################
+        # ANTITHROMBOTICS PRESCRIBED #
+        ##############################
+        &#39;&#39;&#39;
+        column_name = &#39;% patients receiving antiplatelets&#39;
+        legend = [&#39;Antiplatelets&#39;, &#39;Vitamin K&#39;, &#39;Dabigatran&#39;, &#39;Rivaroxaban&#39;, &#39;Apixaban&#39;, &#39;Edoxaban&#39;, &#39;LMWH or heparin in prophylactic dose&#39;, &#39;LMWH or heparin in anticoagulant dose&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients prescribed antithrombotics&#39;, &#39;% patients receiving antiplatelets&#39;, &#39;% patients receiving Vit. K antagonist&#39;, &#39;% patients receiving dabigatran&#39;, &#39;% patients receiving rivaroxaban&#39;, &#39;% patients receiving apixaban&#39;, &#39;% patients receiving edoxaban&#39;, &#39;% patients receiving LMWH or heparin in prophylactic dose&#39;, &#39;% patients receiving LMWH or heparin in full anticoagulant dose&#39;]]
+
+        tmp_df = tmp_df.sort_values([&#39;% patients prescribed antithrombotics&#39;], ascending = True)
+
+        title = &#34;% ANTITHROMBOTICS PRESCRIBED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+        &#39;&#39;&#39;
+        ##################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #########################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB (HOME) #
+        #########################################################
+        column_name = &#39;% afib patients discharged home with anticoagulants&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS DISCHARGED HOME WITH AFIB, PRESCRIBED ANTICOAGULANTS \nfor IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # PATIENTS PRESCRIBED ANTIPLATELETS WITHOUT AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed antiplatelets without aFib&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###################################
+        # NOT PRESCRIBED, BUT RECOMMENDED #
+        ###################################
+        column_name = &#39;% patients not prescribed antithrombotics, but recommended&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ############
+        # WITH CVT #
+        ############
+        ##############################
+        # ANTITHROMBOTICS PRESCRIBED #
+        ##############################
+        column_name = &#39;% patients receiving antiplatelets with CVT&#39;
+        legend = [&#39;Antiplatelets&#39;, &#39;Vitamin K&#39;, &#39;Dabigatran&#39;, &#39;Rivaroxaban&#39;, &#39;Apixaban&#39;, &#39;Edoxaban&#39;, &#39;LMWH or heparin in prophylactic dose&#39;, &#39;LMWH or heparin in anticoagulant dose&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients prescribed antithrombotics with CVT&#39;, &#39;% patients receiving antiplatelets with CVT&#39;, &#39;% patients receiving Vit. K antagonist with CVT&#39;, &#39;% patients receiving dabigatran with CVT&#39;, &#39;% patients receiving rivaroxaban with CVT&#39;, &#39;% patients receiving apixaban with CVT&#39;, &#39;% patients receiving edoxaban with CVT&#39;, &#39;% patients receiving LMWH or heparin in prophylactic dose with CVT&#39;, &#39;% patients receiving LMWH or heparin in full anticoagulant dose with CVT&#39;]]
+
+        tmp_df = tmp_df.sort_values([&#39;% patients prescribed antithrombotics with CVT&#39;], ascending = True)
+
+        title = &#34;% ANTITHROMBOTICS PRESCRIBED for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed anticoagulants with aFib with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # PATIENTS PRESCRIBED ANTIPLATELETS WITHOUT AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed antiplatelets without aFib with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###################################
+        # NOT PRESCRIBED, BUT RECOMMENDED #
+        ###################################
+        column_name = &#39;% patients not prescribed antithrombotics, but recommended with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS \nfor IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##########################
+        # DISCHARGE WITH STATINS #
+        ##########################
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DISCHARGED WITH STATINS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #############################
+        # CAROTID STENOSIS DETECTED #
+        #############################
+        column_name = &#39;% carotid stenosis - &gt;70%&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CAROTID STENOSIS OF OVER 70 PERCENT for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # % CAROTID STENOSIS FOLLOWUP - YES, BUT PLANNED #
+        ##################################################
+        sorted_by = [&#39;% carotid stenosis followup - Yes, but planned&#39;, &#39;% carotid stenosis followup - Referred to another centre&#39;]
+        column_name = &#39;% carotid stenosis followup - Yes, but planned&#39;
+        legend = [&#39;Yes or planned&#39;, &#39;Referred to another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% carotid stenosis followup - Yes, but planned&#39;, &#39;% carotid stenosis followup - Referred to another centre&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS &gt; 70%&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #############################################################
+        # % ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases #
+        #############################################################
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ######################################################
+        # % RECOMMENDED TO A SMOKING CESSATION PROGRAM - YES #
+        ######################################################
+        column_name = &#39;% recommended to a smoking cessation program - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECOMMENDED TO A SMOKING CESSATION PROGRAM out of smokers&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###########################################################
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        ###########################################################
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECOMMENDED TO A CEREBROVASCULAR EXPERT out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #########################
+        # DISCHARGE DESTINATION #
+        #########################
+        sorted_by = [&#39;% discharge destination - Home&#39;, &#39;% discharge destination - Transferred within the same centre&#39;, &#39;% discharge destination - Transferred to another centre&#39;, &#39;% discharge destination - Social care facility&#39;, &#39;% discharge destination - Dead&#39;]
+        column_name = &#39;% discharge destination - Home&#39;
+        legend = [&#39;home&#39;, &#39;transferred within the same centre&#39;, &#39;transferred to another centre&#39;, &#39;social care facility&#39;, &#39;dead&#39;]
+
+        tmp_df = df[[main_col, &#39;% discharge destination - Home&#39;, &#39;% discharge destination - Transferred within the same centre&#39;, &#39;% discharge destination - Transferred to another centre&#39;, &#39;% discharge destination - Social care facility&#39;, &#39;% discharge destination - Dead&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################################################################
+        # DISCHARGE DESTINATION - DEPARTMENT TRANSFERRED TO WITHIN THE SAME CENTRE #
+        ############################################################################
+        sorted_by = [&#39;% transferred within the same centre - Acute rehabilitation&#39;, &#39;% transferred within the same centre - Post-care bed&#39;, &#39;% transferred within the same centre - Another department&#39;]
+        column_name = &#39;% transferred within the same centre - Acute rehabilitation&#39;
+        legend = [&#39;Acute rehabilitation&#39;, &#39;Post-care bed&#39;, &#39;Another department&#39;]
+
+        tmp_df = df[[main_col, &#39;% transferred within the same centre - Acute rehabilitation&#39;, &#39;% transferred within the same centre - Post-care bed&#39;, &#39;% transferred within the same centre - Another department&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED WITHIN THE SAME CENTRE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ####################################################
+        # % DISCHARGE DESTINATION - CENTRE TRANSFERRED TO  #
+        ####################################################
+        sorted_by = [&#39;% transferred to another centre - Stroke centre&#39;, &#39;% transferred to another centre - Comprehensive stroke centre&#39;, &#39;% transferred to another centre - Another hospital&#39;]
+        column_name = &#39;% transferred to another centre - Stroke centre&#39;
+        legend = [&#39;Stroke centre&#39;, &#39;Comprehensive stroke centre&#39;, &#39;Another hospital&#39;]
+
+        tmp_df = df[[main_col, &#39;% transferred to another centre - Stroke centre&#39;, &#39;% transferred to another centre - Comprehensive stroke centre&#39;, &#39;% transferred to another centre - Another hospital&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #################################################################################
+        # % DISCHARGE DESTINATION - DEPARTMENT TRANSFERRED TO WITHIN TO ANOTHER CENTRE  #
+        #################################################################################
+        sorted_by = [&#39;% department transferred to within another centre - Acute rehabilitation&#39;, &#39;% department transferred to within another centre - Post-care bed&#39;, &#39;% department transferred to within another centre - Neurology&#39;, &#39;% department transferred to within another centre - Another department&#39;]
+        column_name = &#39;% department transferred to within another centre - Acute rehabilitation&#39;
+        legend = [&#39;Acute rehabilitation&#39;, &#39;Post-care bed&#39;, &#39;Neurology&#39;, &#39;Another department&#39;]
+
+        tmp_df = df[[main_col, &#39;% department transferred to within another centre - Acute rehabilitation&#39;, &#39;% department transferred to within another centre - Post-care bed&#39;, &#39;% department transferred to within another centre - Neurology&#39;, &#39;% department transferred to within another centre - Another department&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE (DEPARTMENT)&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ########################
+        # MEDIAN DISCHARGE mRS #
+        ########################
+        column_name = &#39;Median discharge mRS&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN DISCHARGE MRS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############################
+        # MEDIAN HOSPITAL STAY (DAYS) #
+        ###############################
+        column_name = &#39;Median hospital stay (days)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN HOSPITAL STAY (DAYS)&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = self.report + &#34;_&#34; + site_code + &#34;_&#34; + self.quarter + &#34;.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)
+
+
+
+
+
+
+        </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="resqdb.GeneratePresentation.GeneratePresentation"><code class="flex name class">
+<span>class <span class="ident">GeneratePresentation</span></span>
+<span>(</span><span>df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate classic presentation with graphs. </p>
+<p>Keyword arguments:
+df: the raw dataframe with statistics
+country: True if the country should be included as siste
+country_code: the code of country
+split_sites: True if the presesntation should be generated for each site individually
+site: the code of site
+report: the report name
+quarter: the quarter name</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GeneratePresentation:
+    &#34;&#34;&#34;Generate classic presentation with graphs. 
+
+    Keyword arguments:
+        df: the raw dataframe with statistics
+        country: True if the country should be included as siste
+        country_code: the code of country
+        split_sites: True if the presesntation should be generated for each site individually
+        site: the code of site
+        report: the report name
+        quarter: the quarter name
+    &#34;&#34;&#34;
+
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None):
+
+        self.df = df
+        self.country_code = country_code
+        self.report = report
+        self.quarter = quarter
+
+        #master_pptx = self.country_code + &#34;.pptx&#34;
+        script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+        master_pptx = &#34;master.pptx&#34;
+        self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+        # Connect to database and get country name according to country code.
+        def select_country(value):
+            country_name = pytz.country_names[value]
+            return country_name
+
+        # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+        if (country):
+            if country_code == &#39;UZB&#39;:
+                country_code = &#39;UZ&#39;
+            self.country_name = select_country(self.country_code)
+        else:
+            self.country_name = None
+
+        # If split_sites is True, then go through dataframe and generate graphs for each site (the country will be included as site in each file).
+        site_ids = self.df[&#39;Site ID&#39;].tolist()
+        # Delete country name from side ids list.
+        try:
+            site_ids.remove(self.country_name)
+        except:
+            pass
+
+        if site is not None:
+            df = self.df[self.df[&#39;Site ID&#39;].isin([site, self.country_name])].copy()
+            self._generate_graphs(df=df, site_code=site)
+
+        # Generate formatted statistics for all sites individualy + country as site is included
+        if (split_sites) and site is None:
+            for i in site_ids:
+                df = self.df[self.df[&#39;Site ID&#39;].isin([i, self.country_name])].copy()
+                self._generate_graphs(df=df, site_code=i)
+    
+        # Produce formatted statistics for all sites + country as site
+        if site is None:
+            self._generate_graphs(df=self.df, site_code=country_code)
+
+    def _generate_graphs(self, df, site_code=None):
+        &#34;&#34;&#34;Generate graphs into presentation.&#34;&#34;&#34;
+        
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        first_slide_text = self.country_name + &#34;\nData Summary&#34;
+        #first_slide_text = &#34;\nData Summary&#34;
+
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = &#39;Century Gothic&#39;
+        font.size = Pt(24)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(df) &gt; 2):
+        #     main_col = &#39;Site ID&#39;
+        # else:
+        main_col =  &#39;Site Name&#39;
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = &#39;Total Patients&#39;
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        country_patients = str(max(tmp_df[column_name].tolist()))
+        title = &#39;TOTAL PATIENTS (n = {})&#39;.format(country_patients)
+        if self.country_name is not None:
+            tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##########################
+        ### MEDIAN PATIENT AGE ###
+        ##########################
+        column_name = &#39;Median patient age&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN PATIENT AGE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###########################
+        ### GENDER DISTRIBUTION ###
+        ###########################
+        column_name = &#39;% patients female&#39;
+        legend = [&#39;Female&#39;, &#39;Male&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients female&#39;, &#39;% patients male&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;GENDER DISTRIBUTION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################################
+        ### % RECURRENT STROKES OUT OF ALL CASES ###
+        ############################################
+        &#39;&#39;&#39;
+        sheet_name = &#39;recurrent_stroke&#39;
+        column_name = &#39;% recurrent stroke - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECURRENT STROKES out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, title=title, column_name=column_name, sheet_name=sheet_name, writer=writer, workbook=workbook)
+        &#39;&#39;&#39;
+
+        #######################
+        ### DEPARTMENT TYPE ###
+        #######################
+        column_name = &#39;% department type - neurology&#39;
+        legend = [&#39;neurology&#39;, &#39;neurosurgery&#39;, &#39;anesthesiology resuscitation critical care&#39;, &#39;internal medicine&#39;, &#39;geriatrics&#39;, &#39;other&#39;]
+
+        tmp_df = df[[main_col, &#39;% department type - neurology&#39;, &#39;% department type - neurosurgery&#39;, &#39;% department type - anesthesiology/resuscitation/critical care&#39;, &#39;% department type - internal medicine&#39;, &#39;% department type - geriatrics&#39;, &#39;% department type - Other&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DEPARTMENT TYPE ALLOCATION out of all cases&#34; 
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        ### HOSPITALIZATION DESTINATION ###
+        ###################################
+        column_name = &#39;% patients hospitalized in stroke unit / ICU&#39;
+        legend = [&#39;stroke unit&#39;, &#39;monitored bed with telemetry&#39;, &#39;standard bed&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients hospitalized in stroke unit / ICU&#39;, &#39;% patients hospitalized in monitored bed with telemetry&#39;, &#39;% patients hospitalized in standard bed&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% HOSPITALIZATION DESTINATION out of all cases&#34; 
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###############
+        # STROKE TYPE #
+        ###############
+        column_name = &#39;% stroke type - ischemic stroke&#39;
+        legend = [&#39;ischemic&#39;, &#39;transient ischemic attack&#39;, &#39;intracerebral hemorrhage&#39;, &#39;subarrachnoid hemorrhage&#39;, &#39;cerebral venous thrombosis&#39;, &#39;undetermined&#39;]
+
+        tmp_df = df[[main_col, &#39;% stroke type - ischemic stroke&#39;, &#39;% stroke type - transient ischemic attack&#39;, &#39;% stroke type - intracerebral hemorrhage&#39;, &#39;% stroke type - subarrachnoid hemorrhage&#39;, &#39;% stroke type - cerebral venous thrombosis&#39;, &#39;% stroke type - undetermined stroke&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% STROKE TYPE out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ######################
+        # CONSIOUSNESS LEVEL #
+        ######################
+        column_name = &#39;alert_all_perc&#39;
+        legend = [&#39;alert&#39;, &#39;drowsy&#39;, &#39;comatose&#39;]
+
+        tmp_df = df[[main_col, &#39;alert_all_perc&#39;, &#39;drowsy_all_perc&#39;, &#39;comatose_all_perc&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CONSCIOUSNESS LEVEL for IS, ICH, CVT, SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        &#39;&#39;&#39;
+        #######
+        # GCS #
+        #######
+        column_names = [&#39;% GCS - 15-13&#39;, &#39;% GCS - 12-8&#39;, &#39;% GCS - &lt;8&#39;]
+        column_name = &#39;% GCS - 15-13&#39;
+        legend = [&#39;GCS 15 - 13&#39;, &#39;GCS 12 - 8&#39;, &#39;GCS &lt; 8&#39;]
+
+        tmp_df = df[[main_col, &#39;% GCS - 15-13&#39;, &#39;% GCS - 12-8&#39;, &#39;% GCS - &lt;8&#39;]]
+        tmp_df = tmp_df.sort_values(column_names, ascending = [True, True, True])
+
+        title = &#34;% GLASGOW COMA SCALE INTERVALS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+        &#39;&#39;&#39;
+        ###################
+        # NIHSS PERFORMED #
+        ###################
+        column_name = &#39;% NIHSS - Performed&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% NIHSS PERFORMED for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ######################
+        # NIHSS MEDIAN SCORE #
+        ######################
+        column_name = &#39;NIHSS median score&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;NIHSS median score&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        # CT/MRI performed #
+        ####################
+        column_name = &#39;% CT/MRI - performed&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CT/MRI PERFORMED for IS, ICH, CVT, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################
+        # CT/MRI PERFORMED WITHIN 1 HOUR #
+        ##################################
+        column_name = &#39;% CT/MRI - Performed within 1 hour after admission&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CT/MRI PERFORMED WITHIN 1 HOUR AFTER ADMISSION for IS, ICH, CVT, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        # VASCULAR IMAGING #
+        ####################
+        sorted_by = [&#39;vascular_imaging_cta_norm&#39;, &#39;vascular_imaging_mra_norm&#39;, &#39;vascular_imaging_dsa_norm&#39;, &#39;vascular_imaging_none_norm&#39;]
+        column_name = &#39;vascular_imaging_cta_norm&#39;
+        legend = [&#39;CTA&#39;, &#39;MRA&#39;, &#39;DSA&#39;, &#39;none&#39;]
+
+        tmp_df = df[[main_col, &#39;vascular_imaging_cta_norm&#39;, &#39;vascular_imaging_mra_norm&#39;, &#39;vascular_imaging_dsa_norm&#39;, &#39;vascular_imaging_none_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% VASCULAR IMAGING PERFORMED for ICH, SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% IV tPa for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ####################################################
+        # RECANALIZATION TREATMENT IN COMPREHENSIVE CENTRE #
+        ####################################################
+        sorted_by = [&#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;]
+        column_name = &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;
+        legend = [&#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% RECANALIZATION PROCEDURES IN COMPREHENSIVE CENTRES for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################################################
+        # RECANALIZATION TREATMENT IN REFFERED TO ANOTHER CENTRE #
+        ##########################################################
+        sorted_by = [&#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre&#39;, &#39;% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre&#39;]
+        column_name = &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;
+        legend = [&#39;IV tPa + another centre for endovascular treatment&#39;, &#39;another centre for endovascular treatment&#39;, &#39;another centre for endovascular treatment and hospitalization continues&#39;, &#39;another centre for endovascular treatment and returned to the initial centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment&#39;, &#39;% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre&#39;, &#39;% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% PATIENTS TRANSFERRED TO ANOTHER CENTRE FOR RECANALIZATION PROCEDURES FROM PRIMARY CENTRE for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################
+        # RECANALIZATION TREATMENT #
+        ############################
+        column_name = &#39;% recanalization procedures - IV tPa&#39;
+        legend = [&#39;IV tPa&#39;, &#39;IV tPa + endovascular treatment&#39;, &#39;endovascular treatment&#39;, &#39;IV tPa + another centre for endovascular treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients recanalized&#39;, &#39;% recanalization procedures - IV tPa&#39;, &#39;% recanalization procedures - IV tPa + endovascular treatment&#39;, &#39;% recanalization procedures - Endovascular treatment alone&#39;, &#39;% recanalization procedures - IV tPa + referred to another centre for endovascular treatment&#39;]]
+        tmp_df = tmp_df.sort_values([&#39;% patients recanalized&#39;], ascending = True)
+
+        title = &#34;% RECANALIZATION PROCEDURES for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################
+        # % median DTN #
+        ################
+        column_name = &#39;Median DTN (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-TO-NEEDLE TIME (minutes) for thrombolyzed patients&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############
+        #  median DTG #
+        ###############
+        column_name = &#39;Median DTG (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-TO-GROIN TIME (minutes) for patients receiving endovascular treatment in a comprehensive centre&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ####################
+        #  median TBY DIDO #
+        ####################
+        column_name = &#39;Median TBY DIDO (minutes)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = &#34;MEDIAN DOOR-IN-DOOR-OUT TIME (minutes) for patients referred from a primary centre to another centre for recanalization therapy&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #######################
+        # dysphagia screening #
+        #######################
+        column_name = &#39;% dysphagia screening - Guss test&#39;
+        column_names = [&#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]
+        legend = [&#39;GUSS test&#39;, &#39;Other test&#39;, &#39;Another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% dysphagia screening - Guss test&#39;, &#39;% dysphagia screening - Other test&#39;, &#39;% dysphagia screening - Another centre&#39;]]
+        tmp_df = tmp_df.sort_values(column_names, ascending = True)
+
+        title = &#34;% DYSPHAGIA SCREENING PERFORMED for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ######################################
+        #  dypshagia screening within 1 hour #
+        ######################################
+        column_name = &#39;% dysphagia screening time - Within first 24 hours&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DYSPHAGIA SCREENING TIME WITHIN FIRST 24 HOURS AFTER ADMISSION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###########################
+        # PUT ON VENTILATOR - YES #
+        ###########################
+        column_name = &#39;% patients put on ventilator - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS PUT ON VENTILATOR for IS, ICH, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###################
+        # HEMICRANEOCTOMY #
+        ###################
+        column_name = &#39;% hemicraniectomy - Yes&#39;
+        legend = [&#39;Yes&#39;, &#39;Referred to another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% hemicraniectomy - Yes&#39;, &#39;% hemicraniectomy - Referred to another centre&#39;]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% HEMICRANIECTOMY PERFORMED for IS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################
+        # NEUROSURGERY #
+        ################
+        column_name = &#39;% neurosurgery - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% NEUROSURGERY PERFORMED for ICH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #######################################
+        # NEUROSURGERY TYPE (FIRST 3 OPTIONS) #
+        #######################################
+        sorted_by = [&#39;% neurosurgery type - intracranial hematoma evacuation&#39;, &#39;% neurosurgery type - external ventricular drainage&#39;, &#39;% neurosurgery type - decompressive craniectomy&#39;]
+        column_name = &#39;% neurosurgery type - intracranial hematoma evacuation&#39;
+        legend = [&#39;intracranial hematoma evacuation&#39;, &#39;external ventricular drainage&#39;, &#39;decompressive craniectomy&#39;]
+
+        tmp_df = df[[main_col, &#39;% neurosurgery type - intracranial hematoma evacuation&#39;, &#39;% neurosurgery type - external ventricular drainage&#39;, &#39;% neurosurgery type - decompressive craniectomy&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% NEUROSURGERY TYPE PERFORMED for ICH in comprehensive centres&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ###################################
+        # NEUROSURGERY TYPE (LAST OPTION) #
+        ###################################
+        column_name = &#39;% neurosurgery type - Referred to another centre&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS REFERRED TO ANOTHER CENTRE FOR NEUROSURGERY&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###################
+        # BLEEDING REASON #
+        ###################
+        sorted_by = [&#39;bleeding_arterial_hypertension_perc_norm&#39;, &#39;bleeding_aneurysm_perc_norm&#39;, &#39;bleeding_arterio_venous_malformation_perc_norm&#39;, &#39;bleeding_anticoagulation_therapy_perc_norm&#39;, &#39;bleeding_amyloid_angiopathy_perc_norm&#39;, &#39;bleeding_other_perc_norm&#39;]
+        column_name = &#39;bleeding_arterial_hypertension_perc_norm&#39;
+        legend = [&#39;arterial hypertension&#39;, &#39;aneurysm&#39;, &#39;arterio-venous malformation&#39;, &#39;anticoagulation therapy&#39;, &#39;amyloid angiopathy&#39;, &#39;other&#39;]
+
+        tmp_df = df[[main_col, &#39;bleeding_arterial_hypertension_perc_norm&#39;, &#39;bleeding_aneurysm_perc_norm&#39;, &#39;bleeding_arterio_venous_malformation_perc_norm&#39;, &#39;bleeding_anticoagulation_therapy_perc_norm&#39;, &#39;bleeding_amyloid_angiopathy_perc_norm&#39;, &#39;bleeding_other_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% BLEEDING REASON for ICH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################
+        # INTERVENTION PERFORMED #
+        ##########################
+        sorted_by = [&#39;intervention_endovascular_perc_norm&#39;, &#39;intervention_neurosurgical_perc_norm&#39;, &#39;intervention_other_perc_norm&#39;, &#39;intervention_referred_perc_norm&#39;, &#39;intervention_none_perc_norm&#39;]
+        column_name = &#39;intervention_endovascular_perc_norm&#39;
+        legend = [&#39;Endovascular (coiling)&#39;, &#39;Neurosurgical (clipping)&#39;, &#39;Other neurosurgical treatment&#39;, &#39;Patient referred to another centre&#39;, &#39;None&#39;]
+
+        tmp_df = df[[main_col, &#39;intervention_endovascular_perc_norm&#39;, &#39;intervention_neurosurgical_perc_norm&#39;, &#39;intervention_other_perc_norm&#39;, &#39;intervention_referred_perc_norm&#39;, &#39;intervention_none_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% INTERVENTION PERFORMED for SAH&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##########################################
+        # % PATIENTS ASSESSED FOR REHABILITATION #
+        ##########################################
+        column_name = &#39;% patients assessed for rehabilitation - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% REHABILITATION ASSESSMENT out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############################
+        # VENOUS THROMBOSIS TREATMENT #
+        ###############################
+        sorted_by = [&#39;vt_treatment_anticoagulation_perc_norm&#39;, &#39;vt_treatment_thrombectomy_perc_norm&#39;, &#39;vt_treatment_local_thrombolysis_perc_norm&#39;, &#39;vt_treatment_local_neurological_treatment_perc_norm&#39;]
+        column_name = &#39;vt_treatment_anticoagulation_perc_norm&#39;
+        legend = [&#39;anticoagulation&#39;, &#39;thrombectomy&#39;, &#39;local thrombolysis&#39;, &#39;neurosurgical treatment&#39;]
+
+        tmp_df = df[[main_col, &#39;vt_treatment_anticoagulation_perc_norm&#39;, &#39;vt_treatment_thrombectomy_perc_norm&#39;, &#39;vt_treatment_local_thrombolysis_perc_norm&#39;, &#39;vt_treatment_local_neurological_treatment_perc_norm&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% VENOUS THROMBOSIS TREATMENT for CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ################################
+        # ATRIAL FIBRILLATION DETECTED #
+        ################################
+        sorted_by = [&#39;% afib/flutter - Detected during hospitalization&#39;, &#39;% afib/flutter - Newly-detected at admission&#39;, &#39;% afib/flutter - Known&#39;]
+        column_name = &#39;% afib/flutter - Detected during hospitalization&#39;
+        legend = [&#39;detected during hospitalization&#39;, &#39;newly-detected at admission&#39;, &#39;known aFib&#39;]
+
+        tmp_df = df[[main_col, &#39;% afib/flutter - Detected during hospitalization&#39;, &#39;% afib/flutter - Newly-detected at admission&#39;, &#39;% afib/flutter - Known&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ATRIAL FIBRILLATION DETECTED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ########################################
+        # ATRIAL FIBRILLATION DETECTION METHOD #
+        ########################################
+        sorted_by = [&#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Telemetry without monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Holter-type monitoring&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib&#39;]
+        column_name = &#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;
+        legend = [&#39;Telemetry with monitoring&#39;, &#39;Telemetry without monitoring&#39;, &#39;Holter-type monitoring&#39;, &#39;EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;EKG monitoring in an ICU bed without automatic detection of aFib&#39;]
+
+        tmp_df = df[[main_col, &#39;% afib detection method - Telemetry with monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Telemetry without monitor allowing automatic detection of aFib&#39;, &#39;% afib detection method - Holter-type monitoring&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib&#39;, &#39;% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ATRIAL FIBRILLATION DETECTION METHOD&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #######################################
+        # AMBULATORY HEART RHYTHM RECOMMENDED #
+        #######################################
+        column_name = &#39;% other afib detection method - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% AMBULATORY HEART RHYTHM RECOMMENDED for IS, TIA without AFib detection&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################
+        # CAROTID ARTERIES IMAGING - YES #
+        ##################################
+        column_name = &#39;% carotid arteries imaging - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##############################
+        # ANTITHROMBOTICS PRESCRIBED #
+        ##############################
+        &#39;&#39;&#39;
+        column_name = &#39;% patients receiving antiplatelets&#39;
+        legend = [&#39;Antiplatelets&#39;, &#39;Vitamin K&#39;, &#39;Dabigatran&#39;, &#39;Rivaroxaban&#39;, &#39;Apixaban&#39;, &#39;Edoxaban&#39;, &#39;LMWH or heparin in prophylactic dose&#39;, &#39;LMWH or heparin in anticoagulant dose&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients prescribed antithrombotics&#39;, &#39;% patients receiving antiplatelets&#39;, &#39;% patients receiving Vit. K antagonist&#39;, &#39;% patients receiving dabigatran&#39;, &#39;% patients receiving rivaroxaban&#39;, &#39;% patients receiving apixaban&#39;, &#39;% patients receiving edoxaban&#39;, &#39;% patients receiving LMWH or heparin in prophylactic dose&#39;, &#39;% patients receiving LMWH or heparin in full anticoagulant dose&#39;]]
+
+        tmp_df = tmp_df.sort_values([&#39;% patients prescribed antithrombotics&#39;], ascending = True)
+
+        title = &#34;% ANTITHROMBOTICS PRESCRIBED for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+        &#39;&#39;&#39;
+        ##################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed anticoagulants with aFib&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #########################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB (HOME) #
+        #########################################################
+        column_name = &#39;% afib patients discharged home with anticoagulants&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS DISCHARGED HOME WITH AFIB, PRESCRIBED ANTICOAGULANTS \nfor IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # PATIENTS PRESCRIBED ANTIPLATELETS WITHOUT AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed antiplatelets without aFib&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###################################
+        # NOT PRESCRIBED, BUT RECOMMENDED #
+        ###################################
+        column_name = &#39;% patients not prescribed antithrombotics, but recommended&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ############
+        # WITH CVT #
+        ############
+        ##############################
+        # ANTITHROMBOTICS PRESCRIBED #
+        ##############################
+        column_name = &#39;% patients receiving antiplatelets with CVT&#39;
+        legend = [&#39;Antiplatelets&#39;, &#39;Vitamin K&#39;, &#39;Dabigatran&#39;, &#39;Rivaroxaban&#39;, &#39;Apixaban&#39;, &#39;Edoxaban&#39;, &#39;LMWH or heparin in prophylactic dose&#39;, &#39;LMWH or heparin in anticoagulant dose&#39;]
+
+        tmp_df = df[[main_col, &#39;% patients prescribed antithrombotics with CVT&#39;, &#39;% patients receiving antiplatelets with CVT&#39;, &#39;% patients receiving Vit. K antagonist with CVT&#39;, &#39;% patients receiving dabigatran with CVT&#39;, &#39;% patients receiving rivaroxaban with CVT&#39;, &#39;% patients receiving apixaban with CVT&#39;, &#39;% patients receiving edoxaban with CVT&#39;, &#39;% patients receiving LMWH or heparin in prophylactic dose with CVT&#39;, &#39;% patients receiving LMWH or heparin in full anticoagulant dose with CVT&#39;]]
+
+        tmp_df = tmp_df.sort_values([&#39;% patients prescribed antithrombotics with CVT&#39;], ascending = True)
+
+        title = &#34;% ANTITHROMBOTICS PRESCRIBED for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ##################################################
+        # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed anticoagulants with aFib with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # PATIENTS PRESCRIBED ANTIPLATELETS WITHOUT AFIB #
+        ##################################################
+        column_name = &#39;% patients prescribed antiplatelets without aFib with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        
+        ###################################
+        # NOT PRESCRIBED, BUT RECOMMENDED #
+        ###################################
+        column_name = &#39;% patients not prescribed antithrombotics, but recommended with CVT&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS \nfor IS, TIA, CVT&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##########################
+        # DISCHARGE WITH STATINS #
+        ##########################
+        column_name = &#39;% patients prescribed statins - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% DISCHARGED WITH STATINS for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #############################
+        # CAROTID STENOSIS DETECTED #
+        #############################
+        column_name = &#39;% carotid stenosis - &gt;70%&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% CAROTID STENOSIS OF OVER 70 PERCENT for IS, TIA&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ##################################################
+        # % CAROTID STENOSIS FOLLOWUP - YES, BUT PLANNED #
+        ##################################################
+        sorted_by = [&#39;% carotid stenosis followup - Yes, but planned&#39;, &#39;% carotid stenosis followup - Referred to another centre&#39;]
+        column_name = &#39;% carotid stenosis followup - Yes, but planned&#39;
+        legend = [&#39;Yes or planned&#39;, &#39;Referred to another centre&#39;]
+
+        tmp_df = df[[main_col, &#39;% carotid stenosis followup - Yes, but planned&#39;, &#39;% carotid stenosis followup - Referred to another centre&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS &gt; 70%&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #############################################################
+        # % ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases #
+        #############################################################
+        column_name = &#39;% prescribed antihypertensives - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ######################################################
+        # % RECOMMENDED TO A SMOKING CESSATION PROGRAM - YES #
+        ######################################################
+        column_name = &#39;% recommended to a smoking cessation program - Yes&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECOMMENDED TO A SMOKING CESSATION PROGRAM out of smokers&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###########################################################
+        # % RECOMMENDED TO A CEREBROVASCULAR EXPERT - RECOMMENDED #
+        ###########################################################
+        column_name = &#39;% recommended to a cerebrovascular expert - Recommended&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;% RECOMMENDED TO A CEREBROVASCULAR EXPERT out of all cases&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #########################
+        # DISCHARGE DESTINATION #
+        #########################
+        sorted_by = [&#39;% discharge destination - Home&#39;, &#39;% discharge destination - Transferred within the same centre&#39;, &#39;% discharge destination - Transferred to another centre&#39;, &#39;% discharge destination - Social care facility&#39;, &#39;% discharge destination - Dead&#39;]
+        column_name = &#39;% discharge destination - Home&#39;
+        legend = [&#39;home&#39;, &#39;transferred within the same centre&#39;, &#39;transferred to another centre&#39;, &#39;social care facility&#39;, &#39;dead&#39;]
+
+        tmp_df = df[[main_col, &#39;% discharge destination - Home&#39;, &#39;% discharge destination - Transferred within the same centre&#39;, &#39;% discharge destination - Transferred to another centre&#39;, &#39;% discharge destination - Social care facility&#39;, &#39;% discharge destination - Dead&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ############################################################################
+        # DISCHARGE DESTINATION - DEPARTMENT TRANSFERRED TO WITHIN THE SAME CENTRE #
+        ############################################################################
+        sorted_by = [&#39;% transferred within the same centre - Acute rehabilitation&#39;, &#39;% transferred within the same centre - Post-care bed&#39;, &#39;% transferred within the same centre - Another department&#39;]
+        column_name = &#39;% transferred within the same centre - Acute rehabilitation&#39;
+        legend = [&#39;Acute rehabilitation&#39;, &#39;Post-care bed&#39;, &#39;Another department&#39;]
+
+        tmp_df = df[[main_col, &#39;% transferred within the same centre - Acute rehabilitation&#39;, &#39;% transferred within the same centre - Post-care bed&#39;, &#39;% transferred within the same centre - Another department&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED WITHIN THE SAME CENTRE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ####################################################
+        # % DISCHARGE DESTINATION - CENTRE TRANSFERRED TO  #
+        ####################################################
+        sorted_by = [&#39;% transferred to another centre - Stroke centre&#39;, &#39;% transferred to another centre - Comprehensive stroke centre&#39;, &#39;% transferred to another centre - Another hospital&#39;]
+        column_name = &#39;% transferred to another centre - Stroke centre&#39;
+        legend = [&#39;Stroke centre&#39;, &#39;Comprehensive stroke centre&#39;, &#39;Another hospital&#39;]
+
+        tmp_df = df[[main_col, &#39;% transferred to another centre - Stroke centre&#39;, &#39;% transferred to another centre - Comprehensive stroke centre&#39;, &#39;% transferred to another centre - Another hospital&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        #################################################################################
+        # % DISCHARGE DESTINATION - DEPARTMENT TRANSFERRED TO WITHIN TO ANOTHER CENTRE  #
+        #################################################################################
+        sorted_by = [&#39;% department transferred to within another centre - Acute rehabilitation&#39;, &#39;% department transferred to within another centre - Post-care bed&#39;, &#39;% department transferred to within another centre - Neurology&#39;, &#39;% department transferred to within another centre - Another department&#39;]
+        column_name = &#39;% department transferred to within another centre - Acute rehabilitation&#39;
+        legend = [&#39;Acute rehabilitation&#39;, &#39;Post-care bed&#39;, &#39;Neurology&#39;, &#39;Another department&#39;]
+
+        tmp_df = df[[main_col, &#39;% department transferred to within another centre - Acute rehabilitation&#39;, &#39;% department transferred to within another centre - Post-care bed&#39;, &#39;% department transferred to within another centre - Neurology&#39;, &#39;% department transferred to within another centre - Another department&#39;]]
+        tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
+
+        title = &#34;% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE (DEPARTMENT)&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type=&#39;stacked&#39;)
+
+        ########################
+        # MEDIAN DISCHARGE mRS #
+        ########################
+        column_name = &#39;Median discharge mRS&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN DISCHARGE MRS&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        ###############################
+        # MEDIAN HOSPITAL STAY (DAYS) #
+        ###############################
+        column_name = &#39;Median hospital stay (days)&#39;
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = &#34;MEDIAN HOSPITAL STAY (DAYS)&#34;
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        pptx = self.report + &#34;_&#34; + site_code + &#34;_&#34; + self.quarter + &#34;.pptx&#34;
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="resqdb" href="index.html">resqdb</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="resqdb.GeneratePresentation.GeneratePresentation" href="#resqdb.GeneratePresentation.GeneratePresentation">GeneratePresentation</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

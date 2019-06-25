@@ -1,8 +1,10 @@
-#### Filename: Calculation.py
-#### Version: v1.0
-#### Author: Marie Jankujova
-#### Date: March 5, 2019
-#### Description: Calculation of Angels Awards for Spain sites which are using Atalaia form. 
+"""
+.. module:: Calculation
+    :platform: Uniw, Windows
+    :synopsis: module to calculate statistics for Atalaia form
+
+.. moduleauthor:: Marie Jankujova <jankujova.marie@fnusa.cz>
+"""
 
 import pandas as pd
 import numpy as np
@@ -15,99 +17,106 @@ import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
 
 class CheckTimes():
+    """
+    Class calculating hospital days using discharge date and hospital date. 
+    
+    This class provides some basic algorithms to fix hospital and discharge dates if calculated hospital days were > 300 or < 0.
+
+    :param df: preprocessed data
+    :type df: dataframe
+    :param start_date: first date included in the dataframe
+    :type start_date: date
+    :param end_date: last date included in the dataframe
+    :type end_date: date
+
+    """
 
     def __init__(self, df, start_date=None, end_date=None):
-        """ Calculate hospital days and check if the days are in the range from 0 to 300. If they are greater or lesser then check discharge and hospital date, and based on the logic fix hospital/discharge date. """
 
-        # Create log file in the workign folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
-        logging.info('Running Calulation')   
+        logging.info('Atalaia: Running calculation!')   
 
         self.df = df.copy()
         self.start_date = start_date
         self.end_date = end_date
 
-        # Get dataframe without null discharge dates and null hospital dates
         self.df = self.filter_null_dates()
 
         if not self.df.empty:
-            # Calculate hospital days
             self.df['hospital_days'] = self.df.apply(lambda x: self.calculate_hospital_days(x['discharge_date_es'], x['hospital_date_es']), axis=1, result_type='expand')
 
-            # Save negative hospital days
-            self.df[self.df['hospital_days'] < 0].to_csv("negative_hospital_days.csv", sep=",")
+            # Export negative hospital days into csv
+            negative_hospital_days = self.df[self.df['hospital_days'] < 0]
+            negative_hospital_days.to_csv("negative_hospital_days.csv", sep=",")
 
-            # Fix negative and too positive hospital days
             self.df[['hospital_days_fixed', 'hospital_date_fixed', 'discharge_date_fixed']] = self.df.apply(lambda x: self.fix_negative_hospital_days(discharge_date=x['discharge_date_es'], hospital_date=x['hospital_date_es']) if (x['hospital_days'] < 0 or x['hospital_days'] > 300) else (x['hospital_days'], x['hospital_date_es'], x['discharge_date_es']), axis=1, result_type='expand')       
 
-            logging.info('Calculation: Negative or too positive hospital days were fixed.')
+            logging.info('Atalaia: Negative and too much positive hospital days has been fixed!')
 
         else:
-            logging.info('Calculation: Dataframe was filtered for empty hospital and discharge dates end there are no data.')
+            logging.info('Atalaia: No available data!')
             sys.exit()
  
     def filter_null_dates(self):
-        """ Return dataframe where null discharge dates or hospital dates were excluded. """
-        # Remove rows with null discharge date
-        df = self.df[~pd.isnull(self.df['discharge_date_es'])]
-        # Remove rows with null hospital date
-        df = df[~pd.isnull(df['hospital_date_es'])]
+        """ Filter out null discharge dates and null hospital dates. 
 
-        logging.info('Calculation: Rows with empty discharge date or empty hospital date were removed.')
+        :returns: dataframe -- the filtered dataframe
+        """
+        df = self.df[~pd.isnull(self.df['discharge_date_es'])] 
+        df = df[~pd.isnull(df['hospital_date_es'])]  
+        
+        logging.info('Atalaia: Patients with NULL discharge dates and NULL hospital dates has been filtered out!')
 
         return df
 
     def calculate_hospital_days(self, discharge_date, hospital_date):
-        """ Return number of hospital days. 
+        """ Return difference in days between hospital date and discharge date. 
 
-        Params:
-            discharge_date
-            hospital_date
-
-        Return:
-            int: number of hospital days
+        :param discharge_date: the discharge date
+        :type discharge_date: date
+        :param hospital_date: the hospital date
+        :type hospital_date: date
+        :returns: int -- the number of days
         """
-        # Calculate hospital days
         hospital_days = (discharge_date - hospital_date).days
-        # If hospital days is 0, then replace by 1
+
+        # If hospital days is 0, then return 1 else return hospital days
         return 1 if hospital_days == 0 else hospital_days
 
     def fix_negative_hospital_days(self, discharge_date, hospital_date):
-        """ Fix negative hospital days. 
+        """ Fix discharge date or hospital date if hospital days were < 0 or > 300. 
 
-        Params:
-            discharge_date
-            hospital_date
-
-        Return: 
-            int: fixed hospital days
-            date: new hospital date
-            date: new discharge date
+        :param discharge_date: the discharge date
+        :type discharge_date: date
+        :param hospital_date: the hospital date
+        :type hospital_date: date
+        :returns: the fixed hospital days, the fixed hospital date, the fixed discharge date
         """
-        # Calculate number of days
         hospital_days = (discharge_date - hospital_date).days
-        # Save value for discharge and hospital date
         discharge_date_new = discharge_date
         hospital_date_new = hospital_date
-        # Check hospital days, if hospital days < -300 mostly incorrect discharge year
+
         if hospital_days < -300:
+            # Add 1 year to discharge date
             discharge_date_new = discharge_date + relativedelta(years=+1)
-        # If hospital days > 300, probably incorrect hospital year
         elif hospital_days > 300:
+            # Add 1 year to hospital date
             hospital_date_new = hospital_date + relativedelta(years=+1)
-        # This case means that discharge date is one or two month before the month of hospitalization
         elif hospital_days >= -31 and hospital_days < 0:
+            # Add 1 month to discharge date
             discharge_date_new = discharge_date + relativedelta(months=+1)
         elif hospital_days > -60 and hospital_days < -31:
+            # Add 2 months to discharge date
             discharge_date_new = discharge_date + relativedelta(months=+2)
         else:
             discharge_date_new = discharge_date
-        # Check fixed hospital days, if hospital days is 0, then change to 1 day
+
         hospital_days_fixed = (discharge_date_new - hospital_date_new).days
         if hospital_days_fixed == 0:
             hospital_days_fixed = 1

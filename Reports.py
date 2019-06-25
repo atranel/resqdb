@@ -36,18 +36,17 @@ import xlsxwriter
 
 
 class Reports:
-    """ Generate SITS-like reports for recanalization procedures. """
+    ''' Generate SITS-like reports for recanalization procedure. 
+
+    Args: 
+        df: preprocessed data
+        year: year for which you would like to generate reports
+        country: the country code
+        month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
+    '''
 
     def __init__(self, df, year, month, country):
-        ''' Generate SITS-like reports for recanalization procedure. 
-
-        Args: 
-            df: preprocessed data
-            year: year for which you would like to generate reports
-            country: the country code
-            month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
-        '''
-
+    
         # create dataframe with regions, to each region assign population and hospitals
         self.regions = {
             'Hlavní město Praha': {

@@ -1,0 +1,475 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>resqdb.GenerateGraphs &#8212; RES-Q package January, 2019 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for resqdb.GenerateGraphs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">File name: GenerateGraphs.py</span>
+<span class="sd">Package: resq</span>
+<span class="sd">Written by: Marie Jankujova - jankujova.marie@fnusa.cz on 11-2017</span>
+<span class="sd">Version: v1.0</span>
+<span class="sd">Version comment: The first version of script which is used to generate charts in the PPTX format. </span>
+<span class="sd">Description: This script is used to generate PPTX file from the dataframe with computed statistics. </span>
+<span class="sd">This script is used by class GeneratePresentation.py. </span>
+<span class="sd">As a result, the presentation with chart is produced. </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+
+<span class="kn">import</span> <span class="nn">xlsxwriter</span>
+
+<span class="kn">import</span> <span class="nn">csv</span>
+
+<span class="kn">from</span> <span class="nn">pptx</span> <span class="k">import</span> <span class="n">Presentation</span>
+<span class="kn">from</span> <span class="nn">pptx.chart.data</span> <span class="k">import</span> <span class="n">CategoryChartData</span><span class="p">,</span> <span class="n">ChartData</span>
+<span class="kn">from</span> <span class="nn">pptx.enum.shapes</span> <span class="k">import</span> <span class="n">MSO_SHAPE</span>
+<span class="kn">from</span> <span class="nn">pptx.enum.chart</span> <span class="k">import</span> <span class="n">XL_CHART_TYPE</span><span class="p">,</span> <span class="n">XL_TICK_MARK</span><span class="p">,</span> <span class="n">XL_TICK_LABEL_POSITION</span><span class="p">,</span> <span class="n">XL_LEGEND_POSITION</span><span class="p">,</span> <span class="n">XL_LABEL_POSITION</span>
+<span class="kn">from</span> <span class="nn">pptx.enum.text</span> <span class="k">import</span> <span class="n">MSO_AUTO_SIZE</span>
+<span class="kn">from</span> <span class="nn">pptx.util</span> <span class="k">import</span> <span class="n">Cm</span><span class="p">,</span> <span class="n">Pt</span><span class="p">,</span> <span class="n">Inches</span>
+<span class="kn">from</span> <span class="nn">pptx.dml.color</span> <span class="k">import</span> <span class="n">RGBColor</span>
+<span class="kn">from</span> <span class="nn">pptx.enum.dml</span> <span class="k">import</span> <span class="n">MSO_LINE</span>
+<span class="kn">from</span> <span class="nn">pptx.oxml.xmlchemy</span> <span class="k">import</span> <span class="n">OxmlElement</span>
+
+
+<div class="viewcode-block" id="GenerateGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateGraphs.GenerateGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateGraphs</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class is used to generate our typical presentation with graphs. </span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        dataframe - dataframe with calculated statistics</span>
+<span class="sd">        presentation - opened pptx document</span>
+<span class="sd">        title - name of slide</span>
+<span class="sd">        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)</span>
+<span class="sd">        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)</span>
+<span class="sd">        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)</span>
+<span class="sd">        legend - list of legend names (default = None)</span>
+<span class="sd">        country - name of country (if dataset was filtered based on country) (default = None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">presentation</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">graph_type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">number_of_series</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">presentation</span> <span class="o">=</span> <span class="n">presentation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="o">=</span> <span class="n">column_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_series</span> <span class="o">=</span> <span class="n">number_of_series</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legend</span> <span class="o">=</span> <span class="n">legend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">country_name</span> <span class="o">=</span> <span class="n">country</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span> <span class="o">=</span> <span class="s1">&#39;Century Gothic&#39;</span>
+
+        <span class="c1"># If country name is Ukraine or Poland set as categories value Site IDs not Site Name due to huge amount of sites in graph</span>
+        <span class="c1"># if (self.country_name in [&#39;Ukraine&#39;, &#39;Poland&#39;] and len(self.dataframe) &gt; 2):</span>
+        <span class="c1">#     self.categories_column = &#39;Site ID&#39;</span>
+        <span class="c1"># else:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span> <span class="o">=</span> <span class="s1">&#39;Site Name&#39;</span>
+            
+        <span class="c1"># Estimate font sizes based on number of sites included in the graph</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_label_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_label_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_label_font_size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="c1"># Select graph which should be exported</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">graph_type</span> <span class="o">==</span> <span class="s1">&#39;stacked&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_stacked_barplot</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">legend</span><span class="p">,</span> <span class="n">number_of_series</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_series</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_barplot</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_length_of_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate number of letter in the legend to estimate number of columns. </span>
+
+<span class="sd">        Args: </span>
+<span class="sd">            legend: legend of the graph</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            count: number of letters in the legend</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">legend</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">count</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transparency</span><span class="p">,</span> <span class="n">elm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set tranparency of element. </span>
+
+<span class="sd">        Args: </span>
+<span class="sd">            transparency: transparency in % </span>
+<span class="sd">            elm: element to be changed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">transparency</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;196&#39;</span>
+        
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">OxmlElement</span><span class="p">(</span><span class="s1">&#39;a:alpha&#39;</span><span class="p">)</span>
+        <span class="n">alpha</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">elm</span><span class="o">.</span><span class="n">srgbClr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_create_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create normal barplot</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataframe - dataframe with statistics</span>
+<span class="sd">            title - title of slide</span>
+<span class="sd">            column_name - name of column which is included in graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">maximum</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># If graph is in %, set maximum valut to 100. </span>
+        <span class="k">if</span> <span class="s1">&#39;%&#39;</span> <span class="ow">in</span> <span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">maximum</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_name</span> <span class="o">==</span> <span class="s1">&#39;Czech Republic&#39;</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maximum</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="nb">max</span><span class="p">(</span><span class="n">dataframe</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())),</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_name</span> <span class="o">==</span> <span class="s1">&#39;Czech Republic&#39;</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)</span>
+        <span class="n">slide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slides</span><span class="o">.</span><span class="n">add_slide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slide_layouts</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
+        <span class="c1"># Get title object</span>
+        <span class="n">title_placeholders</span> <span class="o">=</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">title</span>
+        <span class="c1"># Set title</span>
+        <span class="n">title_placeholders</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">title</span>
+
+        <span class="n">chart_data</span> <span class="o">=</span> <span class="n">ChartData</span><span class="p">()</span>
+        <span class="n">chart_data</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+        <span class="c1"># Add chart on slide</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mf">16.5</span><span class="p">),</span>
+            <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span>
+            <span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span>
+            <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="n">chart</span> <span class="o">=</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">add_chart</span><span class="p">(</span>
+            <span class="n">XL_CHART_TYPE</span><span class="o">.</span><span class="n">BAR_CLUSTERED</span><span class="p">,</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">],</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">],</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span> <span class="n">chart_data</span><span class="p">)</span><span class="o">.</span><span class="n">chart</span>
+
+        <span class="c1"># Get series of chart</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># If graphs for whole country are generated, set for bar with country with red color</span>
+        <span class="c1"># else set to blue color (same color as title uses)</span>
+        <span class="n">site_names</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
+                <span class="n">fill</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">fill</span>
+                <span class="n">fill</span><span class="o">.</span><span class="n">solid</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">site_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_name</span><span class="p">):</span>
+                    <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">173</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">fill</span>
+            <span class="n">fill</span><span class="o">.</span><span class="n">solid</span><span class="p">()</span>
+            <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">173</span><span class="p">)</span> 
+
+        <span class="c1"># Get plot </span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Set for each bar same color</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">vary_by_categories</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Show data labels and set font</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">has_data_labels</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Change gap width</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">gap_width</span> <span class="o">=</span> <span class="mi">100</span>
+
+        
+        <span class="n">data_labels</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">data_labels</span>
+        <span class="n">data_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_label_font_size</span>
+        <span class="n">data_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">bold</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">data_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Total Patients&#39;</span> <span class="ow">in</span> <span class="n">column_name</span> <span class="ow">or</span> <span class="s1">&#39;Median patient age&#39;</span> <span class="ow">in</span> <span class="n">column_name</span><span class="p">:</span>
+            <span class="n">value_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">value_axis</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">has_major_gridlines</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Value for x-axis (change font size, name, and other things)</span>
+            <span class="n">value_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">value_axis</span>
+            <span class="n">tick_labels</span> <span class="o">=</span> <span class="n">value_axis</span><span class="o">.</span><span class="n">tick_labels</span>
+            <span class="n">tick_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span>
+            <span class="n">tick_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+            
+            <span class="c1"># Don&#39;t show major gridlines</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">major_tick_mark</span> <span class="o">=</span> <span class="n">XL_TICK_MARK</span><span class="o">.</span><span class="n">OUTSIDE</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">has_major_gridlines</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># Set range of axis</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">maximum_scale</span> <span class="o">=</span> <span class="n">maximum</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">minimum_scale</span> <span class="o">=</span> <span class="mi">0</span>
+       
+        <span class="c1"># Value for y-axis (change font size, name, and other things)</span>
+        <span class="n">category_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">category_axis</span>
+        <span class="n">category_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">solidFill</span> <span class="o">=</span> <span class="n">category_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">_xFill</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_transparency</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">solidFill</span><span class="p">)</span>
+
+        <span class="c1"># Delete tick marks</span>
+        <span class="n">category_axis</span><span class="o">.</span><span class="n">major_tick_mark</span> <span class="o">=</span> <span class="n">XL_TICK_MARK</span><span class="o">.</span><span class="n">NONE</span>
+        <span class="n">category_axis</span><span class="o">.</span><span class="n">major_unit</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">category_labels</span> <span class="o">=</span> <span class="n">category_axis</span><span class="o">.</span><span class="n">tick_labels</span>
+        <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span>
+        <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+
+    <span class="k">def</span> <span class="nf">_create_stacked_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">number_of_series</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create stacked barplot</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataframe - dataframe with statistics</span>
+<span class="sd">            title - title of slide</span>
+<span class="sd">            column_name - name of column (name of fist column used for graph)</span>
+<span class="sd">            legen - list of legend names</span>
+<span class="sd">            number_of_series - number of columns included in graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">173</span><span class="p">),</span> <span class="c1"># dark blue</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">237</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">49</span><span class="p">),</span> <span class="c1"># orange</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">165</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">165</span><span class="p">),</span> <span class="c1"># gray</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># yellow</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">173</span><span class="p">),</span> <span class="c1"># blue</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">62</span><span class="p">),</span> <span class="c1"># green</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">151</span><span class="p">,</span> <span class="mi">185</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span> <span class="c1"># light blue</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">241</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">138</span><span class="p">),</span> <span class="c1"># beige       </span>
+        <span class="p">}</span>
+
+        <span class="c1"># Calculate length of legend (in case that legend is too long, make smaller font size)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_length_of_legend</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
+
+        <span class="c1"># Get column names of dataframe</span>
+        <span class="n">column_names</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="n">column_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+
+        <span class="c1"># Add new slide into presentation</span>
+        <span class="n">slide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slides</span><span class="o">.</span><span class="n">add_slide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slide_layouts</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
+        <span class="n">title_placeholders</span> <span class="o">=</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">title_placeholders</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">title</span>
+
+
+        <span class="n">chart_data</span> <span class="o">=</span> <span class="n">ChartData</span><span class="p">()</span>
+        
+            
+        <span class="n">chart_data</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># Add data in each category </span>
+        <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">3</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">4</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">6</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">5</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">6</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">number_of_series</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">):</span>
+            <span class="n">chart_data</span><span class="o">.</span><span class="n">add_series</span><span class="p">(</span><span class="n">legend</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">column_names</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">7</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+        <span class="c1"># add chart to slide --------------------</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mf">16.5</span><span class="p">),</span>
+            <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span>
+            <span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span>
+            <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="n">Cm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="n">chart</span> <span class="o">=</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">add_chart</span><span class="p">(</span>
+            <span class="n">XL_CHART_TYPE</span><span class="o">.</span><span class="n">BAR_STACKED</span><span class="p">,</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">],</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">],</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span> <span class="n">chart_data</span><span class="p">)</span><span class="o">.</span><span class="n">chart</span>
+
+        <span class="c1"># Change gap width</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">plots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">gap_width</span> <span class="o">=</span> <span class="mi">100</span>
+
+
+        <span class="n">site_names</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                
+            <span class="c1"># Set color of first series to dark blue</span>
+            <span class="n">fill</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">fill</span>
+            <span class="n">fill</span><span class="o">.</span><span class="n">solid</span><span class="p">()</span>
+            <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>    
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">number_of_series</span><span class="p">):</span>
+                <span class="n">series</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">series</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                
+                <span class="c1"># Set color of first series to dark blue</span>
+                <span class="n">fill</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">fill</span>
+                <span class="n">fill</span><span class="o">.</span><span class="n">solid</span><span class="p">()</span>
+                <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  
+
+                <span class="c1"># ---add an `a:alpha` child element---</span>
+                <span class="n">solidFill</span> <span class="o">=</span> <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">_xFill</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_transparency</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">solidFill</span><span class="p">)</span>
+
+                <span class="c1"># Change color of borders of series and transparency</span>
+                <span class="n">series</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">solidFill</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">_xFill</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_transparency</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="n">solidFill</span><span class="p">)</span>
+
+                <span class="c1"># Remove transparency from country point</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">site_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_name</span><span class="p">):</span>
+                        <span class="n">point</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="c1"># Get fill of point for country</span>
+                        <span class="n">fill</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">fill</span>
+                        <span class="n">fill</span><span class="o">.</span><span class="n">solid</span><span class="p">()</span>
+                        <span class="n">fill</span><span class="o">.</span><span class="n">fore_color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if (number_of_series &gt;= 5):</span>
+<span class="sd">            series = chart.series[4]</span>
+<span class="sd">            fill = series.format.fill</span>
+<span class="sd">            fill.solid()</span>
+<span class="sd">            fill.fore_color.rgb = RGBColor(80, 137, 188)  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+          
+        <span class="c1"># Value for x-axis (change font size, name, and other things)</span>
+        <span class="n">value_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">value_axis</span>
+        <span class="n">tick_labels</span> <span class="o">=</span> <span class="n">value_axis</span><span class="o">.</span><span class="n">tick_labels</span>
+        <span class="n">tick_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+        <span class="n">tick_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+
+        <span class="n">value_axis</span><span class="o">.</span><span class="n">major_tick_mark</span> <span class="o">=</span> <span class="n">XL_TICK_MARK</span><span class="o">.</span><span class="n">OUTSIDE</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">has_major_gridlines</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1">#value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">major_gridlines</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">major_gridlines</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">166</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="mi">166</span><span class="p">)</span> <span class="c1"># Set color to gray (A6A6A6)</span>
+
+            <span class="c1"># Set 100% transparency to value axis</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">solidFill</span> <span class="o">=</span> <span class="n">value_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">_xFill</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_transparency</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">solidFill</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value_axis</span><span class="o">.</span><span class="n">has_major_gridlines</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">value_axis</span><span class="o">.</span><span class="n">maximum_scale</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">value_axis</span><span class="o">.</span><span class="n">minimum_scale</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Value for y-axis (change font size, name, and other things)</span>
+        <span class="n">category_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">category_axis</span>
+        
+        <span class="c1"># Set 100% transparency to category axis</span>
+        <span class="n">category_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">solidFill</span> <span class="o">=</span> <span class="n">category_axis</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">_xFill</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_transparency</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">solidFill</span><span class="p">)</span>
+
+        <span class="n">category_axis</span><span class="o">.</span><span class="n">major_tick_mark</span> <span class="o">=</span> <span class="n">XL_TICK_MARK</span><span class="o">.</span><span class="n">NONE</span>
+        <span class="n">category_labels</span> <span class="o">=</span> <span class="n">category_axis</span><span class="o">.</span><span class="n">tick_labels</span>
+        <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span>
+        <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+        <span class="n">category_labels</span><span class="o">.</span><span class="n">tickLblSkip</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Set legend </span>
+        <span class="n">chart</span><span class="o">.</span><span class="n">has_legend</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">XL_LEGEND_POSITION</span><span class="o">.</span><span class="n">TOP</span>
+        <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">include_in_layout</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">180</span> <span class="ow">or</span> <span class="s1">&#39;antithrombotics prescribed&#39;</span> <span class="ow">in</span> <span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+            <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">RES-Q package</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Marie Jankujova.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

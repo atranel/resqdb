@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>resqdb package &#8212; RES-Q package January, 2019 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="resqdb-package">
+<h1>resqdb package<a class="headerlink" href="#resqdb-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-resqdb.Atalaia">
+<span id="resqdb-atalaia-module"></span><h2>resqdb.Atalaia module<a class="headerlink" href="#module-resqdb.Atalaia" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Calculation"></span><dl class="class">
+<dt id="resqdb.Atalaia.Calculation">
+<em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">Calculation</code><span class="sig-paren">(</span><em>df</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#resqdb.Atalaia.Filtration" title="resqdb.Atalaia.Filtration"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Atalaia.Filtration</span></code></a></p>
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_afib_discharged_with_anticoagulants">
+<code class="descname">get_afib_discharged_with_anticoagulants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_afib_discharged_with_anticoagulants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_afib_discharged_with_anticoagulants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe with patients who have been discharged with anticoagulant and were detected for aFib.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_ct_mri">
+<code class="descname">get_ct_mri</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_ct_mri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_ct_mri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe expanded on CT/MRI columns.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_dysphagia_screening">
+<code class="descname">get_dysphagia_screening</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_dysphagia_screening"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_dysphagia_screening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe for all patients who underwent dysphagia screening.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_hospitalized_in">
+<code class="descname">get_hospitalized_in</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_hospitalized_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_hospitalized_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe with stroke patients hospitalized in a dedicated stroke unit / ICU.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_patients_discharged_with_antiplatelets">
+<code class="descname">get_patients_discharged_with_antiplatelets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_patients_discharged_with_antiplatelets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_patients_discharged_with_antiplatelets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe with ischemic patients who have been discharged with prescribed antiplatelets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_recan_below">
+<code class="descname">get_recan_below</code><span class="sig-paren">(</span><em>dtn</em>, <em>dtg</em>, <em>top</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_below"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_below" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get True/False if bigger from pair DTN and DTN is &lt; max.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_recan_rate">
+<code class="descname">get_recan_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe expanded on recanalization rate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_recan_therapy">
+<code class="descname">get_recan_therapy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_recan_therapy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_recan_therapy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe with patients treated with door to recanalization therapy time &lt; 60 minutes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_stats_df">
+<code class="descname">get_stats_df</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_stats_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_stats_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the final stats dataframe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.get_total_patients">
+<code class="descname">get_total_patients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.get_total_patients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.get_total_patients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate total patients per site. Return dataframe with total patients grouped by Site ID.</p>
+<dl class="docutils">
+<dt>Return:</dt>
+<dd><dl class="first last docutils">
+<dt>dataframe</dt>
+<dd>Return dataframe grouped by Site ID and Total Patients as second column.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.rename_column">
+<code class="descname">rename_column</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.rename_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.rename_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename first two column name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.Calculation.time_diff">
+<code class="descname">time_diff</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Calculation.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Calculation.time_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate difference between two times.</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>start : time
+end : time</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>int</dt>
+<dd>Difference between two times in minutes.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Atalaia.CheckTimes">
+<em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">CheckTimes</code><span class="sig-paren">(</span><em>df</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#CheckTimes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.CheckTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class calculating hospital days using discharge date and hospital date.</p>
+<p>This class provides some basic algorithms to fix hospital and discharge dates if calculated hospital days were &gt; 300 or &lt; 0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dataframe</em>) – preprocessed data</li>
+<li><strong>start_date</strong> (<em>date</em>) – first date included in the dataframe</li>
+<li><strong>end_date</strong> (<em>date</em>) – last date included in the dataframe</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="resqdb.Atalaia.CheckTimes.calculate_hospital_days">
+<code class="descname">calculate_hospital_days</code><span class="sig-paren">(</span><em>discharge_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#CheckTimes.calculate_hospital_days"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.CheckTimes.calculate_hospital_days" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return difference in days between hospital date and discharge date.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>discharge_date</strong> (<em>date</em>) – the discharge date</li>
+<li><strong>hospital_date</strong> (<em>date</em>) – the hospital date</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – the number of days</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.CheckTimes.filter_null_dates">
+<code class="descname">filter_null_dates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#CheckTimes.filter_null_dates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.CheckTimes.filter_null_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out null discharge dates and null hospital dates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dataframe – the filtered dataframe</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Atalaia.CheckTimes.fix_negative_hospital_days">
+<code class="descname">fix_negative_hospital_days</code><span class="sig-paren">(</span><em>discharge_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#CheckTimes.fix_negative_hospital_days"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.CheckTimes.fix_negative_hospital_days" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix discharge date or hospital date if hospital days were &lt; 0 or &gt; 300.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>discharge_date</strong> (<em>date</em>) – the discharge date</li>
+<li><strong>hospital_date</strong> (<em>date</em>) – the hospital date</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int – the number of days</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">date – fixed hospital date</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">date – fixed discharge date</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Atalaia.Filtration">
+<em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">Filtration</code><span class="sig-paren">(</span><em>df</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Filtration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Filtration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#resqdb.Atalaia.CheckTimes" title="resqdb.Atalaia.CheckTimes"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Atalaia.CheckTimes</span></code></a></p>
+<p>Filter dataframe by discharge date.</p>
+<dl class="method">
+<dt id="resqdb.Atalaia.Filtration.filter_by_date">
+<code class="descname">filter_by_date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#Filtration.filter_by_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.Filtration.filter_by_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe which contains only rows where discharge date was between these two dates. The dataframe is filter by discharge date.</p>
+<dl class="docutils">
+<dt>Params: </dt>
+<dd>start_date: the first day included in the dataframe &lt;start_date,end_date&gt;
+end_date: the last day included in the dataframe.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Atalaia.FormatStatistic">
+<em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">FormatStatistic</code><span class="sig-paren">(</span><em>df</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#FormatStatistic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.FormatStatistic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate formatted excel file for calculated statistics.</p>
+<dl class="method">
+<dt id="resqdb.Atalaia.FormatStatistic.format">
+<code class="descname">format</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#FormatStatistic.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.FormatStatistic.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Atalaia.GeneratePreprocessedData">
+<em class="property">class </em><code class="descclassname">resqdb.Atalaia.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class generate the preprocessed data as excel spreadsheet. The preprocessed data are formatted as table.</p>
+<dl class="docutils">
+<dt>Params:</dt>
+<dd>df: the preprocessed data with additional columns (fixed dates, etc.)
+path: the absolute path to the document which should be created</dd>
+</dl>
+<dl class="method">
+<dt id="resqdb.Atalaia.GeneratePreprocessedData.generate_preprocessed_data">
+<code class="descname">generate_preprocessed_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Atalaia.html#GeneratePreprocessedData.generate_preprocessed_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Atalaia.GeneratePreprocessedData.generate_preprocessed_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function called to create workbook and append preprocessed data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.Calculation">
+<span id="resqdb-calculation-module"></span><h2>resqdb.Calculation module<a class="headerlink" href="#module-resqdb.Calculation" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Jul 09 13:28:05 2017</p>
+<p>&#64;author: Marie Jankujova</p>
+<dl class="class">
+<dt id="resqdb.Calculation.ComputeStats">
+<em class="property">class </em><code class="descclassname">resqdb.Calculation.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em>, <em>patient_limit=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Calculation.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Calculation.ComputeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This module compute statistics from the raw data.</p>
+<p>Keyword arguments:
+df – the raw dataframe
+country – True if country should be included as site into results (default False)
+country_code – the country code of country if data were filtered (default “”)
+comparison – True if we are compare the data (e.g. countries between each other)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Calculation.FilterDataset">
+<em class="property">class </em><code class="descclassname">resqdb.Calculation.</code><code class="descname">FilterDataset</code><span class="sig-paren">(</span><em>df</em>, <em>country=None</em>, <em>date1=None</em>, <em>date2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Calculation.html#FilterDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Calculation.FilterDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Filter dataset by country and the time period.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>df: The preprocessed dataframe
+country: The country code of country which should be included in the resulted calculation (default: None)
+date1: The first daate included in the filtered dataframe (default: None)
+date2: The last date included in the filtered dataframe (default: None)</dd>
+<dt>Returns:</dt>
+<dd>The filtered dataframe.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.CalculationCZ">
+<span id="resqdb-calculationcz-module"></span><h2>resqdb.CalculationCZ module<a class="headerlink" href="#module-resqdb.CalculationCZ" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Jul 09 13:28:05 2017</p>
+<p>&#64;author: Marie Jankujova</p>
+<dl class="class">
+<dt id="resqdb.CalculationCZ.ComputeStats">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationCZ.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationCZ.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationCZ.ComputeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This module compute statistics from the raw data.</p>
+<p>Keyword arguments:
+df – the raw dataframe
+country – True if country should be included as site into results (default False)
+country_code – the country code of country if data were filtered (default “”)
+comparison – True if we are compare the data (e.g. countries between each other)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.CalculationSK">
+<span id="resqdb-calculationsk-module"></span><h2>resqdb.CalculationSK module<a class="headerlink" href="#module-resqdb.CalculationSK" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="resqdb.CalculationSK.ComputeStats">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.ComputeStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This module compute statistics from the raw data.</p>
+<p>Keyword arguments:
+df – the raw dataframe
+country – True if country should be included as site into results (default False)
+country_code – the country code of country if data were filtered (default “”)
+comparison – True if we are compare the data (e.g. countries between each other)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.CalculationSK.Connection">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>nprocess=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A connection with one property: a section.</p>
+<p>To use:
+&gt;&gt;&gt; conn = Connection()</p>
+<dl class="method">
+<dt id="resqdb.CalculationSK.Connection.config">
+<code class="descname">config</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and parse the config database file.</p>
+<dl class="docutils">
+<dt>Raises: </dt>
+<dd>Exception: If the section couldn’t be find in the database.ini file)</dd>
+<dt>Returns: </dt>
+<dd>The dictionary of parameters to enable connection to database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.CalculationSK.Connection.connect">
+<code class="descname">connect</code><span class="sig-paren">(</span><em>sql</em>, <em>section</em>, <em>nprocess</em>, <em>df_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects to the database specified in the databse.ini file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>sql: The SQL query run to get dataframe from the database.</dd>
+<dt>Raises: </dt>
+<dd>Exception: If the connection was not successful.</dd>
+<dt>Returns: </dt>
+<dd>The new dataframe containing data from database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.CalculationSK.Connection.prepare_df">
+<code class="descname">prepare_df</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.prepare_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.prepare_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename column names and map values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.CalculationSK.FilterDataset">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">FilterDataset</code><span class="sig-paren">(</span><em>df</em>, <em>country=None</em>, <em>date1=None</em>, <em>date2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#FilterDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.FilterDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Filter dataset by country and the time period.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>df: The preprocessed dataframe
+country: The country code of country which should be included in the resulted calculation (default: None)
+date1: The first daate included in the filtered dataframe (default: None)
+date2: The last date included in the filtered dataframe (default: None)</dd>
+<dt>Returns:</dt>
+<dd>The filtered dataframe.</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.CalculationSK.GenerateFormattedStats">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class generate formatted statistics in .xslx file. For angel awards are set colored conditions.</p>
+<dl class="docutils">
+<dt>Keyword arguments:</dt>
+<dd>df: the dataframe with statistcs
+country: True if country should be included as site (default: False)
+country_code: the code of country (default: None)
+split_sites: True if you want to generate individual file fo each site (default: False)
+site: the site code (default: None)
+report: the report name (default: None)
+quarter: the quarter name (default: None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.CalculationSK.GeneratePreprocessedData">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>country_code=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.CheckData">
+<span id="resqdb-checkdata-module"></span><h2>resqdb.CheckData module<a class="headerlink" href="#module-resqdb.CheckData" title="Permalink to this headline">¶</a></h2>
+<p>File name: CheckData.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 11-2017
+Version: v1.0</p>
+<dl class="class">
+<dt id="resqdb.CheckData.CheckData">
+<em class="property">class </em><code class="descclassname">resqdb.CheckData.</code><code class="descname">CheckData</code><span class="sig-paren">(</span><em>df</em>, <em>nprocess=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A check of times and days with one property: a dataframe.</p>
+<dl class="method">
+<dt id="resqdb.CheckData.CheckData.get_preprocessed_data">
+<code class="descname">get_preprocessed_data</code><span class="sig-paren">(</span><em>df</em>, <em>n=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData.get_preprocessed_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData.get_preprocessed_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="resqdb.CheckData.CheckData.time_diff">
+<code class="descname">time_diff</code><span class="sig-paren">(</span><em>visit_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData.time_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate difference in minutes between two dates.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>visit_date: visit date
+hospital_date: date when patient was hospitalized</dd>
+<dt>Returns:</dt>
+<dd>The calculated difference in minutes.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.Connection">
+<span id="resqdb-connection-module"></span><h2>resqdb.Connection module<a class="headerlink" href="#module-resqdb.Connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="resqdb.Connection.Connection">
+<em class="property">class </em><code class="descclassname">resqdb.Connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>nprocess=1</em>, <em>data='resq'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A connection with one property: a section.</p>
+<p>To use:
+&gt;&gt;&gt; conn = Connection()</p>
+<dl class="method">
+<dt id="resqdb.Connection.Connection.check_data">
+<code class="descname">check_data</code><span class="sig-paren">(</span><em>df</em>, <em>nprocess</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.check_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.check_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check dates and times and fix according to algorithm.</p>
+<dl class="docutils">
+<dt>Args: </dt>
+<dd>df: The raw dataframe with fixed columns</dd>
+<dt>Returns: </dt>
+<dd>The preprocessed data.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.config">
+<code class="descname">config</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and parse the config database file.</p>
+<dl class="docutils">
+<dt>Raises: </dt>
+<dd>Exception: If the section couldn’t be find in the database.ini file)</dd>
+<dt>Returns: </dt>
+<dd>The dictionary of parameters to enable connection to database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.connect">
+<code class="descname">connect</code><span class="sig-paren">(</span><em>sql</em>, <em>section</em>, <em>nprocess</em>, <em>df_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects to the database specified in the databse.ini file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>sql: The SQL query run to get dataframe from the database.</dd>
+<dt>Raises: </dt>
+<dd>Exception: If the connection was not successful.</dd>
+<dt>Returns: </dt>
+<dd>The new dataframe containing data from database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.fix_glucose">
+<code class="descname">fix_glucose</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.fix_glucose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.fix_glucose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix glucose value to have consistent format - 5.5 etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.get_ctmri_delta">
+<code class="descname">get_ctmri_delta</code><span class="sig-paren">(</span><em>hosp_time</em>, <em>ct_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.get_ctmri_delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.get_ctmri_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate differnce between two times.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>hospital_time: The time of hospitalization
+ct_time: The time when CT has been perfrmed.</dd>
+<dt>Returns:</dt>
+<dd>The calculated difference in minutes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.prepare_atalaia_df">
+<code class="descname">prepare_atalaia_df</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.prepare_atalaia_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.prepare_atalaia_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Connection.Connection.prepare_df">
+<code class="descname">prepare_df</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.prepare_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.prepare_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.FormatData">
+<span id="resqdb-formatdata-module"></span><h2>resqdb.FormatData module<a class="headerlink" href="#module-resqdb.FormatData" title="Permalink to this headline">¶</a></h2>
+<p>File name: FormatData.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 03/2019
+Version: v1.0
+Version comment: This script is used to generate formatted preprocessed data, presentations or excel files.</p>
+<dl class="class">
+<dt id="resqdb.FormatData.GenerateFormattedAngelsAwards">
+<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedAngelsAwards</code><span class="sig-paren">(</span><em>df</em>, <em>report=None</em>, <em>quarter=None</em>, <em>minimum_patients=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class generate formatted statistics only for angels awards.</p>
+<dl class="method">
+<dt id="resqdb.FormatData.GenerateFormattedAngelsAwards.formate">
+<code class="descname">formate</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards.formate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards.formate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.FormatData.GenerateFormattedStats">
+<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em>, <em>minimum_patients=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class generate formatted statistics in .xslx file. For angel awards are set colored conditions.</p>
+<dl class="docutils">
+<dt>Keyword arguments:</dt>
+<dd>df: the dataframe with statistcs
+country: True if country should be included as site (default: False)
+country_code: the code of country (default: None)
+split_sites: True if you want to generate individual file fo each site (default: False)
+site: the site code (default: None)
+report: the report name (default: None)
+quarter: the quarter name (default: None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.FormatData.GeneratePreprocessedData">
+<em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>country_code=None</em>, <em>csv=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.GenerateComparisonPresentation">
+<span id="resqdb-generatecomparisonpresentation-module"></span><h2>resqdb.GenerateComparisonPresentation module<a class="headerlink" href="#module-resqdb.GenerateComparisonPresentation" title="Permalink to this headline">¶</a></h2>
+<p>File name: GenerateComparisonPresentation.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 11-2018
+Version: v1.0
+Version comment: The first version of script which generate comaparison into presentation in PPTX format.  
+Description: This script is used to generate comparison charts into presentation.</p>
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateCountriesCompGraphs</code><span class="sig-paren">(</span><em>ndf</em>, <em>presentation</em>, <em>column_name</em>, <em>title</em>, <em>sldf=None</em>, <em>subtitle=''</em>, <em>graph_type=None</em>, <em>number_of_series=0</em>, <em>legend=None</em>, <em>samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateCountriesCompGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This function generates graphs into given presentation for two sets of countries.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>ndf - dataframe containing values for first set of countries
+presentation - opened presentation document
+column_name - the name of column
+title - the name of slide
+sldf - dataframe containing values for second set of countries
+subtitle - the subtitle of slide (smaller font) (default = “”)
+graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
+number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
+legend - list of legend names (default = None)
+samples - list of samples which should be colored by different color in normal barplot (default = None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateCountriesCompPresentation</code><span class="sig-paren">(</span><em>ndf</em>, <em>sldf</em>, <em>name=''</em>, <em>samples=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateCountriesCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>ndf - dataframe containing data for first set of countries in given period
+sldf - dataframe containing data for second set of countries in given period
+name - name of given period (e.g. 2017)
+samples - name of countries which should be colored by different color in the main graph</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GeneratePeriodCompGraph</code><span class="sig-paren">(</span><em>df</em>, <em>presentation</em>, <em>column_name</em>, <em>title</em>, <em>subtitle=''</em>, <em>number_of_series=0</em>, <em>legend=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GeneratePeriodCompGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This function generates graphs into given presentation.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>df - dataframe containing values for each period in one column
+presentation - opened presentation document
+column_name - the name of column
+title - the name of slide
+subtitle - the subtitle of slide (smaller font)
+number_of_series - number of values in one column (bar) for stacked charplots
+legend - list of legend names</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GeneratePeriodCompPresentation</code><span class="sig-paren">(</span><em>ndf1</em>, <em>ndf2</em>, <em>name1</em>, <em>name2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GeneratePeriodCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>ndf1 - dataframe containing data for first period
+ndf2 - dataframe containing data for second period
+name1 - name of first period (e.g. 2017)
+name2 - name of 2nd periodn (e.g. 2018)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateYearsCompGraphs</code><span class="sig-paren">(</span><em>presentation</em>, <em>df</em>, <em>df1=None</em>, <em>df2=None</em>, <em>df3=None</em>, <em>title=''</em>, <em>titles=None</em>, <em>graph_types=None</em>, <em>legends=[]</em>, <em>outcome=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateYearsCompGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>presentation - opened presentation document
+df - dataframe containing statistics, each period is one line
+df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
+df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
+df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
+title - the title of slide
+titles - list of graph names (default = None)
+graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
+legends - inner list of legend names (default = None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateYearsCompPresentation</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateYearsCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>df - dataframe containing data for different times of period in each line
+name - name of given period (e.g. all)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.GenerateGraphs">
+<span id="resqdb-generategraphs-module"></span><h2>resqdb.GenerateGraphs module<a class="headerlink" href="#module-resqdb.GenerateGraphs" title="Permalink to this headline">¶</a></h2>
+<p>File name: GenerateGraphs.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 11-2017
+Version: v1.0
+Version comment: The first version of script which is used to generate charts in the PPTX format. 
+Description: This script is used to generate PPTX file from the dataframe with computed statistics. 
+This script is used by class GeneratePresentation.py. 
+As a result, the presentation with chart is produced.</p>
+<dl class="class">
+<dt id="resqdb.GenerateGraphs.GenerateGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateGraphs.</code><code class="descname">GenerateGraphs</code><span class="sig-paren">(</span><em>dataframe</em>, <em>presentation</em>, <em>title</em>, <em>column_name</em>, <em>graph_type=None</em>, <em>number_of_series=0</em>, <em>legend=None</em>, <em>country=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateGraphs.html#GenerateGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateGraphs.GenerateGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is used to generate our typical presentation with graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>dataframe - dataframe with calculated statistics
+presentation - opened pptx document
+title - name of slide
+column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+legend - list of legend names (default = None)
+country - name of country (if dataset was filtered based on country) (default = None)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.GenerateGraphsCZ">
+<span id="resqdb-generategraphscz-module"></span><h2>resqdb.GenerateGraphsCZ module<a class="headerlink" href="#module-resqdb.GenerateGraphsCZ" title="Permalink to this headline">¶</a></h2>
+<p>File name: GenerateGraphs.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 11-2017
+Version: v1.0
+Version comment: The first version of script which is used to generate charts in the PPTX format. 
+Description: This script is used to generate PPTX file from the dataframe with computed statistics. 
+This script is used by class GeneratePresentation.py. 
+As a result, the presentation with chart is produced.</p>
+<dl class="class">
+<dt id="resqdb.GenerateGraphsCZ.GenerateGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateGraphsCZ.</code><code class="descname">GenerateGraphs</code><span class="sig-paren">(</span><em>dataframe</em>, <em>presentation</em>, <em>title</em>, <em>column_name</em>, <em>graph_type=None</em>, <em>number_of_series=0</em>, <em>legend=None</em>, <em>country=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateGraphsCZ.html#GenerateGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateGraphsCZ.GenerateGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is used to generate our typical presentation with graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>dataframe - dataframe with calculated statistics
+presentation - opened pptx document
+title - name of slide
+column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+legend - list of legend names (default = None)
+country - name of country (if dataset was filtered based on country) (default = None)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.GenerateNationalComparisonGraphs">
+<span id="resqdb-generatenationalcomparisongraphs-module"></span><h2>resqdb.GenerateNationalComparisonGraphs module<a class="headerlink" href="#module-resqdb.GenerateNationalComparisonGraphs" title="Permalink to this headline">¶</a></h2>
+<p>File name: GenerateNationalComparisonGraphs.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 02-2019
+Version: v1.0
+Version comment: The first version of script which create national comaprison reports. 
+Description: This script is used to call class GenerateGraphs and produce graphs into presentation.</p>
+<dl class="class">
+<dt id="resqdb.GenerateNationalComparisonGraphs.GenerateNationalComparisonGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.GenerateNationalComparisonGraphs.</code><code class="descname">GenerateNationalComparisonGraphs</code><span class="sig-paren">(</span><em>df</em>, <em>fdf</em>, <em>outcome=None</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateNationalComparisonGraphs.html#GenerateNationalComparisonGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateNationalComparisonGraphs.GenerateNationalComparisonGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate classic presentation with graphs.</p>
+<dl class="docutils">
+<dt>Keyword arguments:</dt>
+<dd>df: the raw dataframe with statistics
+country: True if the country should be included as siste
+country_code: the code of country
+split_sites: True if the presesntation should be generated for each site individually
+site: the code of site
+report: the report name
+quarter: the quarter name</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.GeneratePresentation">
+<span id="resqdb-generatepresentation-module"></span><h2>resqdb.GeneratePresentation module<a class="headerlink" href="#module-resqdb.GeneratePresentation" title="Permalink to this headline">¶</a></h2>
+<p>File name: GeneratePresentation.py
+Package: resq
+Written by: Marie Jankujova - <a class="reference external" href="mailto:jankujova&#46;marie&#37;&#52;&#48;fnusa&#46;cz">jankujova<span>&#46;</span>marie<span>&#64;</span>fnusa<span>&#46;</span>cz</a> on 11-2017
+Version: v1.0
+Version comment: The first version of script which calls class GenerateGraphs and create graphs into presentation. 
+Description: This script is used to call class GenerateGraphs and produce graphs into presentation.</p>
+<dl class="class">
+<dt id="resqdb.GeneratePresentation.GeneratePresentation">
+<em class="property">class </em><code class="descclassname">resqdb.GeneratePresentation.</code><code class="descname">GeneratePresentation</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GeneratePresentation.html#GeneratePresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GeneratePresentation.GeneratePresentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate classic presentation with graphs.</p>
+<dl class="docutils">
+<dt>Keyword arguments:</dt>
+<dd>df: the raw dataframe with statistics
+country: True if the country should be included as siste
+country_code: the code of country
+split_sites: True if the presesntation should be generated for each site individually
+site: the code of site
+report: the report name
+quarter: the quarter name</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.Reports">
+<span id="resqdb-reports-module"></span><h2>resqdb.Reports module<a class="headerlink" href="#module-resqdb.Reports" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 20, 2019</p>
+<p>&#64;author: Marie Jankujova</p>
+<dl class="class">
+<dt id="resqdb.Reports.GenerateGraphs">
+<em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">GenerateGraphs</code><span class="sig-paren">(</span><em>df</em>, <em>presentation</em>, <em>title</em>, <em>column_name</em>, <em>country_name</em>, <em>axis_name=None</em>, <em>coloring=False</em>, <em>region=False</em>, <em>incorrect=False</em>, <em>maximum=0</em>, <em>content=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GenerateGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GenerateGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is used to generate our typical presentation with graphs.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>dataframe - dataframe with calculated statistics
+presentation - opened pptx document
+title - name of slide
+column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+legend - list of legend names (default = None)
+country - name of country (if dataset was filtered based on country) (default = None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Reports.GeneratePresentation">
+<em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">GeneratePresentation</code><span class="sig-paren">(</span><em>df</em>, <em>year</em>, <em>month</em>, <em>country</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GeneratePresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GeneratePresentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#resqdb.Reports.Reports" title="resqdb.Reports.Reports"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Reports.Reports</span></code></a></p>
+<p>Genearte presentation for SITS-like reports.</p>
+<dl class="method">
+<dt id="resqdb.Reports.GeneratePresentation.generate_presentation">
+<code class="descname">generate_presentation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GeneratePresentation.generate_presentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GeneratePresentation.generate_presentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call function used to generate presentation with graphs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.Reports.Reports">
+<em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">Reports</code><span class="sig-paren">(</span><em>df</em>, <em>year</em>, <em>month</em>, <em>country</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate SITS-like reports for recanalization procedures.</p>
+<dl class="method">
+<dt id="resqdb.Reports.Reports.calculate_statistic_per_region">
+<code class="descname">calculate_statistic_per_region</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_statistic_per_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_statistic_per_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get median values for thrombolysed patients.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filtered_dfs: dictionary with filtered dataframes</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.calculate_thrombectomy">
+<code class="descname">calculate_thrombectomy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_thrombectomy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_thrombectomy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get median values for thrombectomy patients.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filtered_dfs: dictionary with filtered dataframes</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.calculate_thrombolysis">
+<code class="descname">calculate_thrombolysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_thrombolysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_thrombolysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get median values for thrombolysed patients.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filtered_dfs: dictionary with filtered dataframes</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.count_patients">
+<code class="descname">count_patients</code><span class="sig-paren">(</span><em>df</em>, <em>statistic</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.count_patients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.count_patients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the column with number of patients group by Protocol ID.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>df: The dataframe with raw data.</dd>
+<dt>Returns:</dt>
+<dd>The column with number of patients.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.filter_dataframe">
+<code class="descname">filter_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.filter_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.filter_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter dataset per each month for selected year.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Dictionary with filtered dataframes per each month.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.get_incorrect_times">
+<code class="descname">get_incorrect_times</code><span class="sig-paren">(</span><em>admission_time</em>, <em>recan_time</em>, <em>maximum</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.get_incorrect_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.get_incorrect_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get incorrectly entered times. Based on negative times.</p>
+<dl class="docutils">
+<dt>Args: </dt>
+<dd>admission_time: the time of admission (or hospitalization in later cases)
+recan_time: the time when thrombolysis was performed
+maximum: the maximum value for recanalization procedure</dd>
+<dt>Returns: </dt>
+<dd>Return TRUE if result value is negative, else return FALSE</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.get_region">
+<code class="descname">get_region</code><span class="sig-paren">(</span><em>site_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.get_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.get_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get region for given site ID.</p>
+<dl class="docutils">
+<dt>Args: </dt>
+<dd>df: raw dataframe</dd>
+<dt>Returns: </dt>
+<dd>The column with region.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.save_excel">
+<code class="descname">save_excel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.save_excel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.save_excel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save excel file with more sheets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.Reports.Reports.time_diff">
+<code class="descname">time_diff</code><span class="sig-paren">(</span><em>visit_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.time_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate difference in minutes between two dates.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>visit_date: visit date
+hospital_date: date when patient was hospitalized</dd>
+<dt>Returns:</dt>
+<dd>The calculated difference in minutes.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb.XmlSplitter">
+<span id="resqdb-xmlsplitter-module"></span><h2>resqdb.XmlSplitter module<a class="headerlink" href="#module-resqdb.XmlSplitter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="resqdb.XmlSplitter.XmlSplitter">
+<em class="property">class </em><code class="descclassname">resqdb.XmlSplitter.</code><code class="descname">XmlSplitter</code><span class="sig-paren">(</span><em>xml_file</em>, <em>nprocess=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Call this module to convert XML file with data from forms in the combined csv file.</p>
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.convert_xml_to_df">
+<code class="descname">convert_xml_to_df</code><span class="sig-paren">(</span><em>root</em>, <em>xmlns</em>, <em>openclinica</em>, <em>lstudy</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.convert_xml_to_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.convert_xml_to_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find each element “ClinicalData” in xml file and converted each subject to the row in the dataframe. If two versions of the form was filled, select IVT_TBY instead of RESQv2.0, and select RESQv2.0 instead of RESQv1.2.</p>
+<dl class="docutils">
+<dt>Params: </dt>
+<dd>root: The root of xml file.
+xmlns: The base schema.
+openclinica: The base schema for openclinica.</dd>
+<dt>Returns:</dt>
+<dd>A new converted dataframe.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.get_items">
+<code class="descname">get_items</code><span class="sig-paren">(</span><em>root</em>, <em>xmlns</em>, <em>openclinica</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.get_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.get_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all columns names in the xml file, to each column name get shorten name, version of form and comment.</p>
+<dl class="docutils">
+<dt>Params:</dt>
+<dd>root: The root of xml file.
+xmlns: The base schema.
+openclinica: The base schema for openclinica.</dd>
+<dt>Returns:</dt>
+<dd>New dictionary with all columns as keyword.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.get_number_of_patient_per_site">
+<code class="descname">get_number_of_patient_per_site</code><span class="sig-paren">(</span><em>root</em>, <em>xmlns</em>, <em>study_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.get_number_of_patient_per_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.get_number_of_patient_per_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of sites sorted by number of sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.get_root">
+<code class="descname">get_root</code><span class="sig-paren">(</span><em>xml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.get_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.get_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get root of xml file and additional necessary values (schema and openclinica link).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.get_studies">
+<code class="descname">get_studies</code><span class="sig-paren">(</span><em>root</em>, <em>xmlns</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.get_studies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.get_studies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all studies in xml file, to each study also assign study name and protocol ID.</p>
+<dl class="docutils">
+<dt>Params:</dt>
+<dd>root: The root of xml file.
+xmlns: The base schema.</dd>
+<dt>Returns:</dt>
+<dd>New dictionary with all studies as keyword.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.get_study_oids">
+<code class="descname">get_study_oids</code><span class="sig-paren">(</span><em>root</em>, <em>xmlns</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.get_study_oids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.get_study_oids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all Study OIDs present in data.</p>
+<dl class="docutils">
+<dt>Params: </dt>
+<dd>root: The root of xml file.
+xmlns: The base schema.</dd>
+<dt>Returns: </dt>
+<dd>List of available IDs.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.refactor_values">
+<code class="descname">refactor_values</code><span class="sig-paren">(</span><em>row</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.refactor_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.refactor_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.split_list">
+<code class="descname">split_list</code><span class="sig-paren">(</span><em>data</em>, <em>total_patients</em>, <em>parts=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.split_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.split_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of lists equaled to processes and site ids in the list. Each process will get some sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.trim_name">
+<code class="descname">trim_name</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.trim_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.trim_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove RES-Q from text if present.</p>
+<dl class="docutils">
+<dt>Params: </dt>
+<dd>val: string</dd>
+<dt>Returns: </dt>
+<dd>Shorten string if RES-Q was in the value.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="resqdb.XmlSplitter.XmlSplitter.trim_var_name">
+<code class="descname">trim_var_name</code><span class="sig-paren">(</span><em>var</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/XmlSplitter.html#XmlSplitter.trim_var_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.XmlSplitter.XmlSplitter.trim_var_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cut language variation, eg. EN, CS from the name of variable.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-resqdb">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-resqdb" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">RES-Q package</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Marie Jankujova.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="../_sources/source/resqdb.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

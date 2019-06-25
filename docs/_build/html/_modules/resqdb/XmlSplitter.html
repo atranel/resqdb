@@ -1,0 +1,623 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>resqdb.XmlSplitter &#8212; RES-Q package January, 2019 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for resqdb.XmlSplitter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<div class="viewcode-block" id="XmlSplitter"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter">[docs]</a><span class="k">class</span> <span class="nc">XmlSplitter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Call this module to convert XML file with data from forms in the combined csv file. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">,</span> <span class="n">nprocess</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_file</span> <span class="o">=</span> <span class="n">xml_file</span>
+
+        <span class="c1"># Create log file in the working folder</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;debug.log&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">log_file</span><span class="p">,</span>
+                            <span class="n">filemode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                            <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1">,</span><span class="si">%(msecs)d</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">datefmt</span><span class="o">=</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span>
+                            <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;XMLSplitter&#39;</span><span class="p">)</span>  
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skiped_study_oids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;S_RESQ&#39;</span><span class="p">,</span> <span class="s1">&#39;S_DEMO_SIT&#39;</span><span class="p">,</span> <span class="s1">&#39;S_UA_DEMO&#39;</span><span class="p">,</span> <span class="s1">&#39;S_UA_DEMO_5834&#39;</span><span class="p">,</span> <span class="s1">&#39;S_CZ_DEMO&#39;</span><span class="p">,</span> <span class="s1">&#39;S_QASC_DEM&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openclinica</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_root</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">studies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_studies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">)</span>
+        <span class="n">study_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_study_oids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openclinica</span><span class="p">)</span>
+
+        <span class="n">sort_pts</span><span class="p">,</span> <span class="n">total_patients</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_patient_per_site</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">,</span> <span class="n">study_ids</span><span class="p">)</span>
+
+        <span class="c1"># Create number of lists with sites based on number of processes</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">lstudies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_list</span><span class="p">(</span><span class="n">sort_pts</span><span class="p">,</span> <span class="n">total_patients</span><span class="p">,</span> <span class="n">parts</span><span class="o">=</span><span class="n">nprocess</span><span class="p">)</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lstudies</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lstudies</span> <span class="o">=</span> <span class="n">study_ids</span>
+              
+        
+        <span class="c1"># Create empty dataframe with column names</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df4</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df5</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df6</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df7</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df8</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df9</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df10</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span>
+
+        
+        <span class="c1"># Run subprocesses</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_xml_to_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openclinica</span><span class="p">,</span> <span class="n">study_ids</span><span class="p">,</span> <span class="s1">&#39;Process&#39;</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nprocess</span><span class="p">):</span>
+                <span class="n">process</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">convert_xml_to_df</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmlns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openclinica</span><span class="p">,</span> <span class="n">lstudies</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All threads completed.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All thread completed&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Create one dataframe by appending all dataframes to one</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df1</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df2</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df3</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df4</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df5</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df6</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df7</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df8</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df9</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocess</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df10</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="XmlSplitter.get_root"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.get_root">[docs]</a>    <span class="k">def</span> <span class="nf">get_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get root of xml file and additional necessary values (schema and openclinica link). &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">xml_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CreationDateTime&#39;</span><span class="p">)</span>
+        <span class="n">xmlns</span> <span class="o">=</span> <span class="s2">&quot;{http://www.cdisc.org/ns/odm/v1.3}&quot;</span>
+        <span class="n">openclinica</span> <span class="o">=</span> <span class="s2">&quot;{http://www.openclinica.org/ns/odm_ext_v130/v3.1}&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Date: </span><span class="si">{0}</span><span class="s1">, xmlns: </span><span class="si">{1}</span><span class="s1">, openclinica: </span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">,</span> <span class="n">openclinica</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">,</span> <span class="n">openclinica</span><span class="p">,</span> <span class="n">date</span></div>
+
+<div class="viewcode-block" id="XmlSplitter.trim_name"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.trim_name">[docs]</a>    <span class="k">def</span> <span class="nf">trim_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove RES-Q from text if present. </span>
+<span class="sd">        </span>
+<span class="sd">        Params: </span>
+<span class="sd">            val: string </span>
+<span class="sd">        Returns: </span>
+<span class="sd">            Shorten string if RES-Q was in the value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;RES-Q&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">val</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="XmlSplitter.trim_var_name"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.trim_var_name">[docs]</a>    <span class="k">def</span> <span class="nf">trim_var_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Cut language variation, eg. EN, CS from the name of variable. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;RU_2&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;CS_2&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;HY_2&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;RU_2&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;CZ_2&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;CZ&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;EN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;HY&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;ES&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;CS&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;RO&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;UA&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;RU&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span></div>
+
+<div class="viewcode-block" id="XmlSplitter.get_studies"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.get_studies">[docs]</a>    <span class="k">def</span> <span class="nf">get_studies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get all studies in xml file, to each study also assign study name and protocol ID. </span>
+
+<span class="sd">        Params:</span>
+<span class="sd">            root: The root of xml file.</span>
+<span class="sd">            xmlns: The base schema.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            New dictionary with all studies as keyword. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">studies</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">study</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;Study&#39;</span><span class="p">):</span>
+            <span class="n">study_item</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">global_variables</span> <span class="ow">in</span> <span class="n">study</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;GlobalVariables&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">study_name</span> <span class="ow">in</span> <span class="n">global_variables</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;StudyName&#39;</span><span class="p">):</span>
+                    <span class="n">study_item</span><span class="p">[</span><span class="s1">&#39;study_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trim_name</span><span class="p">(</span><span class="n">study_name</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">protocol_name</span> <span class="ow">in</span> <span class="n">global_variables</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ProtocolName&#39;</span><span class="p">):</span>
+                    <span class="n">study_item</span><span class="p">[</span><span class="s1">&#39;protocol_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trim_name</span><span class="p">(</span><span class="n">protocol_name</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">studies</span><span class="p">[</span><span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OID&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">study_item</span>
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Study names and Protocol IDs were shorten.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">studies</span></div>
+
+<div class="viewcode-block" id="XmlSplitter.get_number_of_patient_per_site"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.get_number_of_patient_per_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_patient_per_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">,</span> <span class="n">study_ids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get list of sites sorted by number of sites. &quot;&quot;&quot;</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_patients</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">clinical_data</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ClinicalData&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">study_ids</span><span class="p">:</span>
+                <span class="n">total_patients</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinical_data</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;SubjectData&#39;</span><span class="p">))</span>
+                <span class="n">pts</span><span class="p">[</span><span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinical_data</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;SubjectData&#39;</span><span class="p">))</span>
+        
+        <span class="n">sort_pts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sort_pts</span><span class="p">,</span> <span class="n">total_patients</span></div>
+        
+<div class="viewcode-block" id="XmlSplitter.get_study_oids"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.get_study_oids">[docs]</a>    <span class="k">def</span> <span class="nf">get_study_oids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get all Study OIDs present in data. </span>
+
+<span class="sd">        Params: </span>
+<span class="sd">            root: The root of xml file.</span>
+<span class="sd">            xmlns: The base schema.</span>
+<span class="sd">        Returns: </span>
+<span class="sd">            List of available IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">study_oids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">clinical_data</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ClinicalData&#39;</span><span class="p">):</span>
+            <span class="n">study_oid</span> <span class="o">=</span> <span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">study_oid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">skiped_study_oids</span><span class="p">:</span>
+                <span class="n">study_oids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">study_oid</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">study_oids</span></div>
+    
+<div class="viewcode-block" id="XmlSplitter.split_list"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.split_list">[docs]</a>    <span class="k">def</span> <span class="nf">split_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">total_patients</span><span class="p">,</span> <span class="n">parts</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return number of lists equaled to processes and site ids in the list. Each process will get some sites. &quot;&quot;&quot;</span>
+        <span class="n">pts_per_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">parts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">pts_per_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_patients</span><span class="o">//</span><span class="n">parts</span><span class="o">*</span><span class="n">i</span><span class="p">)</span>
+        
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">p_ix</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">site_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">total_patients</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">))[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">total_patients</span><span class="p">)):</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">total_patients</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">pts_per_parts</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_ids</span><span class="p">[</span><span class="n">p_ix</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">p_ix</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">total_patients</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_ids</span><span class="p">[</span><span class="n">p_ix</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="XmlSplitter.get_items"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.get_items">[docs]</a>    <span class="k">def</span> <span class="nf">get_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">,</span> <span class="n">openclinica</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get all columns names in the xml file, to each column name get shorten name, version of form and comment. </span>
+<span class="sd">        </span>
+<span class="sd">        Params:</span>
+<span class="sd">            root: The root of xml file.</span>
+<span class="sd">            xmlns: The base schema.</span>
+<span class="sd">            openclinica: The base schema for openclinica.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            New dictionary with all columns as keyword.     </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Subject ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Protocol ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Site Name&#39;</span><span class="p">,</span> <span class="s1">&#39;StartDate&#39;</span><span class="p">,</span> <span class="s1">&#39;EndDate&#39;</span><span class="p">,</span> <span class="s1">&#39;FormOID&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">study</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;Study&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OID&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;S_RESQ&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">study</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;MetaDataVersion&#39;</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">item_def</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ItemDef&#39;</span><span class="p">):</span>
+                        <span class="n">item</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">)</span>
+                        <span class="n">shorten_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trim_var_name</span><span class="p">(</span><span class="n">item_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">))</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s1">&#39;shorten_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shorten_name</span>
+                       <span class="c1"># form_oids = item_def.get(openclinica + &#39;FormOID&#39;)</span>
+                       <span class="c1"># print(form_oids)</span>
+                        <span class="c1">#item[&#39;form_oid&#39;] = item_def.get(openclinica + &#39;FormOIDs&#39;)</span>
+                        <span class="c1">#if shorten_name not in column_names and &quot;RESQV12&quot; not in form_oids and &quot;ATALAIA&quot; not in form_oids:</span>
+                          <span class="c1">#  column_names.append(shorten_name)</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Comment&#39;</span><span class="p">)</span>
+                        <span class="n">items</span><span class="p">[</span><span class="n">item_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OID&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">items</span><span class="p">,</span> <span class="n">column_names</span></div>
+
+    
+<div class="viewcode-block" id="XmlSplitter.refactor_values"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.refactor_values">[docs]</a>    <span class="k">def</span> <span class="nf">refactor_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;RECURRENT_STROKE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DEPARTMENT_TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VENTILATOR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BLEEDING_REASON&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;BLEEDING_SOURCE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;INTERVENTION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CEREBROVASCULAR_EXPERT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_OTHER_FACILITY_O1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_OTHER_FACILITY_O2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-999&#39;</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Site Name&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;Site Name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Subject ID&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;Subject ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;EndDate&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;EndDate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;StartDate&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;StartDate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;Protocol ID&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;Protocol ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;FormOID&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;FormOID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;SEX&quot;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;SEX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;1&#39;</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VISDAT&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VISIT_DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;VISTIM&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;VISIT_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HOSDAT&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;HOSPITAL_DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HOSTIM&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;HOSPITAL_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HOSSTRK&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;HOSPITAL_STROKE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HOSP&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;HOSPITALIZED_IN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;PTASS&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;ASSESSED_FOR_REHAB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;STRKTYP&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span>
+                    <span class="n">res</span><span class="p">[</span><span class="s1">&#39;NEUROSURGERY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;4&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;6&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;STROKE_TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CONSLVL&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CONSCIOUSNESS_LEVEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;5&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;4&#39;</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;NIHSSSCR&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;NIHSS_SCORE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CT&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CT_MRI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CTTIM&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CT_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;RECANPROC&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;RECANALIZATION_PROCEDURES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;IVTPA1&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_ONLY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;NDLTIM1&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_ONLY_NEEDLE_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ADM1&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_ONLY_ADMISSION_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;BOLUS1&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_ONLY_BOLUS_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;IVTPA2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;NDLTIM2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY_NEEDLE_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;GROIN2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY_GROIN_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;ADM2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY_ADMISSION_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;BOLUS2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY_BOLUS_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;GROINTIM2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;IVT_TBY_GROIN_PUNCTURE_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;GROIN3&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DYPSH&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;6&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DYSPHAGIA_SCREENING&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DYSPHTIM&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DYSPHAGIA_SCREENING_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;FIBRTIM&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;AFIB_DETECTION_METHOD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;FIBR&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;5&#39;</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;AFIB_FLUTTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;AFIB&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;5&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;AFIB_FLUTTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;CRTD&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CAROTID_ARTERIES_IMAGING&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;1&#39;</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HMCRN&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span>
+                <span class="k">else</span><span class="p">:</span> 
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;HEMICRANIECTOMY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;THRMBTST&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;6&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;9&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;7&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;10&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;ANTITHROMBOTICS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;STTN&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;STATIN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;STNSS&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CAROTID_STENOSIS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;3&#39;</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;STNSSTIM&#39;</span><span class="p">:</span> 
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;CAROTID_STENOSIS_FOLLOWUP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;TNSV&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;ANTIHYPERTENSIVE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;SMKR&#39;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;SMKR_2&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;SMOKING_CESSATION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DEST&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;4&#39;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_DESTINATION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_SAME_FACILITY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span> <span class="k">else</span> <span class="s1">&#39;-999&#39;</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_OTHER_FACILITY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;3&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span> <span class="k">else</span> <span class="s1">&#39;-999&#39;</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_OTHER_FACILITY_O3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span> <span class="k">else</span> <span class="s1">&#39;-999&#39;</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;DISCDAT&#39;</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s1">&#39;DISCHARGE_DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+            
+
+
+<div class="viewcode-block" id="XmlSplitter.convert_xml_to_df"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.XmlSplitter.XmlSplitter.convert_xml_to_df">[docs]</a>    <span class="k">def</span> <span class="nf">convert_xml_to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">,</span> <span class="n">openclinica</span><span class="p">,</span> <span class="n">lstudy</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Find each element &quot;ClinicalData&quot; in xml file and converted each subject to the row in the dataframe. If two versions of the form was filled, select IVT_TBY instead of RESQv2.0, and select RESQv2.0 instead of RESQv1.2. </span>
+
+<span class="sd">        Params: </span>
+<span class="sd">            root: The root of xml file.</span>
+<span class="sd">            xmlns: The base schema.</span>
+<span class="sd">            openclinica: The base schema for openclinica.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A new converted dataframe. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">process</span> <span class="o">=</span><span class="s1">&#39;Process&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># Total number of patients</span>
+        <span class="n">total_patients</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">clinical_data</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ClinicalData&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lstudy</span><span class="p">:</span>
+                <span class="n">total_patients</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinical_data</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;SubjectData&#39;</span><span class="p">))</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">LOG_EVERY_N</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="k">for</span> <span class="n">clinical_data</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ClinicalData&#39;</span><span class="p">):</span>
+            <span class="n">study_oid</span> <span class="o">=</span> <span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            if study_oid in self.skiped_study_oids:</span>
+<span class="sd">                study_pts = len(clinical_data.findall(xmlns + &#39;SubjectData&#39;))</span>
+<span class="sd">                count += study_pts</span>
+<span class="sd">                logging.info(&#39;{0}: {1} patients were skipped due to belonging to the demo site - {2}&#39;.format(process, study_pts, study_oid))</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">study_oid</span> <span class="ow">in</span> <span class="n">lstudy</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">: Adding patients for study: </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">study_oid</span><span class="p">))</span>
+                <span class="c1"># Get study name and protocol ID</span>
+                <span class="n">study</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">studies</span><span class="p">[</span><span class="n">clinical_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;StudyOID&#39;</span><span class="p">)]</span>
+                <span class="n">study_name</span> <span class="o">=</span> <span class="n">study</span><span class="p">[</span><span class="s2">&quot;study_name&quot;</span><span class="p">]</span>
+                <span class="n">protocol_id</span> <span class="o">=</span> <span class="n">study</span><span class="p">[</span><span class="s2">&quot;protocol_name&quot;</span><span class="p">]</span>
+                <span class="c1"># Go through each subject in study</span>
+                <span class="k">for</span> <span class="n">subject_data</span> <span class="ow">in</span> <span class="n">clinical_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;SubjectData&#39;</span><span class="p">):</span>
+                    <span class="n">subject_id</span> <span class="o">=</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">openclinica</span> <span class="o">+</span> <span class="s1">&#39;StudySubjectID&#39;</span><span class="p">)</span>
+                    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Subject ID&#39;</span> <span class="p">:</span> <span class="n">subject_id</span><span class="p">,</span> <span class="s1">&#39;Protocol ID&#39;</span><span class="p">:</span> <span class="n">protocol_id</span><span class="p">,</span> <span class="s1">&#39;Site Name&#39;</span><span class="p">:</span> <span class="n">study_name</span><span class="p">}</span>
+                    <span class="c1"># Get StartDate and EndData</span>
+                    <span class="k">for</span> <span class="n">study_event</span> <span class="ow">in</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;StudyEventData&#39;</span><span class="p">):</span>
+                        <span class="n">start_date</span> <span class="o">=</span> <span class="n">study_event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">openclinica</span> <span class="o">+</span> <span class="s1">&#39;StartDate&#39;</span><span class="p">)</span>
+                        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;StartDate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_date</span>
+                        <span class="n">end_date</span> <span class="o">=</span> <span class="n">study_event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">openclinica</span> <span class="o">+</span> <span class="s1">&#39;EndDate&#39;</span><span class="p">)</span>
+                        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;EndDate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_date</span>
+                    <span class="c1"># Get all forms, if both v1.2 and v2.0 are filled, select v2.0</span>
+                    <span class="n">form_oids</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">form_data</span> <span class="ow">in</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;FormData&#39;</span><span class="p">):</span>
+                        <span class="n">form_oids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FormOID&#39;</span><span class="p">))</span>
+                    
+                    <span class="c1"># If more than one form is filled in, select v2.0</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">form_oids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">form_data</span> <span class="ow">in</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;FormData&#39;</span><span class="p">):</span>
+                            <span class="n">form_oid</span> <span class="o">=</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FormOID&#39;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="s2">&quot;RESQV20&quot;</span> <span class="ow">in</span> <span class="n">form_oid</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;IVT_TBY&quot;</span> <span class="ow">in</span> <span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">form_oids</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;FormOID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_oid</span>
+                                <span class="k">for</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="n">form_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ItemData&#39;</span><span class="p">):</span>
+                                    <span class="n">shorten_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ItemOID&#39;</span><span class="p">)][</span><span class="s1">&#39;shorten_name&#39;</span><span class="p">]</span>
+                                    <span class="n">row</span><span class="p">[</span><span class="n">shorten_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="s2">&quot;IVT_TBY&quot;</span> <span class="ow">in</span> <span class="n">form_oid</span><span class="p">:</span>
+                                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;FormOID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_oid</span>
+                                <span class="k">for</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="n">form_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ItemData&#39;</span><span class="p">):</span>
+                                    <span class="n">shorten_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ItemOID&#39;</span><span class="p">)][</span><span class="s1">&#39;shorten_name&#39;</span><span class="p">]</span>
+                                    <span class="n">row</span><span class="p">[</span><span class="n">shorten_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;FormOID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_oids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s2">&quot;RESQV12&quot;</span> <span class="ow">in</span> <span class="n">form_oids</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                            <span class="k">for</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ItemData&#39;</span><span class="p">):</span>
+                                <span class="n">shorten_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ItemOID&#39;</span><span class="p">)][</span><span class="s1">&#39;shorten_name&#39;</span><span class="p">]</span>
+                                <span class="n">row</span><span class="p">[</span><span class="n">shorten_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+                            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refactor_values</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="n">subject_data</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">xmlns</span> <span class="o">+</span> <span class="s1">&#39;ItemData&#39;</span><span class="p">):</span>
+                                <span class="n">shorten_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ItemOID&#39;</span><span class="p">)][</span><span class="s1">&#39;shorten_name&#39;</span><span class="p">]</span>
+                                <span class="n">row</span><span class="p">[</span><span class="n">shorten_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+                        
+                    
+                    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df5</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df6</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df6</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df7</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df7</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df8</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df8</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df9</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df9</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">df10</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df10</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">%</span> <span class="n">LOG_EVERY_N</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">percentage</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">count</span><span class="o">/</span><span class="n">total_patients</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">: Number of already converted patients: </span><span class="si">{1}</span><span class="s1">/</span><span class="si">{2}</span><span class="s1"> - </span><span class="si">{3}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="p">,</span><span class="n">count</span><span class="p">,</span> <span class="n">total_patients</span><span class="p">,</span> <span class="n">percentage</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">total_patients</span><span class="p">:</span>
+                        <span class="n">percentage</span> <span class="o">=</span> <span class="n">count</span><span class="o">/</span><span class="n">total_patients</span><span class="o">*</span><span class="mi">100</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">: The conversion has been finished: </span><span class="si">{1}</span><span class="s1">/</span><span class="si">{2}</span><span class="s1"> - </span><span class="si">{3}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">total_patients</span><span class="p">,</span> <span class="n">percentage</span><span class="p">))</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+    
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">RES-Q package</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Marie Jankujova.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

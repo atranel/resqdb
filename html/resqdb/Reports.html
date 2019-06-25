@@ -1,0 +1,3145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>resqdb.Reports API documentation</title>
+<meta name="description" content="Created on May 20, 2019 …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>resqdb.Reports</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on May 20, 2019</p>
+<p>@author: Marie Jankujova</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+Created on May 20, 2019
+
+@author: Marie Jankujova
+&#34;&#34;&#34;
+
+import sys
+import os
+from datetime import datetime, date, timedelta, time
+import sqlite3
+import pandas as pd
+import numpy as np
+from numpy import inf
+import pytz
+import logging
+import scipy.stats as st
+from scipy.stats import sem, t
+from scipy import mean
+from resqdb.Calculation import FilterDataset
+from pptx import Presentation
+from pptx.util import Cm, Pt, Inches
+from pptx.dml.color import RGBColor
+from pptx import Presentation
+from pptx.chart.data import CategoryChartData, ChartData
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.chart import XL_CHART_TYPE, XL_TICK_MARK, XL_TICK_LABEL_POSITION, XL_LEGEND_POSITION, XL_LABEL_POSITION
+from pptx.enum.text import MSO_AUTO_SIZE, PP_ALIGN
+from pptx.util import Cm, Pt, Inches
+from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_LINE
+from pptx.oxml.xmlchemy import OxmlElement
+import xlsxwriter
+
+
+
+
+class Reports:
+    &#34;&#34;&#34; Generate SITS-like reports for recanalization procedures. &#34;&#34;&#34;
+
+    def __init__(self, df, year, month, country):
+        &#39;&#39;&#39; Generate SITS-like reports for recanalization procedure. 
+
+        Args: 
+            df: preprocessed data
+            year: year for which you would like to generate reports
+            country: the country code
+            month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
+        &#39;&#39;&#39;
+
+        # create dataframe with regions, to each region assign population and hospitals
+        self.regions = {
+            &#39;Hlavní město Praha&#39;: {
+                &#39;population&#39;: 1286399, 
+                &#39;hospitals&#39;: [&#39;CZ_017&#39;, &#39;CZ_008&#39;, &#39;CZ_002&#39;, &#39;CZ_041&#39;, &#39;CZ_009&#39;, &#39;CZ_032&#39;],
+            }, 
+            &#39;Středočeský kraj&#39;: {
+                &#39;population&#39;: 1352795,
+                &#39;hospitals&#39;: [&#39;CZ_005&#39;, &#39;CZ_020&#39;, &#39;CZ_043&#39;, &#39;CZ_003&#39;],
+            },
+            &#39;Jihočeský kraj&#39;: {
+                &#39;population&#39;: 637460,
+                &#39;hospitals&#39;: [&#39;CZ_013&#39;, &#39;CZ_014&#39;, &#39;CZ_011&#39;],
+            },
+            &#39;Plzeňský kraj&#39;: {
+                &#39;population&#39;: 574694,
+                &#39;hospitals&#39;: [&#39;CZ_025&#39;],
+            },
+            &#39;Karlovarský kraj&#39;: {
+                &#39;population&#39;: 310245,
+                &#39;hospitals&#39;: [&#39;CZ_015&#39;, &#39;CZ_040&#39;],
+            },
+            &#39;Ústecký kraj&#39;: {
+                &#39;population&#39;: 830371,
+                &#39;hospitals&#39;: [&#39;CZ_039&#39;, &#39;CZ_024&#39;, &#39;CZ_046&#39;, &#39;CZ_019&#39;, &#39;CZ_026&#39;],
+            },
+            &#39;Liberecký kraj&#39;: {
+                &#39;population&#39;: 439262,
+                &#39;hospitals&#39;: [&#39;CZ_036&#39;, &#39;CZ_038&#39;],
+            },
+            &#39;Královéhradecký kraj&#39;: {
+                &#39;population&#39;: 555683,
+                &#39;hospitals&#39;: [&#39;CZ_010&#39;, &#39;CZ_031&#39;, &#39;CZ_045&#39;],
+            },
+            &#39;Pardubický kraj&#39;: {
+                &#39;population&#39;: 505285,
+                &#39;hospitals&#39;: [&#39;CZ_030&#39;, &#39;CZ_012&#39;],
+            }, 
+            &#39;Vysočina&#39;: {
+                &#39;population&#39;: 512727,
+                &#39;hospitals&#39;: [&#39;CZ_007&#39;, &#39;CZ_029&#39;],
+            },
+            &#39;Jihomoravský kraj&#39;: {
+                &#39;population&#39;: 1169788,
+                &#39;hospitals&#39;: [&#39;CZ_034&#39;, &#39;CZ_001&#39;, &#39;CZ_033&#39;, &#39;CZ_035&#39;, &#39;CZ_016&#39;, &#39;CZ_027&#39;],
+            },
+            &#39;Olomoucký kraj&#39;: {
+                &#39;population&#39;: 639946,
+                &#39;hospitals&#39;: [&#39;CZ_042&#39;, &#39;CZ_022&#39;],
+            },
+            &#39;Zlínský kraj&#39;: {
+                &#39;population&#39;: 590459,
+                &#39;hospitals&#39;: [&#39;CZ_023&#39;, &#39;CZ_021&#39;],
+            },
+            &#39;Moravskoslezký kraj&#39;: {
+                &#39;population&#39;: 1236028,
+                &#39;hospitals&#39;: [&#39;CZ_018&#39;, &#39;CZ_004&#39;, &#39;CZ_044&#39;, &#39;CZ_047&#39;, &#39;CZ_006&#39;, &#39;CZ_028&#39;, &#39;CZ_049&#39;]
+            }
+        }
+
+        # Create dataframe with hospitals who do thrombectomy
+        self.hospitals_mt = [&#39;CZ_034&#39;, # FN Brno
+            &#39;CZ_013&#39;, # Ceske Budejovice
+            &#39;CZ_017&#39;, # Na Homolce
+            &#39;CZ_039&#39;, # Usti nad Labem
+            &#39;CZ_006&#39;, # Vitkovice
+            &#39;CZ_010&#39;, # Hradec Kralove
+            &#39;CZ_036&#39;, # Liberec
+            &#39;CZ_009&#39;, # VFN Neurologie Praha
+            &#39;CZ_002&#39;, # Motol
+            &#39;CZ_018&#39;, # FN Ostrava
+            &#39;CZ_001&#39;, # St. Anne Brno
+            &#39;CZ_041&#39;, # Ustredni vojenska nemocnice
+            &#39;CZ_025&#39;, # Plzen
+            &#39;CZ_042&#39;, # Olomouc
+            &#39;CZ_008&#39;, # Kralovske Vinohrady
+        ]
+
+        self.df = df
+        self.year = year
+        self.country = country
+        self.month = month
+
+        # Get site names to hospitals_mt
+        self.site_id_mapped_to_site_name = self.df[self.df[&#39;Protocol ID&#39;].isin(self.hospitals_mt)][[&#39;Protocol ID&#39;, &#39;Site Name&#39;]].drop_duplicates(subset=&#39;Protocol ID&#39;, keep=&#39;first&#39;).reset_index()
+        self.site_id_mapped_to_site_name.drop([&#39;index&#39;], inplace=True, axis=1)
+
+        debug = &#39;reports_debug_&#39; + datetime.now().strftime(&#39;%d-%m-%Y&#39;) + &#39;.log&#39;
+        # Create log file in the working folder
+        log_file = os.path.join(os.getcwd(), debug)
+        logging.basicConfig(filename=log_file,
+                            filemode=&#39;a&#39;,
+                            format=&#39;%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s&#39;,
+                            datefmt=&#39;%H:%M:%S&#39;,
+                            level=logging.DEBUG)
+
+        # Get only dataframe for selected country
+        self.country_df = FilterDataset(df=self.df, country=self.country).fdf
+
+        # Filter dataframes per month
+        self.filtered_dfs = self.filter_dataframe()
+        self.names = list(self.filtered_dfs.keys())
+        self.thrombolysis_stats_df = self.calculate_thrombolysis()
+        self.thrombectomy_stats_df = self.calculate_thrombectomy()
+        self.statistic_region_dfs = self.calculate_statistic_per_region()
+
+        self.save_excel()
+
+
+    def filter_dataframe(self):
+        &#34;&#34;&#34; Filter dataset per each month for selected year. 
+        
+        Returns:
+            Dictionary with filtered dataframes per each month.
+        &#34;&#34;&#34;
+
+        # Store filtered dataframe in dictionary
+        dfs = {}
+
+        # Get current date
+        current_year = datetime.today().year
+        # Month from argument
+        current_month = self.month
+
+        # Filter dataframe per month
+        for month in range(1, current_month + 1):
+            start_date = datetime(self.year, month, 1, 0, 0)
+            end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+
+            # Create object FilterDataset
+            fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+
+            # Add dataframe into dictionary
+            dfs[month] = fd_ojb.fdf
+
+        # Filter dataframe for whole year
+        start_date = datetime(self.year, 1, 1, 0, 0)
+        # End date from current_month
+        end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+        fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+        dfs[str(self.year)] = fd_obj.fdf
+        
+        return dfs
+
+    
+    def count_patients(self, df, statistic):
+        &#34;&#34;&#34; Returns the column with number of patients group by Protocol ID. 
+
+        Args:
+            df: The dataframe with raw data. 
+
+        Returns:
+            The column with number of patients.
+        &#34;&#34;&#34;
+
+        tmp = df.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#39;total_patients&#39;)
+        tmp_df = statistic.merge(tmp, how=&#39;outer&#39;)
+        tmp_df.fillna(0, inplace=True)
+
+        return tmp_df[&#39;total_patients&#39;]
+
+    def time_diff(self, visit_date, hospital_date):
+        &#34;&#34;&#34; Calculate difference in minutes between two dates. 
+
+        Args:
+            visit_date: visit date
+            hospital_date: date when patient was hospitalized
+        Returns:
+            The calculated difference in minutes.
+        &#34;&#34;&#34;
+        if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+            time_diff = hospital_date - visit_date
+            # Convert difference to minutes
+            total_minutes = time_diff.total_seconds() / 60.0
+        else:
+            total_minutes = 0
+
+        if total_minutes &lt; 0 or total_minutes &gt; 40000:
+            total_minutes = 0
+        
+        return total_minutes
+
+    def get_region(self, site_id):
+        &#34;&#34;&#34; Get region for given site ID. 
+
+        Args: 
+            df: raw dataframe
+        Returns: 
+            The column with region. 
+        &#34;&#34;&#34;
+        for key, value in self.regions.items():
+            if site_id in value[&#39;hospitals&#39;]:
+                return key           
+
+    def get_incorrect_times(self, admission_time, recan_time, maximum):
+        &#34;&#34;&#34; Get incorrectly entered times. Based on negative times. 
+
+        Args: 
+            admission_time: the time of admission (or hospitalization in later cases)
+            recan_time: the time when thrombolysis was performed
+            maximum: the maximum value for recanalization procedure 
+        Returns: 
+            Return TRUE if result value is negative, else return FALSE
+        &#34;&#34;&#34;
+        timeformat = &#39;%H:%M:%S&#39;
+        if admission_time is None or recan_time is None or pd.isnull(admission_time) or pd.isnull(recan_time):
+            incorrect = True
+        elif admission_time == 0 or recan_time == 0:
+            incorrect = True
+        else:
+            if isinstance(admission_time, time) and isinstance(recan_time, time):
+                tdelta = datetime.combine(date.today(), recan_time) - datetime.combine(date.today(), admission_time)
+            elif isinstance(admission_time, time):
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.combine(date.today(), admission_time)
+            elif isinstance(recan_time, time):
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)
+            else:
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)      
+            tdelta_min = tdelta.total_seconds()/60.0
+
+            if tdelta_min &lt; -1000:
+                # Add one day if time was after midnight (1 day = 86400 seconds = 1440 minutes)
+                tdelta_min = tdelta_min + 1440
+
+            if tdelta_min &lt;= 0 or tdelta_min &gt; maximum:
+                incorrect = True
+            else:
+                incorrect = False
+
+        
+        return incorrect
+
+    def calculate_thrombolysis(self):
+        &#34;&#34;&#34; Get median values for thrombolysed patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+             
+            statistic = self.country_df.groupby([&#39;Protocol ID&#39;, &#39;Site Name&#39;]).size().reset_index(name=&#34;Total Patients&#34;)                 # Get Protocol IDs and Total Patients
+
+            # Calculate IVtPa median
+            ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+            thrombolysis_df = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()      # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+            if thrombolysis_df.empty:
+                statistic[&#39;Median DTN (minutes)&#39;] = 0
+                statistic[&#39;# IVT&#39;] = 0
+                statistic[&#39;Median last seen normal&#39;] = 0
+                statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                statistic[&#39;% incorrect IVtPa times&#39;] = 0
+            else:
+                thrombolysis_df.fillna(0, inplace=True)
+                thrombolysis_df[&#39;IVTPA&#39;] = thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME_MIN&#39;]                        # get one column with all needle times
+
+                # Get number of incorrectly entered times
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = False
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_ONLY_ADMISSION_TIME&#39;], x[&#39;IVT_ONLY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 2 and x[&#39;IVT_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_REFER_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 5 and x[&#39;IVT_TBY_REFER&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY_REFER&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+                incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df[&#39;INCORRECT_TIMES&#39;] == True]
+
+                statistic[&#39;Total patients undergone IVT&#39;] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+                
+                thrombolysis = thrombolysis_df[(thrombolysis_df[&#39;IVTPA&#39;] &gt; 0) &amp; (thrombolysis_df[&#39;IVTPA&#39;] &lt; 400)].copy()
+
+                if thrombolysis.empty:
+                    statistic[&#39;Median DTN (minutes)&#39;] = 0
+                    statistic[&#39;# IVT&#39;] = 0
+                    statistic[&#39;Median last seen normal&#39;] = 0
+                    if incorrect_ivtpa_times.empty:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                        statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                        statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+                else:
+                    thrombolysis_grouped = thrombolysis.groupby([&#39;Protocol ID&#39;]).IVTPA.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTN (minutes)&#39;}).reset_index() # calculate median DTN per site
+                    statistic = statistic.merge(thrombolysis_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    # Get number of IVTs on IC/KCC
+                    statistic[&#39;# IVT&#39;] = self.count_patients(df=thrombolysis, statistic=statistic)
+
+                    # Get difference in minutes between hospitalization and last visit
+                    thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] = thrombolysis.apply(lambda x: self.time_diff(x[&#39;VISIT_TIMESTAMP&#39;], x[&#39;HOSPITAL_TIMESTAMP&#39;]), axis=1)
+                    thrombolysis[&#39;LAST_SEEN_NORMAL&#39;].fillna(0, inplace=True)
+                    last_seen_normal_grouped = thrombolysis[thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] != 0].groupby([&#39;Protocol ID&#39;]).LAST_SEEN_NORMAL.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median last seen normal&#39;}).reset_index()
+                    statistic = statistic.merge(last_seen_normal_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    if incorrect_ivtpa_times.empty:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                        statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                        statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+
+            statistic.fillna(0, inplace=True)
+
+            #statistic.to_csv(str(name) + &#39;.csv&#39;, sep=&#39;,&#39;)
+
+            stats_dfs[name] = statistic
+        
+        return stats_dfs
+
+    def calculate_thrombectomy(self):
+        &#34;&#34;&#34; Get median values for thrombectomy patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+            
+            # Calculate IVtPa median
+            thrombectomy_df = df[(df[&#39;Protocol ID&#39;].isin(self.hospitals_mt)) &amp; df[&#39;RECANALIZATION_PROCEDURES&#39;].isin([3,4]) &amp; df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+            thrombectomy_df.fillna(0, inplace=True)
+            statistic = self.site_id_mapped_to_site_name.copy()
+            
+            if thrombectomy_df.empty:
+                statistic[&#39;# TBY&#39;] = 0
+                statistic[&#39;Median DTG (minutes)&#39;] = 0
+                statistic[&#39;# incorrect TBY times&#39;] = 0
+                statistic[&#39;% incorrect TBY times&#39;] = 0
+                statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+            else:
+                # Median DTG
+                thrombectomy_df[&#39;TBY&#39;] = thrombectomy_df[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_df[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = False
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_GROIN_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;TBY_ONLY_ADMISSION_TIME&#39;], x[&#39;TBY_ONLY_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 4 and x[&#39;TBY_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;TBY_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+                incorrect_tby_times = thrombectomy_df[thrombectomy_df[&#39;INCORRECT_TIMES&#39;] == True]
+                print(incorrect_tby_times[[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;, &#39;IVT_TBY_GROIN_TIME&#39;]])
+                statistic[&#39;Total patients undergone TBY&#39;] = self.count_patients(df=thrombectomy_df, statistic=statistic)
+
+                thrombectomy = thrombectomy_df[(thrombectomy_df[&#39;TBY&#39;] &gt; 0) &amp; (thrombectomy_df[&#39;TBY&#39;] &lt; 700)].copy()
+
+                if thrombectomy.empty:
+                    statistic[&#39;# TBY&#39;] = 0
+                    statistic[&#39;Median DTG (minutes)&#39;] = 0
+                    if incorrect_tby_times.empty:
+                        statistic[&#39;# incorrect TBY times&#39;] = 0
+                        statistic[&#39;% incorrect TBY times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                        statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+                    statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                    statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+                else:
+                    # Total patients
+                    total_patients = thrombectomy.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#34;# TBY&#34;)
+                    statistic = statistic.merge(total_patients, on=&#39;Protocol ID&#39;, how=&#39;outer&#39;) # Merge with statistic dataframe
+                    statistic.fillna(0, inplace=True)
+
+                    thrombectomy_grouped = thrombectomy.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes)&#39;}).reset_index()
+                    statistic = statistic.merge(thrombectomy_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    if incorrect_tby_times.empty:
+                        statistic[&#39;# incorrect TBY times&#39;] = 0
+                        statistic[&#39;% incorrect TBY times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                        statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+
+                    # Median DTG for first hospital arrival
+                    thrombectomy_first = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 1].copy()
+                    if thrombectomy_first.empty:
+                        statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                    else:
+                        thrombectomy_first[&#39;TBY&#39;] = thrombectomy_first[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_first[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                        thrombectomy_first_grouped = thrombectomy_first.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - first hospital&#39;}).reset_index()
+                        statistic = statistic.merge(thrombectomy_first_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    # Median DTG for secondary hospital
+                    thrombectomy_second = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 2].copy()
+                    if thrombectomy_second.empty:
+                        statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+                    else:
+                        thrombectomy_second[&#39;TBY&#39;] = thrombectomy_second[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_second[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                        thrombectomy_second_grouped = thrombectomy_second.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - second hospital&#39;}).reset_index()
+                        statistic = statistic.merge(thrombectomy_second_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+            statistic.fillna(0, inplace=True)
+
+            stats_dfs[name] = statistic
+
+        return stats_dfs
+
+    def calculate_statistic_per_region(self):
+        &#34;&#34;&#34; Get median values for thrombolysed patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+            # Calculate IVtPa median
+            ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+            thrombolysis = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()         # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+
+            region_total_patients = pd.DataFrame(list(self.regions.keys()), columns=[&#39;Site Name&#39;])
+
+            if thrombolysis.empty:
+                region_total_patients[&#39;Total patients&#39;] = 0
+                region_total_patients[&#39;# IVT per population&#39;] = 0
+            else:
+                # Get results per region
+                ischemic_cmp[&#39;Site Name&#39;] = ischemic_cmp.apply(lambda x: self.get_region(x[&#39;Protocol ID&#39;]), axis=1)
+                total_patients =  ischemic_cmp.groupby([&#39;Site Name&#39;]).size().reset_index(name=&#39;Total patients&#39;)
+                region_total_patients = region_total_patients.merge(total_patients, on=&#39;Site Name&#39;, how=&#39;outer&#39;)
+                region_total_patients.fillna(0, inplace=True)
+
+                region_total_patients[&#39;# IVT per population&#39;] = region_total_patients.apply(lambda x: round((x[&#39;Total patients&#39;]/self.regions[x[&#39;Site Name&#39;]][&#39;population&#39;])*100000, 2) if x[&#39;Total patients&#39;] &gt; 0 else 0, axis=1)
+
+            stats_dfs[name] = region_total_patients
+        
+        return stats_dfs
+
+    def save_excel(self):
+        &#39;&#39;&#39; Save excel file with more sheets. &#39;&#39;&#39;
+
+        # Create workbook
+        output_filename = &#34;SITSlike_reports_stats_&#34; + datetime.now().strftime(&#39;%d-%m-%Y&#39;) + &#34;.xlsx&#34;
+        workbook = xlsxwriter.Workbook(output_filename)
+        logging.info(&#39;Preprocessed data: The workbook was created.&#39;)
+        # Create worksheets
+        sheets = {}
+        
+        for name, df in self.thrombolysis_stats_df.items():
+            if name == str(self.year):
+                sheet_name = &#34;thrombolysis_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;thrombolysis_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+
+        for name, df in self.thrombectomy_stats_df.items():
+            if name == str(self.year):
+                sheet_name = &#34;thrombectomy_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;thrombectomy_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+        
+        for name, df in self.statistic_region_dfs.items():
+            if name == str(self.year):
+                sheet_name = &#34;region_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;region_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+            
+        workbook.close()
+
+class GeneratePresentation(Reports):
+    &#34;&#34;&#34; Genearte presentation for SITS-like reports. &#34;&#34;&#34;
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;Generate graphs into presentation.&#34;&#34;&#34;
+        
+        df_names = self.names.copy()
+        # Delete last item from list of names (the whole year)
+        del df_names[-1]
+
+        for i in df_names:  
+            if i == self.month:
+                
+                wanted_keys = [i, self.names[self.names.index(i) + 1]]
+                dictfilt = lambda x, y: dict([ (i,x[i]) for i in x if i in set(y) ])
+
+                # master_pptx = self.country_code + &#34;.pptx&#34;
+                script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+                master_pptx = &#34;master.pptx&#34;
+                self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == &#39;UZB&#39;:
+                    self.country = &#39;UZ&#39;
+                self.country_name = pytz.country_names[self.country]
+
+                prs = Presentation(self.master)
+
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
+
+                first_slide_text = self.country_name + &#34;\nReports&#34;
+
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
+
+                font = run.font
+                font.name = &#39;Century Gothic&#39;
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                main_col = &#39;Site Name&#39;
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime(&#34;%b&#34;)
+                last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime(&#34;%b&#34;)
+
+                thrombolysis_stats_df = dictfilt(self.thrombolysis_stats_df, wanted_keys)
+                statistic_region_dfs = dictfilt(self.statistic_region_dfs, wanted_keys)
+                thrombectomy_stats_df = dictfilt(self.thrombectomy_stats_df, wanted_keys)
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+
+                    # MEDIAN DNT
+                    column_name = &#39;Median DTN (minutes)&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # MEDIAN DGT
+                    column_name = &#39;# IVT&#39;
+                    axis_title = &#39;Počet trombolýz&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = &#34;Počet IVT na IC/KCC - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT na IC/KCC - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # MEDIAN last seen normal
+                    column_name = &#39;Median last seen normal&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Number of IVT per region
+                for name, df in statistic_region_dfs.items():
+                    column_name = &#39;Total patients&#39;
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # IVT per population
+                for name, df in statistic_region_dfs.items():
+                    column_name = &#39;# IVT per population&#39;
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # incorrect times
+                    column_name = &#39;% incorrect IVtPa times&#39;
+                    axis_title = &#39;Procento [%]&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes)&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                    
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes) - first hospital&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes) - second hospital&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;# TBY&#39;
+                    axis_title = &#39;Počet MT&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = &#34;Počet MT na nemocnici - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet MT na nemocnici  - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # incorrect times
+                    column_name = &#39;% incorrect TBY times&#39;
+                    axis_title = &#39;Procento [%]&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + &#34;_&#34; + str(self.year) + &#34;.pptx&#34;
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+                prs.save(presentation_path)
+
+            else:
+                # master_pptx = self.country_code + &#34;.pptx&#34;
+                script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+                master_pptx = &#34;master.pptx&#34;
+                self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == &#39;UZB&#39;:
+                    self.country = &#39;UZ&#39;
+                self.country_name = pytz.country_names[self.country]
+
+                prs = Presentation(self.master)
+
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
+
+                first_slide_text = self.country_name + &#34;\nReports&#34;
+
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
+
+                font = run.font
+                font.name = &#39;Century Gothic&#39;
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                main_col = &#39;Site Name&#39;
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime(&#34;%b&#34;)
+                last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime(&#34;%b&#34;)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # MEDIAN DNT
+                column_name = &#39;Median DTN (minutes)&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+
+                column_name = &#39;# IVT&#39;
+                axis_title = &#39;Počet trombolýz&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT na IC/KCC - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # MEDIAN last seen normal
+                column_name = &#39;Median last seen normal&#39;
+                axis_title = &#34;Čas [min]&#34;
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Number of IVT per region
+                df = self.statistic_region_dfs[i]
+                column_name = &#39;Total patients&#39;
+                tmp_df = df.sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # IVT per population
+                column_name = &#39;# IVT per population&#39;
+                tmp_df = df.sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # incorrect times
+                column_name = &#39;% incorrect IVtPa times&#39;
+                axis_title = &#39;Procento [%]&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+   
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombectomy_stats_df[i]
+
+                column_name = &#39;Median DTG (minutes)&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = &#39;Median DTG (minutes) - first hospital&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+
+                # Median DTG
+                column_name = &#39;Median DTG (minutes) - second hospital&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = &#39;# TBY&#39;
+                axis_title = &#39;Počet MT&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet MT na nemocnici  - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # incorrect times
+                column_name = &#39;% incorrect TBY times&#39;
+                axis_title = &#39;Procento [%]&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + &#34;_&#34; + month_name + &#34;.pptx&#34;
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+                prs.save(presentation_path)  
+
+            
+    def generate_presentation(self):
+        &#34;&#34;&#34; Call function used to generate presentation with graphs. &#34;&#34;&#34;
+
+        self._generate_graphs()
+
+
+class GenerateGraphs:
+    &#34;&#34;&#34;This class is used to generate our typical presentation with graphs. 
+
+    Arguments:
+        dataframe - dataframe with calculated statistics
+        presentation - opened pptx document
+        title - name of slide
+        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+        legend - list of legend names (default = None)
+        country - name of country (if dataset was filtered based on country) (default = None)
+    &#34;&#34;&#34;
+
+    def __init__(self, df, presentation, title, column_name, country_name, axis_name=None, coloring=False, region=False, incorrect=False, maximum=0, content=None):
+
+        self.dataframe = df
+        self.presentation = presentation
+        self.title = title
+        self.column_name = column_name
+        self.font_name = &#39;Century Gothic&#39;
+        self.categories_column = &#39;Site Name&#39;
+        self.country_name = country_name
+        self.coloring = coloring
+        self.region = region
+        self.incorrect = incorrect
+        self.maximum = maximum
+        self.axis_name = axis_name
+        self.content = content
+
+        # Estimate font sizes based on number of sites included in the graph
+        if (len(self.dataframe) &gt; 15):
+            self.category_font_size = Pt(8)
+            self.data_label_font_size = Pt(8)
+        else:
+            self.category_font_size = Pt(11)
+            self.data_label_font_size = Pt(11)
+
+        self._create_barplot()
+
+    def _set_transparency(self, transparency, elm):
+        &#34;&#34;&#34; Set tranparency of element. 
+
+        Args: 
+            transparency: transparency in % 
+            elm: element to be changed
+        &#34;&#34;&#34;
+        a = str(100 - transparency) + &#39;196&#39;
+        
+        alpha = OxmlElement(&#39;a:alpha&#39;)
+        alpha.set(&#39;val&#39;, a)
+        elm.srgbClr.append(alpha)
+
+
+    def _create_barplot(self):
+        &#34;&#34;&#34;Create normal barplot
+
+        Args:
+            dataframe - dataframe with statistics
+            title - title of slide
+            column_name - name of column which is included in graph
+        &#34;&#34;&#34;
+
+        colors = {
+            &#39;yellow&#39;: RGBColor(255, 192, 0), 
+            &#39;green&#39;: RGBColor(98, 153, 62), 
+            &#39;crimsom&#39;: RGBColor(220, 20, 60), 
+            &#39;blue&#39;: RGBColor(43, 88, 173),
+        }
+
+        site_names = self.dataframe[self.categories_column].tolist()
+        values = self.dataframe[self.column_name].tolist()
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # Add textbox explanation
+        if self.content is not None:
+            len_df = len(self.dataframe[self.dataframe[self.column_name] &gt; 0])
+            if len_df &lt; 13:
+                left = Cm(24.7)
+                top = Cm(12)
+                width = Cm(8)
+                height = Cm(5)
+            else:
+                left = Cm(24.7)
+                top = Cm(2)
+                width = Cm(8)
+                height = Cm(5)
+
+            # Add textbox with explanation
+            txBox = slide.shapes.add_textbox(left, top, width, height)
+            txBox.text_frame.word_wrap = True
+            for i in range(0, len(self.content)):
+                p = txBox.text_frame.add_paragraph()
+                run = p.add_run()
+                run.text = self.content[i]
+            
+            for paragraph in txBox.text_frame.paragraphs:
+                paragraph.line_spacing = Pt(18)
+                paragraph.alignment = PP_ALIGN.CENTER
+                for run in paragraph.runs:
+                    run.font.size = Pt(9)
+                    run.font.name = self.font_name
+
+        chart_data = ChartData()
+        chart_data.categories = self.dataframe[self.categories_column].tolist()
+        chart_data.add_series(self.column_name, self.dataframe[self.column_name].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+            }
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+        
+        if self.coloring:
+            # Coloring for median values - &lt;= 20 green, &gt; 20 and &lt;= 30 yellow, else crimsom
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                value = values[idx]
+                if (value &gt; 0 and value &lt;= 20):
+                    fill.fore_color.rgb = colors[&#39;green&#39;]
+                elif (value &gt; 20 and value &lt;= 30):
+                    fill.fore_color.rgb = colors[&#39;yellow&#39;]
+                else:
+                    fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+        elif self.region:
+            # The lowest value colored red, the biggest value colored green
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                if idx == values.count(0):
+                    fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+                elif idx == (len(values) - 1):
+                    fill.fore_color.rgb = colors[&#39;green&#39;]
+                else:
+                    fill.fore_color.rgb = colors[&#39;blue&#39;]
+        elif self.incorrect:
+            # Set red color for incorrect values
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+        else:
+            # Blue color for the remaining values 
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                fill.fore_color.rgb = colors[&#39;blue&#39;]
+
+        # Get plot 
+        plot = chart.plots[0]
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        plot.has_data_labels = True
+        # Change gap width
+        plot.gap_width = 100
+
+        
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+        
+        # Don&#39;t show major gridlines
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+        value_axis.has_major_gridlines = False
+        # Set range of axis
+        if self.maximum != 0:
+            value_axis.maximum_scale = self.maximum
+        value_axis.minimum_scale = 0
+
+        if self.axis_name is not None:
+            value_axis.has_title = True
+            value_axis.axis_title.text_frame.text = self.axis_name
+            for paragraph in value_axis.axis_title.text_frame.paragraphs:
+                paragraph.font.size = self.category_font_size
+                paragraph.font.name = self.font_name
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        category_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+        solidFill = category_axis.format.line.color._xFill
+        self._set_transparency(100, solidFill)
+
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+
+
+
+            </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="resqdb.Reports.GenerateGraphs"><code class="flex name class">
+<span>class <span class="ident">GenerateGraphs</span></span>
+<span>(</span><span>df, presentation, title, column_name, country_name, axis_name=None, coloring=False, region=False, incorrect=False, maximum=0, content=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This class is used to generate our typical presentation with graphs. </p>
+<h2 id="arguments">Arguments</h2>
+<p>dataframe - dataframe with calculated statistics
+presentation - opened pptx document
+title - name of slide
+column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+legend - list of legend names (default = None)
+country - name of country (if dataset was filtered based on country) (default = None)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GenerateGraphs:
+    &#34;&#34;&#34;This class is used to generate our typical presentation with graphs. 
+
+    Arguments:
+        dataframe - dataframe with calculated statistics
+        presentation - opened pptx document
+        title - name of slide
+        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
+        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
+        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
+        legend - list of legend names (default = None)
+        country - name of country (if dataset was filtered based on country) (default = None)
+    &#34;&#34;&#34;
+
+    def __init__(self, df, presentation, title, column_name, country_name, axis_name=None, coloring=False, region=False, incorrect=False, maximum=0, content=None):
+
+        self.dataframe = df
+        self.presentation = presentation
+        self.title = title
+        self.column_name = column_name
+        self.font_name = &#39;Century Gothic&#39;
+        self.categories_column = &#39;Site Name&#39;
+        self.country_name = country_name
+        self.coloring = coloring
+        self.region = region
+        self.incorrect = incorrect
+        self.maximum = maximum
+        self.axis_name = axis_name
+        self.content = content
+
+        # Estimate font sizes based on number of sites included in the graph
+        if (len(self.dataframe) &gt; 15):
+            self.category_font_size = Pt(8)
+            self.data_label_font_size = Pt(8)
+        else:
+            self.category_font_size = Pt(11)
+            self.data_label_font_size = Pt(11)
+
+        self._create_barplot()
+
+    def _set_transparency(self, transparency, elm):
+        &#34;&#34;&#34; Set tranparency of element. 
+
+        Args: 
+            transparency: transparency in % 
+            elm: element to be changed
+        &#34;&#34;&#34;
+        a = str(100 - transparency) + &#39;196&#39;
+        
+        alpha = OxmlElement(&#39;a:alpha&#39;)
+        alpha.set(&#39;val&#39;, a)
+        elm.srgbClr.append(alpha)
+
+
+    def _create_barplot(self):
+        &#34;&#34;&#34;Create normal barplot
+
+        Args:
+            dataframe - dataframe with statistics
+            title - title of slide
+            column_name - name of column which is included in graph
+        &#34;&#34;&#34;
+
+        colors = {
+            &#39;yellow&#39;: RGBColor(255, 192, 0), 
+            &#39;green&#39;: RGBColor(98, 153, 62), 
+            &#39;crimsom&#39;: RGBColor(220, 20, 60), 
+            &#39;blue&#39;: RGBColor(43, 88, 173),
+        }
+
+        site_names = self.dataframe[self.categories_column].tolist()
+        values = self.dataframe[self.column_name].tolist()
+
+        # Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = self.title
+
+        # Add textbox explanation
+        if self.content is not None:
+            len_df = len(self.dataframe[self.dataframe[self.column_name] &gt; 0])
+            if len_df &lt; 13:
+                left = Cm(24.7)
+                top = Cm(12)
+                width = Cm(8)
+                height = Cm(5)
+            else:
+                left = Cm(24.7)
+                top = Cm(2)
+                width = Cm(8)
+                height = Cm(5)
+
+            # Add textbox with explanation
+            txBox = slide.shapes.add_textbox(left, top, width, height)
+            txBox.text_frame.word_wrap = True
+            for i in range(0, len(self.content)):
+                p = txBox.text_frame.add_paragraph()
+                run = p.add_run()
+                run.text = self.content[i]
+            
+            for paragraph in txBox.text_frame.paragraphs:
+                paragraph.line_spacing = Pt(18)
+                paragraph.alignment = PP_ALIGN.CENTER
+                for run in paragraph.runs:
+                    run.font.size = Pt(9)
+                    run.font.name = self.font_name
+
+        chart_data = ChartData()
+        chart_data.categories = self.dataframe[self.categories_column].tolist()
+        chart_data.add_series(self.column_name, self.dataframe[self.column_name].tolist())
+
+        # Add chart on slide
+        specs = {
+            &#39;height&#39;: Cm(16.5),
+            &#39;width&#39;: Cm(32),
+            &#39;left&#39;: Cm(0.7),
+            &#39;top&#39;: Cm(2)
+            }
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs[&#39;left&#39;],specs[&#39;top&#39;], specs[&#39;width&#39;],specs[&#39;height&#39;], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+        
+        if self.coloring:
+            # Coloring for median values - &lt;= 20 green, &gt; 20 and &lt;= 30 yellow, else crimsom
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                value = values[idx]
+                if (value &gt; 0 and value &lt;= 20):
+                    fill.fore_color.rgb = colors[&#39;green&#39;]
+                elif (value &gt; 20 and value &lt;= 30):
+                    fill.fore_color.rgb = colors[&#39;yellow&#39;]
+                else:
+                    fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+        elif self.region:
+            # The lowest value colored red, the biggest value colored green
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                if idx == values.count(0):
+                    fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+                elif idx == (len(values) - 1):
+                    fill.fore_color.rgb = colors[&#39;green&#39;]
+                else:
+                    fill.fore_color.rgb = colors[&#39;blue&#39;]
+        elif self.incorrect:
+            # Set red color for incorrect values
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                fill.fore_color.rgb = colors[&#39;crimsom&#39;]
+        else:
+            # Blue color for the remaining values 
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                fill.fore_color.rgb = colors[&#39;blue&#39;]
+
+        # Get plot 
+        plot = chart.plots[0]
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        plot.has_data_labels = True
+        # Change gap width
+        plot.gap_width = 100
+
+        
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = self.category_font_size
+        tick_labels.font.name = self.font_name
+        
+        # Don&#39;t show major gridlines
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+        value_axis.has_major_gridlines = False
+        # Set range of axis
+        if self.maximum != 0:
+            value_axis.maximum_scale = self.maximum
+        value_axis.minimum_scale = 0
+
+        if self.axis_name is not None:
+            value_axis.has_title = True
+            value_axis.axis_title.text_frame.text = self.axis_name
+            for paragraph in value_axis.axis_title.text_frame.paragraphs:
+                paragraph.font.size = self.category_font_size
+                paragraph.font.name = self.font_name
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        category_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+        solidFill = category_axis.format.line.color._xFill
+        self._set_transparency(100, solidFill)
+
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.GeneratePresentation"><code class="flex name class">
+<span>class <span class="ident">GeneratePresentation</span></span>
+<span>(</span><span>df, year, month, country)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Genearte presentation for SITS-like reports. </p>
+<p>Generate SITS-like reports for recanalization procedure. </p>
+<p>Args:
+df: preprocessed data
+year: year for which you would like to generate reports
+country: the country code
+month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class GeneratePresentation(Reports):
+    &#34;&#34;&#34; Genearte presentation for SITS-like reports. &#34;&#34;&#34;
+
+    def _generate_graphs(self):
+        &#34;&#34;&#34;Generate graphs into presentation.&#34;&#34;&#34;
+        
+        df_names = self.names.copy()
+        # Delete last item from list of names (the whole year)
+        del df_names[-1]
+
+        for i in df_names:  
+            if i == self.month:
+                
+                wanted_keys = [i, self.names[self.names.index(i) + 1]]
+                dictfilt = lambda x, y: dict([ (i,x[i]) for i in x if i in set(y) ])
+
+                # master_pptx = self.country_code + &#34;.pptx&#34;
+                script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+                master_pptx = &#34;master.pptx&#34;
+                self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == &#39;UZB&#39;:
+                    self.country = &#39;UZ&#39;
+                self.country_name = pytz.country_names[self.country]
+
+                prs = Presentation(self.master)
+
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
+
+                first_slide_text = self.country_name + &#34;\nReports&#34;
+
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
+
+                font = run.font
+                font.name = &#39;Century Gothic&#39;
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                main_col = &#39;Site Name&#39;
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime(&#34;%b&#34;)
+                last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime(&#34;%b&#34;)
+
+                thrombolysis_stats_df = dictfilt(self.thrombolysis_stats_df, wanted_keys)
+                statistic_region_dfs = dictfilt(self.statistic_region_dfs, wanted_keys)
+                thrombectomy_stats_df = dictfilt(self.thrombectomy_stats_df, wanted_keys)
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+
+                    # MEDIAN DNT
+                    column_name = &#39;Median DTN (minutes)&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # MEDIAN DGT
+                    column_name = &#39;# IVT&#39;
+                    axis_title = &#39;Počet trombolýz&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = &#34;Počet IVT na IC/KCC - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT na IC/KCC - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # MEDIAN last seen normal
+                    column_name = &#39;Median last seen normal&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Number of IVT per region
+                for name, df in statistic_region_dfs.items():
+                    column_name = &#39;Total patients&#39;
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # IVT per population
+                for name, df in statistic_region_dfs.items():
+                    column_name = &#39;# IVT per population&#39;
+                    tmp_df = df.sort_values([column_name], ascending=True)
+
+                    if name == str(self.year):
+                        title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # Iterate through dictionaries with statistics
+                for name, df in thrombolysis_stats_df.items():
+                    # incorrect times
+                    column_name = &#39;% incorrect IVtPa times&#39;
+                    axis_title = &#39;Procento [%]&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes)&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                    
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes) - first hospital&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;Median DTG (minutes) - second hospital&#39;
+                    axis_title = &#34;Čas [min]&#34;
+                    content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                    tmp_df_orig = df[[main_col, column_name]]
+                    tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                    tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                    tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                for name, df in thrombectomy_stats_df.items():
+                    # Median DTG
+                    column_name = &#39;# TBY&#39;
+                    axis_title = &#39;Počet MT&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    
+                    if name == str(self.year):
+                        title = &#34;Počet MT na nemocnici - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;Počet MT na nemocnici  - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                for name, df in thrombectomy_stats_df.items():
+                    # incorrect times
+                    column_name = &#39;% incorrect TBY times&#39;
+                    axis_title = &#39;Procento [%]&#39;
+                    tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+                    
+                    if name == str(self.year):
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + first_month + &#34;-&#34; + last_month + &#34; &#34; + str(self.year)
+                    else:
+                        month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                        title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                    GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + &#34;_&#34; + str(self.year) + &#34;.pptx&#34;
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+                prs.save(presentation_path)
+
+            else:
+                # master_pptx = self.country_code + &#34;.pptx&#34;
+                script_dir = os.path.dirname(__file__) #&lt;-- absolute dir the script is in
+                master_pptx = &#34;master.pptx&#34;
+                self.master = os.path.normpath(os.path.join(script_dir, &#34;backgrounds&#34;, master_pptx))
+
+                # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+                if self.country == &#39;UZB&#39;:
+                    self.country = &#39;UZ&#39;
+                self.country_name = pytz.country_names[self.country]
+
+                prs = Presentation(self.master)
+
+                first_slide = prs.slides[0]
+                shape = first_slide.shapes[5]
+                text_frame = shape.text_frame
+
+                first_slide_text = self.country_name + &#34;\nReports&#34;
+
+                p = text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = first_slide_text
+
+                font = run.font
+                font.name = &#39;Century Gothic&#39;
+                font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                main_col = &#39;Site Name&#39;
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime(&#34;%b&#34;)
+                last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime(&#34;%b&#34;)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # MEDIAN DNT
+                column_name = &#39;Median DTN (minutes)&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-NEEDLE TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po zahájení léčby.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-needle time pro intravenózní trombolýzu - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
+
+                column_name = &#39;# IVT&#39;
+                axis_title = &#39;Počet trombolýz&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT na IC/KCC - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # MEDIAN last seen normal
+                column_name = &#39;Median last seen normal&#39;
+                axis_title = &#34;Čas [min]&#34;
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián viděn naposledy zdráv - příjezd do nemocnice - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # Number of IVT per region
+                df = self.statistic_region_dfs[i]
+                column_name = &#39;Total patients&#39;
+                tmp_df = df.sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT provedených v jednotlivých krajích - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # IVT per population
+                column_name = &#39;# IVT per population&#39;
+                tmp_df = df.sort_values([column_name], ascending=True)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet IVT na 100 000 obyvatel jednotlivých krajů - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombolysis_stats_df[i]
+                # incorrect times
+                column_name = &#39;% incorrect IVtPa times&#39;
+                axis_title = &#39;Procento [%]&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+   
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;% nezadaných nebo chybně zadaných údajů pro DNT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # Iterate through dictionaries with statistics
+                df = self.thrombectomy_stats_df[i]
+
+                column_name = &#39;Median DTG (minutes)&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = &#39;Median DTG (minutes) - first hospital&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+                
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - Primární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+
+                # Median DTG
+                column_name = &#39;Median DTG (minutes) - second hospital&#39;
+                axis_title = &#34;Čas [min]&#34;
+                content = [&#34;Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.&#34;, &#34;Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla.&#34;]
+
+                tmp_df_orig = df[[main_col, column_name]]
+                tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
+                tmp_df_not_zeros = tmp_df_orig[tmp_df_orig[column_name] != 0].sort_values([column_name], ascending=False)
+                tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Medián door-to-groin time - Sekundární příjem k intervenci MT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
+                
+                # Median DTG
+                column_name = &#39;# TBY&#39;
+                axis_title = &#39;Počet MT&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;Počet MT na nemocnici  - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
+
+                # incorrect times
+                column_name = &#39;% incorrect TBY times&#39;
+                axis_title = &#39;Procento [%]&#39;
+                tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
+
+                month_name = datetime(self.year, i, 1, 0, 0).strftime(&#34;%b&#34;)
+                title = &#34;% nezadaných nebo chybně zadaných údajů pro DGT - &#34; + month_name + &#34; &#34; + str(self.year)
+
+                GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # set pptx output name (for cz it&#39;ll be presentation_CZ.pptx)
+                working_dir = os.getcwd()
+                pptx = self.country + &#34;_&#34; + month_name + &#34;.pptx&#34;
+                presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+                prs.save(presentation_path)  
+
+            
+    def generate_presentation(self):
+        &#34;&#34;&#34; Call function used to generate presentation with graphs. &#34;&#34;&#34;
+
+        self._generate_graphs()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="resqdb.Reports.Reports" href="#resqdb.Reports.Reports">Reports</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="resqdb.Reports.GeneratePresentation.generate_presentation"><code class="name flex">
+<span>def <span class="ident">generate_presentation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Call function used to generate presentation with graphs.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def generate_presentation(self):
+    &#34;&#34;&#34; Call function used to generate presentation with graphs. &#34;&#34;&#34;
+
+    self._generate_graphs()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="resqdb.Reports.Reports" href="#resqdb.Reports.Reports">Reports</a></b></code>:
+<ul class="hlist">
+<li><code><a title="resqdb.Reports.Reports.calculate_statistic_per_region" href="#resqdb.Reports.Reports.calculate_statistic_per_region">calculate_statistic_per_region</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.calculate_thrombectomy" href="#resqdb.Reports.Reports.calculate_thrombectomy">calculate_thrombectomy</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.calculate_thrombolysis" href="#resqdb.Reports.Reports.calculate_thrombolysis">calculate_thrombolysis</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.count_patients" href="#resqdb.Reports.Reports.count_patients">count_patients</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.filter_dataframe" href="#resqdb.Reports.Reports.filter_dataframe">filter_dataframe</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.get_incorrect_times" href="#resqdb.Reports.Reports.get_incorrect_times">get_incorrect_times</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.get_region" href="#resqdb.Reports.Reports.get_region">get_region</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.save_excel" href="#resqdb.Reports.Reports.save_excel">save_excel</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.time_diff" href="#resqdb.Reports.Reports.time_diff">time_diff</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="resqdb.Reports.Reports"><code class="flex name class">
+<span>class <span class="ident">Reports</span></span>
+<span>(</span><span>df, year, month, country)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate SITS-like reports for recanalization procedures. </p>
+<p>Generate SITS-like reports for recanalization procedure. </p>
+<p>Args:
+df: preprocessed data
+year: year for which you would like to generate reports
+country: the country code
+month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Reports:
+    &#34;&#34;&#34; Generate SITS-like reports for recanalization procedures. &#34;&#34;&#34;
+
+    def __init__(self, df, year, month, country):
+        &#39;&#39;&#39; Generate SITS-like reports for recanalization procedure. 
+
+        Args: 
+            df: preprocessed data
+            year: year for which you would like to generate reports
+            country: the country code
+            month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
+        &#39;&#39;&#39;
+
+        # create dataframe with regions, to each region assign population and hospitals
+        self.regions = {
+            &#39;Hlavní město Praha&#39;: {
+                &#39;population&#39;: 1286399, 
+                &#39;hospitals&#39;: [&#39;CZ_017&#39;, &#39;CZ_008&#39;, &#39;CZ_002&#39;, &#39;CZ_041&#39;, &#39;CZ_009&#39;, &#39;CZ_032&#39;],
+            }, 
+            &#39;Středočeský kraj&#39;: {
+                &#39;population&#39;: 1352795,
+                &#39;hospitals&#39;: [&#39;CZ_005&#39;, &#39;CZ_020&#39;, &#39;CZ_043&#39;, &#39;CZ_003&#39;],
+            },
+            &#39;Jihočeský kraj&#39;: {
+                &#39;population&#39;: 637460,
+                &#39;hospitals&#39;: [&#39;CZ_013&#39;, &#39;CZ_014&#39;, &#39;CZ_011&#39;],
+            },
+            &#39;Plzeňský kraj&#39;: {
+                &#39;population&#39;: 574694,
+                &#39;hospitals&#39;: [&#39;CZ_025&#39;],
+            },
+            &#39;Karlovarský kraj&#39;: {
+                &#39;population&#39;: 310245,
+                &#39;hospitals&#39;: [&#39;CZ_015&#39;, &#39;CZ_040&#39;],
+            },
+            &#39;Ústecký kraj&#39;: {
+                &#39;population&#39;: 830371,
+                &#39;hospitals&#39;: [&#39;CZ_039&#39;, &#39;CZ_024&#39;, &#39;CZ_046&#39;, &#39;CZ_019&#39;, &#39;CZ_026&#39;],
+            },
+            &#39;Liberecký kraj&#39;: {
+                &#39;population&#39;: 439262,
+                &#39;hospitals&#39;: [&#39;CZ_036&#39;, &#39;CZ_038&#39;],
+            },
+            &#39;Královéhradecký kraj&#39;: {
+                &#39;population&#39;: 555683,
+                &#39;hospitals&#39;: [&#39;CZ_010&#39;, &#39;CZ_031&#39;, &#39;CZ_045&#39;],
+            },
+            &#39;Pardubický kraj&#39;: {
+                &#39;population&#39;: 505285,
+                &#39;hospitals&#39;: [&#39;CZ_030&#39;, &#39;CZ_012&#39;],
+            }, 
+            &#39;Vysočina&#39;: {
+                &#39;population&#39;: 512727,
+                &#39;hospitals&#39;: [&#39;CZ_007&#39;, &#39;CZ_029&#39;],
+            },
+            &#39;Jihomoravský kraj&#39;: {
+                &#39;population&#39;: 1169788,
+                &#39;hospitals&#39;: [&#39;CZ_034&#39;, &#39;CZ_001&#39;, &#39;CZ_033&#39;, &#39;CZ_035&#39;, &#39;CZ_016&#39;, &#39;CZ_027&#39;],
+            },
+            &#39;Olomoucký kraj&#39;: {
+                &#39;population&#39;: 639946,
+                &#39;hospitals&#39;: [&#39;CZ_042&#39;, &#39;CZ_022&#39;],
+            },
+            &#39;Zlínský kraj&#39;: {
+                &#39;population&#39;: 590459,
+                &#39;hospitals&#39;: [&#39;CZ_023&#39;, &#39;CZ_021&#39;],
+            },
+            &#39;Moravskoslezký kraj&#39;: {
+                &#39;population&#39;: 1236028,
+                &#39;hospitals&#39;: [&#39;CZ_018&#39;, &#39;CZ_004&#39;, &#39;CZ_044&#39;, &#39;CZ_047&#39;, &#39;CZ_006&#39;, &#39;CZ_028&#39;, &#39;CZ_049&#39;]
+            }
+        }
+
+        # Create dataframe with hospitals who do thrombectomy
+        self.hospitals_mt = [&#39;CZ_034&#39;, # FN Brno
+            &#39;CZ_013&#39;, # Ceske Budejovice
+            &#39;CZ_017&#39;, # Na Homolce
+            &#39;CZ_039&#39;, # Usti nad Labem
+            &#39;CZ_006&#39;, # Vitkovice
+            &#39;CZ_010&#39;, # Hradec Kralove
+            &#39;CZ_036&#39;, # Liberec
+            &#39;CZ_009&#39;, # VFN Neurologie Praha
+            &#39;CZ_002&#39;, # Motol
+            &#39;CZ_018&#39;, # FN Ostrava
+            &#39;CZ_001&#39;, # St. Anne Brno
+            &#39;CZ_041&#39;, # Ustredni vojenska nemocnice
+            &#39;CZ_025&#39;, # Plzen
+            &#39;CZ_042&#39;, # Olomouc
+            &#39;CZ_008&#39;, # Kralovske Vinohrady
+        ]
+
+        self.df = df
+        self.year = year
+        self.country = country
+        self.month = month
+
+        # Get site names to hospitals_mt
+        self.site_id_mapped_to_site_name = self.df[self.df[&#39;Protocol ID&#39;].isin(self.hospitals_mt)][[&#39;Protocol ID&#39;, &#39;Site Name&#39;]].drop_duplicates(subset=&#39;Protocol ID&#39;, keep=&#39;first&#39;).reset_index()
+        self.site_id_mapped_to_site_name.drop([&#39;index&#39;], inplace=True, axis=1)
+
+        debug = &#39;reports_debug_&#39; + datetime.now().strftime(&#39;%d-%m-%Y&#39;) + &#39;.log&#39;
+        # Create log file in the working folder
+        log_file = os.path.join(os.getcwd(), debug)
+        logging.basicConfig(filename=log_file,
+                            filemode=&#39;a&#39;,
+                            format=&#39;%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s&#39;,
+                            datefmt=&#39;%H:%M:%S&#39;,
+                            level=logging.DEBUG)
+
+        # Get only dataframe for selected country
+        self.country_df = FilterDataset(df=self.df, country=self.country).fdf
+
+        # Filter dataframes per month
+        self.filtered_dfs = self.filter_dataframe()
+        self.names = list(self.filtered_dfs.keys())
+        self.thrombolysis_stats_df = self.calculate_thrombolysis()
+        self.thrombectomy_stats_df = self.calculate_thrombectomy()
+        self.statistic_region_dfs = self.calculate_statistic_per_region()
+
+        self.save_excel()
+
+
+    def filter_dataframe(self):
+        &#34;&#34;&#34; Filter dataset per each month for selected year. 
+        
+        Returns:
+            Dictionary with filtered dataframes per each month.
+        &#34;&#34;&#34;
+
+        # Store filtered dataframe in dictionary
+        dfs = {}
+
+        # Get current date
+        current_year = datetime.today().year
+        # Month from argument
+        current_month = self.month
+
+        # Filter dataframe per month
+        for month in range(1, current_month + 1):
+            start_date = datetime(self.year, month, 1, 0, 0)
+            end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+
+            # Create object FilterDataset
+            fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+
+            # Add dataframe into dictionary
+            dfs[month] = fd_ojb.fdf
+
+        # Filter dataframe for whole year
+        start_date = datetime(self.year, 1, 1, 0, 0)
+        # End date from current_month
+        end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+        fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+        dfs[str(self.year)] = fd_obj.fdf
+        
+        return dfs
+
+    
+    def count_patients(self, df, statistic):
+        &#34;&#34;&#34; Returns the column with number of patients group by Protocol ID. 
+
+        Args:
+            df: The dataframe with raw data. 
+
+        Returns:
+            The column with number of patients.
+        &#34;&#34;&#34;
+
+        tmp = df.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#39;total_patients&#39;)
+        tmp_df = statistic.merge(tmp, how=&#39;outer&#39;)
+        tmp_df.fillna(0, inplace=True)
+
+        return tmp_df[&#39;total_patients&#39;]
+
+    def time_diff(self, visit_date, hospital_date):
+        &#34;&#34;&#34; Calculate difference in minutes between two dates. 
+
+        Args:
+            visit_date: visit date
+            hospital_date: date when patient was hospitalized
+        Returns:
+            The calculated difference in minutes.
+        &#34;&#34;&#34;
+        if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+            time_diff = hospital_date - visit_date
+            # Convert difference to minutes
+            total_minutes = time_diff.total_seconds() / 60.0
+        else:
+            total_minutes = 0
+
+        if total_minutes &lt; 0 or total_minutes &gt; 40000:
+            total_minutes = 0
+        
+        return total_minutes
+
+    def get_region(self, site_id):
+        &#34;&#34;&#34; Get region for given site ID. 
+
+        Args: 
+            df: raw dataframe
+        Returns: 
+            The column with region. 
+        &#34;&#34;&#34;
+        for key, value in self.regions.items():
+            if site_id in value[&#39;hospitals&#39;]:
+                return key           
+
+    def get_incorrect_times(self, admission_time, recan_time, maximum):
+        &#34;&#34;&#34; Get incorrectly entered times. Based on negative times. 
+
+        Args: 
+            admission_time: the time of admission (or hospitalization in later cases)
+            recan_time: the time when thrombolysis was performed
+            maximum: the maximum value for recanalization procedure 
+        Returns: 
+            Return TRUE if result value is negative, else return FALSE
+        &#34;&#34;&#34;
+        timeformat = &#39;%H:%M:%S&#39;
+        if admission_time is None or recan_time is None or pd.isnull(admission_time) or pd.isnull(recan_time):
+            incorrect = True
+        elif admission_time == 0 or recan_time == 0:
+            incorrect = True
+        else:
+            if isinstance(admission_time, time) and isinstance(recan_time, time):
+                tdelta = datetime.combine(date.today(), recan_time) - datetime.combine(date.today(), admission_time)
+            elif isinstance(admission_time, time):
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.combine(date.today(), admission_time)
+            elif isinstance(recan_time, time):
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)
+            else:
+                tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)      
+            tdelta_min = tdelta.total_seconds()/60.0
+
+            if tdelta_min &lt; -1000:
+                # Add one day if time was after midnight (1 day = 86400 seconds = 1440 minutes)
+                tdelta_min = tdelta_min + 1440
+
+            if tdelta_min &lt;= 0 or tdelta_min &gt; maximum:
+                incorrect = True
+            else:
+                incorrect = False
+
+        
+        return incorrect
+
+    def calculate_thrombolysis(self):
+        &#34;&#34;&#34; Get median values for thrombolysed patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+             
+            statistic = self.country_df.groupby([&#39;Protocol ID&#39;, &#39;Site Name&#39;]).size().reset_index(name=&#34;Total Patients&#34;)                 # Get Protocol IDs and Total Patients
+
+            # Calculate IVtPa median
+            ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+            thrombolysis_df = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()      # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+            if thrombolysis_df.empty:
+                statistic[&#39;Median DTN (minutes)&#39;] = 0
+                statistic[&#39;# IVT&#39;] = 0
+                statistic[&#39;Median last seen normal&#39;] = 0
+                statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                statistic[&#39;% incorrect IVtPa times&#39;] = 0
+            else:
+                thrombolysis_df.fillna(0, inplace=True)
+                thrombolysis_df[&#39;IVTPA&#39;] = thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME_MIN&#39;]                        # get one column with all needle times
+
+                # Get number of incorrectly entered times
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = False
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_ONLY_ADMISSION_TIME&#39;], x[&#39;IVT_ONLY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 2 and x[&#39;IVT_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_REFER_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 5 and x[&#39;IVT_TBY_REFER&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY_REFER&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+                incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df[&#39;INCORRECT_TIMES&#39;] == True]
+
+                statistic[&#39;Total patients undergone IVT&#39;] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+                
+                thrombolysis = thrombolysis_df[(thrombolysis_df[&#39;IVTPA&#39;] &gt; 0) &amp; (thrombolysis_df[&#39;IVTPA&#39;] &lt; 400)].copy()
+
+                if thrombolysis.empty:
+                    statistic[&#39;Median DTN (minutes)&#39;] = 0
+                    statistic[&#39;# IVT&#39;] = 0
+                    statistic[&#39;Median last seen normal&#39;] = 0
+                    if incorrect_ivtpa_times.empty:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                        statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                        statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+                else:
+                    thrombolysis_grouped = thrombolysis.groupby([&#39;Protocol ID&#39;]).IVTPA.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTN (minutes)&#39;}).reset_index() # calculate median DTN per site
+                    statistic = statistic.merge(thrombolysis_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    # Get number of IVTs on IC/KCC
+                    statistic[&#39;# IVT&#39;] = self.count_patients(df=thrombolysis, statistic=statistic)
+
+                    # Get difference in minutes between hospitalization and last visit
+                    thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] = thrombolysis.apply(lambda x: self.time_diff(x[&#39;VISIT_TIMESTAMP&#39;], x[&#39;HOSPITAL_TIMESTAMP&#39;]), axis=1)
+                    thrombolysis[&#39;LAST_SEEN_NORMAL&#39;].fillna(0, inplace=True)
+                    last_seen_normal_grouped = thrombolysis[thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] != 0].groupby([&#39;Protocol ID&#39;]).LAST_SEEN_NORMAL.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median last seen normal&#39;}).reset_index()
+                    statistic = statistic.merge(last_seen_normal_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    if incorrect_ivtpa_times.empty:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                        statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                        statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+
+            statistic.fillna(0, inplace=True)
+
+            #statistic.to_csv(str(name) + &#39;.csv&#39;, sep=&#39;,&#39;)
+
+            stats_dfs[name] = statistic
+        
+        return stats_dfs
+
+    def calculate_thrombectomy(self):
+        &#34;&#34;&#34; Get median values for thrombectomy patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+            
+            # Calculate IVtPa median
+            thrombectomy_df = df[(df[&#39;Protocol ID&#39;].isin(self.hospitals_mt)) &amp; df[&#39;RECANALIZATION_PROCEDURES&#39;].isin([3,4]) &amp; df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+            thrombectomy_df.fillna(0, inplace=True)
+            statistic = self.site_id_mapped_to_site_name.copy()
+            
+            if thrombectomy_df.empty:
+                statistic[&#39;# TBY&#39;] = 0
+                statistic[&#39;Median DTG (minutes)&#39;] = 0
+                statistic[&#39;# incorrect TBY times&#39;] = 0
+                statistic[&#39;% incorrect TBY times&#39;] = 0
+                statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+            else:
+                # Median DTG
+                thrombectomy_df[&#39;TBY&#39;] = thrombectomy_df[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_df[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = False
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_GROIN_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;TBY_ONLY_ADMISSION_TIME&#39;], x[&#39;TBY_ONLY_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 4 and x[&#39;TBY_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+                thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;TBY_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+                incorrect_tby_times = thrombectomy_df[thrombectomy_df[&#39;INCORRECT_TIMES&#39;] == True]
+                print(incorrect_tby_times[[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;, &#39;IVT_TBY_GROIN_TIME&#39;]])
+                statistic[&#39;Total patients undergone TBY&#39;] = self.count_patients(df=thrombectomy_df, statistic=statistic)
+
+                thrombectomy = thrombectomy_df[(thrombectomy_df[&#39;TBY&#39;] &gt; 0) &amp; (thrombectomy_df[&#39;TBY&#39;] &lt; 700)].copy()
+
+                if thrombectomy.empty:
+                    statistic[&#39;# TBY&#39;] = 0
+                    statistic[&#39;Median DTG (minutes)&#39;] = 0
+                    if incorrect_tby_times.empty:
+                        statistic[&#39;# incorrect TBY times&#39;] = 0
+                        statistic[&#39;% incorrect TBY times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                        statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+                    statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                    statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+                else:
+                    # Total patients
+                    total_patients = thrombectomy.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#34;# TBY&#34;)
+                    statistic = statistic.merge(total_patients, on=&#39;Protocol ID&#39;, how=&#39;outer&#39;) # Merge with statistic dataframe
+                    statistic.fillna(0, inplace=True)
+
+                    thrombectomy_grouped = thrombectomy.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes)&#39;}).reset_index()
+                    statistic = statistic.merge(thrombectomy_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    if incorrect_tby_times.empty:
+                        statistic[&#39;# incorrect TBY times&#39;] = 0
+                        statistic[&#39;% incorrect TBY times&#39;] = 0
+                    else:
+                        statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                        statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+
+                    # Median DTG for first hospital arrival
+                    thrombectomy_first = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 1].copy()
+                    if thrombectomy_first.empty:
+                        statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                    else:
+                        thrombectomy_first[&#39;TBY&#39;] = thrombectomy_first[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_first[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                        thrombectomy_first_grouped = thrombectomy_first.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - first hospital&#39;}).reset_index()
+                        statistic = statistic.merge(thrombectomy_first_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                    # Median DTG for secondary hospital
+                    thrombectomy_second = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 2].copy()
+                    if thrombectomy_second.empty:
+                        statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+                    else:
+                        thrombectomy_second[&#39;TBY&#39;] = thrombectomy_second[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_second[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                        thrombectomy_second_grouped = thrombectomy_second.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - second hospital&#39;}).reset_index()
+                        statistic = statistic.merge(thrombectomy_second_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+            statistic.fillna(0, inplace=True)
+
+            stats_dfs[name] = statistic
+
+        return stats_dfs
+
+    def calculate_statistic_per_region(self):
+        &#34;&#34;&#34; Get median values for thrombolysed patients. 
+        
+        Args:
+            filtered_dfs: dictionary with filtered dataframes
+        &#34;&#34;&#34;
+        stats_dfs = {}
+
+        # Iterate through filtered dataframes
+        for name, df in self.filtered_dfs.items():
+            # Calculate IVtPa median
+            ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+            thrombolysis = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()         # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+
+            region_total_patients = pd.DataFrame(list(self.regions.keys()), columns=[&#39;Site Name&#39;])
+
+            if thrombolysis.empty:
+                region_total_patients[&#39;Total patients&#39;] = 0
+                region_total_patients[&#39;# IVT per population&#39;] = 0
+            else:
+                # Get results per region
+                ischemic_cmp[&#39;Site Name&#39;] = ischemic_cmp.apply(lambda x: self.get_region(x[&#39;Protocol ID&#39;]), axis=1)
+                total_patients =  ischemic_cmp.groupby([&#39;Site Name&#39;]).size().reset_index(name=&#39;Total patients&#39;)
+                region_total_patients = region_total_patients.merge(total_patients, on=&#39;Site Name&#39;, how=&#39;outer&#39;)
+                region_total_patients.fillna(0, inplace=True)
+
+                region_total_patients[&#39;# IVT per population&#39;] = region_total_patients.apply(lambda x: round((x[&#39;Total patients&#39;]/self.regions[x[&#39;Site Name&#39;]][&#39;population&#39;])*100000, 2) if x[&#39;Total patients&#39;] &gt; 0 else 0, axis=1)
+
+            stats_dfs[name] = region_total_patients
+        
+        return stats_dfs
+
+    def save_excel(self):
+        &#39;&#39;&#39; Save excel file with more sheets. &#39;&#39;&#39;
+
+        # Create workbook
+        output_filename = &#34;SITSlike_reports_stats_&#34; + datetime.now().strftime(&#39;%d-%m-%Y&#39;) + &#34;.xlsx&#34;
+        workbook = xlsxwriter.Workbook(output_filename)
+        logging.info(&#39;Preprocessed data: The workbook was created.&#39;)
+        # Create worksheets
+        sheets = {}
+        
+        for name, df in self.thrombolysis_stats_df.items():
+            if name == str(self.year):
+                sheet_name = &#34;thrombolysis_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;thrombolysis_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+
+        for name, df in self.thrombectomy_stats_df.items():
+            if name == str(self.year):
+                sheet_name = &#34;thrombectomy_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;thrombectomy_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+        
+        for name, df in self.statistic_region_dfs.items():
+            if name == str(self.year):
+                sheet_name = &#34;region_&#34; + str(self.year)
+            else:
+                month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+                sheet_name = &#34;region_&#34; + month_name + &#34;_&#34; + str(self.year)
+            
+            sheet = workbook.add_worksheet(sheet_name)
+            
+            values = df.values.tolist()
+            nrow = len(df)
+
+            columns = df.columns.tolist()
+            ncol = len(df.columns)
+
+
+            # Create header
+            col = []
+            for j in range(0, ncol):
+                tmp = {}
+                tmp[&#39;header&#39;] = df.columns.tolist()[j]
+                col.append(tmp)
+            
+            options = {&#39;data&#39;: values,
+                   &#39;header_row&#39;: True,
+                   &#39;columns&#39;: col,
+                   &#39;style&#39;: &#39;Table Style Light 1&#39;
+                }
+            
+            sheet.add_table(0, 0, nrow, ncol - 1, options)
+            sheet.set_column(0, 10, 30)
+            logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+            
+        workbook.close()</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="resqdb.Reports.GeneratePresentation" href="#resqdb.Reports.GeneratePresentation">GeneratePresentation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="resqdb.Reports.Reports.calculate_statistic_per_region"><code class="name flex">
+<span>def <span class="ident">calculate_statistic_per_region</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get median values for thrombolysed patients. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filtered_dfs</code></strong></dt>
+<dd>dictionary with filtered dataframes</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def calculate_statistic_per_region(self):
+    &#34;&#34;&#34; Get median values for thrombolysed patients. 
+    
+    Args:
+        filtered_dfs: dictionary with filtered dataframes
+    &#34;&#34;&#34;
+    stats_dfs = {}
+
+    # Iterate through filtered dataframes
+    for name, df in self.filtered_dfs.items():
+        # Calculate IVtPa median
+        ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+        thrombolysis = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()         # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+
+        region_total_patients = pd.DataFrame(list(self.regions.keys()), columns=[&#39;Site Name&#39;])
+
+        if thrombolysis.empty:
+            region_total_patients[&#39;Total patients&#39;] = 0
+            region_total_patients[&#39;# IVT per population&#39;] = 0
+        else:
+            # Get results per region
+            ischemic_cmp[&#39;Site Name&#39;] = ischemic_cmp.apply(lambda x: self.get_region(x[&#39;Protocol ID&#39;]), axis=1)
+            total_patients =  ischemic_cmp.groupby([&#39;Site Name&#39;]).size().reset_index(name=&#39;Total patients&#39;)
+            region_total_patients = region_total_patients.merge(total_patients, on=&#39;Site Name&#39;, how=&#39;outer&#39;)
+            region_total_patients.fillna(0, inplace=True)
+
+            region_total_patients[&#39;# IVT per population&#39;] = region_total_patients.apply(lambda x: round((x[&#39;Total patients&#39;]/self.regions[x[&#39;Site Name&#39;]][&#39;population&#39;])*100000, 2) if x[&#39;Total patients&#39;] &gt; 0 else 0, axis=1)
+
+        stats_dfs[name] = region_total_patients
+    
+    return stats_dfs</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.calculate_thrombectomy"><code class="name flex">
+<span>def <span class="ident">calculate_thrombectomy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get median values for thrombectomy patients. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filtered_dfs</code></strong></dt>
+<dd>dictionary with filtered dataframes</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def calculate_thrombectomy(self):
+    &#34;&#34;&#34; Get median values for thrombectomy patients. 
+    
+    Args:
+        filtered_dfs: dictionary with filtered dataframes
+    &#34;&#34;&#34;
+    stats_dfs = {}
+
+    # Iterate through filtered dataframes
+    for name, df in self.filtered_dfs.items():
+        
+        # Calculate IVtPa median
+        thrombectomy_df = df[(df[&#39;Protocol ID&#39;].isin(self.hospitals_mt)) &amp; df[&#39;RECANALIZATION_PROCEDURES&#39;].isin([3,4]) &amp; df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+        thrombectomy_df.fillna(0, inplace=True)
+        statistic = self.site_id_mapped_to_site_name.copy()
+        
+        if thrombectomy_df.empty:
+            statistic[&#39;# TBY&#39;] = 0
+            statistic[&#39;Median DTG (minutes)&#39;] = 0
+            statistic[&#39;# incorrect TBY times&#39;] = 0
+            statistic[&#39;% incorrect TBY times&#39;] = 0
+            statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+            statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+        else:
+            # Median DTG
+            thrombectomy_df[&#39;TBY&#39;] = thrombectomy_df[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_df[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_df[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+
+            thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = False
+            thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_GROIN_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x[&#39;TBY_ONLY_ADMISSION_TIME&#39;], x[&#39;TBY_ONLY_PUNCTURE_TIME&#39;], 700) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 4 and x[&#39;TBY_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombectomy_df[&#39;INCORRECT_TIMES&#39;] = thrombectomy_df.apply(lambda x: True if (x[&#39;TBY&#39;] &lt;= 0 or x[&#39;TBY&#39;] &gt; 700) and x[&#39;TBY_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+            incorrect_tby_times = thrombectomy_df[thrombectomy_df[&#39;INCORRECT_TIMES&#39;] == True]
+            print(incorrect_tby_times[[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;, &#39;IVT_TBY_GROIN_TIME&#39;]])
+            statistic[&#39;Total patients undergone TBY&#39;] = self.count_patients(df=thrombectomy_df, statistic=statistic)
+
+            thrombectomy = thrombectomy_df[(thrombectomy_df[&#39;TBY&#39;] &gt; 0) &amp; (thrombectomy_df[&#39;TBY&#39;] &lt; 700)].copy()
+
+            if thrombectomy.empty:
+                statistic[&#39;# TBY&#39;] = 0
+                statistic[&#39;Median DTG (minutes)&#39;] = 0
+                if incorrect_tby_times.empty:
+                    statistic[&#39;# incorrect TBY times&#39;] = 0
+                    statistic[&#39;% incorrect TBY times&#39;] = 0
+                else:
+                    statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                    statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+                statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+            else:
+                # Total patients
+                total_patients = thrombectomy.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#34;# TBY&#34;)
+                statistic = statistic.merge(total_patients, on=&#39;Protocol ID&#39;, how=&#39;outer&#39;) # Merge with statistic dataframe
+                statistic.fillna(0, inplace=True)
+
+                thrombectomy_grouped = thrombectomy.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes)&#39;}).reset_index()
+                statistic = statistic.merge(thrombectomy_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                if incorrect_tby_times.empty:
+                    statistic[&#39;# incorrect TBY times&#39;] = 0
+                    statistic[&#39;% incorrect TBY times&#39;] = 0
+                else:
+                    statistic[&#39;# incorrect TBY times&#39;] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
+                    statistic[&#39;% incorrect TBY times&#39;] = round((statistic[&#39;# incorrect TBY times&#39;] / statistic[&#39;Total patients undergone TBY&#39;])*100, 2)
+
+                # Median DTG for first hospital arrival
+                thrombectomy_first = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 1].copy()
+                if thrombectomy_first.empty:
+                    statistic[&#39;Median DTG (minutes) - first hospital&#39;] = 0
+                else:
+                    thrombectomy_first[&#39;TBY&#39;] = thrombectomy_first[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_first[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_first[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                    thrombectomy_first_grouped = thrombectomy_first.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - first hospital&#39;}).reset_index()
+                    statistic = statistic.merge(thrombectomy_first_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                # Median DTG for secondary hospital
+                thrombectomy_second = thrombectomy[thrombectomy[&#39;FIRST_HOSPITAL&#39;] == 2].copy()
+                if thrombectomy_second.empty:
+                    statistic[&#39;Median DTG (minutes) - second hospital&#39;] = 0
+                else:
+                    thrombectomy_second[&#39;TBY&#39;] = thrombectomy_second[&#39;TBY_ONLY_GROIN_PUNCTURE_TIME&#39;] + thrombectomy_second[&#39;TBY_ONLY_GROIN_TIME_MIN&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME&#39;] + thrombectomy_second[&#39;IVT_TBY_GROIN_TIME_MIN&#39;]  # get TBY times in one column
+                    thrombectomy_second_grouped = thrombectomy_second.groupby([&#39;Protocol ID&#39;]).TBY.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTG (minutes) - second hospital&#39;}).reset_index()
+                    statistic = statistic.merge(thrombectomy_second_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+        statistic.fillna(0, inplace=True)
+
+        stats_dfs[name] = statistic
+
+    return stats_dfs</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.calculate_thrombolysis"><code class="name flex">
+<span>def <span class="ident">calculate_thrombolysis</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get median values for thrombolysed patients. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filtered_dfs</code></strong></dt>
+<dd>dictionary with filtered dataframes</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def calculate_thrombolysis(self):
+    &#34;&#34;&#34; Get median values for thrombolysed patients. 
+    
+    Args:
+        filtered_dfs: dictionary with filtered dataframes
+    &#34;&#34;&#34;
+    stats_dfs = {}
+
+    # Iterate through filtered dataframes
+    for name, df in self.filtered_dfs.items():
+         
+        statistic = self.country_df.groupby([&#39;Protocol ID&#39;, &#39;Site Name&#39;]).size().reset_index(name=&#34;Total Patients&#34;)                 # Get Protocol IDs and Total Patients
+
+        # Calculate IVtPa median
+        ischemic_cmp = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()                                                                                                       # only patients with ischemic stroke
+        thrombolysis_df = ischemic_cmp[ischemic_cmp[&#39;RECANALIZATION_PROCEDURES&#39;].isin([2,3,5])].copy()      # only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+        if thrombolysis_df.empty:
+            statistic[&#39;Median DTN (minutes)&#39;] = 0
+            statistic[&#39;# IVT&#39;] = 0
+            statistic[&#39;Median last seen normal&#39;] = 0
+            statistic[&#39;# incorrect IVtPa times&#39;] = 0
+            statistic[&#39;% incorrect IVtPa times&#39;] = 0
+        else:
+            thrombolysis_df.fillna(0, inplace=True)
+            thrombolysis_df[&#39;IVTPA&#39;] = thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_ONLY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_NEEDLE_TIME_MIN&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME&#39;] + thrombolysis_df[&#39;IVT_TBY_REFER_NEEDLE_TIME_MIN&#39;]                        # get one column with all needle times
+
+            # Get number of incorrectly entered times
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = False
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_ONLY_ADMISSION_TIME&#39;], x[&#39;IVT_ONLY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 2 and x[&#39;IVT_ONLY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 3 and x[&#39;IVT_TBY&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;], x[&#39;IVT_TBY_REFER_BOLUS_TIME&#39;], 400) if x[&#39;RECANALIZATION_PROCEDURES&#39;] == 5 and x[&#39;IVT_TBY_REFER&#39;] == 2 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_ONLY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+            thrombolysis_df[&#39;INCORRECT_TIMES&#39;] = thrombolysis_df.apply(lambda x: True if (x[&#39;IVTPA&#39;] &lt;= 0 or x[&#39;IVTPA&#39;] &gt; 400) and x[&#39;IVT_TBY_REFER&#39;] == 1 else x[&#39;INCORRECT_TIMES&#39;], axis=1)
+
+            incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df[&#39;INCORRECT_TIMES&#39;] == True]
+
+            statistic[&#39;Total patients undergone IVT&#39;] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+            
+            thrombolysis = thrombolysis_df[(thrombolysis_df[&#39;IVTPA&#39;] &gt; 0) &amp; (thrombolysis_df[&#39;IVTPA&#39;] &lt; 400)].copy()
+
+            if thrombolysis.empty:
+                statistic[&#39;Median DTN (minutes)&#39;] = 0
+                statistic[&#39;# IVT&#39;] = 0
+                statistic[&#39;Median last seen normal&#39;] = 0
+                if incorrect_ivtpa_times.empty:
+                    statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                    statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                else:
+                    statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                    statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+            else:
+                thrombolysis_grouped = thrombolysis.groupby([&#39;Protocol ID&#39;]).IVTPA.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median DTN (minutes)&#39;}).reset_index() # calculate median DTN per site
+                statistic = statistic.merge(thrombolysis_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                # Get number of IVTs on IC/KCC
+                statistic[&#39;# IVT&#39;] = self.count_patients(df=thrombolysis, statistic=statistic)
+
+                # Get difference in minutes between hospitalization and last visit
+                thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] = thrombolysis.apply(lambda x: self.time_diff(x[&#39;VISIT_TIMESTAMP&#39;], x[&#39;HOSPITAL_TIMESTAMP&#39;]), axis=1)
+                thrombolysis[&#39;LAST_SEEN_NORMAL&#39;].fillna(0, inplace=True)
+                last_seen_normal_grouped = thrombolysis[thrombolysis[&#39;LAST_SEEN_NORMAL&#39;] != 0].groupby([&#39;Protocol ID&#39;]).LAST_SEEN_NORMAL.agg([&#39;median&#39;]).rename(columns={&#39;median&#39;: &#39;Median last seen normal&#39;}).reset_index()
+                statistic = statistic.merge(last_seen_normal_grouped, how=&#39;outer&#39;) # Merge with statistic dataframe
+
+                if incorrect_ivtpa_times.empty:
+                    statistic[&#39;# incorrect IVtPa times&#39;] = 0
+                    statistic[&#39;% incorrect IVtPa times&#39;] = 0
+                else:
+                    statistic[&#39;# incorrect IVtPa times&#39;] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
+                    statistic[&#39;% incorrect IVtPa times&#39;] = round((statistic[&#39;# incorrect IVtPa times&#39;] / statistic[&#39;Total patients undergone IVT&#39;])*100, 2)
+
+        statistic.fillna(0, inplace=True)
+
+        #statistic.to_csv(str(name) + &#39;.csv&#39;, sep=&#39;,&#39;)
+
+        stats_dfs[name] = statistic
+    
+    return stats_dfs</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.count_patients"><code class="name flex">
+<span>def <span class="ident">count_patients</span></span>(<span>self, df, statistic)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the column with number of patients group by Protocol ID. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The dataframe with raw data. </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The column with number of patients.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def count_patients(self, df, statistic):
+    &#34;&#34;&#34; Returns the column with number of patients group by Protocol ID. 
+
+    Args:
+        df: The dataframe with raw data. 
+
+    Returns:
+        The column with number of patients.
+    &#34;&#34;&#34;
+
+    tmp = df.groupby([&#39;Protocol ID&#39;]).size().reset_index(name=&#39;total_patients&#39;)
+    tmp_df = statistic.merge(tmp, how=&#39;outer&#39;)
+    tmp_df.fillna(0, inplace=True)
+
+    return tmp_df[&#39;total_patients&#39;]</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.filter_dataframe"><code class="name flex">
+<span>def <span class="ident">filter_dataframe</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Filter dataset per each month for selected year. </p>
+<h2 id="returns">Returns</h2>
+<p>Dictionary with filtered dataframes per each month.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def filter_dataframe(self):
+    &#34;&#34;&#34; Filter dataset per each month for selected year. 
+    
+    Returns:
+        Dictionary with filtered dataframes per each month.
+    &#34;&#34;&#34;
+
+    # Store filtered dataframe in dictionary
+    dfs = {}
+
+    # Get current date
+    current_year = datetime.today().year
+    # Month from argument
+    current_month = self.month
+
+    # Filter dataframe per month
+    for month in range(1, current_month + 1):
+        start_date = datetime(self.year, month, 1, 0, 0)
+        end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+
+        # Create object FilterDataset
+        fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+
+        # Add dataframe into dictionary
+        dfs[month] = fd_ojb.fdf
+
+    # Filter dataframe for whole year
+    start_date = datetime(self.year, 1, 1, 0, 0)
+    # End date from current_month
+    end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+    fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+    dfs[str(self.year)] = fd_obj.fdf
+    
+    return dfs</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.get_incorrect_times"><code class="name flex">
+<span>def <span class="ident">get_incorrect_times</span></span>(<span>self, admission_time, recan_time, maximum)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get incorrectly entered times. Based on negative times. </p>
+<p>Args:
+admission_time: the time of admission (or hospitalization in later cases)
+recan_time: the time when thrombolysis was performed
+maximum: the maximum value for recanalization procedure
+Returns:
+Return TRUE if result value is negative, else return FALSE</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_incorrect_times(self, admission_time, recan_time, maximum):
+    &#34;&#34;&#34; Get incorrectly entered times. Based on negative times. 
+
+    Args: 
+        admission_time: the time of admission (or hospitalization in later cases)
+        recan_time: the time when thrombolysis was performed
+        maximum: the maximum value for recanalization procedure 
+    Returns: 
+        Return TRUE if result value is negative, else return FALSE
+    &#34;&#34;&#34;
+    timeformat = &#39;%H:%M:%S&#39;
+    if admission_time is None or recan_time is None or pd.isnull(admission_time) or pd.isnull(recan_time):
+        incorrect = True
+    elif admission_time == 0 or recan_time == 0:
+        incorrect = True
+    else:
+        if isinstance(admission_time, time) and isinstance(recan_time, time):
+            tdelta = datetime.combine(date.today(), recan_time) - datetime.combine(date.today(), admission_time)
+        elif isinstance(admission_time, time):
+            tdelta = datetime.strptime(recan_time, timeformat) - datetime.combine(date.today(), admission_time)
+        elif isinstance(recan_time, time):
+            tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)
+        else:
+            tdelta = datetime.strptime(recan_time, timeformat) - datetime.strptime(admission_time, timeformat)      
+        tdelta_min = tdelta.total_seconds()/60.0
+
+        if tdelta_min &lt; -1000:
+            # Add one day if time was after midnight (1 day = 86400 seconds = 1440 minutes)
+            tdelta_min = tdelta_min + 1440
+
+        if tdelta_min &lt;= 0 or tdelta_min &gt; maximum:
+            incorrect = True
+        else:
+            incorrect = False
+
+    
+    return incorrect</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.get_region"><code class="name flex">
+<span>def <span class="ident">get_region</span></span>(<span>self, site_id)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get region for given site ID. </p>
+<p>Args:
+df: raw dataframe
+Returns:
+The column with region.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_region(self, site_id):
+    &#34;&#34;&#34; Get region for given site ID. 
+
+    Args: 
+        df: raw dataframe
+    Returns: 
+        The column with region. 
+    &#34;&#34;&#34;
+    for key, value in self.regions.items():
+        if site_id in value[&#39;hospitals&#39;]:
+            return key           </code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.save_excel"><code class="name flex">
+<span>def <span class="ident">save_excel</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Save excel file with more sheets.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def save_excel(self):
+    &#39;&#39;&#39; Save excel file with more sheets. &#39;&#39;&#39;
+
+    # Create workbook
+    output_filename = &#34;SITSlike_reports_stats_&#34; + datetime.now().strftime(&#39;%d-%m-%Y&#39;) + &#34;.xlsx&#34;
+    workbook = xlsxwriter.Workbook(output_filename)
+    logging.info(&#39;Preprocessed data: The workbook was created.&#39;)
+    # Create worksheets
+    sheets = {}
+    
+    for name, df in self.thrombolysis_stats_df.items():
+        if name == str(self.year):
+            sheet_name = &#34;thrombolysis_&#34; + str(self.year)
+        else:
+            month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+            sheet_name = &#34;thrombolysis_&#34; + month_name + &#34;_&#34; + str(self.year)
+        
+        sheet = workbook.add_worksheet(sheet_name)
+        
+        values = df.values.tolist()
+        nrow = len(df)
+
+        columns = df.columns.tolist()
+        ncol = len(df.columns)
+
+
+        # Create header
+        col = []
+        for j in range(0, ncol):
+            tmp = {}
+            tmp[&#39;header&#39;] = df.columns.tolist()[j]
+            col.append(tmp)
+        
+        options = {&#39;data&#39;: values,
+               &#39;header_row&#39;: True,
+               &#39;columns&#39;: col,
+               &#39;style&#39;: &#39;Table Style Light 1&#39;
+            }
+        
+        sheet.add_table(0, 0, nrow, ncol - 1, options)
+        sheet.set_column(0, 10, 30)
+        logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+
+    for name, df in self.thrombectomy_stats_df.items():
+        if name == str(self.year):
+            sheet_name = &#34;thrombectomy_&#34; + str(self.year)
+        else:
+            month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+            sheet_name = &#34;thrombectomy_&#34; + month_name + &#34;_&#34; + str(self.year)
+        
+        sheet = workbook.add_worksheet(sheet_name)
+        
+        values = df.values.tolist()
+        nrow = len(df)
+
+        columns = df.columns.tolist()
+        ncol = len(df.columns)
+
+
+        # Create header
+        col = []
+        for j in range(0, ncol):
+            tmp = {}
+            tmp[&#39;header&#39;] = df.columns.tolist()[j]
+            col.append(tmp)
+        
+        options = {&#39;data&#39;: values,
+               &#39;header_row&#39;: True,
+               &#39;columns&#39;: col,
+               &#39;style&#39;: &#39;Table Style Light 1&#39;
+            }
+        
+        sheet.add_table(0, 0, nrow, ncol - 1, options)
+        sheet.set_column(0, 10, 30)
+        logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+    
+    for name, df in self.statistic_region_dfs.items():
+        if name == str(self.year):
+            sheet_name = &#34;region_&#34; + str(self.year)
+        else:
+            month_name = datetime(self.year, name, 1, 0, 0).strftime(&#34;%b&#34;)
+            sheet_name = &#34;region_&#34; + month_name + &#34;_&#34; + str(self.year)
+        
+        sheet = workbook.add_worksheet(sheet_name)
+        
+        values = df.values.tolist()
+        nrow = len(df)
+
+        columns = df.columns.tolist()
+        ncol = len(df.columns)
+
+
+        # Create header
+        col = []
+        for j in range(0, ncol):
+            tmp = {}
+            tmp[&#39;header&#39;] = df.columns.tolist()[j]
+            col.append(tmp)
+        
+        options = {&#39;data&#39;: values,
+               &#39;header_row&#39;: True,
+               &#39;columns&#39;: col,
+               &#39;style&#39;: &#39;Table Style Light 1&#39;
+            }
+        
+        sheet.add_table(0, 0, nrow, ncol - 1, options)
+        sheet.set_column(0, 10, 30)
+        logging.info(&#39;Statistics: {0} sheet was added into excel file!&#39;.format(sheet_name))
+        
+    workbook.close()</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Reports.Reports.time_diff"><code class="name flex">
+<span>def <span class="ident">time_diff</span></span>(<span>self, visit_date, hospital_date)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Calculate difference in minutes between two dates. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>visit_date</code></strong></dt>
+<dd>visit date</dd>
+<dt><strong><code>hospital_date</code></strong></dt>
+<dd>date when patient was hospitalized</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The calculated difference in minutes.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def time_diff(self, visit_date, hospital_date):
+    &#34;&#34;&#34; Calculate difference in minutes between two dates. 
+
+    Args:
+        visit_date: visit date
+        hospital_date: date when patient was hospitalized
+    Returns:
+        The calculated difference in minutes.
+    &#34;&#34;&#34;
+    if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+        time_diff = hospital_date - visit_date
+        # Convert difference to minutes
+        total_minutes = time_diff.total_seconds() / 60.0
+    else:
+        total_minutes = 0
+
+    if total_minutes &lt; 0 or total_minutes &gt; 40000:
+        total_minutes = 0
+    
+    return total_minutes</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="resqdb" href="index.html">resqdb</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="resqdb.Reports.GenerateGraphs" href="#resqdb.Reports.GenerateGraphs">GenerateGraphs</a></code></h4>
+</li>
+<li>
+<h4><code><a title="resqdb.Reports.GeneratePresentation" href="#resqdb.Reports.GeneratePresentation">GeneratePresentation</a></code></h4>
+<ul class="">
+<li><code><a title="resqdb.Reports.GeneratePresentation.generate_presentation" href="#resqdb.Reports.GeneratePresentation.generate_presentation">generate_presentation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="resqdb.Reports.Reports" href="#resqdb.Reports.Reports">Reports</a></code></h4>
+<ul class="">
+<li><code><a title="resqdb.Reports.Reports.calculate_statistic_per_region" href="#resqdb.Reports.Reports.calculate_statistic_per_region">calculate_statistic_per_region</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.calculate_thrombectomy" href="#resqdb.Reports.Reports.calculate_thrombectomy">calculate_thrombectomy</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.calculate_thrombolysis" href="#resqdb.Reports.Reports.calculate_thrombolysis">calculate_thrombolysis</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.count_patients" href="#resqdb.Reports.Reports.count_patients">count_patients</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.filter_dataframe" href="#resqdb.Reports.Reports.filter_dataframe">filter_dataframe</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.get_incorrect_times" href="#resqdb.Reports.Reports.get_incorrect_times">get_incorrect_times</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.get_region" href="#resqdb.Reports.Reports.get_region">get_region</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.save_excel" href="#resqdb.Reports.Reports.save_excel">save_excel</a></code></li>
+<li><code><a title="resqdb.Reports.Reports.time_diff" href="#resqdb.Reports.Reports.time_diff">time_diff</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

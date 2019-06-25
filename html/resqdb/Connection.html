@@ -1,0 +1,1617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>resqdb.Connection API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>resqdb.Connection</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">#### Filename: Connection.py
+#### Version: v1.0
+#### Author: Marie Jankujova
+#### Date: March 4, 2019
+#### Description: Connect to database and get atalaia dataframe.
+
+import psycopg2
+import sys
+import os
+import pandas as pd
+import logging
+from configparser import ConfigParser
+from resqdb.CheckData import CheckData
+import numpy as np
+import time
+from multiprocessing import Process, Pool
+from threading import Thread
+import collections
+import datetime
+
+class Connection():
+    &#34;&#34;&#34; A connection with one property: a section. 
+
+    To use:
+    &gt;&gt;&gt; conn = Connection()
+    &#34;&#34;&#34;
+
+    def __init__(self, nprocess=1, data=&#39;resq&#39;):
+
+        start = time.time()
+
+        # Create log file in the working folder
+        log_file = os.path.join(os.getcwd(), &#39;debug.log&#39;)
+        logging.basicConfig(filename=log_file,
+                            filemode=&#39;a&#39;,
+                            format=&#39;%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s&#39;,
+                            datefmt=&#39;%H:%M:%S&#39;,
+                            level=logging.DEBUG)
+        logging.info(&#39;Connecting to datamix database!&#39;)   
+
+        # Get absolute path
+        path = os.path.dirname(__file__)
+        self.database_ini = os.path.join(path, &#39;database.ini&#39;)
+
+
+        # Set section
+        datamix = &#39;datamix&#39;
+        # Check which data should be exported
+        if data == &#39;resq&#39;:
+            # Create empty dictionary
+            self.sqls = [&#39;SELECT * from resq_mix&#39;, &#39;SELECT * from ivttby_mix&#39;, &#39;SELECT * from resq_ivttby_mix&#39;]
+            # List of dataframe names
+            self.names = [&#39;resq&#39;, &#39;ivttby&#39;]
+        elif data == &#39;atalaia&#39;: 
+            self.sqls = [&#39;SELECT * from atalaia_mix&#39;]
+            self.names = []
+        # Dictionary initialization - db dataframes
+        self.dictdb_df = {}
+        # Dictioanry initialization - prepared dataframes
+        self.dict_df = {}
+
+        if nprocess == 1:
+            if data == &#39;resq&#39;:
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    self.connect(self.sqls[i], datamix, nprocess, df_name=df_name)
+                
+                self.connect(self.sqls[2], datamix, nprocess, df_name=&#39;resq_ivttby_mix&#39;)
+                self.resq_ivttby_mix = self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+                self.dictdb_df[&#39;resq_ivttby_mix&#39;].to_csv(&#39;resq_ivttby_mix.csv&#39;, sep=&#39;,&#39;, index=False)
+                del self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+
+                for k, v in self.dictdb_df.items():
+                    self.prepare_resq_df(df=v, name=k)
+
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info(&#34;Connection: {0} dataframe has been appended to the resulting dataframe!&#34;.format(self.names[i]))
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Get preprocessed data
+                self.preprocessed_data = self.check_data(df=self.df)
+
+            elif data == &#39;atalaia&#39;:
+                self.connect(self.sqls[0], datamix, nprocess, df_name=&#39;atalaia_mix&#39;)
+                self.atalaiadb_df = self.dictdb_df[&#39;atalaia_mix&#39;]
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df[&#39;atalaia_mix&#39;]
+        else:
+            if data == &#39;resq&#39;:
+                threads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.connect(self.sqls[i], datamix, i, df_name=df_name))
+                    process.start()
+                    threads.append(process)
+                # logging.info(&#39;The process with id {0} is running.&#39;.format(process))
+
+                process = Thread(target=self.connect(self.sqls[2], datamix, 1, df_name=&#39;resq_ivttby_mix&#39;))
+                process.start()
+                threads.append(process)
+
+                for process in threads:
+                    process.join()
+            
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info(&#39;The database data were exported in {0} minutes.&#39;.format(tdelta))
+
+                self.dictdb_df[&#39;resq_ivttby_mix&#39;].to_csv(&#39;resq_ivttby_mix.csv&#39;, sep=&#39;,&#39;, index=False)
+                del self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+
+                treads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.prepare_df(df=self.dictdb_df[df_name], name=df_name))
+                    process.start()
+                    threads.append(process)
+
+                for process in threads:
+                    process.join()
+
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info(&#39;The database data were prepared in {0} minutes.&#39;.format(tdelta))
+
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info(&#34;Connection: {0} dataframe has been appended to the resulting dataframe!.&#34;.format(self.names[i]))
+
+                
+                subject_ids = self.df[&#39;Subject ID&#39;].tolist()
+                duplicates = [item for item, count in collections.Counter(subject_ids).items() if count &gt; 1]
+
+                for i in duplicates:
+                    duplicates_rows = self.df[self.df[&#39;Subject ID&#39;] == i]
+                    set_tmp = set(duplicates_rows[&#39;Protocol ID&#39;])
+                    if len(set_tmp) == 1:
+                        crfs = duplicates_rows[&#39;crf_parent_name&#39;].tolist()
+                        #print(duplicates_rows[[&#39;Subject ID&#39;, &#39;Protocol ID&#39;]])
+                        for i in crfs:
+                            if &#39;RESQV12&#39; in i:
+                                keep_crf = i
+                            if &#39;RESQV20&#39; in i:
+                                keep_crf = i
+                            if &#39;IVT_TBY&#39; in i and &#39;DEVCZ10&#39; not in i:
+                                keep_crf = i
+                    
+                        index = duplicates_rows.index[duplicates_rows[&#39;crf_parent_name&#39;] != keep_crf].tolist()
+                        self.df.drop(index, inplace=True)
+
+                        #print(duplicates_rows[&#39;crf_parent_name&#39;])
+                        #print(&#34;Keep form: {0}, deleted row: {1}&#34;.format(keep_crf, index))
+                    
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Cal check data function
+                self.preprocessed_data = self.check_data(self.df, nprocess=nprocess)
+                #self.preprocessed_data = self.check_data(self.df, nprocess=None)   
+            
+            elif data == &#39;atalaia&#39;:
+                self.connect(self.sqls[0], datamix, nprocess, df_name=&#39;atalaia_mix&#39;)
+                self.atalaiadb_df = self.dictdb_df[&#39;atalaia_mix&#39;]
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df[&#39;atalaia_mix&#39;]
+
+        end = time.time()
+        tdelta = (end-start)/60
+        logging.info(&#39;The conversion and merging run {0} minutes.&#39;.format(tdelta))
+
+    def config(self, section):
+        &#34;&#34;&#34; Read and parse the config database file. 
+        
+        Raises: 
+            Exception: If the section couldn&#39;t be find in the database.ini file)
+        Returns: 
+            The dictionary of parameters to enable connection to database.
+        &#34;&#34;&#34;
+        # Create a parser object
+        parser = ConfigParser()
+        # Read config file
+        parser.read(self.database_ini)
+
+        # Get section, default to postgresql
+        db = {}
+        if parser.has_section(section):
+            params = parser.items(section)
+            for param in params:
+                db[param[0]] = param[1]
+        else:
+            logging.error(&#39;Connection: Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+            raise Exception(&#39;Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+
+        return db
+
+    
+    def connect(self, sql, section, nprocess, df_name=None):
+        &#34;&#34;&#34; Connects to the database specified in the databse.ini file.
+        
+        Args:
+            sql: The SQL query run to get dataframe from the database.
+        Raises: 
+            Exception: If the connection was not successful. 
+        Returns: 
+            The new dataframe containing data from database.
+        &#34;&#34;&#34;
+        conn = None    
+        try: 
+            # Read connection parameters
+            params = self.config(section)
+
+            # Connect to the PostgreSQL server
+            logging.info(&#39;Process{0}: Connecting to the PostgreSQL database... &#39;.format(nprocess))
+            conn = psycopg2.connect(**params)
+
+            # Create dataframe for given sql query
+            if df_name is not None:
+                self.dictdb_df[df_name] = pd.read_sql_query(sql, conn)
+                logging.info(&#39;Process{0}: Dataframe {1} has been created created.&#39;.format(nprocess, df_name))
+            else:
+                logging.info(&#39;Process{0}: Name of dataframe is missing.&#39;.format(nprocess))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.error(error)
+
+        finally:
+            if conn is not None:
+                conn.close()
+                logging.info(&#39;Process{0}: Database connection has been closed.&#39;.format(nprocess))
+    
+    
+    def prepare_df(self, df, name):
+        &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+        if &#39;resq&#39; in name:
+            df.rename(columns={&#39;fabry_cs&#39;: &#39;fabry_en&#39;}, inplace=True)
+            # If CRF is v1.2 replace BLEEDING REASON with -999
+            df[&#39;bleeding_reason_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_reason_en&#39;], axis=1)
+
+            # If CRF is v1.2 replace INTERVENTION with -999
+            df[&#39;intervention_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;intervention_en&#39;], axis=1)
+            # If CRF is v1.2 replace RECURRENT_STROKE value with -999
+            df[&#39;recurrent_stroke_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;recurrent_stroke_en&#39;], axis=1)
+            # If CRF is v1.2 replace VENTILATOR value with -999
+            df[&#39;ventilator_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;ventilator_en&#39;], axis=1)
+            # If CRF is v1.2 and stroke type is 2 then neurosurgery is 3
+            df[&#39;neurosurgery_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] and x[&#39;stroke_type_en&#39;] == 2 else x[&#39;neurosurgery_en&#39;], axis=1)
+            # If CRF is v1.2 replace BLEEDING SOURCE with -999
+            df[&#39;bleeding_source_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_source_en&#39;], axis=1)
+            # If CRF is v1.2 replace CEREBROVASCULAR EXPERT with -999
+            df[&#39;cerebrovascular_expert_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;cerebrovascular_expert_en&#39;], axis=1)
+            
+            # If CRF is v1.2. replace DISCHARGE SAME FACILITY with -999 if DISCHARGE_DESTINATIOn is not 2, else 1
+            def discharge_same_facility(val):
+                res = 1 if val == 2 else -999
+                return res
+            df[&#39;discharge_same_facility_en&#39;] = df.apply(lambda x: discharge_same_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_same_facility_en&#39;], axis=1) 
+            # If CRF is v1.2. replace DISCHARGE OTHER FACILITY with -999 if DISCHARGE_DESTINATION is not 3, else 3
+            def discharge_other_facility(val):
+                res = 3 if val == 3 else -999
+                return res
+            df[&#39;discharge_other_facility_en&#39;] = df.apply(lambda x: discharge_other_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_en&#39;], axis=1)
+            # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O2 with -999
+            df[&#39;discharge_other_facility_o2_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o2_en&#39;], axis=1)
+            # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O1 with -999
+            df[&#39;discharge_other_facility_o1_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o1_en&#39;], axis=1)
+            # If CRF is v1.2. replace DISCHARGE OTHER FACILITY O3 with -999 if DISCHARGE_DESTINATION is not 3, else 4
+            def discharge_other_facility_o3(val):
+                res = 4 if val == 3 else -999
+                return res
+            df[&#39;discharge_other_facility_o3_en&#39;] = df.apply(lambda x: discharge_other_facility_o3(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o3_en&#39;], axis=1)
+            # If CRF is v1.2 replace DEPARTMENT TYPE with -999 else kepp DEPARTMENT_TYPE
+            df[&#39;department_type_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;department_type_en&#39;], axis=1)
+
+            # Get only columns ending with _en
+            cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;, &#39;facility_country&#39;]
+            cols.extend([c for c in df.columns if c.endswith(&#39;_en&#39;)])
+
+            res = df[cols].copy()
+            # Remove _en suffix from column names
+            cols = res.columns
+            suffix = &#34;_en&#34;
+            new_cols = []
+            for c in cols:
+                if c.endswith(suffix):
+                    new_cols.append(c[:len(c)-len(suffix)].upper())
+                elif c == &#39;site_id&#39;:
+                    new_cols.append(&#39;Protocol ID&#39;)
+                elif c == &#34;facility_name&#34;:
+                    new_cols.append(&#39;Site Name&#39;)
+                elif c == &#34;label&#34;:
+                    new_cols.append(&#39;Subject ID&#39;)
+                elif c == &#34;oc_oid&#34;:
+                    new_cols.append(&#39;crf_parent_name&#39;)
+                elif c == &#34;facility_country&#34;:
+                    new_cols.append(&#39;Country&#39;)
+                else:
+                    new_cols.append(c)
+
+            res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+            logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+
+            self.dict_df[name] = res
+
+        elif &#39;ivttby&#39; in name:
+
+            # Get patients inserted in IVT_TBY_DEV
+            ivttby_dev = df[df[&#39;oc_oid&#39;].str.contains(&#39;&#39;)]
+            #df = df[df[&#39;oc_oid&#39;] != &#34;F_RESQ_IVT_TBY_1565_DEVCZ10&#34;].copy()
+
+            # Merge ct_time columns 
+            vals = [1,2,3,4,5,6]
+            df[&#39;ct_time_cz&#39;] = df.apply(lambda x: x[&#39;ct_time_2_cz&#39;] if (x[&#39;ct_mri_cz&#39;] in vals and pd.isnull(x[&#39;ct_time_cz&#39;])) else x[&#39;ct_time_cz&#39;], axis=1)
+
+            # Get only columns ending with _en
+            cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;label&#39;, &#39;oc_oid&#39;]
+            cols.extend([c for c in df.columns if c.endswith(&#39;_cz&#39;)])
+
+            df = df[cols].copy()
+            # Remove _en suffix from column names
+            cols = df.columns
+            suffix = &#34;_cz&#34;
+            new_cols = []
+            for c in cols:
+                if c.endswith(suffix):
+                    new_cols.append(c[:len(c)-len(suffix)].upper())
+                elif c == &#39;site_id&#39;:
+                    new_cols.append(&#39;Protocol ID&#39;)
+                elif c == &#34;facility_name&#34;:
+                    new_cols.append(&#39;Site Name&#39;)
+                elif c == &#34;label&#34;:
+                    new_cols.append(&#39;Subject ID&#39;)
+                elif c == &#34;oc_oid&#34;:
+                    new_cols.append(&#39;crf_parent_name&#39;)
+                else:
+                    new_cols.append(c)
+            
+            df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
+            df.rename(columns={&#39;ANTITHROMBOTICS&#39;: &#39;ANTITHROMBOTICS_TMP&#39;, &#39;GLUCOSE&#39;: &#39;GLUCOSE_OLD&#39;}, inplace=True)
+
+            df[&#39;IVT_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_ONLY&#39;] == 2 else None, axis=1)
+            df[&#39;IVT_TBY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY&#39;] == 2 else None, axis=1)
+            df[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY_REFER&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_ONLY&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_ALL_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_ALL&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_LIM_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_LIM&#39;] == 2 else None, axis=1)
+
+            # Convert antithrombotics to RES-Q v2.0
+            df[&#39;ANTITHROMBOTICS_TMP&#39;] = df.apply(lambda x: int(x[&#39;ANTITHROMBOTICS_TMP&#39;]) if &#39;DEVCZ10&#39; in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+            df[&#39;ANTITHROMBOTICS&#39;] = df.apply(lambda x: self._get_tmp_antithrombotics(x[&#39;ANTITHROMBOTICS_TMP&#39;], x[&#39;AFIB_FLUTTER&#39;]) if &#39;DEVCZ10&#39; not in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+
+            # Create value assessed for reabilitation
+            df.loc[:, &#39;ASSESSED_FOR_REHAB&#39;] = np.nan
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([1,2,3]), &#39;ASSESSED_FOR_REHAB&#39;] = 1
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([4]), &#39;ASSESSED_FOR_REHAB&#39;] = 2
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([5]), &#39;ASSESSED_FOR_REHAB&#39;] = 3
+
+            df[&#39;GLUCOSE&#39;] = df.apply(lambda x: self.fix_glucose(x[&#39;GLUCOSE_OLD&#39;]) if x[&#39;STROKE_TYPE&#39;] == 1 else np.nan, axis=1)
+
+            # Rename CT_MRI column to CT_MRI_OLD
+            df.rename(columns={&#39;CT_MRI&#39;: &#39;CT_MRI_OLD&#39;, &#39;CT_TIME&#39;: &#39;CT_TIME_OLD&#39;}, inplace=True)
+            # Get ischemic patients from IVT/TBY form
+            ischemic_pts = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+            # Convert 7 (not performed) to 1, convert 1,2,3,4,5,6 to 2 (performed)
+            ischemic_pts[&#39;CT_MRI&#39;] = ischemic_pts.apply(lambda x: 2 if x[&#39;CT_MRI_OLD&#39;] in [1,2,3,4,5,6] else 1, axis=1)
+            # Call function to get ctmri delta is &lt;= 60 set CT_TIME to 1 else to 2
+            ischemic_pts[&#39;CT_TIME&#39;] = ischemic_pts.apply(lambda x: self.get_ctmri_delta(x[&#39;HOSPITAL_TIME&#39;], x[&#39;CT_TIME_OLD&#39;]) if x[&#39;CT_MRI&#39;] == 2 else np.nan, axis=1)
+
+            # Get other stroke than ischemic from IVT/TBY form
+            other_pts = df[~df[&#39;STROKE_TYPE&#39;].isin([1]) &amp; ~df[&#39;CT_MRI_OLD&#39;].isin([1,2,3,4,5,6,7])].copy()
+            # Rename columns to be same as in RES-Q v2.0
+            other_pts.rename(columns={&#39;CT_MRI_OTHER&#39;: &#39;CT_MRI&#39;, &#39;CT_TIME_OTHER&#39;: &#39;CT_TIME&#39;}, inplace=True)
+            # Switch values for CT_MRI
+            other_pts[&#39;CT_MRI&#39;] = other_pts[&#39;CT_MRI&#39;].replace({1: 2, 2: 1})
+            # If for times were selected option 3 and 4 change it to 2 (done after 1 hour)
+            other_pts[&#39;CT_TIME&#39;] = other_pts[&#39;CT_TIME&#39;].replace({3: 2, 4: 2})
+
+            df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
+
+            # Create country column
+            df[&#39;Country&#39;] = &#39;Czech Republic&#39;
+
+            logging.info(&#34;Connection: Column names in IVT/TBY were changed successfully.&#34;)
+
+            self.dict_df[name] = df
+
+
+    def _get_tmp_antithrombotics(self, col_vals, afib):
+        &#34;&#34;&#34; Remap antithrombotics from IVT/TBY form to RES-Q v2.0. 
+        
+        Args:
+            col_vals: Selected values for antithrombotics in IVT/TBY
+            afib: Selected afib flutter.
+        Returns:
+            res: Mapped value
+        &#34;&#34;&#34;
+        if col_vals is not None:
+            vals_str = col_vals.split(&#39;,&#39;) # Split selected values using , as seperator
+            vals = list(map(int, vals_str)) # Convert string values to integers
+            antiplatelets_vals = [1,2,3,4,5,6] # antiplatelets values in IVT/TBY
+            anticoagulants_vals = [8,9,10,11,12,13,14] # anticoagulants values in IVT/TBY
+            antiplatelets_recs = 7 # antiplatelets recommended
+            anticoagulants_recs = 15 # anticoagulants recommended
+            nothing = 16 # nothing
+
+            # mapping anticoagulants
+            anticoagulants_dict = {
+                8: 2, # warfarin
+                9: 3, # dabigatran
+                10: 4, # rivaroxaban
+                11: 5, # apixaban
+                12: 6, # edoxaban
+                13: 7, # LMWH or heparin in prophylactic dose
+                14: 8, # LMWH or heparin in full anticoagulant dose
+            }
+
+            # default value (now deleted by Mirek)
+            if len(vals) &gt; 15:
+                res = None
+            # nothing prescribed
+            elif nothing in vals:
+                res = 10
+            else:
+                # if AFIB not detected or not know we are interested only in antiplatelets, if antiplatelets recommended value in vals set result to 9 (not prescribed, but recommended), else check if some value from antiplatelets_vals is in vals, and if yes set result to 1 (antiplatelets) else set result to 10 (nothing)
+                if afib in [4,5]: 
+                    if antiplatelets_recs in vals:
+                        res = 9
+                    else:
+                        # Antiplatelets values which are in selected antithrombotics
+                        x = set(antiplatelets_vals).intersection(set(vals))
+                        if bool(x):
+                            res = 1
+                        else:
+                            res = 10
+                # if AFIB known or detected we are interested only in anticoagulants, if anticoagulants recommended value in vals set result to 9 (not prescribed, but recommended), else check if some value from anticoagulants_vals is in vals, and if yes map value based on anticoagulants_dict else set result to 10 (nothing)
+                elif afib in [1,2,3]:
+                    if anticoagulants_recs in vals:
+                        res = 9
+                    else:
+                        # Anticoagulant values which are in selected antithrombotics
+                        x = set(anticoagulants_vals).intersection(set(vals))
+                        if bool(x):
+                            for val in x:
+                                res = anticoagulants_dict[val]
+                        else:
+                            res = 10
+
+            #print(&#34;Vals: {0}, Results: {1}&#34;.format(vals, res))
+            return res
+        else:
+            return None
+             
+    
+    def get_ctmri_delta(self, hosp_time, ct_time):
+        &#34;&#34;&#34; Calculate differnce between two times. 
+
+        Args:
+            hospital_time: The time of hospitalization
+            ct_time: The time when CT has been perfrmed. 
+        Returns:
+            The calculated difference in minutes.
+        &#34;&#34;&#34;
+        timeformat = &#39;%H:%M:%S&#39;
+
+        #print(&#39;Hosp time: {0}/{1}, CT_TIME: {2}/{3}&#39;.format(hosp_time, type(hosp_time), ct_time, type(ct_time)))
+        # print(ct_time, hosp_time)
+        # Check if both time are not None if yes, return 0 else return tdelta
+        if hosp_time is None or ct_time is None or pd.isnull(hosp_time) or pd.isnull(ct_time):
+            tdeltaMin = 0
+        elif hosp_time == 0 or ct_time == 0:
+            tdeltaMin = 0
+        else:
+            if isinstance(ct_time, datetime.time) and isinstance(hosp_time, datetime.time):
+                tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.combine(datetime.date.today(), hosp_time)
+            elif isinstance(ct_time, datetime.time):
+                tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.strptime(hosp_time, timeformat)
+            elif isinstance(hosp_time, datetime.time):
+                tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)
+            else:
+                tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)    
+            tdeltaMin = tdelta.total_seconds()/60.0
+
+        if tdeltaMin &gt; 60:
+            res = 2
+        elif tdeltaMin &lt;= 60 and tdeltaMin &gt; 0:
+            res = 1
+        else:
+            res = -2
+        return res
+
+
+    def _get_countries(self, df):
+        &#34;&#34;&#34;Return list of countries present in the dataframe.
+
+        Args:
+            df: The raw dataframe
+        Returns:
+            The list of country codes present in the dataframe.
+        &#34;&#34;&#34;
+        site_ids = df[&#39;Protocol ID&#39;].apply(lambda x: pd.Series(str(x).split(&#34;_&#34;)))
+        countriesSet = set(site_ids[0])
+        countriesList = list(countriesSet)
+
+        logging.info(&#34;Data: Countries in the dataset: {0}.&#34;.format(countriesList))
+        return countriesList
+    
+    
+    def fix_glucose(self, value):
+        &#34;&#34;&#34; Fix glucose value to have consistent format - 5.5 etc. &#34;&#34;&#34;
+        if &#34;,&#34; in value:
+            res = value.replace(&#39;,&#39;, &#39;.&#39;)
+        elif value == &#39;-99&#39;:
+            res = value
+        elif &#39;-&#39; in value:
+            res = value.replace(&#39;-&#39;, &#39;.&#39;)
+        elif &#39;.&#39; in value:
+            res = value
+        elif len(value) &gt; 5:
+            res = &#39;-1&#39;
+        else:
+            res = value
+
+        return res
+
+    def check_data(self, df, nprocess):
+        &#34;&#34;&#34; Check dates and times and fix according to algorithm.
+        
+        Args: 
+            df: The raw dataframe with fixed columns
+        Returns: 
+            The preprocessed data.
+        &#34;&#34;&#34;
+        
+        chd = CheckData(df=df, nprocess=nprocess)
+
+        logging.info(&#34;The data were preprocessed.&#34;)
+
+        return chd.preprocessed_data
+
+
+    def prepare_atalaia_df(self, df):
+        &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+
+        # Get only columns ending with _en
+        cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;]
+        cols.extend([c for c in df.columns if c.endswith(&#39;_es&#39;)])
+
+        res = df[cols].copy()
+        # Remove _en suffix from column names
+        cols = res.columns
+        suffix = &#34;_es&#34;
+        new_cols = []
+        for c in cols:
+            if c.endswith(suffix):
+                new_cols.append(c[:len(c)-len(suffix)].upper())
+            elif c == &#39;site_id&#39;:
+                new_cols.append(&#39;Protocol ID&#39;)
+            elif c == &#34;facility_name&#34;:
+                new_cols.append(&#39;Site Name&#39;)
+            elif c == &#34;label&#34;:
+                new_cols.append(&#39;Subject ID&#39;)
+            elif c == &#34;oc_oid&#34;:
+                new_cols.append(&#39;crf_parent_name&#39;)
+            else:
+                new_cols.append(c)
+
+        res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+        logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+        return res</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="resqdb.Connection.Connection"><code class="flex name class">
+<span>class <span class="ident">Connection</span></span>
+<span>(</span><span>nprocess=1, data='resq')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A connection with one property: a section. </p>
+<p>To use:</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>conn = Connection()</p>
+</blockquote>
+</blockquote>
+</blockquote></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Connection():
+    &#34;&#34;&#34; A connection with one property: a section. 
+
+    To use:
+    &gt;&gt;&gt; conn = Connection()
+    &#34;&#34;&#34;
+
+    def __init__(self, nprocess=1, data=&#39;resq&#39;):
+
+        start = time.time()
+
+        # Create log file in the working folder
+        log_file = os.path.join(os.getcwd(), &#39;debug.log&#39;)
+        logging.basicConfig(filename=log_file,
+                            filemode=&#39;a&#39;,
+                            format=&#39;%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s&#39;,
+                            datefmt=&#39;%H:%M:%S&#39;,
+                            level=logging.DEBUG)
+        logging.info(&#39;Connecting to datamix database!&#39;)   
+
+        # Get absolute path
+        path = os.path.dirname(__file__)
+        self.database_ini = os.path.join(path, &#39;database.ini&#39;)
+
+
+        # Set section
+        datamix = &#39;datamix&#39;
+        # Check which data should be exported
+        if data == &#39;resq&#39;:
+            # Create empty dictionary
+            self.sqls = [&#39;SELECT * from resq_mix&#39;, &#39;SELECT * from ivttby_mix&#39;, &#39;SELECT * from resq_ivttby_mix&#39;]
+            # List of dataframe names
+            self.names = [&#39;resq&#39;, &#39;ivttby&#39;]
+        elif data == &#39;atalaia&#39;: 
+            self.sqls = [&#39;SELECT * from atalaia_mix&#39;]
+            self.names = []
+        # Dictionary initialization - db dataframes
+        self.dictdb_df = {}
+        # Dictioanry initialization - prepared dataframes
+        self.dict_df = {}
+
+        if nprocess == 1:
+            if data == &#39;resq&#39;:
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    self.connect(self.sqls[i], datamix, nprocess, df_name=df_name)
+                
+                self.connect(self.sqls[2], datamix, nprocess, df_name=&#39;resq_ivttby_mix&#39;)
+                self.resq_ivttby_mix = self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+                self.dictdb_df[&#39;resq_ivttby_mix&#39;].to_csv(&#39;resq_ivttby_mix.csv&#39;, sep=&#39;,&#39;, index=False)
+                del self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+
+                for k, v in self.dictdb_df.items():
+                    self.prepare_resq_df(df=v, name=k)
+
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info(&#34;Connection: {0} dataframe has been appended to the resulting dataframe!&#34;.format(self.names[i]))
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Get preprocessed data
+                self.preprocessed_data = self.check_data(df=self.df)
+
+            elif data == &#39;atalaia&#39;:
+                self.connect(self.sqls[0], datamix, nprocess, df_name=&#39;atalaia_mix&#39;)
+                self.atalaiadb_df = self.dictdb_df[&#39;atalaia_mix&#39;]
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df[&#39;atalaia_mix&#39;]
+        else:
+            if data == &#39;resq&#39;:
+                threads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.connect(self.sqls[i], datamix, i, df_name=df_name))
+                    process.start()
+                    threads.append(process)
+                # logging.info(&#39;The process with id {0} is running.&#39;.format(process))
+
+                process = Thread(target=self.connect(self.sqls[2], datamix, 1, df_name=&#39;resq_ivttby_mix&#39;))
+                process.start()
+                threads.append(process)
+
+                for process in threads:
+                    process.join()
+            
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info(&#39;The database data were exported in {0} minutes.&#39;.format(tdelta))
+
+                self.dictdb_df[&#39;resq_ivttby_mix&#39;].to_csv(&#39;resq_ivttby_mix.csv&#39;, sep=&#39;,&#39;, index=False)
+                del self.dictdb_df[&#39;resq_ivttby_mix&#39;]
+
+                treads = []
+                for i in range(0, len(self.names)):
+                    df_name = self.names[i]
+                    process = Thread(target=self.prepare_df(df=self.dictdb_df[df_name], name=df_name))
+                    process.start()
+                    threads.append(process)
+
+                for process in threads:
+                    process.join()
+
+                end = time.time()
+                tdelta = (end-start)/60
+                logging.info(&#39;The database data were prepared in {0} minutes.&#39;.format(tdelta))
+
+                self.df = pd.DataFrame()
+                for i in range(0, len(self.names)):
+                    self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
+                    logging.info(&#34;Connection: {0} dataframe has been appended to the resulting dataframe!.&#34;.format(self.names[i]))
+
+                
+                subject_ids = self.df[&#39;Subject ID&#39;].tolist()
+                duplicates = [item for item, count in collections.Counter(subject_ids).items() if count &gt; 1]
+
+                for i in duplicates:
+                    duplicates_rows = self.df[self.df[&#39;Subject ID&#39;] == i]
+                    set_tmp = set(duplicates_rows[&#39;Protocol ID&#39;])
+                    if len(set_tmp) == 1:
+                        crfs = duplicates_rows[&#39;crf_parent_name&#39;].tolist()
+                        #print(duplicates_rows[[&#39;Subject ID&#39;, &#39;Protocol ID&#39;]])
+                        for i in crfs:
+                            if &#39;RESQV12&#39; in i:
+                                keep_crf = i
+                            if &#39;RESQV20&#39; in i:
+                                keep_crf = i
+                            if &#39;IVT_TBY&#39; in i and &#39;DEVCZ10&#39; not in i:
+                                keep_crf = i
+                    
+                        index = duplicates_rows.index[duplicates_rows[&#39;crf_parent_name&#39;] != keep_crf].tolist()
+                        self.df.drop(index, inplace=True)
+
+                        #print(duplicates_rows[&#39;crf_parent_name&#39;])
+                        #print(&#34;Keep form: {0}, deleted row: {1}&#34;.format(keep_crf, index))
+                    
+                # Get all country code in dataframe
+                self.countries = self._get_countries(df=self.df)
+                # Cal check data function
+                self.preprocessed_data = self.check_data(self.df, nprocess=nprocess)
+                #self.preprocessed_data = self.check_data(self.df, nprocess=None)   
+            
+            elif data == &#39;atalaia&#39;:
+                self.connect(self.sqls[0], datamix, nprocess, df_name=&#39;atalaia_mix&#39;)
+                self.atalaiadb_df = self.dictdb_df[&#39;atalaia_mix&#39;]
+                #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
+                self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
+                del self.dictdb_df[&#39;atalaia_mix&#39;]
+
+        end = time.time()
+        tdelta = (end-start)/60
+        logging.info(&#39;The conversion and merging run {0} minutes.&#39;.format(tdelta))
+
+    def config(self, section):
+        &#34;&#34;&#34; Read and parse the config database file. 
+        
+        Raises: 
+            Exception: If the section couldn&#39;t be find in the database.ini file)
+        Returns: 
+            The dictionary of parameters to enable connection to database.
+        &#34;&#34;&#34;
+        # Create a parser object
+        parser = ConfigParser()
+        # Read config file
+        parser.read(self.database_ini)
+
+        # Get section, default to postgresql
+        db = {}
+        if parser.has_section(section):
+            params = parser.items(section)
+            for param in params:
+                db[param[0]] = param[1]
+        else:
+            logging.error(&#39;Connection: Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+            raise Exception(&#39;Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+
+        return db
+
+    
+    def connect(self, sql, section, nprocess, df_name=None):
+        &#34;&#34;&#34; Connects to the database specified in the databse.ini file.
+        
+        Args:
+            sql: The SQL query run to get dataframe from the database.
+        Raises: 
+            Exception: If the connection was not successful. 
+        Returns: 
+            The new dataframe containing data from database.
+        &#34;&#34;&#34;
+        conn = None    
+        try: 
+            # Read connection parameters
+            params = self.config(section)
+
+            # Connect to the PostgreSQL server
+            logging.info(&#39;Process{0}: Connecting to the PostgreSQL database... &#39;.format(nprocess))
+            conn = psycopg2.connect(**params)
+
+            # Create dataframe for given sql query
+            if df_name is not None:
+                self.dictdb_df[df_name] = pd.read_sql_query(sql, conn)
+                logging.info(&#39;Process{0}: Dataframe {1} has been created created.&#39;.format(nprocess, df_name))
+            else:
+                logging.info(&#39;Process{0}: Name of dataframe is missing.&#39;.format(nprocess))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.error(error)
+
+        finally:
+            if conn is not None:
+                conn.close()
+                logging.info(&#39;Process{0}: Database connection has been closed.&#39;.format(nprocess))
+    
+    
+    def prepare_df(self, df, name):
+        &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+        if &#39;resq&#39; in name:
+            df.rename(columns={&#39;fabry_cs&#39;: &#39;fabry_en&#39;}, inplace=True)
+            # If CRF is v1.2 replace BLEEDING REASON with -999
+            df[&#39;bleeding_reason_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_reason_en&#39;], axis=1)
+
+            # If CRF is v1.2 replace INTERVENTION with -999
+            df[&#39;intervention_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;intervention_en&#39;], axis=1)
+            # If CRF is v1.2 replace RECURRENT_STROKE value with -999
+            df[&#39;recurrent_stroke_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;recurrent_stroke_en&#39;], axis=1)
+            # If CRF is v1.2 replace VENTILATOR value with -999
+            df[&#39;ventilator_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;ventilator_en&#39;], axis=1)
+            # If CRF is v1.2 and stroke type is 2 then neurosurgery is 3
+            df[&#39;neurosurgery_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] and x[&#39;stroke_type_en&#39;] == 2 else x[&#39;neurosurgery_en&#39;], axis=1)
+            # If CRF is v1.2 replace BLEEDING SOURCE with -999
+            df[&#39;bleeding_source_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_source_en&#39;], axis=1)
+            # If CRF is v1.2 replace CEREBROVASCULAR EXPERT with -999
+            df[&#39;cerebrovascular_expert_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;cerebrovascular_expert_en&#39;], axis=1)
+            
+            # If CRF is v1.2. replace DISCHARGE SAME FACILITY with -999 if DISCHARGE_DESTINATIOn is not 2, else 1
+            def discharge_same_facility(val):
+                res = 1 if val == 2 else -999
+                return res
+            df[&#39;discharge_same_facility_en&#39;] = df.apply(lambda x: discharge_same_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_same_facility_en&#39;], axis=1) 
+            # If CRF is v1.2. replace DISCHARGE OTHER FACILITY with -999 if DISCHARGE_DESTINATION is not 3, else 3
+            def discharge_other_facility(val):
+                res = 3 if val == 3 else -999
+                return res
+            df[&#39;discharge_other_facility_en&#39;] = df.apply(lambda x: discharge_other_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_en&#39;], axis=1)
+            # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O2 with -999
+            df[&#39;discharge_other_facility_o2_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o2_en&#39;], axis=1)
+            # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O1 with -999
+            df[&#39;discharge_other_facility_o1_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o1_en&#39;], axis=1)
+            # If CRF is v1.2. replace DISCHARGE OTHER FACILITY O3 with -999 if DISCHARGE_DESTINATION is not 3, else 4
+            def discharge_other_facility_o3(val):
+                res = 4 if val == 3 else -999
+                return res
+            df[&#39;discharge_other_facility_o3_en&#39;] = df.apply(lambda x: discharge_other_facility_o3(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o3_en&#39;], axis=1)
+            # If CRF is v1.2 replace DEPARTMENT TYPE with -999 else kepp DEPARTMENT_TYPE
+            df[&#39;department_type_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;department_type_en&#39;], axis=1)
+
+            # Get only columns ending with _en
+            cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;, &#39;facility_country&#39;]
+            cols.extend([c for c in df.columns if c.endswith(&#39;_en&#39;)])
+
+            res = df[cols].copy()
+            # Remove _en suffix from column names
+            cols = res.columns
+            suffix = &#34;_en&#34;
+            new_cols = []
+            for c in cols:
+                if c.endswith(suffix):
+                    new_cols.append(c[:len(c)-len(suffix)].upper())
+                elif c == &#39;site_id&#39;:
+                    new_cols.append(&#39;Protocol ID&#39;)
+                elif c == &#34;facility_name&#34;:
+                    new_cols.append(&#39;Site Name&#39;)
+                elif c == &#34;label&#34;:
+                    new_cols.append(&#39;Subject ID&#39;)
+                elif c == &#34;oc_oid&#34;:
+                    new_cols.append(&#39;crf_parent_name&#39;)
+                elif c == &#34;facility_country&#34;:
+                    new_cols.append(&#39;Country&#39;)
+                else:
+                    new_cols.append(c)
+
+            res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+            logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+
+            self.dict_df[name] = res
+
+        elif &#39;ivttby&#39; in name:
+
+            # Get patients inserted in IVT_TBY_DEV
+            ivttby_dev = df[df[&#39;oc_oid&#39;].str.contains(&#39;&#39;)]
+            #df = df[df[&#39;oc_oid&#39;] != &#34;F_RESQ_IVT_TBY_1565_DEVCZ10&#34;].copy()
+
+            # Merge ct_time columns 
+            vals = [1,2,3,4,5,6]
+            df[&#39;ct_time_cz&#39;] = df.apply(lambda x: x[&#39;ct_time_2_cz&#39;] if (x[&#39;ct_mri_cz&#39;] in vals and pd.isnull(x[&#39;ct_time_cz&#39;])) else x[&#39;ct_time_cz&#39;], axis=1)
+
+            # Get only columns ending with _en
+            cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;label&#39;, &#39;oc_oid&#39;]
+            cols.extend([c for c in df.columns if c.endswith(&#39;_cz&#39;)])
+
+            df = df[cols].copy()
+            # Remove _en suffix from column names
+            cols = df.columns
+            suffix = &#34;_cz&#34;
+            new_cols = []
+            for c in cols:
+                if c.endswith(suffix):
+                    new_cols.append(c[:len(c)-len(suffix)].upper())
+                elif c == &#39;site_id&#39;:
+                    new_cols.append(&#39;Protocol ID&#39;)
+                elif c == &#34;facility_name&#34;:
+                    new_cols.append(&#39;Site Name&#39;)
+                elif c == &#34;label&#34;:
+                    new_cols.append(&#39;Subject ID&#39;)
+                elif c == &#34;oc_oid&#34;:
+                    new_cols.append(&#39;crf_parent_name&#39;)
+                else:
+                    new_cols.append(c)
+            
+            df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
+            df.rename(columns={&#39;ANTITHROMBOTICS&#39;: &#39;ANTITHROMBOTICS_TMP&#39;, &#39;GLUCOSE&#39;: &#39;GLUCOSE_OLD&#39;}, inplace=True)
+
+            df[&#39;IVT_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_ONLY&#39;] == 2 else None, axis=1)
+            df[&#39;IVT_TBY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY&#39;] == 2 else None, axis=1)
+            df[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY_REFER&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_ONLY&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_ALL_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_ALL&#39;] == 2 else None, axis=1)
+            df[&#39;TBY_REFER_LIM_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_LIM&#39;] == 2 else None, axis=1)
+
+            # Convert antithrombotics to RES-Q v2.0
+            df[&#39;ANTITHROMBOTICS_TMP&#39;] = df.apply(lambda x: int(x[&#39;ANTITHROMBOTICS_TMP&#39;]) if &#39;DEVCZ10&#39; in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+            df[&#39;ANTITHROMBOTICS&#39;] = df.apply(lambda x: self._get_tmp_antithrombotics(x[&#39;ANTITHROMBOTICS_TMP&#39;], x[&#39;AFIB_FLUTTER&#39;]) if &#39;DEVCZ10&#39; not in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+
+            # Create value assessed for reabilitation
+            df.loc[:, &#39;ASSESSED_FOR_REHAB&#39;] = np.nan
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([1,2,3]), &#39;ASSESSED_FOR_REHAB&#39;] = 1
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([4]), &#39;ASSESSED_FOR_REHAB&#39;] = 2
+            df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([5]), &#39;ASSESSED_FOR_REHAB&#39;] = 3
+
+            df[&#39;GLUCOSE&#39;] = df.apply(lambda x: self.fix_glucose(x[&#39;GLUCOSE_OLD&#39;]) if x[&#39;STROKE_TYPE&#39;] == 1 else np.nan, axis=1)
+
+            # Rename CT_MRI column to CT_MRI_OLD
+            df.rename(columns={&#39;CT_MRI&#39;: &#39;CT_MRI_OLD&#39;, &#39;CT_TIME&#39;: &#39;CT_TIME_OLD&#39;}, inplace=True)
+            # Get ischemic patients from IVT/TBY form
+            ischemic_pts = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+            # Convert 7 (not performed) to 1, convert 1,2,3,4,5,6 to 2 (performed)
+            ischemic_pts[&#39;CT_MRI&#39;] = ischemic_pts.apply(lambda x: 2 if x[&#39;CT_MRI_OLD&#39;] in [1,2,3,4,5,6] else 1, axis=1)
+            # Call function to get ctmri delta is &lt;= 60 set CT_TIME to 1 else to 2
+            ischemic_pts[&#39;CT_TIME&#39;] = ischemic_pts.apply(lambda x: self.get_ctmri_delta(x[&#39;HOSPITAL_TIME&#39;], x[&#39;CT_TIME_OLD&#39;]) if x[&#39;CT_MRI&#39;] == 2 else np.nan, axis=1)
+
+            # Get other stroke than ischemic from IVT/TBY form
+            other_pts = df[~df[&#39;STROKE_TYPE&#39;].isin([1]) &amp; ~df[&#39;CT_MRI_OLD&#39;].isin([1,2,3,4,5,6,7])].copy()
+            # Rename columns to be same as in RES-Q v2.0
+            other_pts.rename(columns={&#39;CT_MRI_OTHER&#39;: &#39;CT_MRI&#39;, &#39;CT_TIME_OTHER&#39;: &#39;CT_TIME&#39;}, inplace=True)
+            # Switch values for CT_MRI
+            other_pts[&#39;CT_MRI&#39;] = other_pts[&#39;CT_MRI&#39;].replace({1: 2, 2: 1})
+            # If for times were selected option 3 and 4 change it to 2 (done after 1 hour)
+            other_pts[&#39;CT_TIME&#39;] = other_pts[&#39;CT_TIME&#39;].replace({3: 2, 4: 2})
+
+            df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
+
+            # Create country column
+            df[&#39;Country&#39;] = &#39;Czech Republic&#39;
+
+            logging.info(&#34;Connection: Column names in IVT/TBY were changed successfully.&#34;)
+
+            self.dict_df[name] = df
+
+
+    def _get_tmp_antithrombotics(self, col_vals, afib):
+        &#34;&#34;&#34; Remap antithrombotics from IVT/TBY form to RES-Q v2.0. 
+        
+        Args:
+            col_vals: Selected values for antithrombotics in IVT/TBY
+            afib: Selected afib flutter.
+        Returns:
+            res: Mapped value
+        &#34;&#34;&#34;
+        if col_vals is not None:
+            vals_str = col_vals.split(&#39;,&#39;) # Split selected values using , as seperator
+            vals = list(map(int, vals_str)) # Convert string values to integers
+            antiplatelets_vals = [1,2,3,4,5,6] # antiplatelets values in IVT/TBY
+            anticoagulants_vals = [8,9,10,11,12,13,14] # anticoagulants values in IVT/TBY
+            antiplatelets_recs = 7 # antiplatelets recommended
+            anticoagulants_recs = 15 # anticoagulants recommended
+            nothing = 16 # nothing
+
+            # mapping anticoagulants
+            anticoagulants_dict = {
+                8: 2, # warfarin
+                9: 3, # dabigatran
+                10: 4, # rivaroxaban
+                11: 5, # apixaban
+                12: 6, # edoxaban
+                13: 7, # LMWH or heparin in prophylactic dose
+                14: 8, # LMWH or heparin in full anticoagulant dose
+            }
+
+            # default value (now deleted by Mirek)
+            if len(vals) &gt; 15:
+                res = None
+            # nothing prescribed
+            elif nothing in vals:
+                res = 10
+            else:
+                # if AFIB not detected or not know we are interested only in antiplatelets, if antiplatelets recommended value in vals set result to 9 (not prescribed, but recommended), else check if some value from antiplatelets_vals is in vals, and if yes set result to 1 (antiplatelets) else set result to 10 (nothing)
+                if afib in [4,5]: 
+                    if antiplatelets_recs in vals:
+                        res = 9
+                    else:
+                        # Antiplatelets values which are in selected antithrombotics
+                        x = set(antiplatelets_vals).intersection(set(vals))
+                        if bool(x):
+                            res = 1
+                        else:
+                            res = 10
+                # if AFIB known or detected we are interested only in anticoagulants, if anticoagulants recommended value in vals set result to 9 (not prescribed, but recommended), else check if some value from anticoagulants_vals is in vals, and if yes map value based on anticoagulants_dict else set result to 10 (nothing)
+                elif afib in [1,2,3]:
+                    if anticoagulants_recs in vals:
+                        res = 9
+                    else:
+                        # Anticoagulant values which are in selected antithrombotics
+                        x = set(anticoagulants_vals).intersection(set(vals))
+                        if bool(x):
+                            for val in x:
+                                res = anticoagulants_dict[val]
+                        else:
+                            res = 10
+
+            #print(&#34;Vals: {0}, Results: {1}&#34;.format(vals, res))
+            return res
+        else:
+            return None
+             
+    
+    def get_ctmri_delta(self, hosp_time, ct_time):
+        &#34;&#34;&#34; Calculate differnce between two times. 
+
+        Args:
+            hospital_time: The time of hospitalization
+            ct_time: The time when CT has been perfrmed. 
+        Returns:
+            The calculated difference in minutes.
+        &#34;&#34;&#34;
+        timeformat = &#39;%H:%M:%S&#39;
+
+        #print(&#39;Hosp time: {0}/{1}, CT_TIME: {2}/{3}&#39;.format(hosp_time, type(hosp_time), ct_time, type(ct_time)))
+        # print(ct_time, hosp_time)
+        # Check if both time are not None if yes, return 0 else return tdelta
+        if hosp_time is None or ct_time is None or pd.isnull(hosp_time) or pd.isnull(ct_time):
+            tdeltaMin = 0
+        elif hosp_time == 0 or ct_time == 0:
+            tdeltaMin = 0
+        else:
+            if isinstance(ct_time, datetime.time) and isinstance(hosp_time, datetime.time):
+                tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.combine(datetime.date.today(), hosp_time)
+            elif isinstance(ct_time, datetime.time):
+                tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.strptime(hosp_time, timeformat)
+            elif isinstance(hosp_time, datetime.time):
+                tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)
+            else:
+                tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)    
+            tdeltaMin = tdelta.total_seconds()/60.0
+
+        if tdeltaMin &gt; 60:
+            res = 2
+        elif tdeltaMin &lt;= 60 and tdeltaMin &gt; 0:
+            res = 1
+        else:
+            res = -2
+        return res
+
+
+    def _get_countries(self, df):
+        &#34;&#34;&#34;Return list of countries present in the dataframe.
+
+        Args:
+            df: The raw dataframe
+        Returns:
+            The list of country codes present in the dataframe.
+        &#34;&#34;&#34;
+        site_ids = df[&#39;Protocol ID&#39;].apply(lambda x: pd.Series(str(x).split(&#34;_&#34;)))
+        countriesSet = set(site_ids[0])
+        countriesList = list(countriesSet)
+
+        logging.info(&#34;Data: Countries in the dataset: {0}.&#34;.format(countriesList))
+        return countriesList
+    
+    
+    def fix_glucose(self, value):
+        &#34;&#34;&#34; Fix glucose value to have consistent format - 5.5 etc. &#34;&#34;&#34;
+        if &#34;,&#34; in value:
+            res = value.replace(&#39;,&#39;, &#39;.&#39;)
+        elif value == &#39;-99&#39;:
+            res = value
+        elif &#39;-&#39; in value:
+            res = value.replace(&#39;-&#39;, &#39;.&#39;)
+        elif &#39;.&#39; in value:
+            res = value
+        elif len(value) &gt; 5:
+            res = &#39;-1&#39;
+        else:
+            res = value
+
+        return res
+
+    def check_data(self, df, nprocess):
+        &#34;&#34;&#34; Check dates and times and fix according to algorithm.
+        
+        Args: 
+            df: The raw dataframe with fixed columns
+        Returns: 
+            The preprocessed data.
+        &#34;&#34;&#34;
+        
+        chd = CheckData(df=df, nprocess=nprocess)
+
+        logging.info(&#34;The data were preprocessed.&#34;)
+
+        return chd.preprocessed_data
+
+
+    def prepare_atalaia_df(self, df):
+        &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+
+        # Get only columns ending with _en
+        cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;]
+        cols.extend([c for c in df.columns if c.endswith(&#39;_es&#39;)])
+
+        res = df[cols].copy()
+        # Remove _en suffix from column names
+        cols = res.columns
+        suffix = &#34;_es&#34;
+        new_cols = []
+        for c in cols:
+            if c.endswith(suffix):
+                new_cols.append(c[:len(c)-len(suffix)].upper())
+            elif c == &#39;site_id&#39;:
+                new_cols.append(&#39;Protocol ID&#39;)
+            elif c == &#34;facility_name&#34;:
+                new_cols.append(&#39;Site Name&#39;)
+            elif c == &#34;label&#34;:
+                new_cols.append(&#39;Subject ID&#39;)
+            elif c == &#34;oc_oid&#34;:
+                new_cols.append(&#39;crf_parent_name&#39;)
+            else:
+                new_cols.append(c)
+
+        res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+        logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+        return res</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="resqdb.Connection.Connection.check_data"><code class="name flex">
+<span>def <span class="ident">check_data</span></span>(<span>self, df, nprocess)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check dates and times and fix according to algorithm.</p>
+<p>Args:
+df: The raw dataframe with fixed columns
+Returns:
+The preprocessed data.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def check_data(self, df, nprocess):
+    &#34;&#34;&#34; Check dates and times and fix according to algorithm.
+    
+    Args: 
+        df: The raw dataframe with fixed columns
+    Returns: 
+        The preprocessed data.
+    &#34;&#34;&#34;
+    
+    chd = CheckData(df=df, nprocess=nprocess)
+
+    logging.info(&#34;The data were preprocessed.&#34;)
+
+    return chd.preprocessed_data</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.config"><code class="name flex">
+<span>def <span class="ident">config</span></span>(<span>self, section)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Read and parse the config database file. </p>
+<p>Raises:
+Exception: If the section couldn't be find in the database.ini file)
+Returns:
+The dictionary of parameters to enable connection to database.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def config(self, section):
+    &#34;&#34;&#34; Read and parse the config database file. 
+    
+    Raises: 
+        Exception: If the section couldn&#39;t be find in the database.ini file)
+    Returns: 
+        The dictionary of parameters to enable connection to database.
+    &#34;&#34;&#34;
+    # Create a parser object
+    parser = ConfigParser()
+    # Read config file
+    parser.read(self.database_ini)
+
+    # Get section, default to postgresql
+    db = {}
+    if parser.has_section(section):
+        params = parser.items(section)
+        for param in params:
+            db[param[0]] = param[1]
+    else:
+        logging.error(&#39;Connection: Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+        raise Exception(&#39;Section {0} not found in the {1} file&#39;.format(section, self.database_ini))
+
+    return db</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.connect"><code class="name flex">
+<span>def <span class="ident">connect</span></span>(<span>self, sql, section, nprocess, df_name=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Connects to the database specified in the databse.ini file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>sql</code></strong></dt>
+<dd>The SQL query run to get dataframe from the database.</dd>
+<dt><strong><code>Raises</code></strong></dt>
+<dd>Exception: If the connection was not successful.</dd>
+<dt><strong><code>Returns</code></strong></dt>
+<dd>The new dataframe containing data from database.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def connect(self, sql, section, nprocess, df_name=None):
+    &#34;&#34;&#34; Connects to the database specified in the databse.ini file.
+    
+    Args:
+        sql: The SQL query run to get dataframe from the database.
+    Raises: 
+        Exception: If the connection was not successful. 
+    Returns: 
+        The new dataframe containing data from database.
+    &#34;&#34;&#34;
+    conn = None    
+    try: 
+        # Read connection parameters
+        params = self.config(section)
+
+        # Connect to the PostgreSQL server
+        logging.info(&#39;Process{0}: Connecting to the PostgreSQL database... &#39;.format(nprocess))
+        conn = psycopg2.connect(**params)
+
+        # Create dataframe for given sql query
+        if df_name is not None:
+            self.dictdb_df[df_name] = pd.read_sql_query(sql, conn)
+            logging.info(&#39;Process{0}: Dataframe {1} has been created created.&#39;.format(nprocess, df_name))
+        else:
+            logging.info(&#39;Process{0}: Name of dataframe is missing.&#39;.format(nprocess))
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        logging.error(error)
+
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info(&#39;Process{0}: Database connection has been closed.&#39;.format(nprocess))</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.fix_glucose"><code class="name flex">
+<span>def <span class="ident">fix_glucose</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Fix glucose value to have consistent format - 5.5 etc.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def fix_glucose(self, value):
+    &#34;&#34;&#34; Fix glucose value to have consistent format - 5.5 etc. &#34;&#34;&#34;
+    if &#34;,&#34; in value:
+        res = value.replace(&#39;,&#39;, &#39;.&#39;)
+    elif value == &#39;-99&#39;:
+        res = value
+    elif &#39;-&#39; in value:
+        res = value.replace(&#39;-&#39;, &#39;.&#39;)
+    elif &#39;.&#39; in value:
+        res = value
+    elif len(value) &gt; 5:
+        res = &#39;-1&#39;
+    else:
+        res = value
+
+    return res</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.get_ctmri_delta"><code class="name flex">
+<span>def <span class="ident">get_ctmri_delta</span></span>(<span>self, hosp_time, ct_time)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Calculate differnce between two times. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>hospital_time</code></strong></dt>
+<dd>The time of hospitalization</dd>
+<dt><strong><code>ct_time</code></strong></dt>
+<dd>The time when CT has been perfrmed. </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The calculated difference in minutes.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_ctmri_delta(self, hosp_time, ct_time):
+    &#34;&#34;&#34; Calculate differnce between two times. 
+
+    Args:
+        hospital_time: The time of hospitalization
+        ct_time: The time when CT has been perfrmed. 
+    Returns:
+        The calculated difference in minutes.
+    &#34;&#34;&#34;
+    timeformat = &#39;%H:%M:%S&#39;
+
+    #print(&#39;Hosp time: {0}/{1}, CT_TIME: {2}/{3}&#39;.format(hosp_time, type(hosp_time), ct_time, type(ct_time)))
+    # print(ct_time, hosp_time)
+    # Check if both time are not None if yes, return 0 else return tdelta
+    if hosp_time is None or ct_time is None or pd.isnull(hosp_time) or pd.isnull(ct_time):
+        tdeltaMin = 0
+    elif hosp_time == 0 or ct_time == 0:
+        tdeltaMin = 0
+    else:
+        if isinstance(ct_time, datetime.time) and isinstance(hosp_time, datetime.time):
+            tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.combine(datetime.date.today(), hosp_time)
+        elif isinstance(ct_time, datetime.time):
+            tdelta = datetime.datetime.combine(datetime.date.today(), ct_time) - datetime.datetime.strptime(hosp_time, timeformat)
+        elif isinstance(hosp_time, datetime.time):
+            tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)
+        else:
+            tdelta = datetime.datetime.strptime(ct_time, timeformat) - datetime.datetime.strptime(hosp_time, timeformat)    
+        tdeltaMin = tdelta.total_seconds()/60.0
+
+    if tdeltaMin &gt; 60:
+        res = 2
+    elif tdeltaMin &lt;= 60 and tdeltaMin &gt; 0:
+        res = 1
+    else:
+        res = -2
+    return res</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.prepare_atalaia_df"><code class="name flex">
+<span>def <span class="ident">prepare_atalaia_df</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def prepare_atalaia_df(self, df):
+    &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+
+    # Get only columns ending with _en
+    cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;]
+    cols.extend([c for c in df.columns if c.endswith(&#39;_es&#39;)])
+
+    res = df[cols].copy()
+    # Remove _en suffix from column names
+    cols = res.columns
+    suffix = &#34;_es&#34;
+    new_cols = []
+    for c in cols:
+        if c.endswith(suffix):
+            new_cols.append(c[:len(c)-len(suffix)].upper())
+        elif c == &#39;site_id&#39;:
+            new_cols.append(&#39;Protocol ID&#39;)
+        elif c == &#34;facility_name&#34;:
+            new_cols.append(&#39;Site Name&#39;)
+        elif c == &#34;label&#34;:
+            new_cols.append(&#39;Subject ID&#39;)
+        elif c == &#34;oc_oid&#34;:
+            new_cols.append(&#39;crf_parent_name&#39;)
+        else:
+            new_cols.append(c)
+
+    res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+    logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+    return res</code></pre>
+</details>
+</dd>
+<dt id="resqdb.Connection.Connection.prepare_df"><code class="name flex">
+<span>def <span class="ident">prepare_df</span></span>(<span>self, df, name)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def prepare_df(self, df, name):
+    &#34;&#34;&#34; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &#34;&#34;&#34;
+    if &#39;resq&#39; in name:
+        df.rename(columns={&#39;fabry_cs&#39;: &#39;fabry_en&#39;}, inplace=True)
+        # If CRF is v1.2 replace BLEEDING REASON with -999
+        df[&#39;bleeding_reason_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_reason_en&#39;], axis=1)
+
+        # If CRF is v1.2 replace INTERVENTION with -999
+        df[&#39;intervention_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;intervention_en&#39;], axis=1)
+        # If CRF is v1.2 replace RECURRENT_STROKE value with -999
+        df[&#39;recurrent_stroke_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;recurrent_stroke_en&#39;], axis=1)
+        # If CRF is v1.2 replace VENTILATOR value with -999
+        df[&#39;ventilator_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;ventilator_en&#39;], axis=1)
+        # If CRF is v1.2 and stroke type is 2 then neurosurgery is 3
+        df[&#39;neurosurgery_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] and x[&#39;stroke_type_en&#39;] == 2 else x[&#39;neurosurgery_en&#39;], axis=1)
+        # If CRF is v1.2 replace BLEEDING SOURCE with -999
+        df[&#39;bleeding_source_en&#39;] = df.apply(lambda x: 3 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;bleeding_source_en&#39;], axis=1)
+        # If CRF is v1.2 replace CEREBROVASCULAR EXPERT with -999
+        df[&#39;cerebrovascular_expert_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;cerebrovascular_expert_en&#39;], axis=1)
+        
+        # If CRF is v1.2. replace DISCHARGE SAME FACILITY with -999 if DISCHARGE_DESTINATIOn is not 2, else 1
+        def discharge_same_facility(val):
+            res = 1 if val == 2 else -999
+            return res
+        df[&#39;discharge_same_facility_en&#39;] = df.apply(lambda x: discharge_same_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_same_facility_en&#39;], axis=1) 
+        # If CRF is v1.2. replace DISCHARGE OTHER FACILITY with -999 if DISCHARGE_DESTINATION is not 3, else 3
+        def discharge_other_facility(val):
+            res = 3 if val == 3 else -999
+            return res
+        df[&#39;discharge_other_facility_en&#39;] = df.apply(lambda x: discharge_other_facility(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_en&#39;], axis=1)
+        # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O2 with -999
+        df[&#39;discharge_other_facility_o2_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o2_en&#39;], axis=1)
+        # If CRF is v1.2 replace DISCHARGE OTHER FACILITY O1 with -999
+        df[&#39;discharge_other_facility_o1_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o1_en&#39;], axis=1)
+        # If CRF is v1.2. replace DISCHARGE OTHER FACILITY O3 with -999 if DISCHARGE_DESTINATION is not 3, else 4
+        def discharge_other_facility_o3(val):
+            res = 4 if val == 3 else -999
+            return res
+        df[&#39;discharge_other_facility_o3_en&#39;] = df.apply(lambda x: discharge_other_facility_o3(x[&#39;discharge_destination_en&#39;]) if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;discharge_other_facility_o3_en&#39;], axis=1)
+        # If CRF is v1.2 replace DEPARTMENT TYPE with -999 else kepp DEPARTMENT_TYPE
+        df[&#39;department_type_en&#39;] = df.apply(lambda x: -999 if &#34;RESQV12&#34; in x[&#39;oc_oid&#39;] else x[&#39;department_type_en&#39;], axis=1)
+
+        # Get only columns ending with _en
+        cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;oc_oid&#39;, &#39;label&#39;, &#39;facility_country&#39;]
+        cols.extend([c for c in df.columns if c.endswith(&#39;_en&#39;)])
+
+        res = df[cols].copy()
+        # Remove _en suffix from column names
+        cols = res.columns
+        suffix = &#34;_en&#34;
+        new_cols = []
+        for c in cols:
+            if c.endswith(suffix):
+                new_cols.append(c[:len(c)-len(suffix)].upper())
+            elif c == &#39;site_id&#39;:
+                new_cols.append(&#39;Protocol ID&#39;)
+            elif c == &#34;facility_name&#34;:
+                new_cols.append(&#39;Site Name&#39;)
+            elif c == &#34;label&#34;:
+                new_cols.append(&#39;Subject ID&#39;)
+            elif c == &#34;oc_oid&#34;:
+                new_cols.append(&#39;crf_parent_name&#39;)
+            elif c == &#34;facility_country&#34;:
+                new_cols.append(&#39;Country&#39;)
+            else:
+                new_cols.append(c)
+
+        res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
+        logging.info(&#34;Connection: Column names in RESQ were changed successfully.&#34;)
+
+        self.dict_df[name] = res
+
+    elif &#39;ivttby&#39; in name:
+
+        # Get patients inserted in IVT_TBY_DEV
+        ivttby_dev = df[df[&#39;oc_oid&#39;].str.contains(&#39;&#39;)]
+        #df = df[df[&#39;oc_oid&#39;] != &#34;F_RESQ_IVT_TBY_1565_DEVCZ10&#34;].copy()
+
+        # Merge ct_time columns 
+        vals = [1,2,3,4,5,6]
+        df[&#39;ct_time_cz&#39;] = df.apply(lambda x: x[&#39;ct_time_2_cz&#39;] if (x[&#39;ct_mri_cz&#39;] in vals and pd.isnull(x[&#39;ct_time_cz&#39;])) else x[&#39;ct_time_cz&#39;], axis=1)
+
+        # Get only columns ending with _en
+        cols = [&#39;site_id&#39;, &#39;facility_name&#39;, &#39;label&#39;, &#39;oc_oid&#39;]
+        cols.extend([c for c in df.columns if c.endswith(&#39;_cz&#39;)])
+
+        df = df[cols].copy()
+        # Remove _en suffix from column names
+        cols = df.columns
+        suffix = &#34;_cz&#34;
+        new_cols = []
+        for c in cols:
+            if c.endswith(suffix):
+                new_cols.append(c[:len(c)-len(suffix)].upper())
+            elif c == &#39;site_id&#39;:
+                new_cols.append(&#39;Protocol ID&#39;)
+            elif c == &#34;facility_name&#34;:
+                new_cols.append(&#39;Site Name&#39;)
+            elif c == &#34;label&#34;:
+                new_cols.append(&#39;Subject ID&#39;)
+            elif c == &#34;oc_oid&#34;:
+                new_cols.append(&#39;crf_parent_name&#39;)
+            else:
+                new_cols.append(c)
+        
+        df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
+        df.rename(columns={&#39;ANTITHROMBOTICS&#39;: &#39;ANTITHROMBOTICS_TMP&#39;, &#39;GLUCOSE&#39;: &#39;GLUCOSE_OLD&#39;}, inplace=True)
+
+        df[&#39;IVT_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_ONLY&#39;] == 2 else None, axis=1)
+        df[&#39;IVT_TBY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY&#39;] == 2 else None, axis=1)
+        df[&#39;IVT_TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;IVT_TBY_REFER&#39;] == 2 else None, axis=1)
+        df[&#39;TBY_ONLY_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_ONLY&#39;] == 2 else None, axis=1)
+        df[&#39;TBY_REFER_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER&#39;] == 2 else None, axis=1)
+        df[&#39;TBY_REFER_ALL_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_ALL&#39;] == 2 else None, axis=1)
+        df[&#39;TBY_REFER_LIM_ADMISSION_TIME&#39;] = df.apply(lambda x: x[&#39;HOSPITAL_TIME&#39;] if x[&#39;TBY_REFER_LIM&#39;] == 2 else None, axis=1)
+
+        # Convert antithrombotics to RES-Q v2.0
+        df[&#39;ANTITHROMBOTICS_TMP&#39;] = df.apply(lambda x: int(x[&#39;ANTITHROMBOTICS_TMP&#39;]) if &#39;DEVCZ10&#39; in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+        df[&#39;ANTITHROMBOTICS&#39;] = df.apply(lambda x: self._get_tmp_antithrombotics(x[&#39;ANTITHROMBOTICS_TMP&#39;], x[&#39;AFIB_FLUTTER&#39;]) if &#39;DEVCZ10&#39; not in x[&#39;crf_parent_name&#39;] else x[&#39;ANTITHROMBOTICS_TMP&#39;], axis=1)
+
+        # Create value assessed for reabilitation
+        df.loc[:, &#39;ASSESSED_FOR_REHAB&#39;] = np.nan
+        df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([1,2,3]), &#39;ASSESSED_FOR_REHAB&#39;] = 1
+        df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([4]), &#39;ASSESSED_FOR_REHAB&#39;] = 2
+        df.loc[df[&#39;PHYSIOTHERAPIST_EVALUATION&#39;].isin([5]), &#39;ASSESSED_FOR_REHAB&#39;] = 3
+
+        df[&#39;GLUCOSE&#39;] = df.apply(lambda x: self.fix_glucose(x[&#39;GLUCOSE_OLD&#39;]) if x[&#39;STROKE_TYPE&#39;] == 1 else np.nan, axis=1)
+
+        # Rename CT_MRI column to CT_MRI_OLD
+        df.rename(columns={&#39;CT_MRI&#39;: &#39;CT_MRI_OLD&#39;, &#39;CT_TIME&#39;: &#39;CT_TIME_OLD&#39;}, inplace=True)
+        # Get ischemic patients from IVT/TBY form
+        ischemic_pts = df[df[&#39;STROKE_TYPE&#39;].isin([1])].copy()
+        # Convert 7 (not performed) to 1, convert 1,2,3,4,5,6 to 2 (performed)
+        ischemic_pts[&#39;CT_MRI&#39;] = ischemic_pts.apply(lambda x: 2 if x[&#39;CT_MRI_OLD&#39;] in [1,2,3,4,5,6] else 1, axis=1)
+        # Call function to get ctmri delta is &lt;= 60 set CT_TIME to 1 else to 2
+        ischemic_pts[&#39;CT_TIME&#39;] = ischemic_pts.apply(lambda x: self.get_ctmri_delta(x[&#39;HOSPITAL_TIME&#39;], x[&#39;CT_TIME_OLD&#39;]) if x[&#39;CT_MRI&#39;] == 2 else np.nan, axis=1)
+
+        # Get other stroke than ischemic from IVT/TBY form
+        other_pts = df[~df[&#39;STROKE_TYPE&#39;].isin([1]) &amp; ~df[&#39;CT_MRI_OLD&#39;].isin([1,2,3,4,5,6,7])].copy()
+        # Rename columns to be same as in RES-Q v2.0
+        other_pts.rename(columns={&#39;CT_MRI_OTHER&#39;: &#39;CT_MRI&#39;, &#39;CT_TIME_OTHER&#39;: &#39;CT_TIME&#39;}, inplace=True)
+        # Switch values for CT_MRI
+        other_pts[&#39;CT_MRI&#39;] = other_pts[&#39;CT_MRI&#39;].replace({1: 2, 2: 1})
+        # If for times were selected option 3 and 4 change it to 2 (done after 1 hour)
+        other_pts[&#39;CT_TIME&#39;] = other_pts[&#39;CT_TIME&#39;].replace({3: 2, 4: 2})
+
+        df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
+
+        # Create country column
+        df[&#39;Country&#39;] = &#39;Czech Republic&#39;
+
+        logging.info(&#34;Connection: Column names in IVT/TBY were changed successfully.&#34;)
+
+        self.dict_df[name] = df</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="resqdb" href="index.html">resqdb</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="resqdb.Connection.Connection" href="#resqdb.Connection.Connection">Connection</a></code></h4>
+<ul class="two-column">
+<li><code><a title="resqdb.Connection.Connection.check_data" href="#resqdb.Connection.Connection.check_data">check_data</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.config" href="#resqdb.Connection.Connection.config">config</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.connect" href="#resqdb.Connection.Connection.connect">connect</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.fix_glucose" href="#resqdb.Connection.Connection.fix_glucose">fix_glucose</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.get_ctmri_delta" href="#resqdb.Connection.Connection.get_ctmri_delta">get_ctmri_delta</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.prepare_atalaia_df" href="#resqdb.Connection.Connection.prepare_atalaia_df">prepare_atalaia_df</a></code></li>
+<li><code><a title="resqdb.Connection.Connection.prepare_df" href="#resqdb.Connection.Connection.prepare_df">prepare_df</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
