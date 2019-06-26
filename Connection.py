@@ -19,10 +19,12 @@ import collections
 import datetime
 
 class Connection():
-    """ A connection with one property: a section. 
+    """ The class connecting to the database and exporting the data for the Slovakia. 
 
-    To use:
-    >>> conn = Connection()
+    :param nprocess: number of processes
+    :type nprocess: int
+    :param data: the name of data (resq or atalaia)
+    :type data: str
     """
 
     def __init__(self, nprocess=1, data='resq'):
@@ -173,12 +175,12 @@ class Connection():
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))
 
     def config(self, section):
-        """ Read and parse the config database file. 
-        
-        Raises: 
-            Exception: If the section couldn't be find in the database.ini file)
-        Returns: 
-            The dictionary of parameters to enable connection to database.
+        """ The function reading and parsing the config of database file. 
+
+        :param section: the name of the section in database.ini file
+        :type section: str
+        :returns: the dictionary with the parsed section values
+        :raises: Exception
         """
         # Create a parser object
         parser = ConfigParser()
@@ -199,15 +201,19 @@ class Connection():
 
     
     def connect(self, sql, section, nprocess, df_name=None):
-        """ Connects to the database specified in the databse.ini file.
-        
-        Args:
-            sql: The SQL query run to get dataframe from the database.
-        Raises: 
-            Exception: If the connection was not successful. 
-        Returns: 
-            The new dataframe containing data from database.
+        """ The function connecting to te database. 
+
+        :param sql: the sql query 
+        :type sql: str
+        :param section: the section from the database.ini
+        :type section: str
+        :param nprocess: the number of processes run simultaneously
+        :type nprocess: int
+        :param df_name: the name of the dataframe used as key in the dictionary
+        :type df_name: str
+        :raises: Exception
         """
+
         conn = None    
         try: 
             # Read connection parameters
@@ -234,7 +240,14 @@ class Connection():
     
     
     def prepare_df(self, df, name):
-        """ Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. """
+        """ The function preparing the raw data from the database to be used for statistic calculation. The prepared dataframe is entered into dict_df and the name is used as key.
+        
+        :param df: the raw dataframe exported from the database
+        :type df: pandas dataframe
+        :param name: the name of the database
+        :type name: str
+        """
+
         if 'resq' in name:
             df.rename(columns={'fabry_cs': 'fabry_en'}, inplace=True)
             # If CRF is v1.2 replace BLEEDING REASON with -999
@@ -390,14 +403,15 @@ class Connection():
 
 
     def _get_tmp_antithrombotics(self, col_vals, afib):
-        """ Remap antithrombotics from IVT/TBY form to RES-Q v2.0. 
-        
-        Args:
-            col_vals: Selected values for antithrombotics in IVT/TBY
-            afib: Selected afib flutter.
-        Returns:
-            res: Mapped value
+        """ The function converting the value for antitrombotics from IVT/TBY form to RES-Q v2.0. 
+
+        :param col_vals: list of values for antithrombotcs in IVT/TBY (checkboxes in the form)
+        :type col_vals: list
+        :param afib: seelcted value for afib
+        :type afib: int
+        :returns: mapped value 
         """
+    
         if col_vals is not None:
             vals_str = col_vals.split(',') # Split selected values using , as seperator
             vals = list(map(int, vals_str)) # Convert string values to integers
@@ -456,13 +470,13 @@ class Connection():
              
     
     def get_ctmri_delta(self, hosp_time, ct_time):
-        """ Calculate differnce between two times. 
-
-        Args:
-            hospital_time: The time of hospitalization
-            ct_time: The time when CT has been perfrmed. 
-        Returns:
-            The calculated difference in minutes.
+        """ The function calculating door to CT date time in minutes. 
+        
+        :param hosp_time: the hospitalization time
+        :type hosp_time: time
+        :param ct_time: the time when CT/MRI has been performed
+        :type ct_time: time
+        :returns: 1 if datetime > 0 and < 60, 2 if results > 60 else -2
         """
         timeformat = '%H:%M:%S'
 
@@ -494,13 +508,13 @@ class Connection():
 
 
     def _get_countries(self, df):
-        """Return list of countries present in the dataframe.
+        """ The function obtaining all possible countries in the dataframe. 
 
-        Args:
-            df: The raw dataframe
-        Returns:
-            The list of country codes present in the dataframe.
+        :param df: the preprossed dataframe
+        :type df: pandas dataframe
+        :returns: the list of countries
         """
+
         site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
         countriesSet = set(site_ids[0])
         countriesList = list(countriesSet)
@@ -510,7 +524,12 @@ class Connection():
     
     
     def fix_glucose(self, value):
-        """ Fix glucose value to have consistent format - 5.5 etc. """
+        """ The function fixing the glucose value. The issue is that users are entering glucose with comma or dot as seprator. Sometimes, also nonsense appears. 
+        
+        :param value: the entered value in the glucose field
+        :type value: str
+        :returns: fixed number
+        """
         if "," in value:
             res = value.replace(',', '.')
         elif value == '-99':
@@ -527,23 +546,28 @@ class Connection():
         return res
 
     def check_data(self, df, nprocess):
-        """ Check dates and times and fix according to algorithm.
-        
-        Args: 
-            df: The raw dataframe with fixed columns
-        Returns: 
-            The preprocessed data.
+        """ The function calling the CheckData object. The dates and times are checked and if they are incorrect, they are fixed. 
+
+        :param df: the raw dataframe 
+        :type df: pandas dataframe
+        :param nprocess: the number of processes run simulataneously
+        :type nprocess: int
+        :returns: the dataframe with preprocessed data
         """
-        
         chd = CheckData(df=df, nprocess=nprocess)
 
-        logging.info("The data were preprocessed.")
+        logging.info("Connection: The data were preprocessed.")
 
         return chd.preprocessed_data
 
 
     def prepare_atalaia_df(self, df):
-        """ Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. """
+        """ The function preparing the atalaia dataframe if data is equal to atalaia. The column names are renamed.
+        
+        :param df: the raw data exported from the database
+        :type df: pandas dataframe
+        :returns: the prepared dataframe
+        """
 
         # Get only columns ending with _en
         cols = ['site_id', 'facility_name', 'oc_oid', 'label']

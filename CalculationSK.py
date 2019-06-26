@@ -84,8 +84,7 @@ class Connection:
 
     
     def config(self, section):
-        """ The function
-        Read and parse the config database file. 
+        """ The function reading and parsing the config of database file. 
 
         :param section: the name of the section in database.ini file
         :type section: str
@@ -119,6 +118,7 @@ class Connection:
         :type df_name: str
         :raises: Exception
         """
+        
         conn = None    
         try: 
             params = self.config(section) # Get parameters from config file
@@ -1663,7 +1663,7 @@ class GenerateFormattedStats:
 
         column_names = df.columns.tolist()
         # Set headers
-        for i in range(0, ncol + 2):
+        for i in range(0, ncol + 1):
             tmp = {}
             tmp['header'] = column_names[i]
             col.append(tmp)
@@ -1801,7 +1801,7 @@ class GenerateFormattedStats:
                    }
         #worksheet.set_column('E:V', 100)
 
-        worksheet.add_table(2, 0, nrow, ncol + 1, options)
+        worksheet.add_table(2, 0, nrow, ncol, options)
 
         # total number of rows
         number_of_rows = len(statistics) + 2
@@ -1818,7 +1818,7 @@ class GenerateFormattedStats:
                                                     'format': green})
                 row += 1
 
-            def angels_awards_ivt_60(column_name, coln):
+            def angels_awards_ivt_60(column_name):
                 """Add conditional formatting to angels awards for ivt < 60."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -1842,9 +1842,9 @@ class GenerateFormattedStats:
 
             index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_60(column, coln=index)
+            angels_awards_ivt_60(column)
 
-            def angels_awards_ivt_45(column_name, coln):
+            def angels_awards_ivt_45(column_name):
                 """Add conditional formatting to angels awards for ivt < 45."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -1867,10 +1867,10 @@ class GenerateFormattedStats:
 
             index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_45(column, coln=index)
+            angels_awards_ivt_45(column)
 
             # setting colors of cells according to their values
-            def angels_awards_recan(column_name, coln):
+            def angels_awards_recan(column_name,):
                 """Add conditional formatting to angels awards for recaalization procedures."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -1904,9 +1904,9 @@ class GenerateFormattedStats:
 
             index = column_names.index('% recanalization rate out of total ischemic incidence')
             column = xl_col_to_name(index)
-            angels_awards_recan(column, coln=index)
+            angels_awards_recan(column)
 
-            def angels_awards_processes(column_name, coln, count=True):
+            def angels_awards_processes(column_name, count=True):
                 """Add conditional formatting to angels awards for processes."""
                 count = count
                 row = 4
@@ -1942,22 +1942,22 @@ class GenerateFormattedStats:
 
             index = column_names.index('% suspected stroke patients undergoing CT/MRI')
             column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
+            angels_awards_processes(column)
 
             index = column_names.index('% all stroke patients undergoing dysphagia screening')
             column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
+            angels_awards_processes(column)
 
             index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
             column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
+            angels_awards_processes(column)
 
             index = column_names.index('% afib patients discharged (home) with anticoagulants')
             column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
+            angels_awards_processes(column)
 
             # setting colors of cells according to their values
-            def angels_awards_hosp(column_name, coln):
+            def angels_awards_hosp(column_name):
                 """Add conditional formatting to angels awards for hospitalization."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -1979,10 +1979,10 @@ class GenerateFormattedStats:
 
             index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
             column = xl_col_to_name(index)
-            angels_awards_hosp(column, coln=index)
+            angels_awards_hosp(column)
 
             # set color for proposed angel award
-            def proposed_award(column_name, coln):
+            def proposed_award(column_name):
                 row = 4
                 while row < nrow + 2:
                     cell_n = column + str(row)
@@ -2021,7 +2021,8 @@ class GenerateFormattedStats:
 
             index = column_names.index('Proposed Award')
             column = xl_col_to_name(index)
-            proposed_award(column, coln=index)
+            proposed_award(column)
+
         else:
             pass
 
@@ -2068,7 +2069,7 @@ class GenerateFormattedAngelsAwards:
         column_names = df.columns.tolist()
         for i in range(0, ncol + 1):
             tmp = {}
-            tmp['header'] =column_names[i]
+            tmp['header'] = column_names[i]
             col.append(tmp)
 
         statistics = df.values.tolist()
