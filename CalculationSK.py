@@ -1223,32 +1223,181 @@ class ComputeStats:
         #### STROKE UNIT ####
         # stroke patients treated in a dedicated stroke unit / ICU
         self.statsDf['# stroke patients treated in a dedicated stroke unit / ICU'] = self.statsDf['# patients hospitalized in stroke unit / ICU']
-
-        # % stroke patients treated in a dedicated stroke unit / ICU	
         self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU'] = self.statsDf['% patients hospitalized in stroke unit / ICU']
+        # SK doesn't collect the stroke unit, then we put here always 1 
+        self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU'] = self.statsDf.apply(lambda x: x['% patients hospitalized in stroke unit / ICU'] if x['# patients hospitalized in stroke unit / ICU'] > 0 else 1, axis=1)
 
-        # % stroke patients treated in a dedicated stroke unit / ICU (2nd)
-        self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU (2nd)'] = self.statsDf.apply(lambda x: x['% patients hospitalized in stroke unit / ICU'] if x['# patients hospitalized in stroke unit / ICU'] > 0 else 1, axis=1)
+        # Create temporary dataframe to calculate final award 
+        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombectomy < 90 minutes', '% patients treated with door to thrombectomy < 60 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU', '# patients eligible thrombectomy', '# patients eligible thrombolysis']]
+        self.statsDf.fillna(0, inplace=True)
 
+        self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
+        self.statsDf['Proposed Award'] = self.angels_awards_tmp['Proposed Award'] 
+        
         self.statsDf.fillna(0, inplace=True)
 
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
 
-        # Save results into .csv
-        #self.statsDf.to_csv('slovakia_results.csv', sep=',', index=False)
-
         self.sites = self._get_sites(self.statsDf)    
 
-    def _count_patients(self, dataframe):
-        """ Returns the column with number of patients group by Protocol ID. 
+    def _get_final_award(self, x):
+        """ The function calculating the proposed award. 
 
-        Keyword arguments:
-            dataframe (dataframe): The dataframe with raw data. 
-
-        Returns:
-            dataframe (dataframe): The column with number of patients. 
+        :param x: the row from temporary dataframe
+        :type x: pandas series
+        :returns: award -- the proposed award
         """
+        if x[self.total_patient_column] == False:
+            award = "NONE"
+        else:
+            award = "TRUE"
 
+        thrombolysis_pts = x['# patients eligible thrombolysis']
+        
+        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        
+        # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
+        if award == "TRUE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombolysis_therapy_lt_60min) >= 75):
+                    award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+
+        if award != "NONE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                    if (award != "GOLD"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+
+        # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
+        thrombectomy_pts = x['# patients eligible thrombectomy']
+        if thrombectomy_pts != 0:
+            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_90min) >= 50 and float(thrombectomy_therapy_lt_90min) <= 74.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(thrombectomy_therapy_lt_90min) >= 75):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+            thrombectomy_therapy_lt_60min = x['% patients treated with door to thrombectomy < 60 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_60min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombectomy_therapy_lt_60min) >= 50):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+
+        recan_rate = x['% recanalization rate out of total ischemic incidence']
+        if award != "NONE":
+            if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(recan_rate) >= 15 and float(recan_rate) <= 24.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(recan_rate) >= 25):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        ct_mri = x['% suspected stroke patients undergoing CT/MRI']
+        if award != "NONE":
+            if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(ct_mri) >= 85 and float(ct_mri) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(ct_mri) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
+        if award != "NONE":
+            if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(dysphagia_screening) >= 85 and float(dysphagia_screening) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(dysphagia_screening) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
+        if award != "NONE":
+            if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_antiplatelets_final) >= 85 and float(discharged_with_antiplatelets_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_antiplatelets_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
+        if award != "NONE":
+            if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
+                if (award == "PLATINUM" or award == "DIAMOND"):
+                    award = "GOLD"
+            elif (float(discharged_with_anticoagulants_final) >= 85 and float(discharged_with_anticoagulants_final) <= 89.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(discharged_with_anticoagulants_final) >= 90):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU']
+        if award != "NONE":
+            if (float(stroke_unit) <= 0.99):
+                if (award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(stroke_unit) >= 1):
+                if (award == "DIAMOND"):
+                    award = "DIAMOND"
+            else:
+                award = "NONE"
+
+        return award
+
+    def _count_patients(self, dataframe):
+        """ The function calculating the number of patients per site. 
+
+        :param dataframe: the dataframe with preprocessed data
+        :type dataframe: pandas dataframe
+        :returns: the column with the number of patients
+        """
         tmpDf = dataframe.groupby(['Protocol ID']).size().reset_index(name='count_patients')
         factorDf = self.statsDf.merge(tmpDf, how='outer')
         factorDf.fillna(0, inplace=True)
@@ -1256,15 +1405,15 @@ class ComputeStats:
         return factorDf['count_patients']
 
     def _get_values_only_columns(self, column_name, value, dataframe):
-        """ Returns the column with number of patients group by Protocol ID. 
+        """ The function calculating the numbeer of patients per site for the given value from the temporary dataframe. 
 
-        Keyword arguments:
-            column_name (string): The name of column for which we are want calculate number of patients. 
-            dataframe (dataframe): The dataframe with raw data. 
-            value (int): The integers value represents specific value from the dataframe[column_name]. 
-
-        Returns:
-            dataframe (dataframe): The column with number of patients. 
+        :param column_name: the name of column name the number of patients should be calculated
+        :type column_name: str
+        :param value: the value for which we would like to get number of patients from the specific column
+        :type value: int
+        :param dataframe: the dataframe with the raw data
+        :type dataframe: pandas dataframe
+        :returns: the column with the number of patients
         """
 
         tmpDf = dataframe[dataframe[column_name] == value].reset_index()[['Protocol ID', 'count']]
@@ -1274,17 +1423,20 @@ class ComputeStats:
         return factorDf['count']
 
     def _get_values_for_factors(self, column_name, value, new_column_name, df=None):
-        """ Returns the column with number of patients group by Protocol ID. 
+        """ The function calculating the numbeer of patients per site for the given value from the temporary dataframe. 
 
-        Keyword arguments:
-            column_name (str): The name of column for which we are want calculate number of patients. 
-            value (int): The integers value represents specific value from the dataframe[column_name]. 
-            new_column_name (str): The name of new column name. 
+        :param column_name: the name of column name the number of patients should be calculated
+        :type column_name: str
+        :param value: the value for which we would like to get number of patients from the specific column
+        :type value: int
+        :param new_column_name: to this value will be renamed the created column containing the number of patients
+        :type new_column_name: str
+        :param df: the dataframe with the raw data
+        :type df: pandas dataframe
+        :returns: the dataframe with calculated statistics
+        """	
 
-        Returns:
-            dataframe (dataframe): The statsDf to which new created column was appended. 
-        """		
-        #if df is None:
+        # Check if type of column name is type of number, if not convert value into string
         if (np.issubdtype(self.tmp[column_name].dtype, np.number)):
             value = value
         else:
@@ -1295,31 +1447,22 @@ class ComputeStats:
         factorDf.rename(columns={'count': new_column_name}, inplace=True)
         factorDf.fillna(0, inplace=True)
 
-        """
-        else:
-            if (df[column_name].dtype != np.number):
-                value = str(value)
-            else:
-                value = value 
-
-            tmpDf = df[df[column_name] == value].reset_index()[['Protocol ID', 'count']]
-            factorDf = self.statsDf.merge(tmpDf, how='outer')
-            factorDf.rename(columns={'count': new_column_name}, inplace=True)
-            factorDf.fillna(0, inplace=True)
-        """
         return factorDf
 
     def _get_values_for_factors_more_values(self, column_name, value, new_column_name, df=None):
-        """ Returns the column with number of patients group by Protocol ID. 
+        """ The function calculating the number of patients per site for the given value from the temporary dataframe. 
 
-        Keyword arguments:
-            column_name (str): The name of column for which we are want calculate number of patients. 
-            value (list): The list of integers representing specific values from the dataframe[column_name]. 
-            new_column_name (str): The name of new column name. 
-
-        Returns:
-            dataframe (dataframe): The statsDf to which new created column was appended. 
+        :param column_name: the name of column name the number of patients should be calculated
+        :type column_name: str
+        :param value: the list of values for which we would like to get number of patients from the specific column
+        :type value: list
+        :param new_column_name: to this value will be renamed the created column containing the number of patients
+        :type new_column_name: str
+        :param df: the dataframe with the raw data
+        :type df: pandas dataframe
+        :returns: the dataframe with calculated statistics
         """
+
         if df is None:
             tmpDf = self.tmp[self.tmp[column_name].isin(value)].reset_index()[['Protocol ID', 'count']]
             tmpDf = tmpDf.groupby('Protocol ID').sum().reset_index()
@@ -1336,16 +1479,19 @@ class ComputeStats:
         return factorDf
 
     def _get_values_for_factors_containing(self, column_name, value, new_column_name, df=None):
-        """ Returns the column with number of patients group by Protocol ID. 
+        """ The function calculating the number of patients per site for the given value from the temporary dataframe. 
 
-        Keyword arguments:
-            column_name (str): The name of column for which we are want calculate number of patients. 
-            value (str): The str of integers representing specific values from the dataframe[column_name]. 
-            new_column_name (str): The name of new column name. 
-
-        Returns:
-            dataframe (dataframe): The statsDf to which new created column was appended. 
+        :param column_name: the name of column name the number of patients should be calculated
+        :type column_name: str
+        :param value: the value of string type for which we would like to get number of patients from the specific column
+        :type value: str
+        :param new_column_name: to this value will be renamed the created column containing the number of patients
+        :type new_column_name: str
+        :param df: the dataframe with the raw data
+        :type df: pandas dataframe
+        :returns: the dataframe with calculated statistics
         """
+
         if df is None:
             tmpDf = self.tmp[self.tmp[column_name].str.contains(value)].reset_index()[['Protocol ID', 'count']]
             tmpDf = tmpDf.groupby('Protocol ID').sum().reset_index()
@@ -1362,18 +1508,17 @@ class ComputeStats:
         return factorDf
 
     def _get_ctmri_delta(self, hosp_time, ct_time):
-        """ Calculate differnce between two times. 
+        """ The function calculating the difference between two times in minutes. 
 
-        Args:
-            hospital_time: The time of hospitalization
-            ct_time: The time when CT has been perfrmed. 
-        Returns:
-            The calculated difference in minutes.
+        :param hosp_time: the time of hospitalization
+        :type hosp_time: time
+        :param ct_time: the time when CT/MRI was performed
+        :type ct_time: time
+        :returns: tdelta between two times in minutes
         """
+
         timeformat = '%H:%M:%S'
 
-        #print('Hosp time: {0}/{1}, CT_TIME: {2}/{3}'.format(hosp_time, type(hosp_time), ct_time, type(ct_time)))
-        # print(ct_time, hosp_time)
         # Check if both time are not None if yes, return 0 else return tdelta
         if hosp_time is None or ct_time is None or pd.isnull(hosp_time) or pd.isnull(ct_time):
             tdeltaMin = 0
@@ -1400,40 +1545,54 @@ class ComputeStats:
 
     
     def _return_dataset(self):
-        """Return the raw dataframe."""
+        """ The function returning dataframe. """
 
         return self.df
 
     def _return_stats(self):
-        """Return the dataframe with calculated statistics."""
+        """ The function returning the dataframe with the calculated statistics! 
+        
+        :returns: the dataframe with the statistics
+        """
 
         return self.statsDf
 
     def _get_sites(self, df):
-        """Return list of sites in the dataframes."""
+        """ The function returning the list of sites in the preprocessed data. 
+        
+        :returns: the list of sites
+        """
 
         site_ids = df['Site ID'].tolist()
-        siteSet = set(site_ids)
-        siteList = list(siteSet)
-        return siteList
+        site_list = list(set(site_ids))
+
+        return site_list
 
     def _return_sites(self):
 
         return self.sites           
                 
 class GenerateFormattedStats:
-    """
-    This class generate formatted statistics in .xslx file. For angel awards are set colored conditions. 
+    """ The class generating the formatted statistics in Excel format. Angels Awards columns are colored based on the meeting of the condition. 
     
-    Keyword arguments:
-        df: the dataframe with statistcs
-        country: True if country should be included as site (default: False)
-        country_code: the code of country (default: None)
-        split_sites: True if you want to generate individual file fo each site (default: False)
-        site: the site code (default: None)
-        report: the report name (default: None)
-        quarter: the quarter name (default: None)
-    """
+    :param df: the dataframe with calculated statistics
+    :type df: pandas dataframe
+    :param country: True if country should be included as site
+    :type country: bool
+    :param country_code: the code of country used in filenames
+    :type country_code: str
+    :param split_sites: `True` if the reports should be generated per sites
+    :type split_sites: bool
+    :param site: the site code 
+    :type site: str
+    :param report: type of the report, eg. quarter
+    :type report: str
+    :param quarter: type of the period, eq. Q1_2019
+    :type quarter: str
+    :param comp: `True` if the comparison reports are calculated
+    :type comp: bool
+    """ 
+    
     def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False):
 
         self.df_unformatted = df.copy()
@@ -1444,14 +1603,23 @@ class GenerateFormattedStats:
         self.comp = comp
 
         def delete_columns(columns):
+            """ The function deleting the columns from the dataframe which should not be displayed in the excel statistics (temporary columns used to generate graphs).
+            
+            :param columns: the list of column names to be deleted
+            :type columns: list
+            """
             for i in columns:
                 if i in self.df.columns:
                     self.df.drop([i], inplace=True, axis=1)
-        # Drop tmp column 
+
         delete_columns(['isch_patients', 'is_ich_patients', 'is_ich_tia_cvt_patients', 'is_ich_cvt_patients', 'is_tia_patients', 'is_ich_sah_cvt_patients', 'is_tia_cvt_patients', 'cvt_patients', 'ich_sah_patients', 'ich_patients',  'sah_patients', 'discharge_subset_patients','discharge_subset_alive_patients', 'neurosurgery_patients', 'not_reffered_patients', 'reffered_patients', 'afib_detected_during_hospitalization_patients', 'afib_not_detected_or_not_known_patients', 'antithrombotics_patients', 'ischemic_transient_dead_patients', 'afib_flutter_not_detected_or_not_known_patients', 'afib_flutter_not_detected_or_not_known_dead_patients', 'prescribed_antiplatelets_no_afib_patients', 'prescribed_antiplatelets_no_afib_dead_patients', 'afib_flutter_detected_patients', 'anticoagulants_recommended_patients', 'afib_flutter_detected_dead_patients', 'recommended_antithrombotics_with_afib_alive_patients', 'discharge_subset_same_centre_patients', 'discharge_subset_another_centre_patients', 'patients_eligible_recanalization', '# patients having stroke in the hospital - No', '% patients having stroke in the hospital - No', '# recurrent stroke - No', '% recurrent stroke - No', '# patients assessed for rehabilitation - Not known', '% patients assessed for rehabilitation - Not known', '# level of consciousness - not known', '% level of consciousness - not known', '# CT/MRI - Performed later than 1 hour after admission', '% CT/MRI - Performed later than 1 hour after admission', '# patients put on ventilator - Not known', '% patients put on ventilator - Not known', '# patients put on ventilator - No', '% patients put on ventilator - No', '# IV tPa', '% IV tPa', '# TBY', '% TBY', '# DIDO TBY', '# dysphagia screening - not known', '% dysphagia screening - not known', '# dysphagia screening time - After first 24 hours', '% dysphagia screening time - After first 24 hours', '# other afib detection method - Not detected or not known', '% other afib detection method - Not detected or not known', '# carotid arteries imaging - Not known', '% carotid arteries imaging - Not known', '# carotid arteries imaging - No', '% carotid arteries imaging - No', 'vascular_imaging_cta_norm', 'vascular_imaging_mra_norm', 'vascular_imaging_dsa_norm', 'vascular_imaging_none_norm', 'bleeding_arterial_hypertension_perc_norm', 'bleeding_aneurysm_perc_norm', 'bleeding_arterio_venous_malformation_perc_norm', 'bleeding_anticoagulation_therapy_perc_norm', 'bleeding_amyloid_angiopathy_perc_norm', 'bleeding_other_perc_norm', 'intervention_endovascular_perc_norm', 'intervention_neurosurgical_perc_norm', 'intervention_other_perc_norm', 'intervention_referred_perc_norm', 'intervention_none_perc_norm', 'vt_treatment_anticoagulation_perc_norm', 'vt_treatment_thrombectomy_perc_norm', 'vt_treatment_local_thrombolysis_perc_norm', 'vt_treatment_local_neurological_treatment_perc_norm', 'except_recommended_patients', 'afib_detected_discharged_home_patients', '% dysphagia screening done', '# dysphagia screening done', 'alert_all', 'alert_all_perc', 'drowsy_all', 'drowsy_all_perc', 'comatose_all', 'comatose_all_perc', 'antithrombotics_patients_with_cvt', 'ischemic_transient_cerebral_dead_patients', '# patients receiving antiplatelets with CVT', '% patients receiving antiplatelets with CVT', '# patients receiving Vit. K antagonist with CVT', '% patients receiving Vit. K antagonist with CVT', '# patients receiving dabigatran with CVT', '% patients receiving dabigatran with CVT', '# patients receiving rivaroxaban with CVT', '% patients receiving rivaroxaban with CVT', '# patients receiving apixaban with CVT', '% patients receiving apixaban with CVT', '# patients receiving edoxaban with CVT', '% patients receiving edoxaban with CVT', '# patients receiving LMWH or heparin in prophylactic dose with CVT', '% patients receiving LMWH or heparin in prophylactic dose with CVT', '# patients receiving LMWH or heparin in full anticoagulant dose with CVT', '% patients receiving LMWH or heparin in full anticoagulant dose with CVT', '# patients not prescribed antithrombotics, but recommended with CVT', '% patients not prescribed antithrombotics, but recommended with CVT', '# patients neither receiving antithrombotics nor recommended with CVT', '% patients neither receiving antithrombotics nor recommended with CVT', '# patients prescribed antithrombotics with CVT', '% patients prescribed antithrombotics with CVT', '# patients prescribed or recommended antithrombotics with CVT', '% patients prescribed or recommended antithrombotics with CVT', 'afib_flutter_not_detected_or_not_known_patients_with_cvt', 'afib_flutter_not_detected_or_not_known_dead_patients_with_cvt', 'prescribed_antiplatelets_no_afib_patients_with_cvt', 'prescribed_antiplatelets_no_afib_dead_patients_with_cvt', '# patients prescribed antiplatelets without aFib with CVT', '% patients prescribed antiplatelets without aFib with CVT', 'afib_flutter_detected_patients_with_cvt', '# patients prescribed anticoagulants with aFib with CVT', 'anticoagulants_recommended_patients_with_cvt', 'afib_flutter_detected_dead_patients_with_cvt', '% patients prescribed anticoagulants with aFib with CVT', '# patients prescribed antithrombotics with aFib with CVT', 'recommended_antithrombotics_with_afib_alive_patients_with_cvt', '% patients prescribed antithrombotics with aFib with CVT', 'afib_flutter_detected_patients_not_dead', 'except_recommended_discharged_home_patients', 'afib_detected_discharged_patients', 'ischemic_transient_dead_patients_prescribed', 'is_tia_discharged_home_patients'])
 
-        # Connect to database and get country name according to country code.
         def select_country(value):
+            """ The function getting the country name from the database using country code. 
+
+            :param value: the country code
+            :type value: str
+            """
             country_name = pytz.country_names[value]
             return country_name
 
@@ -1488,43 +1656,41 @@ class GenerateFormattedStats:
             self._generate_formatted_statistics(df=self.df, df_tmp=self.df_unformatted)
 
     def _generate_formatted_statistics(self, df, df_tmp, site_code=None):
-        """Generate formatted statistics in xlsx file.
-        
-        Keyword arguments:
-            df: the dataframe with statistics containing only necessary columns
-            df_tmp: the dataframe with statistics containing all calculation
-            site_code: the code of site (default: NOne)
-        """
+        """ The function creating the new excel document with the statistic data. 
 
+        :param df: the dataframe with statistics with already deleted temporary columns
+        :type df: pandas dataframe
+        :param df_tmp: the dataframe with statistics containing temporary columns
+        :type df_tmp: pandas dataframe
+        :param site_code: the site code
+        :type site_code: str
+        """
         if self.country_code is None and site_code is None:
+            # General report containing all sites in one document
             name_of_unformatted_stats = self.report + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + self.quarter + ".xlsx"
         elif site_code is None:
+            # General report for whole country
             name_of_unformatted_stats = self.report + "_" + self.country_code + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + self.country_code + "_" + self.quarter + ".xlsx"
         else:
-            # self.report + "_" + site_code + "_" + self.quarter + ".csv"
-            # self.report + "_" + site_code + "_" + self.quarter + ".xlsx"
+            # General report for site
             name_of_unformatted_stats = self.report + "_" + site_code + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + site_code + "_" + self.quarter + ".xlsx"
 
         df_tmp.to_csv(name_of_unformatted_stats, sep=",", encoding='utf-8', index=False)
         workbook1 = xlsxwriter.Workbook(name_of_output_file, {'strings_to_numbers': True})
-        # create worksheet
         worksheet = workbook1.add_worksheet()
 
         # set width of columns
         worksheet.set_column(0, 4, 15)
         worksheet.set_column(4, 350, 60)
-        # number of columns
         
         ncol = len(df.columns) - 1
-       # print(ncol)
-
-        # number of rows
         nrow = len(df) + 2
 
         col = []
+
         column_names = df.columns.tolist()
         column_names.append('Proposed Award')
         for i in range(0, ncol + 2):

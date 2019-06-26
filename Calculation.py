@@ -1825,6 +1825,7 @@ class ComputeStats:
         :type df: pandas dataframe
         :returns: the dataframe with calculated statistics
         """
+        
         if df is None:
             tmpDf = self.tmp[self.tmp[column_name].str.contains(value)].reset_index()[['Protocol ID', 'count']]
             tmpDf = tmpDf.groupby('Protocol ID').sum().reset_index()
