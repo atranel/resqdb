@@ -1458,9 +1458,6 @@ class GenerateNationalComparisonGraphs:
         pptx = self.report + "_" + site_code + "_" + self.quarter + "_national_comparison.pptx"
         presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
-    
-
-
         prs.save(presentation_path)
 
 
