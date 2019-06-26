@@ -21,6 +21,7 @@ import sqlite3
 from numpy import inf
 import pytz
 import xlsxwriter
+from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
 
 class Connection:
     """ The class connecting to the database and exporting the data for the Slovakia. 
@@ -981,7 +982,7 @@ class ComputeStats:
         self.statsDf['# patients prescribed anticoagulants with aFib'] = self._count_patients(dataframe=anticoagulants_prescribed)
 
         self.tmp = anticoagulants_prescribed.groupby(['Protocol ID', 'UKON_WARFARIN']).size().to_frame('count').reset_index()
-            self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
+        self.statsDf = self._get_values_for_factors(column_name="UKON_WARFARIN", value=1, new_column_name='# patients receiving Vit. K antagonist')
         # self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/x['# patients prescribed anticoagulants with aFib']) * 100), 2) if x['# patients prescribed anticoagulants with aFib'] > 0 else 0, axis=1)
         self.statsDf['% patients receiving Vit. K antagonist'] = self.statsDf.apply(lambda x: round(((x['# patients receiving Vit. K antagonist']/x['afib_flutter_detected_patients_not_dead']) * 100), 2) if x['afib_flutter_detected_patients_not_dead'] > 0 else 0, axis=1)
 
@@ -1228,12 +1229,13 @@ class ComputeStats:
         self.statsDf['% stroke patients treated in a dedicated stroke unit / ICU'] = self.statsDf.apply(lambda x: x['% patients hospitalized in stroke unit / ICU'] if x['# patients hospitalized in stroke unit / ICU'] > 0 else 1, axis=1)
 
         # Create temporary dataframe to calculate final award 
-        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombectomy < 90 minutes', '% patients treated with door to thrombectomy < 60 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU', '# patients eligible thrombectomy', '# patients eligible thrombolysis']]
+        self.total_patient_column = '# total patients >= {0}'.format(30)
+        self.angels_awards_tmp = self.statsDf[[self.total_patient_column, '% patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 45 minutes', '% recanalization rate out of total ischemic incidence', '% suspected stroke patients undergoing CT/MRI', '% all stroke patients undergoing dysphagia screening', '% ischemic stroke patients discharged (home) with antiplatelets', '% afib patients discharged (home) with anticoagulants', '% stroke patients treated in a dedicated stroke unit / ICU']]
         self.statsDf.fillna(0, inplace=True)
 
         self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
         self.statsDf['Proposed Award'] = self.angels_awards_tmp['Proposed Award'] 
-        
+
         self.statsDf.fillna(0, inplace=True)
 
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
@@ -1252,61 +1254,29 @@ class ComputeStats:
         else:
             award = "TRUE"
 
-        thrombolysis_pts = x['# patients eligible thrombolysis']
         
-        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
         
         # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
         if award == "TRUE":
-            if thrombolysis_pts == 0:
+            if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
+                award = "GOLD"
+            elif (float(recan_therapy_lt_60min) >= 75):
                 award = "DIAMOND"
-            else:
-                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
-                    award = "GOLD"
-                elif (float(thrombolysis_therapy_lt_60min) >= 75):
-                    award = "DIAMOND"
-                else: 
-                    award = "NONE"
+            else: 
+                award = "NONE"
 
-        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+        recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
 
         if award != "NONE":
-            if thrombolysis_pts == 0:
-                award = "DIAMOND"
+            if (float(recan_therapy_lt_45min) <= 49.99):
+                if (award != "GOLD" or award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(recan_therapy_lt_45min) >= 50):
+                if (award != "GOLD"):
+                    award = "DIAMOND"
             else:
-                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
-                    if (award != "GOLD" or award == "DIAMOND"):
-                        award = "PLATINUM"
-                elif (float(thrombolysis_therapy_lt_45min) >= 50):
-                    if (award != "GOLD"):
-                        award = "DIAMOND"
-                else:
-                    award = "NONE"
-
-        # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
-        thrombectomy_pts = x['# patients eligible thrombectomy']
-        if thrombectomy_pts != 0:
-            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
-            if award != "NONE":
-                if (float(thrombectomy_therapy_lt_90min) >= 50 and float(thrombectomy_therapy_lt_90min) <= 74.99):
-                    if (award == "PLATINUM" or award == "DIAMOND"):
-                        award = "GOLD"
-                elif (float(thrombectomy_therapy_lt_90min) >= 75):
-                    if (award == "DIAMOND"):
-                        award = "DIAMOND"
-                else: 
-                    award = "NONE"
-
-            thrombectomy_therapy_lt_60min = x['% patients treated with door to thrombectomy < 60 minutes']
-            if award != "NONE":
-                if (float(thrombectomy_therapy_lt_60min) <= 49.99):
-                    if (award != "GOLD" or award == "DIAMOND"):
-                        award = "PLATINUM"
-                elif (float(thrombectomy_therapy_lt_60min) >= 50):
-                    if (award == "DIAMOND"):
-                        award = "DIAMOND"
-                else:
-                    award = "NONE"
+                award = "NONE"
 
         recan_rate = x['% recanalization rate out of total ischemic incidence']
         if award != "NONE":
@@ -1692,17 +1662,11 @@ class GenerateFormattedStats:
         col = []
 
         column_names = df.columns.tolist()
-        column_names.append('Proposed Award')
+        # Set headers
         for i in range(0, ncol + 2):
             tmp = {}
-            print(column_names[i])
             tmp['header'] = column_names[i]
-            # if (i >= 2):
-            #    tmp['total_function': 'sum']
             col.append(tmp)
-
-        #df = statistics[0:nrow]
-        # print(statistics)
 
         statistics = df.values.tolist()
 
@@ -1757,7 +1721,6 @@ class GenerateFormattedStats:
             "red": "#F45D5D"
         }
 
-        #statistics = statistics[1:nrow]
 
         ################
         # angel awards #
@@ -1772,60 +1735,26 @@ class GenerateFormattedStats:
         awards_color = workbook1.add_format({
             'fg_color': colors.get("angel_awards")})
 
-        worksheet.merge_range('EB1:FB1', 'ESO ANGELS AWARDS', awards)
-        worksheet.write('EB2', '', awards_color)
-        worksheet.write('EC2', '', awards_color)
-        worksheet.write('ED2', '', awards_color)
-        worksheet.write('EE2', '', awards_color)
-        worksheet.write('EF2', '', awards_color)
-        worksheet.write('EG2', '', awards_color)
-        worksheet.write('EH2', '', awards_color)
-        worksheet.write('EI2', '', awards_color)
-        worksheet.write('EJ2', '', awards_color)
-        worksheet.write('EK2', '', awards_color)
-        worksheet.write('EL2', '', awards_color)
-        worksheet.write('EM2', '', awards_color)
-        worksheet.write('EN2', '', awards_color)
-        worksheet.write('EO2', '', awards_color)
-        worksheet.write('EP2', '', awards_color)
-        worksheet.write('EQ2', '', awards_color)
-        worksheet.write('ER2', '', awards_color)
-        worksheet.write('ES2', '', awards_color)
-        worksheet.write('ET2', '', awards_color)
-        worksheet.write('EU2', '', awards_color)
-        worksheet.write('EV2', '', awards_color)
-        worksheet.write('EW2', '', awards_color)
-        worksheet.write('EX2', '', awards_color)
-        worksheet.write('EY2', '', awards_color)
-        worksheet.write('EZ2', '', awards_color)
-        worksheet.write('FA2', '', awards_color)
-        worksheet.write('FB2', '', awards_color)
-        # worksheet.write('LU2', '', awards_color)
+        self.total_patients_column = '# total patients >= {0}'.format(30)
+        first_index = column_names.index(self.total_patients_column)
+        last_index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
+        first_cell = xl_rowcol_to_cell(0, first_index)
+        last_cell = xl_rowcol_to_cell(0, last_index)
 
+        worksheet.merge_range(first_cell + ":" + last_cell, 'ESO ANGELS AWARDS', awards)
 
-        worksheet.set_column('EC:EC', None, None, {'hidden': True})
-        # orksheet.set_column('LC:LC', None, None, {'hidden': True})
-        worksheet.set_column('EE:EE', None, None, {'hidden': True})
-        # worksheet.set_column('LE:LE', None, None, {'hidden': True})
-        worksheet.set_column('EG:EG', None, None, {'hidden': True})
-        # worksheet.set_column('LG:LG', None, None, {'hidden': True})
-        worksheet.set_column('EI:EI', None, None, {'hidden': True})
-        # worksheet.set_column('LI:LI', None, None, {'hidden': True})
-        worksheet.set_column('EK:EK', None, None, {'hidden': True})
-        # worksheet.set_column('LK:LK', None, None, {'hidden': True})
-        worksheet.set_column('EM:EM', None, None, {'hidden': True})
-        worksheet.set_column('EN:EN', None, None, {'hidden': True})
-        worksheet.set_column('EO:EO', None, None, {'hidden': True})
-        worksheet.set_column('EP:EP', None, None, {'hidden': True})
-        worksheet.set_column('EQ:EQ', None, None, {'hidden': True})
-        #worksheet.set_column('LQ:LQ', None, None, {'hidden': True})
-        worksheet.set_column('ES:ES', None, None, {'hidden': True})
-        worksheet.set_column('ET:ET', None, None, {'hidden': True})
-        worksheet.set_column('EU:EU', None, None, {'hidden': True})
-        worksheet.set_column('EV:EV', None, None, {'hidden': True})
-        worksheet.set_column('EW:EW', None, None, {'hidden': True})
-        worksheet.set_column('EY:EY', None, None, {'hidden': True})
-        worksheet.set_column('EZ:EZ', None, None, {'hidden': True})
+        for i in range(first_index, last_index+1):
+            if column_names[i].startswith('%'):
+                worksheet.write(xl_rowcol_to_cell(1, i), '', awards_color)
+            else:
+                worksheet.write(xl_rowcol_to_cell(1, i), '', awards_color)
+
+        hidden_columns = ['# patients treated with door to recanalization therapy < 60 minutes', '# patients treated with door to recanalization therapy < 45 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
+        				
+        for i in hidden_columns:
+            index = column_names.index(i)
+            column = xl_col_to_name(index)
+            worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
 
         # format for green color
         green = workbook1.add_format({
@@ -1877,31 +1806,20 @@ class GenerateFormattedStats:
         # total number of rows
         number_of_rows = len(statistics) + 2
 
-        # column where angels awards starts
-        coln = 131
-
+        
         if not self.comp:    
-            # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
-            awards = []
             row = 4
+            index = column_names.index(self.total_patients_column)
             while row < nrow + 2:
-                cell_n = 'EB' + str(row)
+                cell_n = xl_col_to_name(index) + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'TRUE',
                                                     'format': green})
                 row += 1
 
-            for row in range(0, nrow - 2):
-                if (statistics[row][coln] == False):            
-                    awards.append("NONE")
-                else:
-                    awards.append("TRUE")
-
-
-            def angels_awards_ivt_60(column_name, coln=coln):
+            def angels_awards_ivt_60(column_name, coln):
                 """Add conditional formatting to angels awards for ivt < 60."""
-                coln = coln + 2
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
@@ -1921,22 +1839,13 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 50 and float(statistics[row][coln]) <= 74.99):
-                            awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 75):
-                            awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
+            index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
+            column = xl_col_to_name(index)
+            angels_awards_ivt_60(column, coln=index)
 
-            angels_awards_ivt_60('ED')
-
-
-            def angels_awards_ivt_45(column_name, coln=coln):
+            def angels_awards_ivt_45(column_name, coln):
                 """Add conditional formatting to angels awards for ivt < 45."""
-                coln = coln + 4
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
@@ -1955,26 +1864,14 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) <= 49.99):
-                            if (awards[row] != "GOLD" or awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 50):
-                            if (awards[row] != "GOLD"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
-
-            angels_awards_ivt_45('EF')
-
+            index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
+            column = xl_col_to_name(index)
+            angels_awards_ivt_45(column, coln=index)
 
             # setting colors of cells according to their values
-            def angels_awards_recan(column_name, coln=coln):
+            def angels_awards_recan(column_name, coln):
                 """Add conditional formatting to angels awards for recaalization procedures."""
-                coln = coln + 6
-
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
@@ -2004,29 +1901,14 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) >= 5 and float(statistics[row][coln]) <= 14.99):
-                            if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                awards[row] = "GOLD"
-                        elif (float(statistics[row][coln]) >= 15 and float(statistics[row][coln]) <= 24.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 25):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] == "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
 
+            index = column_names.index('% recanalization rate out of total ischemic incidence')
+            column = xl_col_to_name(index)
+            angels_awards_recan(column, coln=index)
 
-            angels_awards_recan('EH')
-
-
-            def angels_awards_processes(column_name, n, coln=coln, count=True):
+            def angels_awards_processes(column_name, coln, count=True):
                 """Add conditional formatting to angels awards for processes."""
                 count = count
-                num = n
-                coln = coln + num
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
@@ -2056,32 +1938,27 @@ class GenerateFormattedStats:
                                                         'value': 90,
                                                         'format': black})
                     row += 1
-                if (count):
-                    for row in range(nrow - 2):
-                        if (awards[row] != "NONE"):
-                            if (float(statistics[row][coln]) >= 80 and float(statistics[row][coln]) <= 84.99):
-                                if (awards[row] == "PLATINUM" or awards[row] == "DIAMOND"):
-                                    awards[row] = "GOLD"
-                            elif (float(statistics[row][coln]) >= 85 and float(statistics[row][coln]) <= 89.99):
-                                if (awards[row] == "DIAMOND"):
-                                    awards[row] = "PLATINUM"
-                            elif (float(statistics[row][coln]) >= 90):
-                                if (awards[row] == "DIAMOND"):
-                                    awards[row] = "DIAMOND"
-                            else:
-                                awards[row] = "NONE"
 
 
-            angels_awards_processes('EJ', 8)
-            angels_awards_processes('EL', 10)
-            angels_awards_processes('ER', 16)
-            angels_awards_processes('EX', 22)
+            index = column_names.index('% suspected stroke patients undergoing CT/MRI')
+            column = xl_col_to_name(index)
+            angels_awards_processes(column, coln=index)
+
+            index = column_names.index('% all stroke patients undergoing dysphagia screening')
+            column = xl_col_to_name(index)
+            angels_awards_processes(column, coln=index)
+
+            index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
+            column = xl_col_to_name(index)
+            angels_awards_processes(column, coln=index)
+
+            index = column_names.index('% afib patients discharged (home) with anticoagulants')
+            column = xl_col_to_name(index)
+            angels_awards_processes(column, coln=index)
 
             # setting colors of cells according to their values
-            def angels_awards_hosp(column_name, n, coln=coln):
+            def angels_awards_hosp(column_name, coln):
                 """Add conditional formatting to angels awards for hospitalization."""
-                num = n
-                coln = coln + num
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
@@ -2100,38 +1977,367 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
-                '''
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) < 80):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 80):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
+            index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
+            column = xl_col_to_name(index)
+            angels_awards_hosp(column, coln=index)
 
-                '''
-                for row in range(nrow - 2):
-                    if (awards[row] != "NONE"):
-                        if (float(statistics[row][coln]) <= 0.99):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "PLATINUM"
-                        elif (float(statistics[row][coln]) >= 1):
-                            if (awards[row] == "DIAMOND"):
-                                awards[row] = "DIAMOND"
-                        else:
-                            awards[row] = "NONE"
+            # set color for proposed angel award
+            def proposed_award(column_name, coln):
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'NONE',
+                                                        'format': green})
+                    row += 1
 
-            angels_awards_hosp('FA', 25)
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'GOLD',
+                                                        'format': gold})
+                    row += 1
 
-            coln = coln + 26
-            worksheet.write_column(3, coln, awards)
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'PLATINUM',
+                                                        'format': plat})
+                    row += 1
+
+                row = 4
+                while row < nrow + 2:
+                    cell_n = column + str(row)
+                    worksheet.conditional_format(cell_n, {'type': 'text',
+                                                        'criteria': 'containing',
+                                                        'value': 'DIAMOND',
+                                                        'format': black})
+                    row += 1
+
+            index = column_names.index('Proposed Award')
+            column = xl_col_to_name(index)
+            proposed_award(column, coln=index)
+        else:
+            pass
+
+        workbook1.close()
+
+class GenerateFormattedAngelsAwards:
+    """ This class generate formatted statistics only for angels awards. 
+    
+    :param df: the dataframe with angels awards statistics
+    :type df: pandas dataframe
+    :param report: the type of report, eg. quarter
+    :type report: str
+    :param quarter: the type of the period, eg. Q1_2019
+    :type quarter: str
+    """
+    def __init__(self, df, report=None, quarter=None, minimum_patients=30):
+
+        self.df = df
+        self.report = report
+        self.quarter = quarter
+        self.minimum_patients = minimum_patients
+
+        self.formate(self.df)
+
+    def formate(self, df):
+
+        if self.report is None and self.quarter is None:
+            output_file = "angels_awards.xslx"
+        else:
+            output_file = self.report + "_" + self.quarter + "_angels_awards.xlsx"
+            
+
+        workbook1 = xlsxwriter.Workbook(output_file, {'strings_to_numbers': True})
+        worksheet = workbook1.add_worksheet()
+
+        # set width of columns
+        worksheet.set_column(0, 2, 15)
+        worksheet.set_column(2, 20, 40)
+
+        ncol = len(df.columns) - 1
+        nrow = len(df) + 2
+
+        col = []
+        column_names = df.columns.tolist()
+        for i in range(0, ncol + 1):
+            tmp = {}
+            tmp['header'] =column_names[i]
+            col.append(tmp)
+
+        statistics = df.values.tolist()
+        colors = {
+            "angel_awards": "#B87333",
+            "angel_resq_awards": "#341885",
+            "columns": "#3378B8",
+            "green": "#A1CCA1",
+            "orange": "#DF7401",
+            "gold": "#FFDF00",
+            "platinum": "#c0c0c0",
+            "black": "#ffffff",
+            "red": "#F45D5D"
+        }
+
+        ################
+        # angel awards #
+        ################
+        awards = workbook1.add_format({
+            'bold': 2,
+            'border': 0,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': colors.get("angel_awards")})
+
+        awards_color = workbook1.add_format({
+            'fg_color': colors.get("angel_awards")})
+
+        first_cell = xl_rowcol_to_cell(0, 2)
+        last_cell = xl_rowcol_to_cell(0, ncol)
+        worksheet.merge_range(first_cell + ":" + last_cell, 'ESO ANGELS AWARDS', awards)
+        for i in range(2, ncol + 1):
+            cell = xl_rowcol_to_cell(1, i)
+            worksheet.write(cell, '', awards_color)
+
+        # format for green color
+        green = workbook1.add_format({
+            'bold': 2,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': colors.get("green")})
+
+        # format for gold color
+        gold = workbook1.add_format({
+            'bold': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': colors.get("gold")})
+
+        # format for platinum color
+        plat = workbook1.add_format({
+            'bold': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': colors.get("platinum")})
+
+        # format for gold black
+        black = workbook1.add_format({
+            'bold': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': '#000000',
+            'color': colors.get("black")})
+
+        # format for red color
+        red = workbook1.add_format({
+            'bold': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'bg_color': colors.get("red")})
+
+
+        # add table into worksheet
+        options = {'data': statistics,
+                   'header_row': True,
+                   'columns': col,
+                   'style': 'Table Style Light 8'
+                   }
+
+        first_col = xl_col_to_name(0)
+        last_col = xl_col_to_name(ncol + 1)
+        worksheet.set_column(first_col + ":" + last_col, 30)
+
+        worksheet.add_table(2, 0, nrow, ncol, options)
+
+        # total number of rows
+        number_of_rows = len(statistics) + 2
+
+        self.total_patients_column = '# total patients >= {0}'.format(self.minimum_patients)
+        # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
+        awards = []
+        row = 4
+        while row < nrow + 2:
+            index = column_names.index(self.total_patients_column)
+            cell_n = xl_col_to_name(index) + str(row)
+            worksheet.conditional_format(cell_n, {'type': 'text',
+                                                'criteria': 'containing',
+                                                'value': 'TRUE',
+                                                'format': green})
+            row += 1
+
+
+        def angels_awards_ivt_60(column_name, coln):
+            """Add conditional formatting to angels awards for ivt < 60."""
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': 'between',
+                                                    'minimum': 50,
+                                                    'maximum': 74.99,
+                                                    'format': gold})
+                row += 1
 
             row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '>=',
+                                                    'value': 75,
+                                                    'format': black})
+                row += 1
+
+        index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_60(column, coln=index)
+
+        # angels_awards_ivt_60('D')
+
+
+        def angels_awards_ivt_45(column_name, coln):
+            """Add conditional formatting to angels awards for ivt < 45."""
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '<=',
+                                                    'value': 49.99,
+                                                    'format': plat})
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '>=',
+                                                    'value': 50,
+                                                    'format': black})
+                row += 1
+
+        index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
+        column = xl_col_to_name(index)
+        angels_awards_ivt_45(column, coln=index)
+
+        # setting colors of cells according to their values
+        def angels_awards_recan(column_name, coln):
+            """Add conditional formatting to angels awards for recaalization procedures."""
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': 'between',
+                                                    'minimum': 5,
+                                                    'maximum': 14.99,
+                                                    'format': gold})
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': 'between',
+                                                    'minimum': 15,
+                                                    'maximum': 24.99,
+                                                    'format': plat})
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '>=',
+                                                    'value': 25,
+                                                    'format': black})
+                row += 1
+
+        index = column_names.index('% recanalization rate out of total ischemic incidence')
+        angels_awards_recan(column_name=xl_col_to_name(index), coln=index)
+        #angels_awards_recan('F')
+
+
+        def angels_awards_processes(column_name, coln, count=True):
+            """Add conditional formatting to angels awards for processes."""
+            count = count
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': 'between',
+                                                    'minimum': 80,
+                                                    'maximum': 84.99,
+                                                    'format': gold})
+
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': 'between',
+                                                    'minimum': 85,
+                                                    'maximum': 89.99,
+                                                    'format': plat})
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '>=',
+                                                    'value': 90,
+                                                    'format': black})
+                row += 1
+
+        index = column_names.index('% suspected stroke patients undergoing CT/MRI')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% all stroke patients undergoing dysphagia screening')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        index = column_names.index('% afib patients discharged (home) with anticoagulants')
+        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+
+        #angels_awards_processes('G', 4)
+        #angels_awards_processes('H', 5)
+        #angels_awards_processes('I', 6)
+        #angels_awards_processes('J', 7)
+
+        # setting colors of cells according to their values
+        def angels_awards_hosp(column_name, coln):
+            """Add conditional formatting to angels awards for hospitalization."""
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '<=',
+                                                    'value': 0,
+                                                    'format': plat})
+                row += 1
+
+            row = 4
+            while row < number_of_rows + 2:
+                cell_n = column_name + str(row)
+                worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                    'criteria': '>=',
+                                                    'value': 0.99,
+                                                    'format': black})
+                row += 1
+
+        
+        index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
+        angels_awards_hosp(column_name=xl_col_to_name(index), coln=index)
+
+        
+        # set color for proposed angel award
+        def proposed_award(column_name, coln):
+            row = 4
             while row < nrow + 2:
-                cell_n = 'FB' + str(row)
+                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'NONE',
@@ -2140,7 +2346,7 @@ class GenerateFormattedStats:
 
             row = 4
             while row < nrow + 2:
-                cell_n = 'FB' + str(row)
+                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'GOLD',
@@ -2149,7 +2355,7 @@ class GenerateFormattedStats:
 
             row = 4
             while row < nrow + 2:
-                cell_n = 'FB' + str(row)
+                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'PLATINUM',
@@ -2158,13 +2364,15 @@ class GenerateFormattedStats:
 
             row = 4
             while row < nrow + 2:
-                cell_n = 'FB' + str(row)
+                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'DIAMOND',
                                                     'format': black})
                 row += 1
-        else:
-            pass
+
+        index = column_names.index('Proposed Award')
+        column = xl_col_to_name(index)
+        proposed_award(column, coln=index)
 
         workbook1.close()

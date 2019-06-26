@@ -1928,7 +1928,6 @@ class GenerateFormattedStats:
 
         if not self.comp:    
             # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
-            awards = []
             row = 4
             index = column_names.index(self.total_patients_column)
             while row < nrow + 2:
