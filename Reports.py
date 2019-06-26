@@ -33,18 +33,19 @@ from pptx.oxml.xmlchemy import OxmlElement
 import xlsxwriter
 
 
-
-
 class Reports:
-    ''' Generate SITS-like reports for recanalization procedure. 
+    """ The class generating the SITS-like reports for recanalization procedure. 
 
-    Args: 
-        df: preprocessed data
-        year: year for which you would like to generate reports
-        country: the country code
-        month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)
-    '''
+    :param df: the preprocessed data
+    :type df: pandas dataframe
+    :param year: the year for which reports are generated
+    :type year: int
+    :param month: the last month to be included in the calculation
+    :type month: int
+    :param country: the country code (only CZ for now)
+    :type country: str
 
+    """
     def __init__(self, df, year, month, country):
     
         # create dataframe with regions, to each region assign population and hospitals
@@ -157,18 +158,13 @@ class Reports:
 
 
     def filter_dataframe(self):
-        """ Filter dataset per each month for selected year. 
-        
-        Returns:
-            Dictionary with filtered dataframes per each month.
+        """ The function filtering the preprocessed data for each month. 
+
+        :returns: the dictionary of filtered dataframes
         """
-
-        # Store filtered dataframe in dictionary
         dfs = {}
-
         # Get current date
         current_year = datetime.today().year
-        # Month from argument
         current_month = self.month
 
         # Filter dataframe per month
@@ -193,30 +189,31 @@ class Reports:
 
     
     def count_patients(self, df, statistic):
-        """ Returns the column with number of patients group by Protocol ID. 
+        """ The function calculating the number of patients grouped by Protocol ID. 
 
-        Args:
-            df: The dataframe with raw data. 
-
-        Returns:
-            The column with number of patients.
+        :param df: the dataframe with preprocessed data
+        :type df: pandas dataframe
+        :param statistic: the dataframe with calculated statistics
+        :type statistic: pandas dataframe
+        :returns: the column with patient numbers
         """
-
         tmp = df.groupby(['Protocol ID']).size().reset_index(name='total_patients')
         tmp_df = statistic.merge(tmp, how='outer')
         tmp_df.fillna(0, inplace=True)
 
         return tmp_df['total_patients']
 
+    
     def time_diff(self, visit_date, hospital_date):
-        """ Calculate difference in minutes between two dates. 
+        """ The function calculating the difference in minutes between two dates. 
 
-        Args:
-            visit_date: visit date
-            hospital_date: date when patient was hospitalized
-        Returns:
-            The calculated difference in minutes.
+        :param visit_date: the last seen normal date
+        :type visit_date: date
+        :param hospital_date: the date of hospitalization
+        :type hospital_date: date
+        :returns: the difference in minutes
         """
+        
         if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
             time_diff = hospital_date - visit_date
             # Convert difference to minutes
@@ -229,28 +226,31 @@ class Reports:
         
         return total_minutes
 
+    
     def get_region(self, site_id):
-        """ Get region for given site ID. 
+        """ The function returning the region based on Site ID. 
 
-        Args: 
-            df: raw dataframe
-        Returns: 
-            The column with region. 
+        :param site_id: the site ID
+        :type site_id: str
+        :returns: the name of the region
         """
         for key, value in self.regions.items():
             if site_id in value['hospitals']:
                 return key           
 
+    
     def get_incorrect_times(self, admission_time, recan_time, maximum):
-        """ Get incorrectly entered times. Based on negative times. 
+        """ The function checking if time was incorrectly entered. Based on negative values, higher values than realistic value or zero value. 
 
-        Args: 
-            admission_time: the time of admission (or hospitalization in later cases)
-            recan_time: the time when thrombolysis was performed
-            maximum: the maximum value for recanalization procedure 
-        Returns: 
-            Return TRUE if result value is negative, else return FALSE
+        :param admission_time: the time of the admission/hospitalization
+        :type admission_time: time
+        :param recan_time: the time of recanalization procedures (needle time/groin time)
+        :type recan_time: time
+        :param maximum: the realistic time for the recanalizaiton procedure
+        :type maximum: int
+        :returns: `True` if the condition was not met
         """
+       
         timeformat = '%H:%M:%S'
         if admission_time is None or recan_time is None or pd.isnull(admission_time) or pd.isnull(recan_time):
             incorrect = True
@@ -276,15 +276,10 @@ class Reports:
             else:
                 incorrect = False
 
-        
         return incorrect
 
     def calculate_thrombolysis(self):
-        """ Get median values for thrombolysed patients. 
-        
-        Args:
-            filtered_dfs: dictionary with filtered dataframes
-        """
+        """ The function calculating the result statistic for patients who have recieved the thrombolysis. """
         stats_dfs = {}
 
         # Iterate through filtered dataframes
@@ -359,11 +354,7 @@ class Reports:
         return stats_dfs
 
     def calculate_thrombectomy(self):
-        """ Get median values for thrombectomy patients. 
-        
-        Args:
-            filtered_dfs: dictionary with filtered dataframes
-        """
+        """ The function calculating the result statistic for patients who have recieved the thrombectomy. """
         stats_dfs = {}
 
         # Iterate through filtered dataframes
@@ -449,11 +440,7 @@ class Reports:
         return stats_dfs
 
     def calculate_statistic_per_region(self):
-        """ Get median values for thrombolysed patients. 
-        
-        Args:
-            filtered_dfs: dictionary with filtered dataframes
-        """
+        """ The function calculating the result statistic for recanalization procedures per regions. """
         stats_dfs = {}
 
         # Iterate through filtered dataframes
@@ -481,7 +468,7 @@ class Reports:
         return stats_dfs
 
     def save_excel(self):
-        ''' Save excel file with more sheets. '''
+        """ The function generating the Excel file with intermediate data used for generating SITS-like reports. The excel file contains three sheets for each period (thrombolysis, thrombectomy, per region). """
 
         # Create workbook
         output_filename = "SITSlike_reports_stats_" + datetime.now().strftime('%d-%m-%Y') + ".xlsx"
@@ -592,10 +579,10 @@ class Reports:
         workbook.close()
 
 class GeneratePresentation(Reports):
-    """ Genearte presentation for SITS-like reports. """
+    """ The class generating graphs in the presentation. """
 
     def _generate_graphs(self):
-        """Generate graphs into presentation."""
+        """ The functin generating graphs in the presentation. For each month is generated seperated presentation with the graphs. The last month is included in the cumulative presentation. """
         
         df_names = self.names.copy()
         # Delete last item from list of names (the whole year)
@@ -1007,25 +994,37 @@ class GeneratePresentation(Reports):
 
             
     def generate_presentation(self):
-        """ Call function used to generate presentation with graphs. """
+        """ The function calling the :func:`self._generate_graphs`. """
 
         self._generate_graphs()
 
 
 class GenerateGraphs:
-    """This class is used to generate our typical presentation with graphs. 
+    """ The class generating graphs into presentation and called inside the :class:`resqdb.Reports.GeneratePresentation`. 
 
-    Arguments:
-        dataframe - dataframe with calculated statistics
-        presentation - opened pptx document
-        title - name of slide
-        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
-        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
-        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
-        legend - list of legend names (default = None)
-        country - name of country (if dataset was filtered based on country) (default = None)
+    :param df: the dataframe with calculated statistics
+    :type df: pandas dataframe
+    :param presentation: the opened document (pptx)
+    :type presentation: Presentation object
+    :param title: the title of the slide
+    :type title: str
+    :param column_name: the name of column which should be used in the graph (for stacked graph represent the first column to get index where the data included in the graph starts)
+    :type column_name: str
+    :param country_name: the country name
+    :type coutnry_name: str
+    :param axis_name: the label of x-axis
+    :type axis_name: str
+    :param coloring: `True` if rows should be colored by number, else `False`
+    :type coloring: bool
+    :param region: `True` if region graphs should be generated (coloring issue)
+    :type region: bool
+    :param incorrect: `True` if graphs displaying the incorrect times are generated
+    :type incorrect: bool
+    :param maximum: maximum value of x-axis for some graph
+    :type maximum: int
+    :param content: the small guide text displayed on the slide next to graph, each paragraphs is new value in list
+    :type content: list 
     """
-
     def __init__(self, df, presentation, title, column_name, country_name, axis_name=None, coloring=False, region=False, incorrect=False, maximum=0, content=None):
 
         self.dataframe = df
@@ -1053,11 +1052,12 @@ class GenerateGraphs:
         self._create_barplot()
 
     def _set_transparency(self, transparency, elm):
-        """ Set tranparency of element. 
+        """ The function set the transparency of the row. 
 
-        Args: 
-            transparency: transparency in % 
-            elm: element to be changed
+        :param transparency: the transparency in %
+        :type transparency: int
+        :param elm: the element which transparency should be changed
+        :type elm: format.line.color._xFill
         """
         a = str(100 - transparency) + '196'
         
@@ -1067,13 +1067,7 @@ class GenerateGraphs:
 
 
     def _create_barplot(self):
-        """Create normal barplot
-
-        Args:
-            dataframe - dataframe with statistics
-            title - title of slide
-            column_name - name of column which is included in graph
-        """
+        """ The function creating the new graph into the presentation based on the graph type. """
 
         colors = {
             'yellow': RGBColor(255, 192, 0), 

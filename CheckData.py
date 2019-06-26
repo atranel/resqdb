@@ -16,12 +16,18 @@ from dateutil.relativedelta import relativedelta
 from threading import Thread
 
 class CheckData:
-    """ A check of times and days with one property: a dataframe. """
+    """ The class checking the dates and times in the dataframe. 
+    
+    :param df: the dataframe containing the raw data
+    :type df: pandas dataframe
+    :param nprocess: the number of processes to be run simultaneously
+    :type nprocess: int
+    """
 
     def __init__(self, df, nprocess=None):
         
-        # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -54,13 +60,13 @@ class CheckData:
             self.preprocessed_data = self.get_preprocessed_data(self.df)
 
     def time_diff(self, visit_date, hospital_date):
-        """ Calculate difference in minutes between two dates. 
+        """ The function calculating the difference in minutes between hospital date and visit date. 
 
-        Args:
-            visit_date: visit date
-            hospital_date: date when patient was hospitalized
-        Returns:
-            The calculated difference in minutes.
+        :param visit_date: the last seen normal date
+        :type visit_date: the timestamp
+        :param hospital_date: the date of hospitalization
+        :type hospital_date: the timestamp
+        :returns: the difference between two timestamps
         """
         if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
             time_diff = hospital_date - visit_date
@@ -74,10 +80,19 @@ class CheckData:
         
         return total_minutes
 
-    def get_preprocessed_data(self, df, n=None, name=None):         
+    def get_preprocessed_data(self, df, n=None, name=None):    
+        """ The function preparing the preprocessed data from the raw data. 
+
+        :param df: the dataframe with the raw data
+        :type df: pandas dataframe
+        :param n: the number of the process if more processes are run simultaneously
+        :type n: int
+        :param name: the name of dataframe used as key in the dictionary
+        :type name: str
+        :returns: preprocessed data if one process has been run
+        """     
         
         if self.nprocess is not None:
-            """ Return preprocessed data. """
             preprocessed_data = df.copy()
             # Calculate hospital days
             preprocessed_data['HOSPITAL_DAYS'] = preprocessed_data.apply(lambda x: self._get_hospital_days(x['HOSPITAL_DATE'], x['DISCHARGE_DATE']), axis=1)
@@ -111,7 +126,6 @@ class CheckData:
             self.pre_df[name] = preprocessed_data
 
         else:
-            """ Return preprocessed data. """
             preprocessed_data = df.copy()
             # Calculate hospital days
             preprocessed_data['HOSPITAL_DAYS'] = preprocessed_data.apply(lambda x: self._get_hospital_days(x['HOSPITAL_DATE'], x['DISCHARGE_DATE']), axis=1)
@@ -147,14 +161,15 @@ class CheckData:
 
     
     def _fix_dates(self, visit_date, hosp_date, disc_date):
-        """Gets fixed date
+        """ The function fixing the hospital date and discharge date if hospital days were negative. 
 
-        Args:
-            visit_date: The visit date.
-            hosp_date: The hospital date.
-            disc_date: The discharge date. 
-        Returns: 
-            The fixed dates if it was possible to fix the date else return the old date.
+        :param visit_date: the last seen normal date
+        :type visit_date: date
+        :param hosp_date: the date of hospitalization
+        :type hosp_date: date
+        :param disc_date: the discharge date
+        :type disc_date: date
+        :returns: fixed visit_date, fixed hosp_date, fixed disc_date, hospital_days calculated from the fixed dates, `True` if values has been fixed
         """
         # Set to True if hospital date or discharge date was fixed. Default: True
         fixed = False
@@ -315,14 +330,15 @@ class CheckData:
 
 
     def _get_hospital_days(self, hosp_date, disc_date):
-        """Gets the difference between two dates in days. 
+        """ The function calculating the number of hospital days. 
 
-        Args:
-            hosp_date: The hospital date.
-            disc_date: The discharge date. 
-        Returns:
-            The calculated number of days of stay in the hospital.
+        :param hosp_date: the date of hospitalization
+        :type hosp_date: date
+        :param disc_date: the discharge date
+        :type disc_date: date
+        :returns: the number of hospital days
         """
+
         try: 
             diff_days = (disc_date - hosp_date).days
             # If hospital date and discharge date are the same day, replace 0 by 1.
@@ -334,12 +350,11 @@ class CheckData:
 
 
     def _fix_times(self, df):
-        """ Call this function to calculate times (needle time, bolus time, etc.) 
+        """ The function fixing the times for recanalization procedures. 
 
-        Args: 
-            df: The preprocessed dataframe
-        Returns:
-            The preprocessed dataframe with added columns.
+        :param df: the dataframe with raw data
+        :type df: pandas dataframe
+        :returns: the dataframe with the fixed times
         """
         # IVT_ONLY - 1) filled in minutes, 2) filled admission and bolus time
         # IVT_ONLY_ADMISSION_TIME - HH:MM format
@@ -531,16 +546,19 @@ class CheckData:
 
 
     def _get_times_in_minutes(self, admission_time, bolus_time, hosp_time, max_time):
-        """ Calculate differnce between two times. 
+        """ The function calculating difference between times in minutes. 
 
-        Args:
-            admission_time: The admission time
-            bolus_time: The time when treatment was provided
-            hospital_time: The time of hospitalization
-            max_time: The maximum time in which the treatment should be provided (minutes)
-        Returns:
-            The calculated difference in minutes.
+        :param admission_time: the time of admission
+        :type admission_time: time
+        :param bolus_time: the time of needle time
+        :type bolus_time: time
+        :param hosp_time: the time of hospitalization
+        :type hosp_time: time
+        :param max_time: the maximum time which is realistic for the type of the recanalization treatment
+        :type max_time: int
+        :returns: the calculated difference in minutes, `True` if time has been fixed else `False`
         """
+        
         fixed = False
         timeformat = '%H:%M:%S'
         
