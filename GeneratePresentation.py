@@ -22,16 +22,22 @@ from pptx.util import Cm, Pt, Inches
 from pptx.dml.color import RGBColor
 
 class GeneratePresentation:
-    """Generate classic presentation with graphs. 
+    """ The class generating the general presentation for countries and sites. 
 
-    Keyword arguments:
-        df: the raw dataframe with statistics
-        country: True if the country should be included as siste
-        country_code: the code of country
-        split_sites: True if the presesntation should be generated for each site individually
-        site: the code of site
-        report: the report name
-        quarter: the quarter name
+    :param df: the dataframe with calculated statistics
+    :type df: pandas dataframe
+    :param country: `True` if country is included in the statistics as site
+    :type country: bool
+    :param country_code: the country code
+    :type country_code: str
+    :param split_sites: `True` if presentation should be generated per sites seperately
+    :type split_sites: bool
+    :param site: the site code
+    :type site: str
+    :param report: the type of the report eg. quarter
+    :type report: str
+    :param quarter: the type of the period eg. Q1_2019
+    :type quarter: str
     """
 
     def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None):
@@ -42,12 +48,18 @@ class GeneratePresentation:
         self.quarter = quarter
 
         #master_pptx = self.country_code + ".pptx"
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        script_dir = os.path.dirname(__file__) 
         master_pptx = "master.pptx"
         self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
         # Connect to database and get country name according to country code.
         def select_country(value):
+            """ The function obtaining the name of country from the package pytz based on the country code. 
+
+            :param value: the country code
+            :type value: str
+            :returns: the country name
+            """
             country_name = pytz.country_names[value]
             return country_name
 
@@ -82,7 +94,13 @@ class GeneratePresentation:
             self._generate_graphs(df=self.df, site_code=country_code)
 
     def _generate_graphs(self, df, site_code=None):
-        """Generate graphs into presentation."""
+        """ The function opening the presentation and generating graphs. 
+        
+        :param df: the dataframe with calculated statistic
+        :type df: pandas dataframe
+        :param site_code: the site ID
+        :type site_code: str
+        """
         
         prs = Presentation(self.master)
 
