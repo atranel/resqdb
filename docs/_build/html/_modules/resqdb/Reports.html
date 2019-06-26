@@ -67,18 +67,19 @@
 <span class="kn">import</span> <span class="nn">xlsxwriter</span>
 
 
-
-
 <div class="viewcode-block" id="Reports"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports">[docs]</a><span class="k">class</span> <span class="nc">Reports</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39; Generate SITS-like reports for recanalization procedure. </span>
+    <span class="sd">&quot;&quot;&quot; The class generating the SITS-like reports for recanalization procedure. </span>
 
-<span class="sd">    Args: </span>
-<span class="sd">        df: preprocessed data</span>
-<span class="sd">        year: year for which you would like to generate reports</span>
-<span class="sd">        country: the country code</span>
-<span class="sd">        month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    :param df: the preprocessed data</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param year: the year for which reports are generated</span>
+<span class="sd">    :type year: int</span>
+<span class="sd">    :param month: the last month to be included in the calculation</span>
+<span class="sd">    :type month: int</span>
+<span class="sd">    :param country: the country code (only CZ for now)</span>
+<span class="sd">    :type country: str</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">country</span><span class="p">):</span>
     
         <span class="c1"># create dataframe with regions, to each region assign population and hospitals</span>
@@ -191,18 +192,13 @@
 
 
 <div class="viewcode-block" id="Reports.filter_dataframe"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.filter_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">filter_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Filter dataset per each month for selected year. </span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Dictionary with filtered dataframes per each month.</span>
+        <span class="sd">&quot;&quot;&quot; The function filtering the preprocessed data for each month. </span>
+
+<span class="sd">        :returns: the dictionary of filtered dataframes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Store filtered dataframe in dictionary</span>
         <span class="n">dfs</span> <span class="o">=</span> <span class="p">{}</span>
-
         <span class="c1"># Get current date</span>
         <span class="n">current_year</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
-        <span class="c1"># Month from argument</span>
         <span class="n">current_month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span>
 
         <span class="c1"># Filter dataframe per month</span>
@@ -227,30 +223,31 @@
 
     
 <div class="viewcode-block" id="Reports.count_patients"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.count_patients">[docs]</a>    <span class="k">def</span> <span class="nf">count_patients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">statistic</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns the column with number of patients group by Protocol ID. </span>
+        <span class="sd">&quot;&quot;&quot; The function calculating the number of patients grouped by Protocol ID. </span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            df: The dataframe with raw data. </span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The column with number of patients.</span>
+<span class="sd">        :param df: the dataframe with preprocessed data</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :param statistic: the dataframe with calculated statistics</span>
+<span class="sd">        :type statistic: pandas dataframe</span>
+<span class="sd">        :returns: the column with patient numbers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">tmp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Protocol ID&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;total_patients&#39;</span><span class="p">)</span>
         <span class="n">tmp_df</span> <span class="o">=</span> <span class="n">statistic</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
         <span class="n">tmp_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">tmp_df</span><span class="p">[</span><span class="s1">&#39;total_patients&#39;</span><span class="p">]</span></div>
 
+    
 <div class="viewcode-block" id="Reports.time_diff"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.time_diff">[docs]</a>    <span class="k">def</span> <span class="nf">time_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visit_date</span><span class="p">,</span> <span class="n">hospital_date</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Calculate difference in minutes between two dates. </span>
+        <span class="sd">&quot;&quot;&quot; The function calculating the difference in minutes between two dates. </span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            visit_date: visit date</span>
-<span class="sd">            hospital_date: date when patient was hospitalized</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            The calculated difference in minutes.</span>
+<span class="sd">        :param visit_date: the last seen normal date</span>
+<span class="sd">        :type visit_date: date</span>
+<span class="sd">        :param hospital_date: the date of hospitalization</span>
+<span class="sd">        :type hospital_date: date</span>
+<span class="sd">        :returns: the difference in minutes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">visit_date</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">hospital_date</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">:</span>
             <span class="n">time_diff</span> <span class="o">=</span> <span class="n">hospital_date</span> <span class="o">-</span> <span class="n">visit_date</span>
             <span class="c1"># Convert difference to minutes</span>
@@ -263,28 +260,31 @@
         
         <span class="k">return</span> <span class="n">total_minutes</span></div>
 
+    
 <div class="viewcode-block" id="Reports.get_region"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.get_region">[docs]</a>    <span class="k">def</span> <span class="nf">get_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get region for given site ID. </span>
+        <span class="sd">&quot;&quot;&quot; The function returning the region based on Site ID. </span>
 
-<span class="sd">        Args: </span>
-<span class="sd">            df: raw dataframe</span>
-<span class="sd">        Returns: </span>
-<span class="sd">            The column with region. </span>
+<span class="sd">        :param site_id: the site ID</span>
+<span class="sd">        :type site_id: str</span>
+<span class="sd">        :returns: the name of the region</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">site_id</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;hospitals&#39;</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="n">key</span>           </div>
 
+    
 <div class="viewcode-block" id="Reports.get_incorrect_times"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.get_incorrect_times">[docs]</a>    <span class="k">def</span> <span class="nf">get_incorrect_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">admission_time</span><span class="p">,</span> <span class="n">recan_time</span><span class="p">,</span> <span class="n">maximum</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get incorrectly entered times. Based on negative times. </span>
+        <span class="sd">&quot;&quot;&quot; The function checking if time was incorrectly entered. Based on negative values, higher values than realistic value or zero value. </span>
 
-<span class="sd">        Args: </span>
-<span class="sd">            admission_time: the time of admission (or hospitalization in later cases)</span>
-<span class="sd">            recan_time: the time when thrombolysis was performed</span>
-<span class="sd">            maximum: the maximum value for recanalization procedure </span>
-<span class="sd">        Returns: </span>
-<span class="sd">            Return TRUE if result value is negative, else return FALSE</span>
+<span class="sd">        :param admission_time: the time of the admission/hospitalization</span>
+<span class="sd">        :type admission_time: time</span>
+<span class="sd">        :param recan_time: the time of recanalization procedures (needle time/groin time)</span>
+<span class="sd">        :type recan_time: time</span>
+<span class="sd">        :param maximum: the realistic time for the recanalizaiton procedure</span>
+<span class="sd">        :type maximum: int</span>
+<span class="sd">        :returns: `True` if the condition was not met</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+       
         <span class="n">timeformat</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span>
         <span class="k">if</span> <span class="n">admission_time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">recan_time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">admission_time</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">recan_time</span><span class="p">):</span>
             <span class="n">incorrect</span> <span class="o">=</span> <span class="kc">True</span>
@@ -310,15 +310,10 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">incorrect</span> <span class="o">=</span> <span class="kc">False</span>
 
-        
         <span class="k">return</span> <span class="n">incorrect</span></div>
 
 <div class="viewcode-block" id="Reports.calculate_thrombolysis"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.calculate_thrombolysis">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_thrombolysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get median values for thrombolysed patients. </span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            filtered_dfs: dictionary with filtered dataframes</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function calculating the result statistic for patients who have recieved the thrombolysis. &quot;&quot;&quot;</span>
         <span class="n">stats_dfs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Iterate through filtered dataframes</span>
@@ -393,11 +388,7 @@
         <span class="k">return</span> <span class="n">stats_dfs</span></div>
 
 <div class="viewcode-block" id="Reports.calculate_thrombectomy"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.calculate_thrombectomy">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_thrombectomy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get median values for thrombectomy patients. </span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            filtered_dfs: dictionary with filtered dataframes</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function calculating the result statistic for patients who have recieved the thrombectomy. &quot;&quot;&quot;</span>
         <span class="n">stats_dfs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Iterate through filtered dataframes</span>
@@ -483,11 +474,7 @@
         <span class="k">return</span> <span class="n">stats_dfs</span></div>
 
 <div class="viewcode-block" id="Reports.calculate_statistic_per_region"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.calculate_statistic_per_region">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_statistic_per_region</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get median values for thrombolysed patients. </span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            filtered_dfs: dictionary with filtered dataframes</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function calculating the result statistic for recanalization procedures per regions. &quot;&quot;&quot;</span>
         <span class="n">stats_dfs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Iterate through filtered dataframes</span>
@@ -515,7 +502,7 @@
         <span class="k">return</span> <span class="n">stats_dfs</span></div>
 
 <div class="viewcode-block" id="Reports.save_excel"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.Reports.save_excel">[docs]</a>    <span class="k">def</span> <span class="nf">save_excel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Save excel file with more sheets. &#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating the Excel file with intermediate data used for generating SITS-like reports. The excel file contains three sheets for each period (thrombolysis, thrombectomy, per region). &quot;&quot;&quot;</span>
 
         <span class="c1"># Create workbook</span>
         <span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;SITSlike_reports_stats_&quot;</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">-%m-%Y&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.xlsx&quot;</span>
@@ -626,10 +613,10 @@
         <span class="n">workbook</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 
 <div class="viewcode-block" id="GeneratePresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.GeneratePresentation">[docs]</a><span class="k">class</span> <span class="nc">GeneratePresentation</span><span class="p">(</span><span class="n">Reports</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Genearte presentation for SITS-like reports. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; The class generating graphs in the presentation. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_generate_graphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate graphs into presentation.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The functin generating graphs in the presentation. For each month is generated seperated presentation with the graphs. The last month is included in the cumulative presentation. &quot;&quot;&quot;</span>
         
         <span class="n">df_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># Delete last item from list of names (the whole year)</span>
@@ -1041,25 +1028,37 @@
 
             
 <div class="viewcode-block" id="GeneratePresentation.generate_presentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.GeneratePresentation.generate_presentation">[docs]</a>    <span class="k">def</span> <span class="nf">generate_presentation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Call function used to generate presentation with graphs. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function calling the :func:`self._generate_graphs`. &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_generate_graphs</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="GenerateGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Reports.GenerateGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateGraphs</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;This class is used to generate our typical presentation with graphs. </span>
+    <span class="sd">&quot;&quot;&quot; The class generating graphs into presentation and called inside the :class:`resqdb.Reports.GeneratePresentation`. </span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        dataframe - dataframe with calculated statistics</span>
-<span class="sd">        presentation - opened pptx document</span>
-<span class="sd">        title - name of slide</span>
-<span class="sd">        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)</span>
-<span class="sd">        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)</span>
-<span class="sd">        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)</span>
-<span class="sd">        legend - list of legend names (default = None)</span>
-<span class="sd">        country - name of country (if dataset was filtered based on country) (default = None)</span>
+<span class="sd">    :param df: the dataframe with calculated statistics</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param presentation: the opened document (pptx)</span>
+<span class="sd">    :type presentation: Presentation object</span>
+<span class="sd">    :param title: the title of the slide</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param column_name: the name of column which should be used in the graph (for stacked graph represent the first column to get index where the data included in the graph starts)</span>
+<span class="sd">    :type column_name: str</span>
+<span class="sd">    :param country_name: the country name</span>
+<span class="sd">    :type coutnry_name: str</span>
+<span class="sd">    :param axis_name: the label of x-axis</span>
+<span class="sd">    :type axis_name: str</span>
+<span class="sd">    :param coloring: `True` if rows should be colored by number, else `False`</span>
+<span class="sd">    :type coloring: bool</span>
+<span class="sd">    :param region: `True` if region graphs should be generated (coloring issue)</span>
+<span class="sd">    :type region: bool</span>
+<span class="sd">    :param incorrect: `True` if graphs displaying the incorrect times are generated</span>
+<span class="sd">    :type incorrect: bool</span>
+<span class="sd">    :param maximum: maximum value of x-axis for some graph</span>
+<span class="sd">    :type maximum: int</span>
+<span class="sd">    :param content: the small guide text displayed on the slide next to graph, each paragraphs is new value in list</span>
+<span class="sd">    :type content: list </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">presentation</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">country_name</span><span class="p">,</span> <span class="n">axis_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coloring</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">incorrect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span> <span class="o">=</span> <span class="n">df</span>
@@ -1087,11 +1086,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_barplot</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_set_transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transparency</span><span class="p">,</span> <span class="n">elm</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set tranparency of element. </span>
+        <span class="sd">&quot;&quot;&quot; The function set the transparency of the row. </span>
 
-<span class="sd">        Args: </span>
-<span class="sd">            transparency: transparency in % </span>
-<span class="sd">            elm: element to be changed</span>
+<span class="sd">        :param transparency: the transparency in %</span>
+<span class="sd">        :type transparency: int</span>
+<span class="sd">        :param elm: the element which transparency should be changed</span>
+<span class="sd">        :type elm: format.line.color._xFill</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">transparency</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;196&#39;</span>
         
@@ -1101,13 +1101,7 @@
 
 
     <span class="k">def</span> <span class="nf">_create_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create normal barplot</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dataframe - dataframe with statistics</span>
-<span class="sd">            title - title of slide</span>
-<span class="sd">            column_name - name of column which is included in graph</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function creating the new graph into the presentation based on the graph type. &quot;&quot;&quot;</span>
 
         <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;yellow&#39;</span><span class="p">:</span> <span class="n">RGBColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> 

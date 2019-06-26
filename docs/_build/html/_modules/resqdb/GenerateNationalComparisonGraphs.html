@@ -63,16 +63,26 @@
 
 
 <div class="viewcode-block" id="GenerateNationalComparisonGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateNationalComparisonGraphs.GenerateNationalComparisonGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateNationalComparisonGraphs</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Generate classic presentation with graphs. </span>
+    <span class="sd">&quot;&quot;&quot; The class generating the presentation with graphs for national comparison reports. </span>
 
-<span class="sd">    Keyword arguments:</span>
-<span class="sd">        df: the raw dataframe with statistics</span>
-<span class="sd">        country: True if the country should be included as siste</span>
-<span class="sd">        country_code: the code of country</span>
-<span class="sd">        split_sites: True if the presesntation should be generated for each site individually</span>
-<span class="sd">        site: the code of site</span>
-<span class="sd">        report: the report name</span>
-<span class="sd">        quarter: the quarter name</span>
+<span class="sd">    :param df: the dataframe with calculated statistic for the period of time</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param fdf: the dataframe with calculated comparison statistics eg. 2016, 2017, 2018, etc.</span>
+<span class="sd">    :type fdf: pandas dataframe</span>
+<span class="sd">    :param outcome: the dataframe with outcome results (default: None)</span>
+<span class="sd">    :type outcome: pandas dataframe</span>
+<span class="sd">    :param country: `True` if country should be included in the results as site</span>
+<span class="sd">    :type country: bool</span>
+<span class="sd">    :param country_code: the country code (default: None)</span>
+<span class="sd">    :type country_code: str</span>
+<span class="sd">    :param split_sites: `True` if graphs for each site should be generated seperately</span>
+<span class="sd">    :type split_sites: bool</span>
+<span class="sd">    :param site: the site ID</span>
+<span class="sd">    :type site: str</span>
+<span class="sd">    :param report: the type of the report eg. quarter</span>
+<span class="sd">    :type report: str</span>
+<span class="sd">    :param quarter: the type of the period eg. Q1_2019</span>
+<span class="sd">    :type quarter: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">fdf</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">split_sites</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -85,14 +95,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">outcome</span> <span class="o">=</span> <span class="n">outcome</span>
 
         <span class="c1"># Get absolute path to the database.</span>
-        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="c1">#&lt;-- absolute dir the script is in</span>
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
 
-        <span class="c1">#master_pptx = self.country_code + &quot;.pptx&quot;</span>
         <span class="n">master_pptx</span> <span class="o">=</span> <span class="s2">&quot;master.pptx&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;backgrounds&quot;</span><span class="p">,</span> <span class="n">master_pptx</span><span class="p">))</span>
 
         <span class="c1"># Connect to database and get country name according to country code.</span>
         <span class="k">def</span> <span class="nf">select_country</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot; The function obtaining the name of country from the package pytz based on the country code. </span>
+
+<span class="sd">            :param value: the country code</span>
+<span class="sd">            :type value: str</span>
+<span class="sd">            :returns: the country name</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">country_name</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">country_names</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">country_name</span>
 
@@ -129,7 +144,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_generate_graphs</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">fdf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fdf</span><span class="p">,</span> <span class="n">site_code</span><span class="o">=</span><span class="n">country_code</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_generate_graphs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">fdf</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">site_code</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate graphs into presentation.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating the graph in the presentation. </span>
+<span class="sd">        </span>
+<span class="sd">        :param df: the dataframe containing the general statistics for country</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :param fdf: the dataframe containing the general statistics for country through period in each year</span>
+<span class="sd">        :type fdf: pandas dataframe</span>
+<span class="sd">        :param outcome: the outcome dataframe containing outcome information for the given period</span>
+<span class="sd">        :type outcome: pandas dataframe</span>
+<span class="sd">        :param site_code: the site ID</span>
+<span class="sd">        :type site_code: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span>
 
@@ -1466,9 +1491,6 @@
         <span class="n">working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
         <span class="n">pptx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">site_code</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">quarter</span> <span class="o">+</span> <span class="s2">&quot;_national_comparison.pptx&quot;</span>
         <span class="n">presentation_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="n">pptx</span><span class="p">))</span>
-
-    
-
 
         <span class="n">prs</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">presentation_path</span><span class="p">)</span></div>
 

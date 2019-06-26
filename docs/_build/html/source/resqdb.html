@@ -590,23 +590,60 @@ Version: v1.0</p>
 <dt id="resqdb.CheckData.CheckData">
 <em class="property">class </em><code class="descclassname">resqdb.CheckData.</code><code class="descname">CheckData</code><span class="sig-paren">(</span><em>df</em>, <em>nprocess=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A check of times and days with one property: a dataframe.</p>
+<p>The class checking the dates and times in the dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe containing the raw data</li>
+<li><strong>nprocess</strong> (<em>int</em>) – the number of processes to be run simultaneously</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.CheckData.CheckData.get_preprocessed_data">
 <code class="descname">get_preprocessed_data</code><span class="sig-paren">(</span><em>df</em>, <em>n=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData.get_preprocessed_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData.get_preprocessed_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The function preparing the preprocessed data from the raw data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with the raw data</li>
+<li><strong>n</strong> (<em>int</em>) – the number of the process if more processes are run simultaneously</li>
+<li><strong>name</strong> (<em>str</em>) – the name of dataframe used as key in the dictionary</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">preprocessed data if one process has been run</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="resqdb.CheckData.CheckData.time_diff">
 <code class="descname">time_diff</code><span class="sig-paren">(</span><em>visit_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CheckData.html#CheckData.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CheckData.CheckData.time_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate difference in minutes between two dates.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>visit_date: visit date
-hospital_date: date when patient was hospitalized</dd>
-<dt>Returns:</dt>
-<dd>The calculated difference in minutes.</dd>
-</dl>
+<dd><p>The function calculating the difference in minutes between hospital date and visit date.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>visit_date</strong> (<em>the timestamp</em>) – the last seen normal date</li>
+<li><strong>hospital_date</strong> (<em>the timestamp</em>) – the date of hospitalization</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the difference between two timestamps</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -778,11 +815,34 @@ Version comment: This script is used to generate formatted preprocessed data, pr
 <dt id="resqdb.FormatData.GenerateFormattedAngelsAwards">
 <em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedAngelsAwards</code><span class="sig-paren">(</span><em>df</em>, <em>report=None</em>, <em>quarter=None</em>, <em>minimum_patients=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class generate formatted statistics only for angels awards.</p>
+<p>Class generating formatted excel file containing only Angels Awards results. !</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with preprocessed data</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report, eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period, eg. H1_2018</li>
+<li><strong>minimum_patients</strong> (<em>int</em>) – the minimum number of patients sites need to met condition for total patients</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.FormatData.GenerateFormattedAngelsAwards.formate">
 <code class="descname">formate</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedAngelsAwards.formate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedAngelsAwards.formate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The function formatting the Angels Awards data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>df</strong> (<em>pandas dataframe</em>) – the temporary dataframe containing only column needed to propose award</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -790,24 +850,50 @@ Version comment: This script is used to generate formatted preprocessed data, pr
 <dt id="resqdb.FormatData.GenerateFormattedStats">
 <em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em>, <em>minimum_patients=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class generate formatted statistics in .xslx file. For angel awards are set colored conditions.</p>
-<dl class="docutils">
-<dt>Keyword arguments:</dt>
-<dd>df: the dataframe with statistcs
-country: True if country should be included as site (default: False)
-country_code: the code of country (default: None)
-split_sites: True if you want to generate individual file fo each site (default: False)
-site: the site code (default: None)
-report: the report name (default: None)
-quarter: the quarter name (default: None)</dd>
-</dl>
+<p>Class generating formatted excel file containing all general statistics including formatted Angels Awards results. !</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with preprocessed data</li>
+<li><strong>country</strong> (<em>bool</em>) – <cite>True</cite> if country is included in the reports as site</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – <cite>True</cite> if preprocessed data should be generated per site</li>
+<li><strong>site</strong> (<em>str</em>) – the site ID</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report, eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period, eg. H1_2018</li>
+<li><strong>comp</strong> (<em>bool</em>) – <cite>True</cite> if the comparison calculation is in statistics</li>
+<li><strong>minimum_patients</strong> (<em>int</em>) – the minimum number of patients sites need to met condition for total patients</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.FormatData.GeneratePreprocessedData">
 <em class="property">class </em><code class="descclassname">resqdb.FormatData.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>country_code=None</em>, <em>csv=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/FormatData.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.FormatData.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.</p>
+<p>Class generating preprocessed data in the excel format containing calculated statistics with intermediate columns!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with preprocessed data</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – <cite>True</cite> if preprocessed data should be generated per site</li>
+<li><strong>site</strong> (<em>str</em>) – the site ID</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report, eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period, eg. H1_2018</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code</li>
+<li><strong>csv</strong> (<em>bool</em>) – <cite>True</cite> if preprocessed data were read from csv</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -823,96 +909,139 @@ Description: This script is used to generate comparison charts into presentation
 <dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateCountriesCompGraphs</code><span class="sig-paren">(</span><em>ndf</em>, <em>presentation</em>, <em>column_name</em>, <em>title</em>, <em>sldf=None</em>, <em>subtitle=''</em>, <em>graph_type=None</em>, <em>number_of_series=0</em>, <em>legend=None</em>, <em>samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateCountriesCompGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This function generates graphs into given presentation for two sets of countries.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>ndf - dataframe containing values for first set of countries
-presentation - opened presentation document
-column_name - the name of column
-title - the name of slide
-sldf - dataframe containing values for second set of countries
-subtitle - the subtitle of slide (smaller font) (default = “”)
-graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
-number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
-legend - list of legend names (default = None)
-samples - list of samples which should be colored by different color in normal barplot (default = None)</dd>
-</dl>
+<p>The class generating comparison graphs in presentation for nationally samples vs. site samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ndf</strong> (<em>pandas dataframe</em>) – the calculated statistics for the national samples</li>
+<li><strong>presentation</strong> (<em>Presentation object</em>) – the opened presentation document</li>
+<li><strong>column_name</strong> (<em>str</em>) – the name of column to be included in the graph</li>
+<li><strong>title</strong> (<em>str</em>) – the title of the slide</li>
+<li><strong>sldf</strong> (<em>pandas dataframe</em>) – the calculated statistics for the site samples, can be <cite>None</cite> if Total Patients graph is generated</li>
+<li><strong>subtitle</strong> (<em>str</em>) – the subtitle of the slide</li>
+<li><strong>graph_type</strong> (<em>str</em>) – the type of graph to be generated (normal barplot or stacked barplot)</li>
+<li><strong>number_of_series</strong> (<em>int</em>) – the number of columns included in the stacked barplot</li>
+<li><strong>legend</strong> (<em>list</em>) – the list of values in the legend</li>
+<li><strong>samples</strong> (<em>list of string</em>) – the list of countries which should be displayed with different color</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateCountriesCompPresentation</code><span class="sig-paren">(</span><em>ndf</em>, <em>sldf</em>, <em>name=''</em>, <em>samples=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateCountriesCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>ndf - dataframe containing data for first set of countries in given period
-sldf - dataframe containing data for second set of countries in given period
-name - name of given period (e.g. 2017)
-samples - name of countries which should be colored by different color in the main graph</dd>
-</dl>
+<p>The class creating presentation with the comparison between national samples and site samples in one period.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ndf</strong> (<em>pandas dataframe</em>) – the calculated statistics for the national samples</li>
+<li><strong>sldf</strong> (<em>pandas dataframe</em>) – the calculated statistics for the site samples</li>
+<li><strong>name</strong> (<em>str</em>) – the name of the period, eg. 2017</li>
+<li><strong>samples</strong> (<em>list of string</em>) – the list of countries which should be colored by different color in the main graphs</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GeneratePeriodCompGraph</code><span class="sig-paren">(</span><em>df</em>, <em>presentation</em>, <em>column_name</em>, <em>title</em>, <em>subtitle=''</em>, <em>number_of_series=0</em>, <em>legend=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GeneratePeriodCompGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This function generates graphs into given presentation.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>df - dataframe containing values for each period in one column
-presentation - opened presentation document
-column_name - the name of column
-title - the name of slide
-subtitle - the subtitle of slide (smaller font)
-number_of_series - number of values in one column (bar) for stacked charplots
-legend - list of legend names</dd>
-</dl>
+<p>The class generating comparison graphs for given periods .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the temporary dataframe created in <a class="reference internal" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation" title="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation</span></code></a> class</li>
+<li><strong>presentation</strong> (<em>Presentation object</em>) – the presentation opened in <a class="reference internal" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation" title="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation</span></code></a> class</li>
+<li><strong>column_name</strong> (<em>str</em>) – the name of column which data should be shown in the graph</li>
+<li><strong>title</strong> (<em>str</em>) – the title of the graph</li>
+<li><strong>subtitle</strong> (<em>str</em>) – the subtitle of the graph</li>
+<li><strong>number_of_series</strong> (<em>int</em>) – the number of columns to be shown (stacked graphs)</li>
+<li><strong>legend</strong> (<em>list of strings</em>) – the legend if the graph is stacked</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GeneratePeriodCompPresentation</code><span class="sig-paren">(</span><em>ndf1</em>, <em>ndf2</em>, <em>name1</em>, <em>name2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GeneratePeriodCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>ndf1 - dataframe containing data for first period
-ndf2 - dataframe containing data for second period
-name1 - name of first period (e.g. 2017)
-name2 - name of 2nd periodn (e.g. 2018)</dd>
-</dl>
+<p>The class generating comparison graphs for nationally samples between two periods of times.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ndf1</strong> (<em>pandas dataframe</em>) – the dataframe containing calculated statistics for the first period</li>
+<li><strong>ndf2</strong> (<em>pandas dataframe</em>) – the dataframe containing calculated statistics for the second period</li>
+<li><strong>name1</strong> (<em>str</em>) – the name of the 1st period, eg. 2017</li>
+<li><strong>name2</strong> (<em>str</em>) – the name of the 2nd period, eg. 2017</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateYearsCompGraphs</code><span class="sig-paren">(</span><em>presentation</em>, <em>df</em>, <em>df1=None</em>, <em>df2=None</em>, <em>df3=None</em>, <em>title=''</em>, <em>titles=None</em>, <em>graph_types=None</em>, <em>legends=[]</em>, <em>outcome=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateYearsCompGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>presentation - opened presentation document
-df - dataframe containing statistics, each period is one line
-df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
-df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
-df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
-title - the title of slide
-titles - list of graph names (default = None)
-graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
-legends - inner list of legend names (default = None)</dd>
-</dl>
+<p>The class generating graphs into presentation for country per years. If only one dataframe is provided than one graph is created on slide, two graphs is two dataframes are provided etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>presentation</strong> (<em>Presentation object</em>) – the opened presentation document</li>
+<li><strong>df</strong> (<em>pandas dataframe</em>) – dataframe containing calculated statistics</li>
+<li><strong>df1</strong> (<em>pandas dataframe</em>) – 2nd dataframe containing calculated statistics</li>
+<li><strong>df2</strong> (<em>pandas dataframe</em>) – 3rd dataframe containing calculated statistics</li>
+<li><strong>df3</strong> (<em>pandas dataframe</em>) – 4th dataframe containing calculated statistics</li>
+<li><strong>title</strong> (<em>str</em>) – the title of the slide</li>
+<li><strong>titles</strong> (<em>list</em>) – the titles of each graph</li>
+<li><strong>graph_types</strong> (<em>list</em>) – the list of types of graphs</li>
+<li><strong>legends</strong> (<em>nested list</em>) – the nested list containing lists of legends</li>
+<li><strong>outcome</strong> (<em>bool</em>) – <cite>True</cite> if outcome calculation should be included in the presentation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateComparisonPresentation.</code><code class="descname">GenerateYearsCompPresentation</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateComparisonPresentation.html#GenerateYearsCompPresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>df - dataframe containing data for different times of period in each line
-name - name of given period (e.g. all)</dd>
-</dl>
+<p>The class creating presentation with graphs representing country comparison through all years in the dataset (eg. 2016, 2017, 2018, 2019).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics per years or period</li>
+<li><strong>name</strong> (<em>str</em>) – the name of the presentation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -930,18 +1059,25 @@ As a result, the presentation with chart is produced.</p>
 <dt id="resqdb.GenerateGraphs.GenerateGraphs">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateGraphs.</code><code class="descname">GenerateGraphs</code><span class="sig-paren">(</span><em>dataframe</em>, <em>presentation</em>, <em>title</em>, <em>column_name</em>, <em>graph_type=None</em>, <em>number_of_series=0</em>, <em>legend=None</em>, <em>country=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateGraphs.html#GenerateGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateGraphs.GenerateGraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class is used to generate our typical presentation with graphs.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>dataframe - dataframe with calculated statistics
-presentation - opened pptx document
-title - name of slide
-column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
-graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
-number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
-legend - list of legend names (default = None)
-country - name of country (if dataset was filtered based on country) (default = None)</dd>
-</dl>
+<p>The class generating presentation with graphs for general reports.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataframe</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>presentation</strong> (<em>Presentation object</em>) – the opened presentation document</li>
+<li><strong>title</strong> (<em>str</em>) – the title of the slide</li>
+<li><strong>column_name</strong> (<em>str</em>) – the column name from the dataframe to be shown in the graph</li>
+<li><strong>graph_type</strong> (<em>str</em>) – the type of graph to be generated</li>
+<li><strong>number_of_series</strong> (<em>int</em>) – the number of columns to be shown in the stacked barplot</li>
+<li><strong>legend</strong> (<em>list</em>) – the list of names to be used in the legend in the stacked barplot</li>
+<li><strong>country</strong> (<em>str</em>) – the country name used in the first slide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -986,17 +1122,26 @@ Description: This script is used to call class GenerateGraphs and produce graphs
 <dt id="resqdb.GenerateNationalComparisonGraphs.GenerateNationalComparisonGraphs">
 <em class="property">class </em><code class="descclassname">resqdb.GenerateNationalComparisonGraphs.</code><code class="descname">GenerateNationalComparisonGraphs</code><span class="sig-paren">(</span><em>df</em>, <em>fdf</em>, <em>outcome=None</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GenerateNationalComparisonGraphs.html#GenerateNationalComparisonGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GenerateNationalComparisonGraphs.GenerateNationalComparisonGraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate classic presentation with graphs.</p>
-<dl class="docutils">
-<dt>Keyword arguments:</dt>
-<dd>df: the raw dataframe with statistics
-country: True if the country should be included as siste
-country_code: the code of country
-split_sites: True if the presesntation should be generated for each site individually
-site: the code of site
-report: the report name
-quarter: the quarter name</dd>
-</dl>
+<p>The class generating the presentation with graphs for national comparison reports.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistic for the period of time</li>
+<li><strong>fdf</strong> (<em>pandas dataframe</em>) – the dataframe with calculated comparison statistics eg. 2016, 2017, 2018, etc.</li>
+<li><strong>outcome</strong> (<em>pandas dataframe</em>) – the dataframe with outcome results (default: None)</li>
+<li><strong>country</strong> (<em>bool</em>) – <cite>True</cite> if country should be included in the results as site</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code (default: None)</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – <cite>True</cite> if graphs for each site should be generated seperately</li>
+<li><strong>site</strong> (<em>str</em>) – the site ID</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period eg. Q1_2019</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1012,17 +1157,24 @@ Description: This script is used to call class GenerateGraphs and produce graphs
 <dt id="resqdb.GeneratePresentation.GeneratePresentation">
 <em class="property">class </em><code class="descclassname">resqdb.GeneratePresentation.</code><code class="descname">GeneratePresentation</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/GeneratePresentation.html#GeneratePresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.GeneratePresentation.GeneratePresentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate classic presentation with graphs.</p>
-<dl class="docutils">
-<dt>Keyword arguments:</dt>
-<dd>df: the raw dataframe with statistics
-country: True if the country should be included as siste
-country_code: the code of country
-split_sites: True if the presesntation should be generated for each site individually
-site: the code of site
-report: the report name
-quarter: the quarter name</dd>
-</dl>
+<p>The class generating the general presentation for countries and sites.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>country</strong> (<em>bool</em>) – <cite>True</cite> if country is included in the statistics as site</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – <cite>True</cite> if presentation should be generated per sites seperately</li>
+<li><strong>site</strong> (<em>str</em>) – the site code</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period eg. Q1_2019</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1034,29 +1186,39 @@ quarter: the quarter name</dd>
 <dt id="resqdb.Reports.GenerateGraphs">
 <em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">GenerateGraphs</code><span class="sig-paren">(</span><em>df</em>, <em>presentation</em>, <em>title</em>, <em>column_name</em>, <em>country_name</em>, <em>axis_name=None</em>, <em>coloring=False</em>, <em>region=False</em>, <em>incorrect=False</em>, <em>maximum=0</em>, <em>content=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GenerateGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GenerateGraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class is used to generate our typical presentation with graphs.</p>
-<dl class="docutils">
-<dt>Arguments:</dt>
-<dd>dataframe - dataframe with calculated statistics
-presentation - opened pptx document
-title - name of slide
-column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
-graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
-number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
-legend - list of legend names (default = None)
-country - name of country (if dataset was filtered based on country) (default = None)</dd>
-</dl>
+<p>The class generating graphs into presentation and called inside the <a class="reference internal" href="#resqdb.Reports.GeneratePresentation" title="resqdb.Reports.GeneratePresentation"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Reports.GeneratePresentation</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>presentation</strong> (<em>Presentation object</em>) – the opened document (pptx)</li>
+<li><strong>title</strong> (<em>str</em>) – the title of the slide</li>
+<li><strong>column_name</strong> (<em>str</em>) – the name of column which should be used in the graph (for stacked graph represent the first column to get index where the data included in the graph starts)</li>
+<li><strong>country_name</strong> – the country name</li>
+<li><strong>axis_name</strong> (<em>str</em>) – the label of x-axis</li>
+<li><strong>coloring</strong> (<em>bool</em>) – <cite>True</cite> if rows should be colored by number, else <cite>False</cite></li>
+<li><strong>region</strong> (<em>bool</em>) – <cite>True</cite> if region graphs should be generated (coloring issue)</li>
+<li><strong>incorrect</strong> (<em>bool</em>) – <cite>True</cite> if graphs displaying the incorrect times are generated</li>
+<li><strong>maximum</strong> (<em>int</em>) – maximum value of x-axis for some graph</li>
+<li><strong>content</strong> (<em>list</em>) – the small guide text displayed on the slide next to graph, each paragraphs is new value in list</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.Reports.GeneratePresentation">
 <em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">GeneratePresentation</code><span class="sig-paren">(</span><em>df</em>, <em>year</em>, <em>month</em>, <em>country</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GeneratePresentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GeneratePresentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#resqdb.Reports.Reports" title="resqdb.Reports.Reports"><code class="xref py py-class docutils literal notranslate"><span class="pre">resqdb.Reports.Reports</span></code></a></p>
-<p>Genearte presentation for SITS-like reports.</p>
+<p>The class generating graphs in the presentation.</p>
 <dl class="method">
 <dt id="resqdb.Reports.GeneratePresentation.generate_presentation">
 <code class="descname">generate_presentation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#GeneratePresentation.generate_presentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.GeneratePresentation.generate_presentation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call function used to generate presentation with graphs.</p>
+<dd><p>The function calling the <code class="xref py py-func docutils literal notranslate"><span class="pre">self._generate_graphs()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1065,109 +1227,137 @@ country - name of country (if dataset was filtered based on country) (default = 
 <dt id="resqdb.Reports.Reports">
 <em class="property">class </em><code class="descclassname">resqdb.Reports.</code><code class="descname">Reports</code><span class="sig-paren">(</span><em>df</em>, <em>year</em>, <em>month</em>, <em>country</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate SITS-like reports for recanalization procedure.</p>
-<dl class="docutils">
-<dt>Args: </dt>
-<dd>df: preprocessed data
-year: year for which you would like to generate reports
-country: the country code
-month: number of month which should be included as last from the year, eg. 3 (in reports will be included January, February, March and cumulative Jan-Mar)</dd>
-</dl>
+<p>The class generating the SITS-like reports for recanalization procedure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the preprocessed data</li>
+<li><strong>year</strong> (<em>int</em>) – the year for which reports are generated</li>
+<li><strong>month</strong> (<em>int</em>) – the last month to be included in the calculation</li>
+<li><strong>country</strong> (<em>str</em>) – the country code (only CZ for now)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.Reports.Reports.calculate_statistic_per_region">
 <code class="descname">calculate_statistic_per_region</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_statistic_per_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_statistic_per_region" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get median values for thrombolysed patients.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filtered_dfs: dictionary with filtered dataframes</dd>
-</dl>
+<dd><p>The function calculating the result statistic for recanalization procedures per regions.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.calculate_thrombectomy">
 <code class="descname">calculate_thrombectomy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_thrombectomy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_thrombectomy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get median values for thrombectomy patients.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filtered_dfs: dictionary with filtered dataframes</dd>
-</dl>
+<dd><p>The function calculating the result statistic for patients who have recieved the thrombectomy.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.calculate_thrombolysis">
 <code class="descname">calculate_thrombolysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.calculate_thrombolysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.calculate_thrombolysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get median values for thrombolysed patients.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filtered_dfs: dictionary with filtered dataframes</dd>
-</dl>
+<dd><p>The function calculating the result statistic for patients who have recieved the thrombolysis.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.count_patients">
 <code class="descname">count_patients</code><span class="sig-paren">(</span><em>df</em>, <em>statistic</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.count_patients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.count_patients" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the column with number of patients group by Protocol ID.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>df: The dataframe with raw data.</dd>
-<dt>Returns:</dt>
-<dd>The column with number of patients.</dd>
-</dl>
+<dd><p>The function calculating the number of patients grouped by Protocol ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with preprocessed data</li>
+<li><strong>statistic</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the column with patient numbers</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.filter_dataframe">
 <code class="descname">filter_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.filter_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.filter_dataframe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter dataset per each month for selected year.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>Dictionary with filtered dataframes per each month.</dd>
-</dl>
+<dd><p>The function filtering the preprocessed data for each month.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the dictionary of filtered dataframes</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.get_incorrect_times">
 <code class="descname">get_incorrect_times</code><span class="sig-paren">(</span><em>admission_time</em>, <em>recan_time</em>, <em>maximum</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.get_incorrect_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.get_incorrect_times" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get incorrectly entered times. Based on negative times.</p>
-<dl class="docutils">
-<dt>Args: </dt>
-<dd>admission_time: the time of admission (or hospitalization in later cases)
-recan_time: the time when thrombolysis was performed
-maximum: the maximum value for recanalization procedure</dd>
-<dt>Returns: </dt>
-<dd>Return TRUE if result value is negative, else return FALSE</dd>
-</dl>
+<dd><p>The function checking if time was incorrectly entered. Based on negative values, higher values than realistic value or zero value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>admission_time</strong> (<em>time</em>) – the time of the admission/hospitalization</li>
+<li><strong>recan_time</strong> (<em>time</em>) – the time of recanalization procedures (needle time/groin time)</li>
+<li><strong>maximum</strong> (<em>int</em>) – the realistic time for the recanalizaiton procedure</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>True</cite> if the condition was not met</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.get_region">
 <code class="descname">get_region</code><span class="sig-paren">(</span><em>site_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.get_region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.get_region" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get region for given site ID.</p>
-<dl class="docutils">
-<dt>Args: </dt>
-<dd>df: raw dataframe</dd>
-<dt>Returns: </dt>
-<dd>The column with region.</dd>
-</dl>
+<dd><p>The function returning the region based on Site ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_id</strong> (<em>str</em>) – the site ID</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the name of the region</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.save_excel">
 <code class="descname">save_excel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.save_excel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.save_excel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save excel file with more sheets.</p>
+<dd><p>The function generating the Excel file with intermediate data used for generating SITS-like reports. The excel file contains three sheets for each period (thrombolysis, thrombectomy, per region).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Reports.Reports.time_diff">
 <code class="descname">time_diff</code><span class="sig-paren">(</span><em>visit_date</em>, <em>hospital_date</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Reports.html#Reports.time_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Reports.Reports.time_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate difference in minutes between two dates.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>visit_date: visit date
-hospital_date: date when patient was hospitalized</dd>
-<dt>Returns:</dt>
-<dd>The calculated difference in minutes.</dd>
-</dl>
+<dd><p>The function calculating the difference in minutes between two dates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>visit_date</strong> (<em>date</em>) – the last seen normal date</li>
+<li><strong>hospital_date</strong> (<em>date</em>) – the date of hospitalization</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the difference in minutes</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

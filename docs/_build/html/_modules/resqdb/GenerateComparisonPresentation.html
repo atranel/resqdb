@@ -67,14 +67,16 @@
 <span class="kn">from</span> <span class="nn">pptx.oxml.xmlchemy</span> <span class="k">import</span> <span class="n">OxmlElement</span>
 
 <div class="viewcode-block" id="GeneratePeriodCompPresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation">[docs]</a><span class="k">class</span> <span class="nc">GeneratePeriodCompPresentation</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.</span>
+    <span class="sd">&quot;&quot;&quot; The class generating comparison graphs for nationally samples between two periods of times. </span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        ndf1 - dataframe containing data for first period</span>
-<span class="sd">        ndf2 - dataframe containing data for second period</span>
-<span class="sd">        name1 - name of first period (e.g. 2017)</span>
-<span class="sd">        name2 - name of 2nd periodn (e.g. 2018) </span>
+<span class="sd">    :param ndf1: the dataframe containing calculated statistics for the first period</span>
+<span class="sd">    :type ndf1: pandas dataframe</span>
+<span class="sd">    :param ndf2: the dataframe containing calculated statistics for the second period</span>
+<span class="sd">    :type ndf2: pandas dataframe</span>
+<span class="sd">    :param name1: the name of the 1st period, eg. 2017</span>
+<span class="sd">    :type name1: str</span>
+<span class="sd">    :param name2: the name of the 2nd period, eg. 2017</span>
+<span class="sd">    :type name2: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndf1</span><span class="p">,</span> <span class="n">ndf2</span><span class="p">,</span> <span class="n">name1</span><span class="p">,</span> <span class="n">name2</span><span class="p">):</span>
@@ -85,7 +87,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name2</span> <span class="o">=</span> <span class="n">name2</span>
 
         <span class="c1"># Get absolute path to the database.</span>
-        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="c1">#&lt;-- absolute dir the script is in</span>
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> 
         <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;resq.db&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abs_db_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;database&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
@@ -95,15 +97,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_generate_graphs</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">_generate_graphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This function generates graphs into presentation .pptx.&quot;&quot;&quot;</span>
-
-        <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot; The function generating graphs into the presentation. The final name of the presentation is comparison_two_periods.pptx. &quot;&quot;&quot;</span>
+        <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span> <span class="c1"># Read template presentation</span>
 
         <span class="n">first_slide</span> <span class="o">=</span> <span class="n">prs</span><span class="o">.</span><span class="n">slides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">first_slide</span><span class="o">.</span><span class="n">shapes</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
         <span class="n">text_frame</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">text_frame</span>
 
-        <span class="n">first_slide_text</span> <span class="o">=</span> <span class="s2">&quot;Data Comparison&quot;</span>
+        <span class="n">first_slide_text</span> <span class="o">=</span> <span class="s2">&quot;Data Comparison&quot;</span> <span class="c1"># Set title</span>
     
         <span class="n">p</span> <span class="o">=</span> <span class="n">text_frame</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">run</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">add_run</span><span class="p">()</span>
@@ -118,8 +119,6 @@
         <span class="c1">#     main_col = &#39;Site ID&#39;</span>
         <span class="c1"># else:</span>
         <span class="n">main_col</span> <span class="o">=</span> <span class="s1">&#39;Site Name&#39;</span>
-
-        <span class="c1"># main_col = &quot;Site Name&quot;</span>
 
         <span class="c1">########################</span>
         <span class="c1">#### TOTAL PATIENTS ####</span>
@@ -216,18 +215,24 @@
 
 
 <div class="viewcode-block" id="GeneratePeriodCompGraph"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GeneratePeriodCompGraph">[docs]</a><span class="k">class</span> <span class="nc">GeneratePeriodCompGraph</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function generates graphs into given presentation. </span>
+    <span class="sd">&quot;&quot;&quot; The class generating comparison graphs for given periods . </span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        df - dataframe containing values for each period in one column</span>
-<span class="sd">        presentation - opened presentation document</span>
-<span class="sd">        column_name - the name of column</span>
-<span class="sd">        title - the name of slide</span>
-<span class="sd">        subtitle - the subtitle of slide (smaller font)</span>
-<span class="sd">        number_of_series - number of values in one column (bar) for stacked charplots</span>
-<span class="sd">        legend - list of legend names</span>
+<span class="sd">    :param df: the temporary dataframe created in :class:`resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation` class</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param presentation: the presentation opened in :class:`resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation` class</span>
+<span class="sd">    :type presentation: Presentation object</span>
+<span class="sd">    :param column_name: the name of column which data should be shown in the graph</span>
+<span class="sd">    :type column_name: str</span>
+<span class="sd">    :param title: the title of the graph</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param subtitle: the subtitle of the graph</span>
+<span class="sd">    :type subtitle: str</span>
+<span class="sd">    :param number_of_series: the number of columns to be shown (stacked graphs)</span>
+<span class="sd">    :type number_of_series: int </span>
+<span class="sd">    :param legend: the legend if the graph is stacked</span>
+<span class="sd">    :type legend: list of strings</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">presentation</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">subtitle</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">number_of_series</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>        
@@ -247,7 +252,12 @@
         
 
     <span class="k">def</span> <span class="nf">_get_length_of_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return number of letters in legend to adjust the font size of legend.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function adjusting the number of letters in legend to quess the number of columns in the legend! </span>
+<span class="sd">        </span>
+<span class="sd">        :param legend: the names of legend</span>
+<span class="sd">        :type legend: list</span>
+<span class="sd">        :returns: the adjusted number of letters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">legend</span><span class="p">:</span>
@@ -256,20 +266,16 @@
         <span class="k">return</span> <span class="n">count</span>
 
     <span class="k">def</span> <span class="nf">_create_column_clustered_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create column clustered barplot.&quot;&quot;&quot;</span>
-
+        <span class="sd">&quot;&quot;&quot; The function creating the clustered barplot. &quot;&quot;&quot;</span>
         <span class="n">maximum</span> <span class="o">=</span> <span class="mi">0</span>
         
-        <span class="c1"># Get column names of dataframe</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-
         <span class="n">index</span> <span class="o">=</span> <span class="n">column_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">categories_column</span><span class="p">)</span>
 
         <span class="c1"># Add slide to presentation (layout 11 is our custom layout where only title &#39;Agency FB&#39;, color: RGBColor(43, 88, 173)  and size:24 is set)</span>
         <span class="n">slide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slides</span><span class="o">.</span><span class="n">add_slide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presentation</span><span class="o">.</span><span class="n">slide_layouts</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
         <span class="c1"># Get title object</span>
         <span class="n">title_placeholders</span> <span class="o">=</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">title</span>
-        <span class="c1"># Set title</span>
         <span class="n">title_placeholders</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
 
         <span class="c1"># If subtitle is not set, remove placeholder for the subtitle from page. </span>
@@ -309,13 +315,6 @@
         <span class="n">plot</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="o">-</span><span class="mi">25</span>
         <span class="c1"># Set for each bar same color</span>
         <span class="n">plot</span><span class="o">.</span><span class="n">vary_by_categories</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1"># Show data labels and set font</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        plot.has_data_labels = False</span>
-<span class="sd">        data_labels = plot.data_labels</span>
-<span class="sd">        data_labels.font.size = self.data_label_font_size</span>
-<span class="sd">        data_labels.font.bold = True</span>
-<span class="sd">        data_labels.font.name = self.font_name&#39;&#39;&#39;</span>
 
         <span class="c1"># Value for x-axis (change font size, name, and other things)</span>
         <span class="n">value_axis</span> <span class="o">=</span> <span class="n">chart</span><span class="o">.</span><span class="n">value_axis</span>
@@ -349,15 +348,19 @@
         <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">include_in_layout</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span></div>
 
-<div class="viewcode-block" id="GenerateCountriesCompPresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation">[docs]</a><span class="k">class</span> <span class="nc">GenerateCountriesCompPresentation</span><span class="p">:</span>     
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.</span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        ndf - dataframe containing data for first set of countries in given period</span>
-<span class="sd">        sldf - dataframe containing data for second set of countries in given period</span>
-<span class="sd">        name - name of given period (e.g. 2017)</span>
-<span class="sd">        samples - name of countries which should be colored by different color in the main graph</span>
+<div class="viewcode-block" id="GenerateCountriesCompPresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateCountriesCompPresentation">[docs]</a><span class="k">class</span> <span class="nc">GenerateCountriesCompPresentation</span><span class="p">:</span>     
+    <span class="sd">&quot;&quot;&quot; The class creating presentation with the comparison between national samples and site samples in one period. </span>
+
+<span class="sd">    :param ndf: the calculated statistics for the national samples</span>
+<span class="sd">    :type ndf: pandas dataframe</span>
+<span class="sd">    :param sldf: the calculated statistics for the site samples</span>
+<span class="sd">    :type sldf: pandas dataframe</span>
+<span class="sd">    :param name: the name of the period, eg. 2017</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param samples: the list of countries which should be colored by different color in the main graphs</span>
+<span class="sd">    :type samples: list of string</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndf</span><span class="p">,</span> <span class="n">sldf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="p">[]):</span>
 
@@ -374,6 +377,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;backgrounds&quot;</span><span class="p">,</span> <span class="n">master_pptx</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">select_country</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot; The function obtaining the country name from the package pytz based on the country code.</span>
+
+<span class="sd">            :param value: the country code</span>
+<span class="sd">            :type value: str</span>
+<span class="sd">            :returns: the country name</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;UZB&quot;</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;UZ&#39;</span>
             <span class="n">country_name</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">country_names</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
@@ -390,9 +399,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_generate_graphs</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_generate_graphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This function generates graphs into presentation (pptx).&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating graphs into the presentation! &quot;&quot;&quot;</span>
 
-        <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span>
+        <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="p">)</span> <span class="c1"># Read the template presentation</span>
 
         <span class="n">first_slide</span> <span class="o">=</span> <span class="n">prs</span><span class="o">.</span><span class="n">slides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">first_slide</span><span class="o">.</span><span class="n">shapes</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
@@ -431,9 +440,6 @@
         <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Total number of cases - admission date in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">GenerateCountriesCompGraphs</span><span class="p">(</span><span class="n">ndf</span><span class="o">=</span><span class="n">tmp_df</span><span class="p">,</span> <span class="n">sldf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">presentation</span><span class="o">=</span><span class="n">prs</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">)</span>
 
-        <span class="c1">#if self.country_name is not None:</span>
-         <span class="c1">#   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]</span>
-
         <span class="c1">########################</span>
         <span class="c1">#### TOTAL PATIENTS ####</span>
         <span class="c1">########################</span>
@@ -450,9 +456,6 @@
 
         <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Total number of cases - admission date in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">GenerateCountriesCompGraphs</span><span class="p">(</span><span class="n">ndf</span><span class="o">=</span><span class="n">tmp_df</span><span class="p">,</span> <span class="n">sldf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">presentation</span><span class="o">=</span><span class="n">prs</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nationally_countries</span><span class="p">)</span>
-
-        <span class="c1">#if self.country_name is not None:</span>
-         <span class="c1">#   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]</span>
         
         <span class="c1">############################</span>
         <span class="c1">#### MEDIAN PATIENT AGE ####</span>
@@ -708,21 +711,31 @@
 
         <span class="n">prs</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">presentation_path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="GenerateCountriesCompGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateCountriesCompGraphs</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function generates graphs into given presentation for two sets of countries.  </span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        ndf - dataframe containing values for first set of countries</span>
-<span class="sd">        presentation - opened presentation document</span>
-<span class="sd">        column_name - the name of column</span>
-<span class="sd">        title - the name of slide</span>
-<span class="sd">        sldf - dataframe containing values for second set of countries</span>
-<span class="sd">        subtitle - the subtitle of slide (smaller font) (default = &quot;&quot;)</span>
-<span class="sd">        graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)</span>
-<span class="sd">        number_of_series - number of values in one column (bar) for stacked charplots (default = 0)</span>
-<span class="sd">        legend - list of legend names (default = None)</span>
-<span class="sd">        samples - list of samples which should be colored by different color in normal barplot (default = None)</span>
+<div class="viewcode-block" id="GenerateCountriesCompGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateCountriesCompGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateCountriesCompGraphs</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The class generating comparison graphs in presentation for nationally samples vs. site samples. </span>
+
+<span class="sd">    :param ndf: the calculated statistics for the national samples</span>
+<span class="sd">    :type ndf: pandas dataframe</span>
+<span class="sd">    :param presentation: the opened presentation document</span>
+<span class="sd">    :type presentation: Presentation object</span>
+<span class="sd">    :param column_name: the name of column to be included in the graph</span>
+<span class="sd">    :type column_name: str</span>
+<span class="sd">    :param title: the title of the slide</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param sldf: the calculated statistics for the site samples, can be `None` if Total Patients graph is generated</span>
+<span class="sd">    :type sldf: pandas dataframe</span>
+<span class="sd">    :param subtitle: the subtitle of the slide</span>
+<span class="sd">    :type subtitle: str</span>
+<span class="sd">    :param graph_type: the type of graph to be generated (normal barplot or stacked barplot)</span>
+<span class="sd">    :type graph_type: str</span>
+<span class="sd">    :param number_of_series: the number of columns included in the stacked barplot</span>
+<span class="sd">    :type number_of_series: int</span>
+<span class="sd">    :param legend: the list of values in the legend</span>
+<span class="sd">    :type legend: list</span>
+<span class="sd">    :param samples: the list of countries which should be displayed with different color</span>
+<span class="sd">    :type samples: list of string</span>
+<span class="sd">   </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndf</span><span class="p">,</span> <span class="n">presentation</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">sldf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subtitle</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">graph_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">number_of_series</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -752,7 +765,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_barplot</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_length_of_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return number of letters in legend to adjust the legend font size.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function adjusting the number of letters in legend to quess the number of columns in the legend! &quot;&quot;&quot;</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">legend</span><span class="p">:</span>
@@ -761,7 +774,7 @@
         <span class="k">return</span> <span class="n">count</span>
 
     <span class="k">def</span> <span class="nf">_create_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create normal barplot.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating into the presentation the normal barplot. &quot;&quot;&quot;</span>
 
         <span class="n">maximum</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -939,7 +952,7 @@
             <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
     
     <span class="k">def</span> <span class="nf">_create_stacked_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate stacked barplot.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating into the presentation the stacked barplot. &quot;&quot;&quot;</span>
 
         <span class="c1"># Calculate length of legend (in case that legend is too long, make smaller font size)</span>
         <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_length_of_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legend</span><span class="p">)</span>
@@ -1108,7 +1121,7 @@
             <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Pt</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_grouped_barplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate grouped barplot.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function generating into the presentation the grouped barplot. &quot;&quot;&quot;</span>
 
         <span class="c1"># Calculate length of legend (in case that legend is too long, make smaller font size)</span>
         <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_length_of_legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legend</span><span class="p">)</span>
@@ -1247,13 +1260,15 @@
         <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">include_in_layout</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">chart</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span></div>
 
-<div class="viewcode-block" id="GenerateYearsCompPresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation">[docs]</a><span class="k">class</span> <span class="nc">GenerateYearsCompPresentation</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.</span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        df - dataframe containing data for different times of period in each line</span>
-<span class="sd">        name - name of given period (e.g. all)</span>
+<div class="viewcode-block" id="GenerateYearsCompPresentation"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateYearsCompPresentation">[docs]</a><span class="k">class</span> <span class="nc">GenerateYearsCompPresentation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The class creating presentation with graphs representing country comparison through all years in the dataset (eg. 2016, 2017, 2018, 2019). </span>
+
+<span class="sd">    :param df: the dataframe with calculated statistics per years or period</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param name: the name of the presentation</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -1262,9 +1277,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
         <span class="c1"># Get absolute path to the database.</span>
-        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="c1">#&lt;-- absolute dir the script is in</span>
-        <span class="c1">#filename = &quot;resq.db&quot;</span>
-       <span class="c1"># self.abs_db_path = os.path.join(script_dir, &quot;database&quot;, filename)</span>
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> 
 
         <span class="n">master_pptx</span> <span class="o">=</span> <span class="s2">&quot;countries_comparison.pptx&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="s2">&quot;backgrounds&quot;</span><span class="p">,</span> <span class="n">master_pptx</span><span class="p">))</span>
@@ -1501,19 +1514,28 @@
         <span class="n">prs</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">presentation_path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GenerateYearsCompGraphs"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.GenerateComparisonPresentation.GenerateYearsCompGraphs">[docs]</a><span class="k">class</span> <span class="nc">GenerateYearsCompGraphs</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).   </span>
+    <span class="sd">&quot;&quot;&quot; The class generating graphs into presentation for country per years. If only one dataframe is provided than one graph is created on slide, two graphs is two dataframes are provided etc. </span>
 
-<span class="sd">    Arguments:</span>
-<span class="sd">        presentation - opened presentation document</span>
-<span class="sd">        df - dataframe containing statistics, each period is one line</span>
-<span class="sd">        df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)</span>
-<span class="sd">        df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)</span>
-<span class="sd">        df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)</span>
-<span class="sd">        title - the title of slide</span>
-<span class="sd">        titles - list of graph names (default = None)</span>
-<span class="sd">        graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)</span>
-<span class="sd">        legends - inner list of legend names (default = None) </span>
+<span class="sd">    :param presentation: the opened presentation document</span>
+<span class="sd">    :type presentation: Presentation object</span>
+<span class="sd">    :param df: dataframe containing calculated statistics</span>
+<span class="sd">    :type df: pandas dataframe</span>
+<span class="sd">    :param df1: 2nd dataframe containing calculated statistics</span>
+<span class="sd">    :type df1: pandas dataframe</span>
+<span class="sd">    :param df2: 3rd dataframe containing calculated statistics</span>
+<span class="sd">    :type df2: pandas dataframe</span>
+<span class="sd">    :param df3: 4th dataframe containing calculated statistics</span>
+<span class="sd">    :type df3: pandas dataframe</span>
+<span class="sd">    :param title: the title of the slide</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param titles: the titles of each graph</span>
+<span class="sd">    :type titles: list</span>
+<span class="sd">    :param graph_types: the list of types of graphs</span>
+<span class="sd">    :type graph_types: list</span>
+<span class="sd">    :param legends: the nested list containing lists of legends</span>
+<span class="sd">    :type legends: nested list</span>
+<span class="sd">    :param outcome: `True` if outcome calculation should be included in the presentation</span>
+<span class="sd">    :type outcome: bool</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">presentation</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">df1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">titles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legends</span><span class="o">=</span><span class="p">[],</span> <span class="n">outcome</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
@@ -1669,11 +1691,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_plot</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df3</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">titles</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">specs</span><span class="o">=</span><span class="n">specs3</span><span class="p">,</span> <span class="n">graph_type</span><span class="o">=</span><span class="n">graph_types</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">ix</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         
     <span class="k">def</span> <span class="nf">_set_transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transparency</span><span class="p">,</span> <span class="n">elm</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set tranparency of element. </span>
+        <span class="sd">&quot;&quot;&quot; The function set the transparency of the row. </span>
 
-<span class="sd">        Args: </span>
-<span class="sd">            transparency: transparency in % </span>
-<span class="sd">            elm: element to be changed</span>
+<span class="sd">        :param transparency: the transparency in %</span>
+<span class="sd">        :type transparency: int</span>
+<span class="sd">        :param elm: the element which transparency should be changed</span>
+<span class="sd">        :type elm: format.line.color._xFill</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">transparency</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;196&#39;</span>
         
@@ -1682,7 +1705,21 @@
         <span class="n">elm</span><span class="o">.</span><span class="n">srgbClr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">specs</span><span class="p">,</span> <span class="n">graph_type</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ix</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>   
-        <span class="sd">&quot;&quot;&quot;Create normal barplot.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function creating the new graph into the presentation based on the graph type. </span>
+<span class="sd">        </span>
+<span class="sd">        :param df: the dataframe with data to be shown</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :param title: the title of the graph</span>
+<span class="sd">        :type title: str</span>
+<span class="sd">        :param specs: the position settings</span>
+<span class="sd">        :type specs: dictionary</span>
+<span class="sd">        :param graph_type: the type of graph (normal or stacked)</span>
+<span class="sd">        :type graph_type: str</span>
+<span class="sd">        :param legend: the list of values in legend based on columns (only for stacked barplot)</span>
+<span class="sd">        :type legend: list</span>
+<span class="sd">        :param ix: the index which legend should be used </span>
+<span class="sd">        :type ix: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">graph_type</span> <span class="o">==</span> <span class="s2">&quot;normal&quot;</span><span class="p">:</span>
             <span class="c1"># Get column names of dataframe</span>
@@ -1839,9 +1876,6 @@
             <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_font_size</span>
             <span class="n">category_labels</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_name</span>
             <span class="n">category_labels</span><span class="o">.</span><span class="n">tickLblSkip</span> <span class="o">=</span> <span class="mi">1</span>
-
-            
-
         
             <span class="c1"># Set legend </span>
             <span class="n">chart</span><span class="o">.</span><span class="n">has_legend</span> <span class="o">=</span> <span class="kc">True</span>
