@@ -691,7 +691,6 @@ class ComputeStats:
 
         recan_tmp = isch.drop(needle.index.values)
         recan_tmp.drop(groin.index.values, inplace=True)
-        recan_tmp.to_csv('recan_tmp.csv', sep=',')
         self.tmp = recan_tmp.groupby(['Protocol ID', 'RECANALIZATION_PROCEDURES']).size().to_frame('count').reset_index()
 
         self.statsDf = self._get_values_for_factors(column_name="RECANALIZATION_PROCEDURES", value=1, new_column_name='# recanalization procedures - Not done')

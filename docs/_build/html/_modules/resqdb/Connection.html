@@ -53,10 +53,12 @@
 <span class="kn">import</span> <span class="nn">datetime</span>
 
 <div class="viewcode-block" id="Connection"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection">[docs]</a><span class="k">class</span> <span class="nc">Connection</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot; A connection with one property: a section. </span>
+    <span class="sd">&quot;&quot;&quot; The class connecting to the database and exporting the data for the Slovakia. </span>
 
-<span class="sd">    To use:</span>
-<span class="sd">    &gt;&gt;&gt; conn = Connection()</span>
+<span class="sd">    :param nprocess: number of processes</span>
+<span class="sd">    :type nprocess: int</span>
+<span class="sd">    :param data: the name of data (resq or atalaia)</span>
+<span class="sd">    :type data: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nprocess</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;resq&#39;</span><span class="p">):</span>
@@ -207,12 +209,12 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;The conversion and merging run </span><span class="si">{0}</span><span class="s1"> minutes.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tdelta</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Connection.config"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Read and parse the config database file. </span>
-<span class="sd">        </span>
-<span class="sd">        Raises: </span>
-<span class="sd">            Exception: If the section couldn&#39;t be find in the database.ini file)</span>
-<span class="sd">        Returns: </span>
-<span class="sd">            The dictionary of parameters to enable connection to database.</span>
+        <span class="sd">&quot;&quot;&quot; The function reading and parsing the config of database file. </span>
+
+<span class="sd">        :param section: the name of the section in database.ini file</span>
+<span class="sd">        :type section: str</span>
+<span class="sd">        :returns: the dictionary with the parsed section values</span>
+<span class="sd">        :raises: Exception</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Create a parser object</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
@@ -233,15 +235,19 @@
 
     
 <div class="viewcode-block" id="Connection.connect"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">nprocess</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Connects to the database specified in the databse.ini file.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            sql: The SQL query run to get dataframe from the database.</span>
-<span class="sd">        Raises: </span>
-<span class="sd">            Exception: If the connection was not successful. </span>
-<span class="sd">        Returns: </span>
-<span class="sd">            The new dataframe containing data from database.</span>
+        <span class="sd">&quot;&quot;&quot; The function connecting to te database. </span>
+
+<span class="sd">        :param sql: the sql query </span>
+<span class="sd">        :type sql: str</span>
+<span class="sd">        :param section: the section from the database.ini</span>
+<span class="sd">        :type section: str</span>
+<span class="sd">        :param nprocess: the number of processes run simultaneously</span>
+<span class="sd">        :type nprocess: int</span>
+<span class="sd">        :param df_name: the name of the dataframe used as key in the dictionary</span>
+<span class="sd">        :type df_name: str</span>
+<span class="sd">        :raises: Exception</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>    
         <span class="k">try</span><span class="p">:</span> 
             <span class="c1"># Read connection parameters</span>
@@ -268,7 +274,14 @@
     
     
 <div class="viewcode-block" id="Connection.prepare_df"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.prepare_df">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function preparing the raw data from the database to be used for statistic calculation. The prepared dataframe is entered into dict_df and the name is used as key.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: the raw dataframe exported from the database</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :param name: the name of the database</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="s1">&#39;resq&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;fabry_cs&#39;</span><span class="p">:</span> <span class="s1">&#39;fabry_en&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="c1"># If CRF is v1.2 replace BLEEDING REASON with -999</span>
@@ -424,14 +437,15 @@
 
 
     <span class="k">def</span> <span class="nf">_get_tmp_antithrombotics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_vals</span><span class="p">,</span> <span class="n">afib</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remap antithrombotics from IVT/TBY form to RES-Q v2.0. </span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            col_vals: Selected values for antithrombotics in IVT/TBY</span>
-<span class="sd">            afib: Selected afib flutter.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            res: Mapped value</span>
+        <span class="sd">&quot;&quot;&quot; The function converting the value for antitrombotics from IVT/TBY form to RES-Q v2.0. </span>
+
+<span class="sd">        :param col_vals: list of values for antithrombotcs in IVT/TBY (checkboxes in the form)</span>
+<span class="sd">        :type col_vals: list</span>
+<span class="sd">        :param afib: seelcted value for afib</span>
+<span class="sd">        :type afib: int</span>
+<span class="sd">        :returns: mapped value </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+    
         <span class="k">if</span> <span class="n">col_vals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">vals_str</span> <span class="o">=</span> <span class="n">col_vals</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="c1"># Split selected values using , as seperator</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">vals_str</span><span class="p">))</span> <span class="c1"># Convert string values to integers</span>
@@ -490,13 +504,13 @@
              
     
 <div class="viewcode-block" id="Connection.get_ctmri_delta"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.get_ctmri_delta">[docs]</a>    <span class="k">def</span> <span class="nf">get_ctmri_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hosp_time</span><span class="p">,</span> <span class="n">ct_time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Calculate differnce between two times. </span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            hospital_time: The time of hospitalization</span>
-<span class="sd">            ct_time: The time when CT has been perfrmed. </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            The calculated difference in minutes.</span>
+        <span class="sd">&quot;&quot;&quot; The function calculating door to CT date time in minutes. </span>
+<span class="sd">        </span>
+<span class="sd">        :param hosp_time: the hospitalization time</span>
+<span class="sd">        :type hosp_time: time</span>
+<span class="sd">        :param ct_time: the time when CT/MRI has been performed</span>
+<span class="sd">        :type ct_time: time</span>
+<span class="sd">        :returns: 1 if datetime &gt; 0 and &lt; 60, 2 if results &gt; 60 else -2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">timeformat</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span>
 
@@ -528,13 +542,13 @@
 
 
     <span class="k">def</span> <span class="nf">_get_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return list of countries present in the dataframe.</span>
+        <span class="sd">&quot;&quot;&quot; The function obtaining all possible countries in the dataframe. </span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            df: The raw dataframe</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            The list of country codes present in the dataframe.</span>
+<span class="sd">        :param df: the preprossed dataframe</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :returns: the list of countries</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">site_ids</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Protocol ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)))</span>
         <span class="n">countriesSet</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">site_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">countriesList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">countriesSet</span><span class="p">)</span>
@@ -544,7 +558,12 @@
     
     
 <div class="viewcode-block" id="Connection.fix_glucose"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.fix_glucose">[docs]</a>    <span class="k">def</span> <span class="nf">fix_glucose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Fix glucose value to have consistent format - 5.5 etc. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function fixing the glucose value. The issue is that users are entering glucose with comma or dot as seprator. Sometimes, also nonsense appears. </span>
+<span class="sd">        </span>
+<span class="sd">        :param value: the entered value in the glucose field</span>
+<span class="sd">        :type value: str</span>
+<span class="sd">        :returns: fixed number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;-99&#39;</span><span class="p">:</span>
@@ -561,23 +580,28 @@
         <span class="k">return</span> <span class="n">res</span></div>
 
 <div class="viewcode-block" id="Connection.check_data"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.check_data">[docs]</a>    <span class="k">def</span> <span class="nf">check_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">nprocess</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Check dates and times and fix according to algorithm.</span>
-<span class="sd">        </span>
-<span class="sd">        Args: </span>
-<span class="sd">            df: The raw dataframe with fixed columns</span>
-<span class="sd">        Returns: </span>
-<span class="sd">            The preprocessed data.</span>
+        <span class="sd">&quot;&quot;&quot; The function calling the CheckData object. The dates and times are checked and if they are incorrect, they are fixed. </span>
+
+<span class="sd">        :param df: the raw dataframe </span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :param nprocess: the number of processes run simulataneously</span>
+<span class="sd">        :type nprocess: int</span>
+<span class="sd">        :returns: the dataframe with preprocessed data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
         <span class="n">chd</span> <span class="o">=</span> <span class="n">CheckData</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">nprocess</span><span class="o">=</span><span class="n">nprocess</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The data were preprocessed.&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connection: The data were preprocessed.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">chd</span><span class="o">.</span><span class="n">preprocessed_data</span></div>
 
 
 <div class="viewcode-block" id="Connection.prepare_atalaia_df"><a class="viewcode-back" href="../../source/resqdb.html#resqdb.Connection.Connection.prepare_atalaia_df">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_atalaia_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Prepare dataframe to calculation. Convert column names etc. Return converted dataframe. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; The function preparing the atalaia dataframe if data is equal to atalaia. The column names are renamed.</span>
+<span class="sd">        </span>
+<span class="sd">        :param df: the raw data exported from the database</span>
+<span class="sd">        :type df: pandas dataframe</span>
+<span class="sd">        :returns: the prepared dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Get only columns ending with _en</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;site_id&#39;</span><span class="p">,</span> <span class="s1">&#39;facility_name&#39;</span><span class="p">,</span> <span class="s1">&#39;oc_oid&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">]</span>

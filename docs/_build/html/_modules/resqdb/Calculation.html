@@ -60,7 +60,7 @@
 <span class="sd">    :param df: the dataframe containing preprocessed data</span>
 <span class="sd">    :type df: dataframe</span>
 <span class="sd">    :param country: the country code to be included in the data</span>
-<span class="sd">    :type counry: str</span>
+<span class="sd">    :type country: str</span>
 <span class="sd">    :param date1: the first date included in the filtered dataframe</span>
 <span class="sd">    :type date1: date</span>
 <span class="sd">    :param date2: the last date included in the filtered dataframe</span>
@@ -126,7 +126,7 @@
 <span class="sd">    :param df: the dataframe containing preprocessed data</span>
 <span class="sd">    :type df: dataframe</span>
 <span class="sd">    :param country: the results for whole country included in the statistics</span>
-<span class="sd">    :type counry: bool</span>
+<span class="sd">    :type country: bool</span>
 <span class="sd">    :param country_code: the country code used in the names of output files</span>
 <span class="sd">    :type country_code: str</span>
 <span class="sd">    :param comparison: the value saying if it is comparative statistics</span>
@@ -1859,6 +1859,7 @@
 <span class="sd">        :type df: pandas dataframe</span>
 <span class="sd">        :returns: the dataframe with calculated statistics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">tmpDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s1">&#39;Protocol ID&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">]]</span>
             <span class="n">tmpDf</span> <span class="o">=</span> <span class="n">tmpDf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Protocol ID&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
@@ -1883,7 +1884,7 @@
 <span class="sd">        :type ct_time: time</span>
 <span class="sd">        :returns: tdelta between two times in minutes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
+
         <span class="n">timeformat</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span>
 
         <span class="c1"># Check if both time are not None if yes, return 0 else return tdelta</span>

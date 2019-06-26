@@ -23,23 +23,28 @@ from collections import defaultdict
 import pytz
 
 class GeneratePreprocessedData:
-    """
-    Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.    
+    """ Class generating preprocessed data in the excel format containing calculated statistics with intermediate columns! 
+    
+    :param df: the dataframe with preprocessed data
+    :type df: pandas dataframe
+    :param split_sites: `True` if preprocessed data should be generated per site
+    :type split_sites: bool
+    :param site: the site ID
+    :type site: str
+    :param report: the type of the report, eg. quarter
+    :type report: str
+    :param quarter: the type of the period, eg. H1_2018
+    :type quarter: str
+    :param country_code: the country code
+    :type country_code: str
+    :param csv: `True` if preprocessed data were read from csv
+    :type csv: bool
     """
 
     def __init__(self, df, split_sites=False, site=None, report=None, quarter=None, country_code=None, csv=False):
-        """Create object of preprocessed data. 
 
-        Args:
-            df: preprocessed data in datafraem
-            split_sites: True if preprocessed data has to be generated per site (default: False)
-            site: Protocol ID of site (default: None)
-            country_code: country code (default: None)
-            report: type of the report, eg. quarter (default: None)
-            period: type of the period, eg. H1_2018 (default: None)
-        """
-        # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -59,29 +64,29 @@ class GeneratePreprocessedData:
             df = self.df[self.df['Protocol ID'].str.contains(site) == True]
             # Generate preprocessed data for site
             self._generate_preprocessed_data(df=df, site_code=site)
-            logging.info('Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
+            logging.info('FormatData: Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
         
         # Generate formatted statistics per site + country as site is included
         if (split_sites) and site is None:
-            logging.info('Preprocessed data: Generate preprocessed data per site.')
+            logging.info('FormatData: Preprocessed data: Generate preprocessed data per site.')
             # Get set of all site ids
             site_ids = set(self.df['Protocol ID'].tolist())
             #site_ids = set(site_ids)  
             for i in site_ids:
                 df = self.df[self.df['Protocol ID'].str.contains(i) == True]
                 self._generate_preprocessed_data(df=df, site_code=i)
-                logging.info('Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
+                logging.info('FormatData: Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
 
         self._generate_preprocessed_data(self.df, site_code=None)
-        logging.info('Preprocessed data: The preprocessed data were generate for all data.')
+        logging.info('FormatData: Preprocessed data: The preprocessed data were generate for all data.')
 
     def _generate_preprocessed_data(self, df, site_code):
-        """
-        Generate preprocessed data with legend. 
+        """ The function generating the preprocessed data to Excel file. 
 
-        Keyword arguments: 
-            df = filtered dataframe
-            site_code = code of site included in the dataframe
+        :param df: the dataframe with preprocessed data
+        :type df: pandas dataframe
+        :param site_code: the site ID
+        :type site_code: str
         """
         
         if site_code is not None:
@@ -90,9 +95,7 @@ class GeneratePreprocessedData:
             output_file = "preprocessed_data.xlsx"
         else:
             output_file = self.report + "_" + self.country_code + "_" + self.quarter + "_preprocessed_data.xlsx"
-        
-        #output_file = "preprocessed_data.xlsx"
-        
+                
         df = df.copy()
         
         # Convert dates to strings
@@ -104,10 +107,8 @@ class GeneratePreprocessedData:
             else:
                 return datetime.strftime(format)
         
-        print(csv)
         if not csv:
             #if df['VISIT_DATE'].dtype != np.object:
-            print(df['VISIT_DATE'].dtype)
             df['VISIT_DATE'] = df.apply(lambda x: convert_to_string(x['VISIT_DATE'], dateformat), axis=1)
             # if df['VISIT_DATE_OLD'].dtype != np.object:
             df['VISIT_DATE_OLD'] = df.apply(lambda x: convert_to_string(x['VISIT_DATE_OLD'], dateformat), axis=1)
@@ -159,13 +160,10 @@ class GeneratePreprocessedData:
             df['HOSPITAL_DATE'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE'], dateformat), axis=1)
             df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], dateformat), axis=1)
 
-        # Replace NAN values with 0
         df.fillna(value="", inplace=True)
 
-        # Create workbook
         workbook = xlsxwriter.Workbook(output_file)
         logging.info('Preprocessed data: The workbook was created.')
-        # Create worksheets
         preprocessed_data_sheet = workbook.add_worksheet('Preprocessed_raw_data')
         legend_sheet = workbook.add_worksheet('Legend_v2.0')
         additional_desc_sheet = workbook.add_worksheet('Additional_description')
@@ -285,8 +283,16 @@ class GeneratePreprocessedData:
 
 
 class GenerateFormattedAngelsAwards:
-    """
-    This class generate formatted statistics only for angels awards. 
+    """ Class generating formatted excel file containing only Angels Awards results. ! 
+    
+    :param df: the dataframe with preprocessed data
+    :type df: pandas dataframe
+    :param report: the type of the report, eg. quarter
+    :type report: str
+    :param quarter: the type of the period, eg. H1_2018
+    :type quarter: str
+    :param minimum_patients: the minimum number of patients sites need to met condition for total patients
+    :type minimum_patients: int
     """
     def __init__(self, df, report=None, quarter=None, minimum_patients=30):
 
@@ -298,18 +304,19 @@ class GenerateFormattedAngelsAwards:
         self.formate(self.df)
 
     def formate(self, df):
+        """ The function formatting the Angels Awards data. 
 
+        :param df: the temporary dataframe containing only column needed to propose award
+        :type df: pandas dataframe
+        """
         if self.report is None and self.quarter is None:
             output_file = "angels_awards.xslx"
         else:
             output_file = self.report + "_" + self.quarter + "_angels_awards.xlsx"
             
-
         workbook1 = xlsxwriter.Workbook(output_file, {'strings_to_numbers': True})
-        # create worksheet
         worksheet = workbook1.add_worksheet()
 
-        # set width of columns
         worksheet.set_column(0, 2, 15)
         worksheet.set_column(2, 20, 40)
 
@@ -318,6 +325,7 @@ class GenerateFormattedAngelsAwards:
 
         col = []
         column_names = df.columns.tolist()
+        # Create table header
         for i in range(0, ncol + 1):
             tmp = {}
             tmp['header'] =column_names[i]
@@ -423,7 +431,7 @@ class GenerateFormattedAngelsAwards:
             row += 1
 
 
-        def angels_awards_ivt_60(column_name, coln):
+        def angels_awards_ivt_60(column_name):
             """Add conditional formatting to angels awards for ivt < 60."""
             row = 4
             while row < number_of_rows + 2:
@@ -446,16 +454,16 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column, coln=index)
+        angels_awards_ivt_60(column)
 
         index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column, coln=index)
+        angels_awards_ivt_60(column)
 
         # angels_awards_ivt_60('D')
 
 
-        def angels_awards_ivt_45(column_name, coln):
+        def angels_awards_ivt_45(column_name):
             """Add conditional formatting to angels awards for ivt < 45."""
             row = 4
             while row < number_of_rows + 2:
@@ -477,14 +485,14 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_45(column, coln=index)
+        angels_awards_ivt_45(column)
 
         index = column_names.index('% patients treated with door to thrombectomy < 60 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_45(column, coln=index)
+        angels_awards_ivt_45(column)
 
         # setting colors of cells according to their values
-        def angels_awards_recan(column_name, coln):
+        def angels_awards_recan(column_name):
             """Add conditional formatting to angels awards for recaalization procedures."""
             row = 4
             while row < number_of_rows + 2:
@@ -516,11 +524,10 @@ class GenerateFormattedAngelsAwards:
                 row += 1
 
         index = column_names.index('% recanalization rate out of total ischemic incidence')
-        angels_awards_recan(column_name=xl_col_to_name(index), coln=index)
-        #angels_awards_recan('F')
+        angels_awards_recan(column_name=xl_col_to_name(index))
 
 
-        def angels_awards_processes(column_name, coln, count=True):
+        def angels_awards_processes(column_name, count=True):
             """Add conditional formatting to angels awards for processes."""
             count = count
             row = 4
@@ -554,21 +561,16 @@ class GenerateFormattedAngelsAwards:
                 row += 1
 
         index = column_names.index('% suspected stroke patients undergoing CT/MRI')
-        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        angels_awards_processes(column_name=xl_col_to_name(index))
         index = column_names.index('% all stroke patients undergoing dysphagia screening')
-        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        angels_awards_processes(column_name=xl_col_to_name(index))
         index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
-        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
+        angels_awards_processes(column_name=xl_col_to_name(index))
         index = column_names.index('% afib patients discharged (home) with anticoagulants')
-        angels_awards_processes(column_name=xl_col_to_name(index), coln=index)
-
-        #angels_awards_processes('G', 4)
-        #angels_awards_processes('H', 5)
-        #angels_awards_processes('I', 6)
-        #angels_awards_processes('J', 7)
+        angels_awards_processes(column_name=xl_col_to_name(index))
 
         # setting colors of cells according to their values
-        def angels_awards_hosp(column_name, coln):
+        def angels_awards_hosp(column_name):
             """Add conditional formatting to angels awards for hospitalization."""
             row = 4
             while row < number_of_rows + 2:
@@ -590,11 +592,11 @@ class GenerateFormattedAngelsAwards:
 
         
         index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
-        angels_awards_hosp(column_name=xl_col_to_name(index), coln=index)
+        angels_awards_hosp(column_name=xl_col_to_name(index))
 
         
         # set color for proposed angel award
-        def proposed_award(column_name, coln):
+        def proposed_award(column_name):
             row = 4
             while row < nrow + 2:
                 cell_n = column + str(row)
@@ -633,25 +635,34 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('Proposed Award')
         column = xl_col_to_name(index)
-        proposed_award(column, coln=index)
-        #worksheet.write_column(3, index, awards)
+        proposed_award(column)
 
         workbook1.close()
 
 
 class GenerateFormattedStats:
-    """
-    This class generate formatted statistics in .xslx file. For angel awards are set colored conditions. 
+    """ Class generating formatted excel file containing all general statistics including formatted Angels Awards results. ! 
     
-    Keyword arguments:
-        df: the dataframe with statistcs
-        country: True if country should be included as site (default: False)
-        country_code: the code of country (default: None)
-        split_sites: True if you want to generate individual file fo each site (default: False)
-        site: the site code (default: None)
-        report: the report name (default: None)
-        quarter: the quarter name (default: None)
+    :param df: the dataframe with preprocessed data
+    :type df: pandas dataframe
+    :param country: `True` if country is included in the reports as site
+    :type country: bool
+    :param country_code: the country code
+    :type country_code: str
+    :param split_sites: `True` if preprocessed data should be generated per site
+    :type split_sites: bool
+    :param site: the site ID
+    :type site: str
+    :param report: the type of the report, eg. quarter
+    :type report: str
+    :param quarter: the type of the period, eg. H1_2018
+    :type quarter: str
+    :param comp: `True` if the comparison calculation is in statistics
+    :type comp: bool
+    :param minimum_patients: the minimum number of patients sites need to met condition for total patients
+    :type minimum_patients: int
     """
+
     def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=30):
 
         self.df_unformatted = df.copy()
@@ -664,14 +675,24 @@ class GenerateFormattedStats:
         self.total_patients_column = '# total patients >= {0}'.format(self.minimum_patients)
 
         def delete_columns(columns):
+            """ The function deleting all temporary columns used for presentation. 
+            
+            :param columns: list of column names
+            :type columns: list
+            """
             for i in columns:
                 if i in self.df.columns:
                     self.df.drop([i], inplace=True, axis=1)
+
         # Drop tmp column 
         delete_columns(['isch_patients', 'is_ich_patients', 'is_ich_tia_cvt_patients', 'is_ich_cvt_patients', 'is_tia_patients', 'is_ich_sah_cvt_patients', 'is_tia_cvt_patients', 'cvt_patients', 'ich_sah_patients', 'ich_patients',  'sah_patients', 'discharge_subset_patients','discharge_subset_alive_patients', 'neurosurgery_patients', 'not_reffered_patients', 'reffered_patients', 'afib_detected_during_hospitalization_patients', 'afib_not_detected_or_not_known_patients', 'antithrombotics_patients', 'ischemic_transient_dead_patients', 'afib_flutter_not_detected_or_not_known_patients', 'afib_flutter_not_detected_or_not_known_dead_patients', 'prescribed_antiplatelets_no_afib_patients', 'prescribed_antiplatelets_no_afib_dead_patients', 'afib_flutter_detected_patients', 'anticoagulants_recommended_patients', 'afib_flutter_detected_dead_patients', 'recommended_antithrombotics_with_afib_alive_patients', 'discharge_subset_same_centre_patients', 'discharge_subset_another_centre_patients', 'patients_eligible_recanalization', '# patients having stroke in the hospital - No', '% patients having stroke in the hospital - No', '# recurrent stroke - No', '% recurrent stroke - No', '# patients assessed for rehabilitation - Not known', '% patients assessed for rehabilitation - Not known', '# level of consciousness - not known', '% level of consciousness - not known', '# CT/MRI - Performed later than 1 hour after admission', '% CT/MRI - Performed later than 1 hour after admission', '# patients put on ventilator - Not known', '% patients put on ventilator - Not known', '# patients put on ventilator - No', '% patients put on ventilator - No', '# IV tPa', '% IV tPa', '# TBY', '% TBY', '# DIDO TBY', '# dysphagia screening - not known', '% dysphagia screening - not known', '# dysphagia screening time - After first 24 hours', '% dysphagia screening time - After first 24 hours', '# other afib detection method - Not detected or not known', '% other afib detection method - Not detected or not known', '# carotid arteries imaging - Not known', '% carotid arteries imaging - Not known', '# carotid arteries imaging - No', '% carotid arteries imaging - No', 'vascular_imaging_cta_norm', 'vascular_imaging_mra_norm', 'vascular_imaging_dsa_norm', 'vascular_imaging_none_norm', 'bleeding_arterial_hypertension_perc_norm', 'bleeding_aneurysm_perc_norm', 'bleeding_arterio_venous_malformation_perc_norm', 'bleeding_anticoagulation_therapy_perc_norm', 'bleeding_amyloid_angiopathy_perc_norm', 'bleeding_other_perc_norm', 'intervention_endovascular_perc_norm', 'intervention_neurosurgical_perc_norm', 'intervention_other_perc_norm', 'intervention_referred_perc_norm', 'intervention_none_perc_norm', 'vt_treatment_anticoagulation_perc_norm', 'vt_treatment_thrombectomy_perc_norm', 'vt_treatment_local_thrombolysis_perc_norm', 'vt_treatment_local_neurological_treatment_perc_norm', 'except_recommended_patients', 'afib_detected_discharged_home_patients', '% dysphagia screening done', '# dysphagia screening done', 'alert_all', 'alert_all_perc', 'drowsy_all', 'drowsy_all_perc', 'comatose_all', 'comatose_all_perc', 'antithrombotics_patients_with_cvt', 'ischemic_transient_cerebral_dead_patients', '# patients receiving antiplatelets with CVT', '% patients receiving antiplatelets with CVT', '# patients receiving Vit. K antagonist with CVT', '% patients receiving Vit. K antagonist with CVT', '# patients receiving dabigatran with CVT', '% patients receiving dabigatran with CVT', '# patients receiving rivaroxaban with CVT', '% patients receiving rivaroxaban with CVT', '# patients receiving apixaban with CVT', '% patients receiving apixaban with CVT', '# patients receiving edoxaban with CVT', '% patients receiving edoxaban with CVT', '# patients receiving LMWH or heparin in prophylactic dose with CVT', '% patients receiving LMWH or heparin in prophylactic dose with CVT', '# patients receiving LMWH or heparin in full anticoagulant dose with CVT', '% patients receiving LMWH or heparin in full anticoagulant dose with CVT', '# patients not prescribed antithrombotics, but recommended with CVT', '% patients not prescribed antithrombotics, but recommended with CVT', '# patients neither receiving antithrombotics nor recommended with CVT', '% patients neither receiving antithrombotics nor recommended with CVT', '# patients prescribed antithrombotics with CVT', '% patients prescribed antithrombotics with CVT', '# patients prescribed or recommended antithrombotics with CVT', '% patients prescribed or recommended antithrombotics with CVT', 'afib_flutter_not_detected_or_not_known_patients_with_cvt', 'afib_flutter_not_detected_or_not_known_dead_patients_with_cvt', 'prescribed_antiplatelets_no_afib_patients_with_cvt', 'prescribed_antiplatelets_no_afib_dead_patients_with_cvt', '# patients prescribed antiplatelets without aFib with CVT', '% patients prescribed antiplatelets without aFib with CVT', 'afib_flutter_detected_patients_with_cvt', '# patients prescribed anticoagulants with aFib with CVT', 'anticoagulants_recommended_patients_with_cvt', 'afib_flutter_detected_dead_patients_with_cvt', '% patients prescribed anticoagulants with aFib with CVT', '# patients prescribed antithrombotics with aFib with CVT', 'recommended_antithrombotics_with_afib_alive_patients_with_cvt', '% patients prescribed antithrombotics with aFib with CVT', 'afib_flutter_detected_patients_not_dead', 'except_recommended_discharged_home_patients', 'afib_detected_discharged_patients', 'ischemic_transient_dead_patients_prescribed', 'is_tia_discharged_home_patients'])
 
-        # Connect to database and get country name according to country code.
         def select_country(value):
+            """ The function obtaining from the pytz package the country name based on the country code. 
+
+            :param value: the country code
+            :type value: str
+            """
             country_name = pytz.country_names[value]
             return country_name
 
@@ -708,51 +729,47 @@ class GenerateFormattedStats:
             self._generate_formatted_statistics(df=self.df, df_tmp=self.df_unformatted)
 
     def _generate_formatted_statistics(self, df, df_tmp, site_code=None):
-        """Generate formatted statistics in xlsx file.
-        
-        Keyword arguments:
-            df: the dataframe with statistics containing only necessary columns
-            df_tmp: the dataframe with statistics containing all calculation
-            site_code: the code of site (default: NOne)
+        """ The function creating the new excel workbook and filling the statistics into it. 
+
+        :param df: the dataframe with statistcs not including the temporary columns
+        :type df: pandas dataframe
+        :param df_tmp: the dataframe with statistics containing also temporary columns
+        :type df_tmp: pandas dataframe
+        :param site_code: the site ID
+        :type site_code: str
         """
 
         if self.country_code is None and site_code is None:
+            # Set filename for global report (including all sites)
             name_of_unformatted_stats = self.report + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + self.quarter + ".xlsx"
         elif site_code is None:
+            # Set filename for country report (including sites and country results)
             name_of_unformatted_stats = self.report + "_" + self.country_code + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + self.country_code + "_" + self.quarter + ".xlsx"
         else:
-            # self.report + "_" + site_code + "_" + self.quarter + ".csv"
-            # self.report + "_" + site_code + "_" + self.quarter + ".xlsx"
+            # Set filename for site report
             name_of_unformatted_stats = self.report + "_" + site_code + "_" + self.quarter + ".csv"
             name_of_output_file = self.report + "_" + site_code + "_" + self.quarter + ".xlsx"
 
         df_tmp.to_csv(name_of_unformatted_stats, sep=",", encoding='utf-8', index=False)
         workbook1 = xlsxwriter.Workbook(name_of_output_file, {'strings_to_numbers': True})
-        # create worksheet
         worksheet = workbook1.add_worksheet()
 
         # set width of columns
         worksheet.set_column(0, 4, 15)
         worksheet.set_column(4, 350, 60)
-        # number of columns
         
         ncol = len(df.columns) - 1
-       # print(ncol)
-
-        # number of rows
         nrow = len(df) + 2
 
         column_names = df.columns.tolist()
         col = []
+        # Create headers
         for i in range(0, ncol + 1):
             tmp = {}
             tmp['header'] = column_names[i]
             col.append(tmp)
-
-        #df = statistics[0:nrow]
-        # print(statistics)
 
         statistics = df.values.tolist()
 

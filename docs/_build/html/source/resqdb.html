@@ -335,7 +335,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>df</strong> (<em>dataframe</em>) – the dataframe containing preprocessed data</li>
-<li><strong>country</strong> – the results for whole country included in the statistics</li>
+<li><strong>country</strong> (<em>bool</em>) – the results for whole country included in the statistics</li>
 <li><strong>country_code</strong> (<em>str</em>) – the country code used in the names of output files</li>
 <li><strong>comparison</strong> (<em>bool</em>) – the value saying if it is comparative statistics</li>
 <li><strong>patient_limit</strong> – the number of patients used as limit when evaluating angels awards</li>
@@ -357,7 +357,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>df</strong> (<em>dataframe</em>) – the dataframe containing preprocessed data</li>
-<li><strong>country</strong> – the country code to be included in the data</li>
+<li><strong>country</strong> (<em>str</em>) – the country code to be included in the data</li>
 <li><strong>date1</strong> (<em>date</em>) – the first date included in the filtered dataframe</li>
 <li><strong>date2</strong> (<em>date</em>) – the last date included in the filtered dataframe</li>
 </ul>
@@ -374,51 +374,93 @@
 <dt id="resqdb.CalculationSK.ComputeStats">
 <em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">ComputeStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=''</em>, <em>comparison=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#ComputeStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.ComputeStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This module compute statistics from the raw data.</p>
-<p>Keyword arguments:
-df – the raw dataframe
-country – True if country should be included as site into results (default False)
-country_code – the country code of country if data were filtered (default “”)
-comparison – True if we are compare the data (e.g. countries between each other)</p>
+<p>The class calculating the statistics from Slovakia data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with preprocessed data</li>
+<li><strong>country</strong> (<em>bool</em>) – <cite>True</cite> if country should be included as site into results</li>
+<li><strong>country_code</strong> (<em>str</em>) – the country code of country</li>
+<li><strong>comparison</strong> (<em>bool</em>) – <cite>True</cite> if comparison statistic is generated</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.CalculationSK.Connection">
 <em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>nprocess=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A connection with one property: a section.</p>
-<p>To use:
-&gt;&gt;&gt; conn = Connection()</p>
+<p>The class connecting to the database and exporting the data for the Slovakia.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nprocess</strong> (<em>int</em>) – number of processes</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.CalculationSK.Connection.config">
 <code class="descname">config</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and parse the config database file.</p>
-<dl class="docutils">
-<dt>Raises: </dt>
-<dd>Exception: If the section couldn’t be find in the database.ini file)</dd>
-<dt>Returns: </dt>
-<dd>The dictionary of parameters to enable connection to database.</dd>
-</dl>
+<dd><p>The function reading and parsing the config of database file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>section</strong> (<em>str</em>) – the name of the section in database.ini file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the dictionary with the parsed section values</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">Exception</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.CalculationSK.Connection.connect">
 <code class="descname">connect</code><span class="sig-paren">(</span><em>sql</em>, <em>section</em>, <em>nprocess</em>, <em>df_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Connects to the database specified in the databse.ini file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>sql: The SQL query run to get dataframe from the database.</dd>
-<dt>Raises: </dt>
-<dd>Exception: If the connection was not successful.</dd>
-<dt>Returns: </dt>
-<dd>The new dataframe containing data from database.</dd>
-</dl>
+<dd><p>The function connecting to te database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sql</strong> (<em>str</em>) – the sql query</li>
+<li><strong>section</strong> (<em>str</em>) – the section from the database.ini</li>
+<li><strong>nprocess</strong> (<em>int</em>) – the number of processes run simultaneously</li>
+<li><strong>df_name</strong> (<em>str</em>) – the name of the dataframe used as key in the dictionary</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">Exception</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.CalculationSK.Connection.prepare_df">
 <code class="descname">prepare_df</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#Connection.prepare_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.Connection.prepare_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rename column names and map values.</p>
+<dd><p>The function preparing the raw data from the database to be used for statistic calculation. The prepared dataframe is entered into dict_df and the name is used as key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the raw dataframe exported from the database</li>
+<li><strong>name</strong> (<em>str</em>) – the name of the database</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -427,40 +469,114 @@ comparison – True if we are compare the data (e.g. countries between each othe
 <dt id="resqdb.CalculationSK.FilterDataset">
 <em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">FilterDataset</code><span class="sig-paren">(</span><em>df</em>, <em>country=None</em>, <em>date1=None</em>, <em>date2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#FilterDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.FilterDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filter dataset by country and the time period.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>df: The preprocessed dataframe
-country: The country code of country which should be included in the resulted calculation (default: None)
-date1: The first daate included in the filtered dataframe (default: None)
-date2: The last date included in the filtered dataframe (default: None)</dd>
-<dt>Returns:</dt>
-<dd>The filtered dataframe.</dd>
-</dl>
+<p>The class filtering preprocessed data by country or by date.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the preprocessed dataframe</li>
+<li><strong>country</strong> (<em>str</em>) – the country code of country included in the resulted dataframe</li>
+<li><strong>date1</strong> (<em>date object</em>) – the first date included in the filtered dataframe</li>
+<li><strong>date2</strong> (<em>date object</em>) – the last date included in the filtered dataframe</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="resqdb.CalculationSK.GenerateFormattedAngelsAwards">
+<em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">GenerateFormattedAngelsAwards</code><span class="sig-paren">(</span><em>df</em>, <em>report=None</em>, <em>quarter=None</em>, <em>minimum_patients=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GenerateFormattedAngelsAwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GenerateFormattedAngelsAwards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class generate formatted statistics only for angels awards.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with angels awards statistics</li>
+<li><strong>report</strong> (<em>str</em>) – the type of report, eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period, eg. Q1_2019</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="resqdb.CalculationSK.GenerateFormattedAngelsAwards.formate">
+<code class="descname">formate</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GenerateFormattedAngelsAwards.formate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GenerateFormattedAngelsAwards.formate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.CalculationSK.GenerateFormattedStats">
 <em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">GenerateFormattedStats</code><span class="sig-paren">(</span><em>df</em>, <em>country=False</em>, <em>country_code=None</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>comp=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GenerateFormattedStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GenerateFormattedStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class generate formatted statistics in .xslx file. For angel awards are set colored conditions.</p>
-<dl class="docutils">
-<dt>Keyword arguments:</dt>
-<dd>df: the dataframe with statistcs
-country: True if country should be included as site (default: False)
-country_code: the code of country (default: None)
-split_sites: True if you want to generate individual file fo each site (default: False)
-site: the site code (default: None)
-report: the report name (default: None)
-quarter: the quarter name (default: None)</dd>
-</dl>
+<p>The class generating the formatted statistics in Excel format. Angels Awards columns are colored based on the meeting of the condition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the dataframe with calculated statistics</li>
+<li><strong>country</strong> (<em>bool</em>) – True if country should be included as site</li>
+<li><strong>country_code</strong> (<em>str</em>) – the code of country used in filenames</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – <cite>True</cite> if the reports should be generated per sites</li>
+<li><strong>site</strong> (<em>str</em>) – the site code</li>
+<li><strong>report</strong> (<em>str</em>) – type of the report, eg. quarter</li>
+<li><strong>quarter</strong> (<em>str</em>) – type of the period, eq. Q1_2019</li>
+<li><strong>comp</strong> (<em>bool</em>) – <cite>True</cite> if the comparison reports are calculated</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="resqdb.CalculationSK.GeneratePreprocessedData">
 <em class="property">class </em><code class="descclassname">resqdb.CalculationSK.</code><code class="descname">GeneratePreprocessedData</code><span class="sig-paren">(</span><em>df</em>, <em>split_sites=False</em>, <em>site=None</em>, <em>report=None</em>, <em>quarter=None</em>, <em>country_code=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GeneratePreprocessedData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GeneratePreprocessedData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generate preprocessed data as table. One sheet are preprocessed data, 2nd sheet are legend data.</p>
+<p>The class generating the preprocessed data and legend data in the excel file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the preprocessed data dataframe</li>
+<li><strong>split_sites</strong> (<em>bool</em>) – True if for each site should be generated individual reports including whole country</li>
+<li><strong>site</strong> (<em>str</em>) – site ID</li>
+<li><strong>report</strong> (<em>str</em>) – the type of the report (quater, year, half)</li>
+<li><strong>quarter</strong> (<em>str</em>) – the type of the period (Q1_2019, H1_2019, …)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="resqdb.CalculationSK.GeneratePreprocessedData.convert_to_string">
+<code class="descname">convert_to_string</code><span class="sig-paren">(</span><em>format</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/CalculationSK.html#GeneratePreprocessedData.convert_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.CalculationSK.GeneratePreprocessedData.convert_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function converting the date, timestamp or time to the string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>datetime</strong> (<em>date/timestamp/time</em>) – the date, timestamp or time value to be converted</li>
+<li><strong>format</strong> (<em>the string</em>) – the format of the date, timestamp or time</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the datetime argument in the string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -502,76 +618,150 @@ hospital_date: date when patient was hospitalized</dd>
 <dt id="resqdb.Connection.Connection">
 <em class="property">class </em><code class="descclassname">resqdb.Connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>nprocess=1</em>, <em>data='resq'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A connection with one property: a section.</p>
-<p>To use:
-&gt;&gt;&gt; conn = Connection()</p>
+<p>The class connecting to the database and exporting the data for the Slovakia.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nprocess</strong> (<em>int</em>) – number of processes</li>
+<li><strong>data</strong> (<em>str</em>) – the name of data (resq or atalaia)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="resqdb.Connection.Connection.check_data">
 <code class="descname">check_data</code><span class="sig-paren">(</span><em>df</em>, <em>nprocess</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.check_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.check_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check dates and times and fix according to algorithm.</p>
-<dl class="docutils">
-<dt>Args: </dt>
-<dd>df: The raw dataframe with fixed columns</dd>
-<dt>Returns: </dt>
-<dd>The preprocessed data.</dd>
-</dl>
+<dd><p>The function calling the CheckData object. The dates and times are checked and if they are incorrect, they are fixed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the raw dataframe</li>
+<li><strong>nprocess</strong> (<em>int</em>) – the number of processes run simulataneously</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the dataframe with preprocessed data</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.config">
 <code class="descname">config</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and parse the config database file.</p>
-<dl class="docutils">
-<dt>Raises: </dt>
-<dd>Exception: If the section couldn’t be find in the database.ini file)</dd>
-<dt>Returns: </dt>
-<dd>The dictionary of parameters to enable connection to database.</dd>
-</dl>
+<dd><p>The function reading and parsing the config of database file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>section</strong> (<em>str</em>) – the name of the section in database.ini file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the dictionary with the parsed section values</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">Exception</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.connect">
 <code class="descname">connect</code><span class="sig-paren">(</span><em>sql</em>, <em>section</em>, <em>nprocess</em>, <em>df_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Connects to the database specified in the databse.ini file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>sql: The SQL query run to get dataframe from the database.</dd>
-<dt>Raises: </dt>
-<dd>Exception: If the connection was not successful.</dd>
-<dt>Returns: </dt>
-<dd>The new dataframe containing data from database.</dd>
-</dl>
+<dd><p>The function connecting to te database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sql</strong> (<em>str</em>) – the sql query</li>
+<li><strong>section</strong> (<em>str</em>) – the section from the database.ini</li>
+<li><strong>nprocess</strong> (<em>int</em>) – the number of processes run simultaneously</li>
+<li><strong>df_name</strong> (<em>str</em>) – the name of the dataframe used as key in the dictionary</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">Exception</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.fix_glucose">
 <code class="descname">fix_glucose</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.fix_glucose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.fix_glucose" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fix glucose value to have consistent format - 5.5 etc.</p>
+<dd><p>The function fixing the glucose value. The issue is that users are entering glucose with comma or dot as seprator. Sometimes, also nonsense appears.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str</em>) – the entered value in the glucose field</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fixed number</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.get_ctmri_delta">
 <code class="descname">get_ctmri_delta</code><span class="sig-paren">(</span><em>hosp_time</em>, <em>ct_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.get_ctmri_delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.get_ctmri_delta" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate differnce between two times.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>hospital_time: The time of hospitalization
-ct_time: The time when CT has been perfrmed.</dd>
-<dt>Returns:</dt>
-<dd>The calculated difference in minutes.</dd>
-</dl>
+<dd><p>The function calculating door to CT date time in minutes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hosp_time</strong> (<em>time</em>) – the hospitalization time</li>
+<li><strong>ct_time</strong> (<em>time</em>) – the time when CT/MRI has been performed</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">1 if datetime &gt; 0 and &lt; 60, 2 if results &gt; 60 else -2</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.prepare_atalaia_df">
 <code class="descname">prepare_atalaia_df</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.prepare_atalaia_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.prepare_atalaia_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p>
+<dd><p>The function preparing the atalaia dataframe if data is equal to atalaia. The column names are renamed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>df</strong> (<em>pandas dataframe</em>) – the raw data exported from the database</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the prepared dataframe</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="resqdb.Connection.Connection.prepare_df">
 <code class="descname">prepare_df</code><span class="sig-paren">(</span><em>df</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resqdb/Connection.html#Connection.prepare_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resqdb.Connection.Connection.prepare_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare dataframe to calculation. Convert column names etc. Return converted dataframe.</p>
+<dd><p>The function preparing the raw data from the database to be used for statistic calculation. The prepared dataframe is entered into dict_df and the name is used as key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) – the raw dataframe exported from the database</li>
+<li><strong>name</strong> (<em>str</em>) – the name of the database</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
