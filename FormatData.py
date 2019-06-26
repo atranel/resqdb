@@ -2168,8 +2168,6 @@ class GenerateFormattedStats:
             index = column_names.index('Proposed Award')
             column = xl_col_to_name(index)
             proposed_award(column, coln=index)
-            #worksheet.write_column(3, index, awards)
-
             
         else:
             pass

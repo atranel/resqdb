@@ -33,14 +33,16 @@ from pptx.enum.dml import MSO_LINE
 from pptx.oxml.xmlchemy import OxmlElement
 
 class GeneratePeriodCompPresentation:
-    """
-    This class takes as arguments two dataframes which represents two different periods of time and creates comparison graphs.
+    """ The class generating comparison graphs for nationally samples between two periods of times. 
 
-    Arguments:
-        ndf1 - dataframe containing data for first period
-        ndf2 - dataframe containing data for second period
-        name1 - name of first period (e.g. 2017)
-        name2 - name of 2nd periodn (e.g. 2018) 
+    :param ndf1: the dataframe containing calculated statistics for the first period
+    :type ndf1: pandas dataframe
+    :param ndf2: the dataframe containing calculated statistics for the second period
+    :type ndf2: pandas dataframe
+    :param name1: the name of the 1st period, eg. 2017
+    :type name1: str
+    :param name2: the name of the 2nd period, eg. 2017
+    :type name2: str
     """
 
     def __init__(self, ndf1, ndf2, name1, name2):
@@ -51,7 +53,7 @@ class GeneratePeriodCompPresentation:
         self.name2 = name2
 
         # Get absolute path to the database.
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        script_dir = os.path.dirname(__file__) 
         filename = "resq.db"
         self.abs_db_path = os.path.join(script_dir, "database", filename)
 
@@ -61,15 +63,14 @@ class GeneratePeriodCompPresentation:
         self._generate_graphs()
     
     def _generate_graphs(self):
-        """This function generates graphs into presentation .pptx."""
-
-        prs = Presentation(self.master)
+        """ The function generating graphs into the presentation. The final name of the presentation is comparison_two_periods.pptx. """
+        prs = Presentation(self.master) # Read template presentation
 
         first_slide = prs.slides[0]
         shape = first_slide.shapes[5]
         text_frame = shape.text_frame
 
-        first_slide_text = "Data Comparison"
+        first_slide_text = "Data Comparison" # Set title
     
         p = text_frame.paragraphs[0]
         run = p.add_run()
@@ -84,8 +85,6 @@ class GeneratePeriodCompPresentation:
         #     main_col = 'Site ID'
         # else:
         main_col = 'Site Name'
-
-        # main_col = "Site Name"
 
         ########################
         #### TOTAL PATIENTS ####
@@ -182,18 +181,24 @@ class GeneratePeriodCompPresentation:
 
 
 class GeneratePeriodCompGraph:
-    """
-    This function generates graphs into given presentation. 
+    """ The class generating comparison graphs for given periods . 
 
-    Arguments:
-        df - dataframe containing values for each period in one column
-        presentation - opened presentation document
-        column_name - the name of column
-        title - the name of slide
-        subtitle - the subtitle of slide (smaller font)
-        number_of_series - number of values in one column (bar) for stacked charplots
-        legend - list of legend names
+    :param df: the temporary dataframe created in :class:`resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation` class
+    :type df: pandas dataframe
+    :param presentation: the presentation opened in :class:`resqdb.GenerateComparisonPresentation.GeneratePeriodCompPresentation` class
+    :type presentation: Presentation object
+    :param column_name: the name of column which data should be shown in the graph
+    :type column_name: str
+    :param title: the title of the graph
+    :type title: str
+    :param subtitle: the subtitle of the graph
+    :type subtitle: str
+    :param number_of_series: the number of columns to be shown (stacked graphs)
+    :type number_of_series: int 
+    :param legend: the legend if the graph is stacked
+    :type legend: list of strings
     """
+
     def __init__(self, df, presentation, column_name, title, subtitle="", number_of_series=0, legend=None):
 
         self.df = df        
@@ -213,7 +218,7 @@ class GeneratePeriodCompGraph:
         
 
     def _get_length_of_legend(self, legend):
-        """Return number of letters in legend to adjust the font size of legend."""
+        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! """
         count = 0
 
         for i in legend:
@@ -222,20 +227,16 @@ class GeneratePeriodCompGraph:
         return count
 
     def _create_column_clustered_barplot(self):
-        """Create column clustered barplot."""
-
+        """ The function creating the clustered barplot. """
         maximum = 0
         
-        # Get column names of dataframe
         column_names = self.df.columns.tolist()
-
         index = column_names.index(self.categories_column)
 
         # Add slide to presentation (layout 11 is our custom layout where only title 'Agency FB', color: RGBColor(43, 88, 173)  and size:24 is set)
         slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
         # Get title object
         title_placeholders = slide.shapes.title
-        # Set title
         title_placeholders.text = self.title
 
         # If subtitle is not set, remove placeholder for the subtitle from page. 
@@ -275,13 +276,6 @@ class GeneratePeriodCompGraph:
         plot.overlap = -25
         # Set for each bar same color
         plot.vary_by_categories = False
-        # Show data labels and set font
-        '''
-        plot.has_data_labels = False
-        data_labels = plot.data_labels
-        data_labels.font.size = self.data_label_font_size
-        data_labels.font.bold = True
-        data_labels.font.name = self.font_name'''
 
         # Value for x-axis (change font size, name, and other things)
         value_axis = chart.value_axis
@@ -315,15 +309,19 @@ class GeneratePeriodCompGraph:
         chart.legend.include_in_layout = False
         chart.legend.font.name = self.font_name
 
-class GenerateCountriesCompPresentation:     
-    """
-    This class takes as arguments two dataframes which represents two different set of countries in the same period (e.g. nationally samples and site samples) and creates comparison graphs.
 
-    Arguments:
-        ndf - dataframe containing data for first set of countries in given period
-        sldf - dataframe containing data for second set of countries in given period
-        name - name of given period (e.g. 2017)
-        samples - name of countries which should be colored by different color in the main graph
+class GenerateCountriesCompPresentation:     
+    """ The class creating presentation with the comparison between national samples and site samples in one period. 
+
+    :param ndf: the calculated statistics for the national samples
+    :type ndf: pandas dataframe
+    :param sldf: the calculated statistics for the site samples
+    :type sldf: pandas dataframe
+    :param name: the name of the period, eg. 2017
+    :type name: str
+    :param samples: the list of countries which should be colored by different color in the main graphs
+    :type samples: list of string
+    
     """
     def __init__(self, ndf, sldf, name="", samples=[]):
 
@@ -340,6 +338,12 @@ class GenerateCountriesCompPresentation:
         self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
         def select_country(value):
+            """ The function obtaining the country name from the package pytz based on the country code.
+
+            :param value: the country code
+            :type value: str
+            :returns: the country name
+            """
             if value == "UZB":
                 value = 'UZ'
             country_name = pytz.country_names[value]
@@ -356,9 +360,9 @@ class GenerateCountriesCompPresentation:
         self._generate_graphs()
 
     def _generate_graphs(self):
-        """This function generates graphs into presentation (pptx)."""
+        """ The function generating graphs into the presentation! """
 
-        prs = Presentation(self.master)
+        prs = Presentation(self.master) # Read the template presentation
 
         first_slide = prs.slides[0]
         shape = first_slide.shapes[5]
@@ -397,9 +401,6 @@ class GenerateCountriesCompPresentation:
         title = 'Total number of cases - admission date in {}'.format(self.name)
         GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name)
 
-        #if self.country_name is not None:
-         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
-
         ########################
         #### TOTAL PATIENTS ####
         ########################
@@ -416,9 +417,6 @@ class GenerateCountriesCompPresentation:
 
         title = 'Total number of cases - admission date in {}'.format(self.name)
         GenerateCountriesCompGraphs(ndf=tmp_df, sldf=None, presentation=prs, title=title, column_name=column_name, samples=self.nationally_countries)
-
-        #if self.country_name is not None:
-         #   tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
         
         ############################
         #### MEDIAN PATIENT AGE ####
@@ -674,21 +672,31 @@ class GenerateCountriesCompPresentation:
 
         prs.save(presentation_path)
 
-class GenerateCountriesCompGraphs:
-    """
-    This function generates graphs into given presentation for two sets of countries.  
 
-    Arguments:
-        ndf - dataframe containing values for first set of countries
-        presentation - opened presentation document
-        column_name - the name of column
-        title - the name of slide
-        sldf - dataframe containing values for second set of countries
-        subtitle - the subtitle of slide (smaller font) (default = "")
-        graph_type - set type of graphs - normal barplot, stacked or grouped (default = None)
-        number_of_series - number of values in one column (bar) for stacked charplots (default = 0)
-        legend - list of legend names (default = None)
-        samples - list of samples which should be colored by different color in normal barplot (default = None)
+class GenerateCountriesCompGraphs:
+    """ The class generating comparison graphs in presentation for nationally samples vs. site samples. 
+
+    :param ndf: the calculated statistics for the national samples
+    :type ndf: pandas dataframe
+    :param presentation: the opened presentation document
+    :type presentation: Presentation object
+    :param column_name: the name of column to be included in the graph
+    :type column_name: str
+    :param title: the title of the slide
+    :type title: str
+    :param sldf: the calculated statistics for the site samples, can be `None` if Total Patients graph is generated
+    :type sldf: pandas dataframe
+    :param subtitle: the subtitle of the slide
+    :type subtitle: str
+    :param graph_type: the type of graph to be generated (normal barplot or stacked barplot)
+    :type graph_type: str
+    :param number_of_series: the number of columns included in the stacked barplot
+    :type number_of_series: int
+    :param legend: the list of values in the legend
+    :type legend: list
+    :param samples: the list of countries which should be displayed with different color
+    :type samples: list of string
+   
     """
     def __init__(self, ndf, presentation, column_name, title, sldf=None, subtitle="", graph_type=None, number_of_series=0, legend=None, samples=None):
 
@@ -718,7 +726,7 @@ class GenerateCountriesCompGraphs:
             self._create_barplot()
 
     def _get_length_of_legend(self, legend):
-        """Return number of letters in legend to adjust the legend font size."""
+        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! """
         count = 0
 
         for i in legend:
@@ -727,7 +735,7 @@ class GenerateCountriesCompGraphs:
         return count
 
     def _create_barplot(self):
-        """Create normal barplot."""
+        """ The function generating into the presentation the normal barplot. """
 
         maximum = 0
 
@@ -905,7 +913,7 @@ class GenerateCountriesCompGraphs:
             category_labels.font.name = self.font_name
     
     def _create_stacked_barplot(self):
-        """Generate stacked barplot."""
+        """ The function generating into the presentation the stacked barplot. """
 
         # Calculate length of legend (in case that legend is too long, make smaller font size)
         count = self._get_length_of_legend(self.legend)
@@ -1074,7 +1082,7 @@ class GenerateCountriesCompGraphs:
             chart.legend.font.size = Pt(12)
 
     def _create_grouped_barplot(self):
-        """Generate grouped barplot."""
+        """ The function generating into the presentation the grouped barplot. """
 
         # Calculate length of legend (in case that legend is too long, make smaller font size)
         count = self._get_length_of_legend(self.legend)
@@ -1213,13 +1221,15 @@ class GenerateCountriesCompGraphs:
         chart.legend.include_in_layout = False
         chart.legend.font.name = self.font_name
 
-class GenerateYearsCompPresentation:
-    """
-    This class takes as arguments one dataframe with values for each period in different lines and creates comparison graphs.
 
-    Arguments:
-        df - dataframe containing data for different times of period in each line
-        name - name of given period (e.g. all)
+class GenerateYearsCompPresentation:
+    """ The class creating presentation with graphs representing country comparison through all years in the dataset (eg. 2016, 2017, 2018, 2019). 
+
+    :param df: the dataframe with calculated statistics per years or period
+    :type df: pandas dataframe
+    :param name: the name of the presentation
+    :type name: str
+    
     """
 
     def __init__(self, df, name):
@@ -1228,9 +1238,7 @@ class GenerateYearsCompPresentation:
         self.name = name
 
         # Get absolute path to the database.
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-        #filename = "resq.db"
-       # self.abs_db_path = os.path.join(script_dir, "database", filename)
+        script_dir = os.path.dirname(__file__) 
 
         master_pptx = "countries_comparison.pptx"
         self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
@@ -1467,19 +1475,28 @@ class GenerateYearsCompPresentation:
         prs.save(presentation_path)
 
 class GenerateYearsCompGraphs:
-    """
-    This function generates graphs into given presentation for country per years (e.g. 2016, 2017, 2018).   
+    """ The class generating graphs into presentation for country per years. If only one dataframe is provided than one graph is created on slide, two graphs is two dataframes are provided etc. 
 
-    Arguments:
-        presentation - opened presentation document
-        df - dataframe containing statistics, each period is one line
-        df1 - dataframe containing statistics, each period is one line (used when we want more than one graph on one slide) (default = None)
-        df2 - dataframe containing statistics, each period is one line (used when we want more than two graphs on one slide) (default = None)
-        df3 - dataframe containing statistics, each period is one line (used when we want more than three graphs on one slide) (default = None)
-        title - the title of slide
-        titles - list of graph names (default = None)
-        graph_types - set type of graphs - normal barplot, stacked or grouped (default = None)
-        legends - inner list of legend names (default = None) 
+    :param presentation: the opened presentation document
+    :type presentation: Presentation object
+    :param df: dataframe containing calculated statistics
+    :type df: pandas dataframe
+    :param df1: 2nd dataframe containing calculated statistics
+    :type df1: pandas dataframe
+    :param df2: 3rd dataframe containing calculated statistics
+    :type df2: pandas dataframe
+    :param df3: 4th dataframe containing calculated statistics
+    :type df3: pandas dataframe
+    :param title: the title of the slide
+    :type title: str
+    :param titles: the titles of each graph
+    :type titles: list
+    :param graph_types: the list of types of graphs
+    :type graph_types: list
+    :param legends: the nested list containing lists of legends
+    :type legends: nested list
+    :param outcome: `True` if outcome calculation should be included in the presentation
+    :type outcome: bool
     """
     def __init__(self, presentation, df, df1=None, df2=None, df3=None, title="", titles=None, graph_types=None, legends=[], outcome=False):
 
@@ -1635,11 +1652,12 @@ class GenerateYearsCompGraphs:
             self._create_plot(df=df3, title=titles[3], specs=specs3, graph_type=graph_types[3], ix=3)
         
     def _set_transparency(self, transparency, elm):
-        """ Set tranparency of element. 
+        """ The function set the transparency of the row. 
 
-        Args: 
-            transparency: transparency in % 
-            elm: element to be changed
+        :param transparency: the transparency in %
+        :type transparency: int
+        :param elm: the element which transparency should be changed
+        :type elm: format.line.color._xFill
         """
         a = str(100 - transparency) + '196'
         
@@ -1648,7 +1666,21 @@ class GenerateYearsCompGraphs:
         elm.srgbClr.append(alpha)
 
     def _create_plot(self, df, title, specs, graph_type, legend=None, ix=0):   
-        """Create normal barplot."""
+        """ The function creating the new graph into the presentation based on the graph type. 
+        
+        :param df: the dataframe with data to be shown
+        :type df: pandas dataframe
+        :param title: the title of the graph
+        :type title: str
+        :param specs: the position settings
+        :type specs: dictionary
+        :param graph_type: the type of graph (normal or stacked)
+        :type graph_type: str
+        :param legend: the list of values in legend based on columns (only for stacked barplot)
+        :type legend: list
+        :param ix: the index which legend should be used 
+        :type ix: int
+        """
 
         if graph_type == "normal":
             # Get column names of dataframe
