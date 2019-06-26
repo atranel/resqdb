@@ -29,16 +29,26 @@ import pytz
 
 
 class GenerateNationalComparisonGraphs:
-    """Generate classic presentation with graphs. 
+    """ The class generating the presentation with graphs for national comparison reports. 
 
-    Keyword arguments:
-        df: the raw dataframe with statistics
-        country: True if the country should be included as siste
-        country_code: the code of country
-        split_sites: True if the presesntation should be generated for each site individually
-        site: the code of site
-        report: the report name
-        quarter: the quarter name
+    :param df: the dataframe with calculated statistic for the period of time
+    :type df: pandas dataframe
+    :param fdf: the dataframe with calculated comparison statistics eg. 2016, 2017, 2018, etc.
+    :type fdf: pandas dataframe
+    :param outcome: the dataframe with outcome results (default: None)
+    :type outcome: pandas dataframe
+    :param country: `True` if country should be included in the results as site
+    :type country: bool
+    :param country_code: the country code (default: None)
+    :type country_code: str
+    :param split_sites: `True` if graphs for each site should be generated seperately
+    :type split_sites: bool
+    :param site: the site ID
+    :type site: str
+    :param report: the type of the report eg. quarter
+    :type report: str
+    :param quarter: the type of the period eg. Q1_2019
+    :type quarter: str
     """
 
     def __init__(self, df, fdf, outcome=None, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None):
@@ -51,14 +61,19 @@ class GenerateNationalComparisonGraphs:
         self.outcome = outcome
 
         # Get absolute path to the database.
-        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        script_dir = os.path.dirname(__file__)
 
-        #master_pptx = self.country_code + ".pptx"
         master_pptx = "master.pptx"
         self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
         # Connect to database and get country name according to country code.
         def select_country(value):
+            """ The function obtaining the name of country from the package pytz based on the country code. 
+
+            :param value: the country code
+            :type value: str
+            :returns: the country name
+            """
             country_name = pytz.country_names[value]
             return country_name
 
@@ -95,7 +110,17 @@ class GenerateNationalComparisonGraphs:
                 self._generate_graphs(df=self.df, fdf=self.fdf, site_code=country_code)
 
     def _generate_graphs(self, df, fdf, outcome=None, site_code=None):
-        """Generate graphs into presentation."""
+        """ The function generating the graph in the presentation. 
+        
+        :param df: the dataframe containing the general statistics for country
+        :type df: pandas dataframe
+        :param fdf: the dataframe containing the general statistics for country through period in each year
+        :type fdf: pandas dataframe
+        :param outcome: the outcome dataframe containing outcome information for the given period
+        :type outcome: pandas dataframe
+        :param site_code: the site ID
+        :type site_code: str
+        """
         
         prs = Presentation(self.master)
 
