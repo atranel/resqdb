@@ -33,18 +33,26 @@ from pptx.oxml.xmlchemy import OxmlElement
 
 
 class GenerateGraphs:
-    """This class is used to generate our typical presentation with graphs. 
+    """ The class generating presentation with graphs for general reports.
 
-    Arguments:
-        dataframe - dataframe with calculated statistics
-        presentation - opened pptx document
-        title - name of slide
-        column_name - name of column name which should be used in graph (for more columns, the first column from all of them)
-        graph_type - set which graph should be generated (normal, stacked or grouped) (default = normal)
-        number_of_series - set number of series of graphs - this value is equal to length of legend (default = 0)
-        legend - list of legend names (default = None)
-        country - name of country (if dataset was filtered based on country) (default = None)
+    :param dataframe: the dataframe with calculated statistics
+    :type dataframe: pandas dataframe
+    :param presentation: the opened presentation document
+    :type presentation: Presentation object
+    :param title: the title of the slide
+    :type title: str
+    :param column_name: the column name from the dataframe to be shown in the graph
+    :type column_name: str
+    :param graph_type: the type of graph to be generated
+    :type graph_type: str
+    :param number_of_series: the number of columns to be shown in the stacked barplot
+    :type number_of_series: int
+    :param legend: the list of names to be used in the legend in the stacked barplot
+    :type legend: list
+    :param country: the country name used in the first slide
+    :type country: str
     """
+
     def __init__(self, dataframe, presentation, title, column_name, graph_type = None, number_of_series=0, legend=None, country=None):
 
         self.dataframe = dataframe
@@ -81,12 +89,11 @@ class GenerateGraphs:
 
 
     def _get_length_of_legend(self, legend):
-        """ Calculate number of letter in the legend to estimate number of columns. 
-
-        Args: 
-            legend: legend of the graph
-        Returns:
-            count: number of letters in the legend
+        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! 
+        
+        :param legend: the names of legend
+        :type legend: list
+        :returns: the adjusted number of letters
         """
         count = 0
 
@@ -97,11 +104,12 @@ class GenerateGraphs:
 
 
     def _set_transparency(self, transparency, elm):
-        """ Set tranparency of element. 
+        """ The function set the transparency of the row. 
 
-        Args: 
-            transparency: transparency in % 
-            elm: element to be changed
+        :param transparency: the transparency in %
+        :type transparency: int
+        :param elm: the element which transparency should be changed
+        :type elm: format.line.color._xFill
         """
         a = str(100 - transparency) + '196'
         
@@ -111,12 +119,14 @@ class GenerateGraphs:
 
 
     def _create_barplot(self, dataframe, title, column_name):
-        """Create normal barplot
-
-        Args:
-            dataframe - dataframe with statistics
-            title - title of slide
-            column_name - name of column which is included in graph
+        """ The function creating the normal barplot graph into the presentation based on the graph type. 
+        
+        :param df: the dataframe with data to be shown
+        :type df: pandas dataframe
+        :param title: the title of the graph
+        :type title: str
+        :param column_name: the column name to be displayed in the graph
+        :type column_name: str
         """
         maximum = 0
 
@@ -216,14 +226,18 @@ class GenerateGraphs:
         category_labels.font.name = self.font_name
 
     def _create_stacked_barplot(self, dataframe, title, column_name, legend, number_of_series):
-        """Create stacked barplot
-
-        Args:
-            dataframe - dataframe with statistics
-            title - title of slide
-            column_name - name of column (name of fist column used for graph)
-            legen - list of legend names
-            number_of_series - number of columns included in graph
+        """ The function creating the normal barplot graph into the presentation based on the graph type. 
+        
+        :param dataframe: the dataframe with data to be shown
+        :type dataframe: pandas dataframe
+        :param title: the title of the graph
+        :type title: str
+        :param column_name: the first column to be displayed in the graph
+        :type column_name: str
+        :param legend: the list of legend names
+        :type legend: list
+        :param number_of_series: the number of series to be shown in the graph
+        :type number_of_series: int
         """
 
         colors = {
@@ -323,14 +337,6 @@ class GenerateGraphs:
                         fill = point.format.fill
                         fill.solid()
                         fill.fore_color.rgb = colors[i]
-
-        """
-        if (number_of_series >= 5):
-            series = chart.series[4]
-            fill = series.format.fill
-            fill.solid()
-            fill.fore_color.rgb = RGBColor(80, 137, 188)  
-        """
           
         # Value for x-axis (change font size, name, and other things)
         value_axis = chart.value_axis

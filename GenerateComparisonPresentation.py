@@ -218,7 +218,12 @@ class GeneratePeriodCompGraph:
         
 
     def _get_length_of_legend(self, legend):
-        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! """
+        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! 
+        
+        :param legend: the names of legend
+        :type legend: list
+        :returns: the adjusted number of letters
+        """
         count = 0
 
         for i in legend:
@@ -1837,9 +1842,6 @@ class GenerateYearsCompGraphs:
             category_labels.font.size = self.category_font_size
             category_labels.font.name = self.font_name
             category_labels.tickLblSkip = 1
-
-            
-
         
             # Set legend 
             chart.has_legend = True
