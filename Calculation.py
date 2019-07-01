@@ -1606,6 +1606,28 @@ class ComputeStats:
         thrombolysis_pts = x['# patients eligible thrombolysis']
         
         thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+
+        '''
+        recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
+        if proposed_award == "TRUE":
+            if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
+                proposed_award = "GOLD"
+            elif (float(recan_therapy_lt_60min) >= 75):
+                proposed_award = "DIAMOND"
+            else: 
+                proposed_award = "NONE"
+
+        recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 60 minutes']
+        if proposed_award != "NONE":
+            if (float(recan_therapy_lt_45min) <= 49.99):
+                if (proposed_award != "GOLD" or proposed_award == "DIAMOND"):
+                    proposed_award = "PLATINUM"
+            elif (float(recan_therapy_lt_45min) >= 50):
+                if (proposed_award != "GOLD"):
+                    proposed_award = "DIAMOND"
+            else:
+                proposed_award = "NONE"
+        '''
         
         # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
         if award == "TRUE":
