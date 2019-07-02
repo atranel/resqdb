@@ -17,6 +17,7 @@ from multiprocessing import Process, Pool
 from threading import Thread
 import collections
 import datetime
+import csv
 
 class Connection():
     """ The class connecting to the database and exporting the data for the Slovakia. 
@@ -44,6 +45,17 @@ class Connection():
         path = os.path.dirname(__file__)
         self.database_ini = os.path.join(path, 'database.ini')
 
+         # Read temporary csv file with CZ report names and Angels Awards report names
+        cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
+        with open(cz_names_path) as csv_file:
+            cz_names_reader = csv.DictReader(csv_file)
+            cz_names_dict = {}
+            for row in cz_names_reader:
+                tmp = {}
+                tmp['current_name'] = row['Current name In the RES-Q Database']
+                tmp['report_name'] = row['RES-Q reports name']
+                tmp['angels_name'] = row['Name for ESO ANGELS awards']
+                cz_names_dict[row['Site ID']] = tmp
 
         # Set section
         datamix = 'datamix'
@@ -170,6 +182,10 @@ class Connection():
                 self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
                 del self.dictdb_df['atalaia_mix']
 
+        self.preprocessed_data['RES-Q reports name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['report_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
+        self.preprocessed_data['ESO Angels name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['angels_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
+        print(self.preprocessed_data.loc[self.preprocessed_data['Country'].isin(['Czech Republic'])][['RES-Q reports name', 'ESO Angels name']])
+        
         end = time.time()
         tdelta = (end-start)/60
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))

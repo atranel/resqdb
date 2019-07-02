@@ -131,8 +131,13 @@ class Reports:
         self.country = country
         self.month = month
 
+        # Rename 'RES-Q reports name' column to 'Site Name'
+        if 'RES-Q reports name' in self.df.columns:
+            self.df.rename(columns={'Site Name': 'Site Name Old', 'RES-Q reports name': 'Site Name'}, inplace=True)
+
         # Get site names to hospitals_mt
         self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first').reset_index()
+        
         self.site_id_mapped_to_site_name.drop(['index'], inplace=True, axis=1)
 
         debug = 'reports_debug_' + datetime.now().strftime('%d-%m-%Y') + '.log'
