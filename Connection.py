@@ -184,7 +184,6 @@ class Connection():
 
         self.preprocessed_data['RES-Q reports name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['report_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
         self.preprocessed_data['ESO Angels name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['angels_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
-        print(self.preprocessed_data.loc[self.preprocessed_data['Country'].isin(['Czech Republic'])][['RES-Q reports name', 'ESO Angels name']])
         
         end = time.time()
         tdelta = (end-start)/60

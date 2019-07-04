@@ -297,12 +297,6 @@ class GenerateFormattedAngelsAwards:
     def __init__(self, df, report=None, quarter=None, minimum_patients=30):
 
         self.df = df
-
-        # Rename 'RES-Q reports name' column to 'Site Name'
-        if 'ESO Angels name' in self.df.columns:
-            self.df.drop('Site Name', inplace=True, axis=1)
-            self.df.rename(columns={'ESO Angels name': 'Site Name'}, inplace=True)
-
         self.report = report
         self.quarter = quarter
         self.minimum_patients = minimum_patients

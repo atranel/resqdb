@@ -108,6 +108,12 @@ class ComputeStats:
         self.df.fillna(0, inplace=True)
         self.patient_limit = patient_limit
 
+        # Rename 'RES-Q reports name' column to 'Site Name'
+        if 'ESO Angels name' in self.df.columns:
+            self.df.drop('Site Name', inplace=True, axis=1)
+            self.df.rename(columns={'ESO Angels name': 'Site Name'}, inplace=True)
+
+
         def get_country_name(value):
             """ The function returning the country name based on country code. 
             
