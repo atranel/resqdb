@@ -113,7 +113,6 @@ class ComputeStats:
             self.df.drop('Site Name', inplace=True, axis=1)
             self.df.rename(columns={'ESO Angels name': 'Site Name'}, inplace=True)
 
-
         def get_country_name(value):
             """ The function returning the country name based on country code. 
             
@@ -337,6 +336,7 @@ class ComputeStats:
         #########
         # Seperate calculation for CZ 
         if country_code == 'CZ':
+            print('Country code {0}!'.format(country_code))
             self.tmp = is_ich.groupby(['Protocol ID', 'NIHSS']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=1, new_column_name='# NIHSS - Not performed')
             self.statsDf['% NIHSS - Not performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not performed']/x['is_ich_patients']) * 100), 2) if x['is_ich_patients'] > 0 else 0, axis=1)
