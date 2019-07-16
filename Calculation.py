@@ -102,12 +102,11 @@ class ComputeStats:
     """
 
 
-    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0, seperated_recan=True):
+    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0):
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
         self.patient_limit = patient_limit
-        self.seperated_recan = seperated_recan
 
         # Rename 'RES-Q reports name' column to 'Site Name'
         if 'ESO Angels name' in self.df.columns:
@@ -1611,83 +1610,82 @@ class ComputeStats:
         else:
             award = "TRUE"
 
-        if (self.seperated_recan):
-            thrombolysis_pts = x['# patients eligible thrombolysis']
-        
-            thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
+        thrombolysis_pts = x['# patients eligible thrombolysis']
+    
+        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
 
-            # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
-            if award == "TRUE":
-                if thrombolysis_pts == 0:
+        # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
+        if award == "TRUE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombolysis_therapy_lt_60min) >= 75):
                     award = "DIAMOND"
-                else:
-                    if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
-                        award = "GOLD"
-                    elif (float(thrombolysis_therapy_lt_60min) >= 75):
-                        award = "DIAMOND"
-                    else: 
-                        award = "NONE"
-
-            thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
-
-            if award != "NONE":
-                if thrombolysis_pts == 0:
-                    award = "DIAMOND"
-                else:
-                    if (float(thrombolysis_therapy_lt_45min) <= 49.99):
-                        if (award != "GOLD" or award == "DIAMOND"):
-                            award = "PLATINUM"
-                    elif (float(thrombolysis_therapy_lt_45min) >= 50):
-                        if (award != "GOLD"):
-                            award = "DIAMOND"
-                    else:
-                        award = "NONE"
-
-            # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
-            thrombectomy_pts = x['# patients eligible thrombectomy']
-            if thrombectomy_pts != 0:
-                thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
-                if award != "NONE":
-                    if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
-                        if (award == "PLATINUM" or award == "DIAMOND"):
-                            award = "GOLD"
-                    elif (float(thrombectomy_therapy_lt_120min) >= 75):
-                        if (award == "DIAMOND"):
-                            award = "DIAMOND"
-                    else: 
-                        award = "NONE"
-
-                thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
-                if award != "NONE":
-                    if (float(thrombectomy_therapy_lt_90min) <= 49.99):
-                        if (award != "GOLD" or award == "DIAMOND"):
-                            award = "PLATINUM"
-                    elif (float(thrombectomy_therapy_lt_90min) >= 50):
-                        if (award == "DIAMOND"):
-                            award = "DIAMOND"
-                    else:
-                        award = "NONE"
-        else:
-            recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
-            if proposed_award == "TRUE":
-                if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
-                    proposed_award = "GOLD"
-                elif (float(recan_therapy_lt_60min) >= 75):
-                    proposed_award = "DIAMOND"
                 else: 
-                    proposed_award = "NONE"
+                    award = "NONE"
 
-            recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
-            if proposed_award != "NONE":
-                if (float(recan_therapy_lt_45min) <= 49.99):
-                    if (proposed_award != "GOLD" or proposed_award == "DIAMOND"):
-                        proposed_award = "PLATINUM"
-                elif (float(recan_therapy_lt_45min) >= 50):
-                    if (proposed_award != "GOLD"):
-                        proposed_award = "DIAMOND"
+        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+
+        if award != "NONE":
+            if thrombolysis_pts == 0:
+                award = "DIAMOND"
+            else:
+                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                    if (award != "GOLD"):
+                        award = "DIAMOND"
                 else:
-                    proposed_award = "NONE"
-        
+                    award = "NONE"
+
+        # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
+        thrombectomy_pts = x['# patients eligible thrombectomy']
+        if thrombectomy_pts != 0:
+            thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(thrombectomy_therapy_lt_120min) >= 75):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else: 
+                    award = "NONE"
+
+            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+            if award != "NONE":
+                if (float(thrombectomy_therapy_lt_90min) <= 49.99):
+                    if (award != "GOLD" or award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(thrombectomy_therapy_lt_90min) >= 50):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "NONE"
+        '''
+        recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
+        if proposed_award == "TRUE":
+            if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
+                proposed_award = "GOLD"
+            elif (float(recan_therapy_lt_60min) >= 75):
+                proposed_award = "DIAMOND"
+            else: 
+                proposed_award = "NONE"
+
+        recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
+        if proposed_award != "NONE":
+            if (float(recan_therapy_lt_45min) <= 49.99):
+                if (proposed_award != "GOLD" or proposed_award == "DIAMOND"):
+                    proposed_award = "PLATINUM"
+            elif (float(recan_therapy_lt_45min) >= 50):
+                if (proposed_award != "GOLD"):
+                    proposed_award = "DIAMOND"
+            else:
+                proposed_award = "NONE"
+        '''
 
         recan_rate = x['% recanalization rate out of total ischemic incidence']
         if award != "NONE":
