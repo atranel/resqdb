@@ -102,11 +102,12 @@ class ComputeStats:
     """
 
 
-    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0):
+    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0, seperated_recan=True):
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
         self.patient_limit = patient_limit
+        self.seperated_recan = seperated_recan
 
         # Rename 'RES-Q reports name' column to 'Site Name'
         if 'ESO Angels name' in self.df.columns:
@@ -1598,7 +1599,7 @@ class ComputeStats:
 
         self.sites = self._get_sites(self.statsDf)
 
-    def _get_final_award(self, x, seperated_recan=True):
+    def _get_final_award(self, x):
         """ The function calculating the proposed award. 
 
         :param x: the row from temporary dataframe
@@ -1610,7 +1611,7 @@ class ComputeStats:
         else:
             award = "TRUE"
 
-        if (seperated_recan):
+        if (self.seperated_recan):
             thrombolysis_pts = x['# patients eligible thrombolysis']
         
             thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
