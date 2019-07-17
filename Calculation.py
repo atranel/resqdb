@@ -1658,7 +1658,7 @@ class ComputeStats:
                         award = "DIAMOND"
                 else:
                     award = "NONE"
-                    
+
         '''
         recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
         if proposed_award == "TRUE":

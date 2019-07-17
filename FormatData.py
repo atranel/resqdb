@@ -320,6 +320,9 @@ class GenerateFormattedAngelsAwards:
         worksheet.set_column(0, 2, 15)
         worksheet.set_column(2, 20, 40)
 
+        thrombectomy_patients = df['# patients eligible thrombectomy'].values
+        df.drop(['# patients eligible thrombectomy'], inplace=True, axis=1)
+
         ncol = len(df.columns) - 1
         nrow = len(df) + 2
 
@@ -433,7 +436,6 @@ class GenerateFormattedAngelsAwards:
         
         def angels_awards_ivt_60(column_name, tmp_column=None):
             """Add conditional formatting to angels awards for ivt < 60."""
-
             row = 4
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)   
@@ -442,23 +444,19 @@ class GenerateFormattedAngelsAwards:
                                                     'minimum': 50,
                                                     'maximum': 74.99,
                                                     'format': gold})
-                row += 1
-
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
+                
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': '>=',
                                                     'value': 75,
                                                     'format': black})
-                row += 1          
+                row += 1      
                 
             row = 4
             if tmp_column is not None:
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
-                    tmp_value = df[tmp_column].values[row-4]
-                    if (float(tmp_value) != 0.0):
+                    tmp_value = thrombectomy_patients[row-4]
+                    if (float(tmp_value) == 0.0):
                         worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '==',
                                                         'value': 0.0,
@@ -471,7 +469,7 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombectomy < 120 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column, tmp_column='% recanalization rate out of total ischemic incidence')
+        angels_awards_ivt_60(column, tmp_column='# patients eligible thrombectomy')
             
         index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
         column = xl_col_to_name(index)
@@ -484,37 +482,39 @@ class GenerateFormattedAngelsAwards:
         def angels_awards_ivt_45(column_name, tmp_column=None):
             """Add conditional formatting to angels awards for ivt < 45."""
             row = 4
-
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
-                worksheet.conditional_format(cell_n, {'type': 'cell',
-                                                    'criteria': '<=',
-                                                    'value': 49.99,
-                                                    'format': plat})
-                row += 1
+                if tmp_column is not None:
+                    worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                        'criteria': 'between',
+                                                        'minimum': 0.99,
+                                                        'maximum': 49.99,
+                                                        'format': plat})
+                else:
+                    worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                        'criteria': '<=',
+                                                        'value': 49.99,
+                                                        'format': plat})
 
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': '>=',
                                                     'value': 50,
                                                     'format': black})
                 row += 1
 
-            row = 4
             if tmp_column is not None:
+                row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
-                    tmp_value = df[tmp_column].values[row-4]
-                    if (float(tmp_value) != 0.0):
+                    tmp_value = thrombectomy_patients[row-4]
+                    if (float(tmp_value) == 0.0):
                         worksheet.conditional_format(cell_n, {'type': 'cell',
-                                                        'criteria': '==',
-                                                        'value': 0.0,
+                                                        'criteria': '<=',
+                                                        'value': 0.99,
                                                         'format': black})
                     row += 1
-
-            
+                    
+                        
 
         index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
         column = xl_col_to_name(index)
@@ -522,7 +522,7 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_45(column, tmp_column='% recanalization rate out of total ischemic incidence')
+        angels_awards_ivt_45(column, tmp_column='# patients eligible thrombectomy')
 
         index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
         column = xl_col_to_name(index)
@@ -540,21 +540,13 @@ class GenerateFormattedAngelsAwards:
                                                     'minimum': 5,
                                                     'maximum': 14.99,
                                                     'format': gold})
-                row += 1
 
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': 'between',
                                                     'minimum': 15,
                                                     'maximum': 24.99,
                                                     'format': plat})
-                row += 1
 
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': '>=',
                                                     'value': 25,
@@ -577,21 +569,12 @@ class GenerateFormattedAngelsAwards:
                                                     'maximum': 84.99,
                                                     'format': gold})
 
-                row += 1
-
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': 'between',
                                                     'minimum': 85,
                                                     'maximum': 89.99,
                                                     'format': plat})
-                row += 1
 
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': '>=',
                                                     'value': 90,
@@ -617,11 +600,7 @@ class GenerateFormattedAngelsAwards:
                                                     'criteria': '<=',
                                                     'value': 0,
                                                     'format': plat})
-                row += 1
 
-            row = 4
-            while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': '>=',
                                                     'value': 0.99,
@@ -642,29 +621,17 @@ class GenerateFormattedAngelsAwards:
                                                     'criteria': 'containing',
                                                     'value': 'NONE',
                                                     'format': green})
-                row += 1
 
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'GOLD',
                                                     'format': gold})
-                row += 1
 
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'PLATINUM',
                                                     'format': plat})
-                row += 1
 
-            row = 4
-            while row < nrow + 2:
-                cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': 'DIAMOND',
@@ -719,6 +686,9 @@ class GenerateFormattedStats:
         self.minimum_patients = minimum_patients
         self.total_patients_column = '# total patients >= {0}'.format(self.minimum_patients)
         self.seperated_recan = seperated_recan
+
+        self.thrombectomy_patients = self.df['# patients eligible thrombectomy'].values
+        self.df.drop(['# patients eligible thrombectomy'], inplace=True, axis=1)
 
         def delete_columns(columns):
             """ The function deleting all temporary columns used for presentation. 
@@ -1990,10 +1960,9 @@ class GenerateFormattedStats:
         number_of_rows = len(statistics) + 2
 
         if not self.comp:    
-            # if cell contain TRUE in column > 30 patients (DR) it will be colored to green
             row = 4
-            index = column_names.index(self.total_patients_column)
             while row < nrow + 2:
+                index = column_names.index(self.total_patients_column)
                 cell_n = xl_col_to_name(index) + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
@@ -2001,9 +1970,9 @@ class GenerateFormattedStats:
                                                     'format': green})
                 row += 1
 
+            
             def angels_awards_ivt_60(column_name, tmp_column=None):
                 """Add conditional formatting to angels awards for ivt < 60."""
-
                 row = 4
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)   
@@ -2012,23 +1981,19 @@ class GenerateFormattedStats:
                                                         'minimum': 50,
                                                         'maximum': 74.99,
                                                         'format': gold})
-                    row += 1
-
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
+                    
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '>=',
                                                         'value': 75,
                                                         'format': black})
-                    row += 1          
+                    row += 1      
                     
                 row = 4
                 if tmp_column is not None:
                     while row < number_of_rows + 2:
                         cell_n = column_name + str(row)
-                        tmp_value = df[tmp_column].values[row-4]
-                        if (float(tmp_value) != 0.0):
+                        tmp_value = self.thrombectomy_patients[row-4]
+                        if (float(tmp_value) == 0.0):
                             worksheet.conditional_format(cell_n, {'type': 'cell',
                                                             'criteria': '==',
                                                             'value': 0.0,
@@ -2046,41 +2011,47 @@ class GenerateFormattedStats:
             index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
             column = xl_col_to_name(index)
             angels_awards_ivt_60(column)
-            
+        
+
+            # angels_awards_ivt_60('D')
+
+
             def angels_awards_ivt_45(column_name, tmp_column=None):
                 """Add conditional formatting to angels awards for ivt < 45."""
                 row = 4
-
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
-                    worksheet.conditional_format(cell_n, {'type': 'cell',
-                                                        'criteria': '<=',
-                                                        'value': 49.99,
-                                                        'format': plat})
-                    row += 1
+                    if tmp_column is not None:
+                        worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                            'criteria': 'between',
+                                                            'minimum': 0.99,
+                                                            'maximum': 49.99,
+                                                            'format': plat})
+                    else:
+                        worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                            'criteria': '<=',
+                                                            'value': 49.99,
+                                                            'format': plat})
 
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '>=',
                                                         'value': 50,
                                                         'format': black})
                     row += 1
 
-                row = 4
                 if tmp_column is not None:
+                    row = 4
                     while row < number_of_rows + 2:
                         cell_n = column_name + str(row)
-                        tmp_value = df[tmp_column].values[row-4]
-                        if (float(tmp_value) != 0.0):
+                        tmp_value = self.thrombectomy_patients[row-4]
+                        if (float(tmp_value) == 0.0):
                             worksheet.conditional_format(cell_n, {'type': 'cell',
-                                                            'criteria': '==',
-                                                            'value': 0.0,
+                                                            'criteria': '<=',
+                                                            'value': 0.99,
                                                             'format': black})
                         row += 1
-
-                
+                        
+                            
 
             index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
             column = xl_col_to_name(index)
@@ -2093,9 +2064,10 @@ class GenerateFormattedStats:
             index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
             column = xl_col_to_name(index)
             angels_awards_ivt_45(column)
+                
 
             # setting colors of cells according to their values
-            def angels_awards_recan(column_name, coln):
+            def angels_awards_recan(column_name):
                 """Add conditional formatting to angels awards for recaalization procedures."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -2105,33 +2077,24 @@ class GenerateFormattedStats:
                                                         'minimum': 5,
                                                         'maximum': 14.99,
                                                         'format': gold})
-                    row += 1
 
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': 'between',
                                                         'minimum': 15,
                                                         'maximum': 24.99,
                                                         'format': plat})
-                    row += 1
 
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '>=',
                                                         'value': 25,
                                                         'format': black})
                     row += 1
 
-
             index = column_names.index('% recanalization rate out of total ischemic incidence')
-            column = xl_col_to_name(index)
-            angels_awards_recan(column, coln=index)
+            angels_awards_recan(column_name=xl_col_to_name(index))
 
-            def angels_awards_processes(column_name, coln, count=True):
+
+            def angels_awards_processes(column_name, count=True):
                 """Add conditional formatting to angels awards for processes."""
                 count = count
                 row = 4
@@ -2143,46 +2106,29 @@ class GenerateFormattedStats:
                                                         'maximum': 84.99,
                                                         'format': gold})
 
-                    row += 1
-
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': 'between',
                                                         'minimum': 85,
                                                         'maximum': 89.99,
                                                         'format': plat})
-                    row += 1
 
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '>=',
                                                         'value': 90,
                                                         'format': black})
                     row += 1
 
-
             index = column_names.index('% suspected stroke patients undergoing CT/MRI')
-            column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
-
+            angels_awards_processes(column_name=xl_col_to_name(index))
             index = column_names.index('% all stroke patients undergoing dysphagia screening')
-            column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
-
+            angels_awards_processes(column_name=xl_col_to_name(index))
             index = column_names.index('% ischemic stroke patients discharged (home) with antiplatelets')
-            column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
-
+            angels_awards_processes(column_name=xl_col_to_name(index))
             index = column_names.index('% afib patients discharged (home) with anticoagulants')
-            column = xl_col_to_name(index)
-            angels_awards_processes(column, coln=index)
+            angels_awards_processes(column_name=xl_col_to_name(index))
 
             # setting colors of cells according to their values
-            def angels_awards_hosp(column_name, coln):
+            def angels_awards_hosp(column_name):
                 """Add conditional formatting to angels awards for hospitalization."""
                 row = 4
                 while row < number_of_rows + 2:
@@ -2191,23 +2137,20 @@ class GenerateFormattedStats:
                                                         'criteria': '<=',
                                                         'value': 0,
                                                         'format': plat})
-                    row += 1
 
-                row = 4
-                while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': '>=',
                                                         'value': 0.99,
                                                         'format': black})
                     row += 1
 
+            
             index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
-            column = xl_col_to_name(index)
-            angels_awards_hosp(column, coln=index)
+            angels_awards_hosp(column_name=xl_col_to_name(index))
 
+            
             # set color for proposed angel award
-            def proposed_award(column_name, coln):
+            def proposed_award(column_name):
                 row = 4
                 while row < nrow + 2:
                     cell_n = column + str(row)
@@ -2215,29 +2158,17 @@ class GenerateFormattedStats:
                                                         'criteria': 'containing',
                                                         'value': 'NONE',
                                                         'format': green})
-                    row += 1
 
-                row = 4
-                while row < nrow + 2:
-                    cell_n = column + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'text',
                                                         'criteria': 'containing',
                                                         'value': 'GOLD',
                                                         'format': gold})
-                    row += 1
 
-                row = 4
-                while row < nrow + 2:
-                    cell_n = column + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'text',
                                                         'criteria': 'containing',
                                                         'value': 'PLATINUM',
                                                         'format': plat})
-                    row += 1
 
-                row = 4
-                while row < nrow + 2:
-                    cell_n = column + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'text',
                                                         'criteria': 'containing',
                                                         'value': 'DIAMOND',
@@ -2246,7 +2177,7 @@ class GenerateFormattedStats:
 
             index = column_names.index('Proposed Award')
             column = xl_col_to_name(index)
-            proposed_award(column, coln=index)
+            proposed_award(column)
             
         else:
             pass
