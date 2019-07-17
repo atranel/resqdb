@@ -1610,36 +1610,29 @@ class ComputeStats:
         else:
             award = "TRUE"
 
-        thrombolysis_pts = x['# patients eligible thrombolysis']
     
         thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
 
         # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
         if award == "TRUE":
-            if thrombolysis_pts == 0:
+            if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                award = "GOLD"
+            elif (float(thrombolysis_therapy_lt_60min) >= 75):
                 award = "DIAMOND"
-            else:
-                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
-                    award = "GOLD"
-                elif (float(thrombolysis_therapy_lt_60min) >= 75):
-                    award = "DIAMOND"
-                else: 
-                    award = "NONE"
+            else: 
+                award = "NONE"
 
         thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
 
         if award != "NONE":
-            if thrombolysis_pts == 0:
-                award = "DIAMOND"
+            if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                if (award != "GOLD" or award == "DIAMOND"):
+                    award = "PLATINUM"
+            elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                if (award != "GOLD"):
+                    award = "DIAMOND"
             else:
-                if (float(thrombolysis_therapy_lt_45min) <= 49.99):
-                    if (award != "GOLD" or award == "DIAMOND"):
-                        award = "PLATINUM"
-                elif (float(thrombolysis_therapy_lt_45min) >= 50):
-                    if (award != "GOLD"):
-                        award = "DIAMOND"
-                else:
-                    award = "NONE"
+                award = "NONE"
 
         # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
         thrombectomy_pts = x['# patients eligible thrombectomy']
@@ -1665,6 +1658,7 @@ class ComputeStats:
                         award = "DIAMOND"
                 else:
                     award = "NONE"
+                    
         '''
         recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
         if proposed_award == "TRUE":

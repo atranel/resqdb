@@ -431,11 +431,12 @@ class GenerateFormattedAngelsAwards:
             row += 1
 
         
-        def angels_awards_ivt_60(column_name):
+        def angels_awards_ivt_60(column_name, tmp_column=None):
             """Add conditional formatting to angels awards for ivt < 60."""
+
             row = 4
             while row < number_of_rows + 2:
-                cell_n = column_name + str(row)
+                cell_n = column_name + str(row)   
                 worksheet.conditional_format(cell_n, {'type': 'cell',
                                                     'criteria': 'between',
                                                     'minimum': 50,
@@ -450,7 +451,19 @@ class GenerateFormattedAngelsAwards:
                                                     'criteria': '>=',
                                                     'value': 75,
                                                     'format': black})
-                row += 1
+                row += 1          
+                
+            row = 4
+            if tmp_column is not None:
+                while row < number_of_rows + 2:
+                    cell_n = column_name + str(row)
+                    tmp_value = df[tmp_column].values[row-4]
+                    if (float(tmp_value) != 0.0):
+                        worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                        'criteria': '==',
+                                                        'value': 0.0,
+                                                        'format': black})
+                    row += 1
 
         index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
         column = xl_col_to_name(index)
@@ -458,18 +471,20 @@ class GenerateFormattedAngelsAwards:
 
         index = column_names.index('% patients treated with door to thrombectomy < 120 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_60(column)
+        angels_awards_ivt_60(column, tmp_column='% recanalization rate out of total ischemic incidence')
             
         index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
         column = xl_col_to_name(index)
         angels_awards_ivt_60(column)
+       
 
         # angels_awards_ivt_60('D')
 
 
-        def angels_awards_ivt_45(column_name):
+        def angels_awards_ivt_45(column_name, tmp_column=None):
             """Add conditional formatting to angels awards for ivt < 45."""
             row = 4
+
             while row < number_of_rows + 2:
                 cell_n = column_name + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'cell',
@@ -487,13 +502,27 @@ class GenerateFormattedAngelsAwards:
                                                     'format': black})
                 row += 1
 
+            row = 4
+            if tmp_column is not None:
+                while row < number_of_rows + 2:
+                    cell_n = column_name + str(row)
+                    tmp_value = df[tmp_column].values[row-4]
+                    if (float(tmp_value) != 0.0):
+                        worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                        'criteria': '==',
+                                                        'value': 0.0,
+                                                        'format': black})
+                    row += 1
+
+            
+
         index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
         column = xl_col_to_name(index)
         angels_awards_ivt_45(column)
 
         index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
         column = xl_col_to_name(index)
-        angels_awards_ivt_45(column)
+        angels_awards_ivt_45(column, tmp_column='% recanalization rate out of total ischemic incidence')
 
         index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
         column = xl_col_to_name(index)
@@ -1904,7 +1933,7 @@ class GenerateFormattedStats:
             else:
                 worksheet.write(xl_rowcol_to_cell(1, i), '', awards_color)
 
-        hidden_columns = ['# patients treated with door to thrombolysis < 60 minutes', '% patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '% patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# patients treated with door to thrombectomy < 60 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
+        hidden_columns = ['# patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 60 minutes', '# patients treated with door to recanalization therapy < 45 minutes', '% patients treated with door to recanalization therapy < 45 minutes', '# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 120 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
         				
         for i in hidden_columns:
             index = column_names.index(i)
@@ -1972,11 +2001,12 @@ class GenerateFormattedStats:
                                                     'format': green})
                 row += 1
 
-            def angels_awards_ivt_60(column_name, coln):
+            def angels_awards_ivt_60(column_name, tmp_column=None):
                 """Add conditional formatting to angels awards for ivt < 60."""
+
                 row = 4
                 while row < number_of_rows + 2:
-                    cell_n = column_name + str(row)
+                    cell_n = column_name + str(row)   
                     worksheet.conditional_format(cell_n, {'type': 'cell',
                                                         'criteria': 'between',
                                                         'minimum': 50,
@@ -1991,21 +2021,36 @@ class GenerateFormattedStats:
                                                         'criteria': '>=',
                                                         'value': 75,
                                                         'format': black})
-                    row += 1
-
+                    row += 1          
+                    
+                row = 4
+                if tmp_column is not None:
+                    while row < number_of_rows + 2:
+                        cell_n = column_name + str(row)
+                        tmp_value = df[tmp_column].values[row-4]
+                        if (float(tmp_value) != 0.0):
+                            worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                            'criteria': '==',
+                                                            'value': 0.0,
+                                                            'format': black})
+                        row += 1
 
             index = column_names.index('% patients treated with door to thrombolysis < 60 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_60(column, coln=index)
+            angels_awards_ivt_60(column)
 
             index = column_names.index('% patients treated with door to thrombectomy < 120 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_60(column, coln=index)
-
-
-            def angels_awards_ivt_45(column_name, coln):
+            angels_awards_ivt_60(column, tmp_column='% recanalization rate out of total ischemic incidence')
+                
+            index = column_names.index('% patients treated with door to recanalization therapy < 60 minutes')
+            column = xl_col_to_name(index)
+            angels_awards_ivt_60(column)
+            
+            def angels_awards_ivt_45(column_name, tmp_column=None):
                 """Add conditional formatting to angels awards for ivt < 45."""
                 row = 4
+
                 while row < number_of_rows + 2:
                     cell_n = column_name + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'cell',
@@ -2023,14 +2068,31 @@ class GenerateFormattedStats:
                                                         'format': black})
                     row += 1
 
+                row = 4
+                if tmp_column is not None:
+                    while row < number_of_rows + 2:
+                        cell_n = column_name + str(row)
+                        tmp_value = df[tmp_column].values[row-4]
+                        if (float(tmp_value) != 0.0):
+                            worksheet.conditional_format(cell_n, {'type': 'cell',
+                                                            'criteria': '==',
+                                                            'value': 0.0,
+                                                            'format': black})
+                        row += 1
+
+                
 
             index = column_names.index('% patients treated with door to thrombolysis < 45 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_45(column, coln=index)
+            angels_awards_ivt_45(column)
 
             index = column_names.index('% patients treated with door to thrombectomy < 90 minutes')
             column = xl_col_to_name(index)
-            angels_awards_ivt_45(column, coln=index)
+            angels_awards_ivt_45(column, tmp_column='% recanalization rate out of total ischemic incidence')
+
+            index = column_names.index('% patients treated with door to recanalization therapy < 45 minutes')
+            column = xl_col_to_name(index)
+            angels_awards_ivt_45(column)
 
             # setting colors of cells according to their values
             def angels_awards_recan(column_name, coln):
