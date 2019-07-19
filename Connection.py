@@ -49,10 +49,7 @@ class Connection():
         cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
         try:
             incorrect = True
-            print('start try')
             with open(cz_names_path, encoding='utf-8') as csv_file:
-                print('open utf-8')
-                incorrect = False
                 cz_names_reader = csv.DictReader(csv_file)
                 cz_names_dict = {}
                 for row in cz_names_reader:
@@ -62,6 +59,7 @@ class Connection():
                     tmp['angels_name'] = row['Name for ESO ANGELS awards']
                     cz_names_dict[row['Site ID']] = tmp
                 logging.info('Identified encoding UTF-8!')
+                incorrect = False
         except: 
             logging.info('Incorrect encoding.')
 
