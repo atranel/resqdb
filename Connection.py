@@ -47,7 +47,7 @@ class Connection():
 
          # Read temporary csv file with CZ report names and Angels Awards report names
         cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
-        with open(cz_names_path) as csv_file:
+        with open(cz_names_path, encoding='utf-8') as csv_file:
             cz_names_reader = csv.DictReader(csv_file)
             cz_names_dict = {}
             for row in cz_names_reader:
