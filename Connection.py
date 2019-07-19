@@ -59,6 +59,7 @@ class Connection():
                     tmp['report_name'] = row['RES-Q reports name']
                     tmp['angels_name'] = row['Name for ESO ANGELS awards']
                     cz_names_dict[row['Site ID']] = tmp
+                logging.info('Identified encoding UTF-8!')
         except: 
             logging.info('Incorrect encoding.')
 
@@ -74,6 +75,7 @@ class Connection():
                         tmp['report_name'] = row['RES-Q reports name']
                         tmp['angels_name'] = row['Name for ESO ANGELS awards']
                         cz_names_dict[row['Site ID']] = tmp
+                logging.info('Identified encoding ISO-8859-1!')
             except: 
                 logging.info('Incorrect encoding.')
 
