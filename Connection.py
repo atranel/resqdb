@@ -65,10 +65,7 @@ class Connection():
 
         if incorrect:
             try:
-                print('second try')
                 with open(cz_names_path, encoding="ISO-8859-1") as csv_file:
-                    print('open win')
-                    incorrect = False
                     cz_names_reader = csv.DictReader(csv_file)
                     cz_names_dict = {}
                     for row in cz_names_reader:
@@ -78,10 +75,9 @@ class Connection():
                         tmp['angels_name'] = row['Name for ESO ANGELS awards']
                         cz_names_dict[row['Site ID']] = tmp
                 logging.info('Identified encoding ISO-8859-1!')
+                incorrect = False
             except: 
                 logging.info('Incorrect encoding.')
-
-        print(cz_names_dict)
 
         # Set section
         datamix = 'datamix'
