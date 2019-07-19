@@ -79,7 +79,6 @@ class Connection():
             except: 
                 logging.info('Incorrect encoding.')
 
-        print(cz_names_dict)
         # Set section
         datamix = 'datamix'
         # Check which data should be exported
