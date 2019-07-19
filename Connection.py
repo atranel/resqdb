@@ -49,7 +49,9 @@ class Connection():
         cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
         try:
             incorrect = True
+            print('start try')
             with open(cz_names_path, encoding='utf-8') as csv_file:
+                print('open utf-8')
                 incorrect = False
                 cz_names_reader = csv.DictReader(csv_file)
                 cz_names_dict = {}
@@ -65,7 +67,9 @@ class Connection():
 
         if incorrect:
             try:
+                print('second try')
                 with open(cz_names_path, encoding="ISO-8859-1") as csv_file:
+                    print('open win')
                     incorrect = False
                     cz_names_reader = csv.DictReader(csv_file)
                     cz_names_dict = {}
