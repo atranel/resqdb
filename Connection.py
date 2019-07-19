@@ -47,15 +47,35 @@ class Connection():
 
          # Read temporary csv file with CZ report names and Angels Awards report names
         cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
-        with open(cz_names_path, encoding='utf-8') as csv_file:
-            cz_names_reader = csv.DictReader(csv_file)
-            cz_names_dict = {}
-            for row in cz_names_reader:
-                tmp = {}
-                tmp['current_name'] = row['Current name In the RES-Q Database']
-                tmp['report_name'] = row['RES-Q reports name']
-                tmp['angels_name'] = row['Name for ESO ANGELS awards']
-                cz_names_dict[row['Site ID']] = tmp
+        try:
+            incorrect = True
+            with open(cz_names_path, encoding='utf-8') as csv_file:
+                incorrect = False
+                cz_names_reader = csv.DictReader(csv_file)
+                cz_names_dict = {}
+                for row in cz_names_reader:
+                    tmp = {}
+                    tmp['current_name'] = row['Current name In the RES-Q Database']
+                    tmp['report_name'] = row['RES-Q reports name']
+                    tmp['angels_name'] = row['Name for ESO ANGELS awards']
+                    cz_names_dict[row['Site ID']] = tmp
+        except: 
+            logging.info('Incorrect encoding.')
+
+        if incorrect:
+            try:
+                with open(cz_names_path, encoding="ISO-8859-1") as csv_file:
+                incorrect = False
+                cz_names_reader = csv.DictReader(csv_file)
+                cz_names_dict = {}
+                for row in cz_names_reader:
+                    tmp = {}
+                    tmp['current_name'] = row['Current name In the RES-Q Database']
+                    tmp['report_name'] = row['RES-Q reports name']
+                    tmp['angels_name'] = row['Name for ESO ANGELS awards']
+                    cz_names_dict[row['Site ID']] = tmp
+            except: 
+                logging.info('Incorrect encoding.')
 
         # Set section
         datamix = 'datamix'
