@@ -33,7 +33,8 @@ class Connection():
         start = time.time()
 
         # Create log file in the working folder
-        log_file = os.path.join(os.getcwd(), 'debug.log')
+        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
