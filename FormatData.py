@@ -75,7 +75,7 @@ class GeneratePreprocessedData:
             for i in site_ids:
                 df = self.df[self.df['Protocol ID'].str.contains(i) == True]
                 self._generate_preprocessed_data(df=df, site_code=i)
-                logging.info('FormatData: Preprocessed data: The preprocessed data were generated for site {0}'.format(site))
+                logging.info('FormatData: Preprocessed data: The preprocessed data were generated for site {0}'.format(i))
 
         self._generate_preprocessed_data(self.df, site_code=None)
         logging.info('FormatData: Preprocessed data: The preprocessed data were generate for all data.')
