@@ -363,15 +363,24 @@ class CheckData:
         # IVT_ONLY_BOLUS_TIME - HH:MM format
         # IVT_ONLY_NEEDLE_TIME - minutes
         # IVT_ONLY_NEEDLE_TIME_MIN - calculated by script (minutes) 
-        df['IVT_ONLY_NEEDLE_TIME'] = df.apply(lambda x: np.nan if x['IVT_ONLY'] == 2 else x['IVT_ONLY_NEEDLE_TIME'], axis=1) # (delete values calculated by Mirek)
+        df['IVTPA'] = 0
+        df['TBY'] = 0
+        # Replace NaN values by 0
+        df.fillna({'IVT_ONLY_NEEDLE_TIME': 0, 'IVT_TBY_NEEDLE_TIME': 0, 'IVT_TBY_REFER_NEEDLE_TIME': 0})
+        # Fill IVT only needle time into IVTPA column
+        df['IVTPA'] = df.apply(lambda x: x['IVT_ONLY_NEEDLE_TIME'] if x['IVT_ONLY'] == 1 else x['IVTPA'], axis=1)
+
+        df['IVT_ONLY_NEEDLE_TIME'] = df.apply(lambda x: 0 if x['IVT_ONLY'] == 2 else x['IVT_ONLY_NEEDLE_TIME'], axis=1) # (delete values calculated by Mirek)
         # IVT needle time
         if ('IVT_ONLY_BOLUS_TIME' in df.columns and 'IVT_ONLY_ADMISSION_TIME' in df.columns):
 
             df['IVT_ONLY_NEEDLE_TIME_MIN'], df['IVT_ONLY_NEEDLE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=
                 str(x['IVT_ONLY_ADMISSION_TIME']), bolus_time=str(x['IVT_ONLY_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=400) if (x['IVT_ONLY'] == 2) else (0, False), axis=1))
+            df['IVTPA'] = df.apply(lambda x: x['IVT_ONLY_NEEDLE_TIME_MIN'] if x['IVT_ONLY'] == 2 else x['IVTPA'], axis=1)
 
         # Create new column called IVT_DONE, if 1 than IVT has been performed else NaN
         df['IVT_DONE'] = df.apply(lambda x: 1 if x['IVT_ONLY'] in [1,2] else np.nan, axis=1)
+
         # Create IVT_TBY column
         # IVT_TBY - 1) filled in minutes, 2) filled admission, bolus and groin puncture time
         # IVT_TBY_NEEDLE_TIME - Mirek's calculation of needle time
@@ -380,27 +389,34 @@ class CheckData:
         # IVT_TBY_GROIN_PUNCTURE_TIME - HH:MM format
         # IVT_TBY_NEEDLE_TIME in minutes
         # IVT_TBY_NEEDLE_TIME_MIN - calculated by script (minutes) (delete values calculated by Mirek)
-        df['IVT_TBY_NEEDLE_TIME'] = df.apply(lambda x: np.nan if x['IVT_TBY'] == 2 else x['IVT_TBY_NEEDLE_TIME'], axis=1) #(delete values calculated by Mirek)
+        df['IVTPA'] = df.apply(lambda x: x['IVT_TBY_NEEDLE_TIME'] if x['IVT_TBY'] == 1 else x['IVTPA'], axis=1)
+        df['IVT_TBY_NEEDLE_TIME'] = df.apply(lambda x: 0 if x['IVT_TBY'] == 2 else x['IVT_TBY_NEEDLE_TIME'], axis=1) #(delete values calculated by Mirek)
 
         # IVT TBY needle time
         if ('IVT_TBY_ADMISSION_TIME' in df.columns and 'IVT_TBY_BOLUS_TIME' in df.columns):
 
             df['IVT_TBY_NEEDLE_TIME_MIN'], df['IVT_TBY_NEEDLE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['IVT_TBY_ADMISSION_TIME']), bolus_time=str(x['IVT_TBY_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=400) if(x['IVT_TBY'] == 2) else (0, False), axis=1))
+            df['IVTPA'] = df.apply(lambda x: x['IVT_TBY_NEEDLE_TIME_MIN'] if x['IVT_TBY'] == 2 else x['IVTPA'], axis=1)
 
         df['IVT_DONE'] = df.apply(lambda x: 1 if x['IVT_TBY'] in [1,2] else x['IVT_DONE'], axis=1)
+
+        
+
         # Create IVT_TBY_REFER column
         # IVT_TBY_REFER_ADMISSION_TIME - HH:MM format
         # IVT_TBY_REFER_ADMISSION_TIME - HH:MM format
         # IVT_TBY_REFER_NEEDLE_TIME - minutes
         # IVT_TBY_REFER_NEEDLE_TIME_MIN - calculated by script (minutes) (delete values calculated by Mirek)
-        df['IVT_TBY_REFER_NEEDLE_TIME'] = df.apply(lambda x: np.nan if x['IVT_TBY_REFER'] == 2 else x['IVT_TBY_REFER_NEEDLE_TIME'], axis=1) # (delete values calculated by Mirek)
+        df['IVTPA'] = df.apply(lambda x: x['IVT_TBY_REFER_NEEDLE_TIME'] if x['IVT_TBY_REFER'] == 1 else x['IVTPA'], axis=1)
+        df['IVT_TBY_REFER_NEEDLE_TIME'] = df.apply(lambda x: 0 if x['IVT_TBY_REFER'] == 2 else x['IVT_TBY_REFER_NEEDLE_TIME'], axis=1) # (delete values calculated by Mirek)
 
         # IVT TBY refer needle time
         if ('IVT_TBY_REFER_ADMISSION_TIME' in df.columns and 'IVT_TBY_REFER_BOLUS_TIME' in df.columns):
 
             df['IVT_TBY_REFER_NEEDLE_TIME_MIN'], df['IVT_TBY_REFER_NEEDLE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['IVT_TBY_REFER_ADMISSION_TIME']), bolus_time=str(x['IVT_TBY_REFER_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=400) if(x['IVT_TBY_REFER'] == 2) else (0, False), axis=1))
+            df['IVTPA'] = df.apply(lambda x: x['IVT_TBY_REFER_NEEDLE_TIME_MIN'] if x['IVT_TBY_REFER'] == 2 else x['IVTPA'], axis=1)
 
         df['IVT_DONE'] = df.apply(lambda x: 1 if x['IVT_TBY_REFER'] in [1,2] else x['IVT_DONE'], axis=1)
 
@@ -409,13 +425,17 @@ class CheckData:
         # TBY_ONLY_PUNCTURE_TIME - HH:MM format
         # TBY_ONLY_GROIN_PUNCTURE_TIME - minutes
         # TBY_ONLY_GROIN_TIME_MIN - calculated by script (minutes)
-        df['TBY_ONLY_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: np.nan if x['TBY_ONLY'] == 2 else x['TBY_ONLY_GROIN_PUNCTURE_TIME'], axis=1)
+        df.fillna({'TBY_ONLY_GROIN_PUNCTURE_TIME': 0, 'IVT_TBY_GROIN_TIME': 0, 'TBY_REFER_ALL_GROIN_PUNCTURE_TIME': 0, 'TBY_REFER_LIM_GROIN_PUNCTURE_TIME': 0})
+
+        df['TBY'] = df.apply(lambda x: x['TBY_ONLY_GROIN_PUNCTURE_TIME'] if x['TBY_ONLY'] == 1 else x['TBY'], axis=1)
+        df['TBY_ONLY_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: 0 if x['TBY_ONLY'] == 2 else x['TBY_ONLY_GROIN_PUNCTURE_TIME'], axis=1)
 
         # TBY only groin time
         if ('TBY_ONLY_PUNCTURE_TIME' in df.columns and 'TBY_ONLY_ADMISSION_TIME' in df.columns):
 
             df['TBY_ONLY_GROIN_TIME_MIN'], df['TBY_ONLY_GROIN_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['TBY_ONLY_ADMISSION_TIME']), bolus_time=str(x['TBY_ONLY_PUNCTURE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_ONLY'] == 2) else (0, False), axis=1))
+            df['TBY'] = df.apply(lambda x: x['TBY_ONLY_GROIN_TIME_MIN'] if x['TBY_ONLY'] == 2 else x['TBY'], axis=1)
 
         # Create TBY_DONE if TBY has been performed, else NaN
         df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_ONLY'] in [1,2] else np.nan, axis=1)
@@ -424,14 +444,50 @@ class CheckData:
         # IVT_TBY_ADMISSION_TIME - HH:MM format
         # IVT_TBY_GROIN_PUNCTURE_TIME - HH:MM format
         # IVT_TBY_GROIN_TIME_MIN - calculated by script (minutes)
-        df['IVT_TBY_GROIN_TIME'] = df.apply(lambda x: np.nan if x['IVT_TBY'] == 2 else x['IVT_TBY_GROIN_TIME'], axis=1)
+        df['TBY'] = df.apply(lambda x: x['IVT_TBY_GROIN_TIME'] if x['IVT_TBY'] == 1 else x['TBY'], axis=1)
+        df['IVT_TBY_GROIN_TIME'] = df.apply(lambda x: 0 if x['IVT_TBY'] == 2 else x['IVT_TBY_GROIN_TIME'], axis=1)
 
         if ('IVT_TBY_ADMISSION_TIME' in df.columns and 'IVT_TBY_GROIN_PUNCTURE_TIME' in df.columns):
 
             df['IVT_TBY_GROIN_TIME_MIN'], df['IVT_TBY_GROIN_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['IVT_TBY_ADMISSION_TIME']), bolus_time=str(x['IVT_TBY_GROIN_PUNCTURE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['IVT_TBY'] == 2) else (0, False), axis=1))
+            df['TBY'] = df.apply(lambda x: x['IVT_TBY_GROIN_TIME_MIN'] if x['IVT_TBY'] == 2 else x['TBY'], axis=1)
 
         df['TBY_DONE'] = df.apply(lambda x: 1 if x['IVT_TBY'] in [1,2] else x['TBY_DONE'], axis=1)
+
+        # F_RESQ_IVT_TBY_CZ_2
+        # TO DO: August 2019
+        # Implement changes made to IVT/TBY form. In the TBY_REFER_ALL and TBY_REFER_LIM were replace values for discharge by groin time. But in the name of column is mistake and column is names as TBY_REFER_ALL_BOLUS_TIME/TBY_REFER_LIM_BOLUS_TIME if the time is entered in HH:MM format. In the future will be these column names as TBY_REFER_ALL_PUNCTURE_TIME/TBY_REFER__LIM_PUNCTURE_TIME
+
+        # Set nan to TBY_REFER_ALL_GROIN_PUNCTURE_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
+        df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] if x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY'], axis=1)
+        df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] if x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else 0, axis=1)
+        # To calculate groin puncture from DIDO time (needed due to missing field in the prev version of form), take only times in minutes
+        #df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if 'IVT_TBY' in x['crf_parent_name'] and x['TBY_REFER_ALL'] == 1 else x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'], axis=1)
+
+        # Calculate TBY refer all bolus time
+        if ('TBY_REFER_ALL_BOLUS_TIME' in df.columns and 'TBY_REFER_ALL_ADMISSION_TIME' in df.columns):
+
+            df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'], df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
+                x['TBY_REFER_ALL_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_ALL_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2') else (0, False), axis=1))
+            df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'] if x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY'], axis=1)
+
+        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_ALL'] in [1,2] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY_DONE'], axis=1)
+
+        # Set nan to TBY_REFER_LIM_GROIN_PUNCTURE_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
+        df['TBY'] = df.apply(lambda x: x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] if x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY'], axis=1)
+        df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] if x['TBY_REFER_LIM'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else 0, axis=1)
+        # To calculate groin puncture from DIDO time (needed due to missing field in the prev version of form), take only times in minutes
+        # df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_LIM_DIDO_TIME'] if 'IVT_TBY' in x['crf_parent_name'] and x['TBY_REFER_LIM'] == 1 else x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'], axis=1)
+
+        # TBY refer lim groin puncture time
+        if ('TBY_REFER_LIM_BOLUS_TIME' in df.columns and 'TBY_REFER_LIM_ADMISSION_TIME' in df.columns):
+            df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN'], df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
+                x['TBY_REFER_LIM_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_LIM_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_LIM'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2') else (0, False), axis=1))
+            df['TBY'] = df.apply(lambda x: x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN'] if x['TBY_REFER_LIM'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY'], axis=1)
+
+
+        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_LIM'] in [1,2] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY_DONE'], axis=1)
 
         # IVT TBY refer dido time
         # IVT_TBY_GROIN_TIME_MIN - HH:MM format
@@ -442,35 +498,6 @@ class CheckData:
 
             df['IVT_TBY_REFER_DIDO_TIME_MIN'], df['IVT_TBY_REFER_DIDO_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['IVT_TBY_REFER_ADMISSION_TIME']), bolus_time=str(x['IVT_TBY_REFER_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['IVT_TBY_REFER'] == 2) else (0, False), axis=1))
-
-        # F_RESQ_IVT_TBY_CZ_2
-        # TO DO: August 2019
-        # Implement changes made to IVT/TBY form. In the TBY_REFER_ALL and TBY_REFER_LIM were replace values for discharge by groin time. But in the name of column is mistake and column is names as TBY_REFER_ALL_BOLUS_TIME/TBY_REFER_LIM_BOLUS_TIME if the time is entered in HH:MM format. In the future will be these column names as TBY_REFER_ALL_PUNCTURE_TIME/TBY_REFER__LIM_PUNCTURE_TIME
-
-        # Set nan to TBY_REFER_ALL_GROIN_PUNCTURE_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
-        df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: np.nan if x['TBY_REFER_ALL'] == 2 else x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'], axis=1)
-        # To calculate groin puncture from DIDO time (needed due to missing field in the prev version of form), take only times in minutes
-        #df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if 'IVT_TBY' in x['crf_parent_name'] and x['TBY_REFER_ALL'] == 1 else x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'], axis=1)
-
-        # Calculate TBY refer all bolus time
-        if ('TBY_REFER_ALL_BOLUS_TIME' in df.columns and 'TBY_REFER_ALL_ADMISSION_TIME' in df.columns):
-
-            df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'], df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
-                x['TBY_REFER_ALL_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_ALL_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_ALL'] == 2) else (0, False), axis=1))
-
-        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_ALL'] in [1,2] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY_DONE'], axis=1)
-
-        # Set nan to TBY_REFER_LIM_GROIN_PUNCTURE_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
-        df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: np.nan if x['TBY_REFER_LIM'] == 2 else x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'], axis=1)
-        # To calculate groin puncture from DIDO time (needed due to missing field in the prev version of form), take only times in minutes
-        # df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: x['TBY_REFER_LIM_DIDO_TIME'] if 'IVT_TBY' in x['crf_parent_name'] and x['TBY_REFER_LIM'] == 1 else x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'], axis=1)
-
-        # TBY refer lim groin puncture time
-        if ('TBY_REFER_LIM_BOLUS_TIME' in df.columns and 'TBY_REFER_LIM_ADMISSION_TIME' in df.columns):
-            df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN'], df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
-                x['TBY_REFER_LIM_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_LIM_BOLUS_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_LIM'] == 2) else (0, False), axis=1))
-
-        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_LIM'] in [1,2] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['TBY_DONE'], axis=1)
 
         # Create TBY_REFER column
         # TBY_REFER_ADMISSION_TIME - HH:MM format

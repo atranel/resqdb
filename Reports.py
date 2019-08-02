@@ -293,8 +293,9 @@ class Reports:
             statistic = self.country_df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")			# Get Protocol IDs and Total Patients
 
             # Calculate IVtPa median
-            ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy()													# only patients with ischemic stroke
-            thrombolysis_df = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+            ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy()		
+            thrombolysis_df = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()											# only patients with ischemic stroke
+            # thrombolysis_df = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
             if thrombolysis_df.empty:
                 statistic['Median DTN (minutes)'] = 0
                 statistic['# IVT'] = 0
@@ -303,7 +304,7 @@ class Reports:
                 statistic['% incorrect IVtPa times'] = 0
             else:
                 thrombolysis_df.fillna(0, inplace=True)
-                thrombolysis_df['IVTPA'] = thrombolysis_df['IVT_ONLY_NEEDLE_TIME'] + thrombolysis_df['IVT_ONLY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME_MIN']       			# get one column with all needle times
+                #thrombolysis_df['IVTPA'] = thrombolysis_df['IVT_ONLY_NEEDLE_TIME'] + thrombolysis_df['IVT_ONLY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME_MIN']       			# get one column with all needle times
 
                 # Get number of incorrectly entered times
                 thrombolysis_df['INCORRECT_TIMES'] = False
@@ -366,7 +367,8 @@ class Reports:
         for name, df in self.filtered_dfs.items():
             
             # Calculate IVtPa median
-            thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
+            # thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
+            thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['TBY_DONE'].isin([1]) & df['STROKE_TYPE'].isin([1])].copy()
             thrombectomy_df.fillna(0, inplace=True)
             statistic = self.site_id_mapped_to_site_name.copy()
             
@@ -379,16 +381,21 @@ class Reports:
                 statistic['Median DTG (minutes) - second hospital'] = 0
             else:
                 # Median DTG
-                thrombectomy_df['TBY'] = thrombectomy_df['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_df['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_df['IVT_TBY_GROIN_TIME'] + thrombectomy_df['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
+                # thrombectomy_df['TBY'] = thrombectomy_df['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_df['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_df['IVT_TBY_GROIN_TIME'] + thrombectomy_df['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
 
                 thrombectomy_df['INCORRECT_TIMES'] = False
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
+                # Add also if tby_refer_all and tby_refer_lim has been selected, but also version of ivt/tby form has to be checked
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_REFER_ALL_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 7 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_REFER_LIM_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 8 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
-                print(incorrect_tby_times[['TBY_ONLY_GROIN_PUNCTURE_TIME', 'IVT_TBY_GROIN_TIME']])
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
 
                 thrombectomy = thrombectomy_df[(thrombectomy_df['TBY'] > 0) & (thrombectomy_df['TBY'] < 700)].copy()
@@ -425,7 +432,7 @@ class Reports:
                     if thrombectomy_first.empty:
                         statistic['Median DTG (minutes) - first hospital'] = 0
                     else:
-                        thrombectomy_first['TBY'] = thrombectomy_first['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_first['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_first['IVT_TBY_GROIN_TIME'] + thrombectomy_first['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
+                        # thrombectomy_first['TBY'] = thrombectomy_first['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_first['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_first['IVT_TBY_GROIN_TIME'] + thrombectomy_first['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
                         thrombectomy_first_grouped = thrombectomy_first.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes) - first hospital'}).reset_index()
                         statistic = statistic.merge(thrombectomy_first_grouped, how='outer') # Merge with statistic dataframe
 
@@ -434,7 +441,7 @@ class Reports:
                     if thrombectomy_second.empty:
                         statistic['Median DTG (minutes) - second hospital'] = 0
                     else:
-                        thrombectomy_second['TBY'] = thrombectomy_second['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_second['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_second['IVT_TBY_GROIN_TIME'] + thrombectomy_second['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
+                        # thrombectomy_second['TBY'] = thrombectomy_second['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_second['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_second['IVT_TBY_GROIN_TIME'] + thrombectomy_second['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
                         thrombectomy_second_grouped = thrombectomy_second.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes) - second hospital'}).reset_index()
                         statistic = statistic.merge(thrombectomy_second_grouped, how='outer') # Merge with statistic dataframe
 
@@ -452,7 +459,8 @@ class Reports:
         for name, df in self.filtered_dfs.items():
             # Calculate IVtPa median
             ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy() 													# only patients with ischemic stroke
-            thrombolysis = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+            # thrombolysis = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
+            thrombolysis = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()
 
             region_total_patients = pd.DataFrame(list(self.regions.keys()), columns=['Site Name'])
 
@@ -595,7 +603,6 @@ class GeneratePresentation(Reports):
 
         for i in df_names:  
             if i == self.month:
-                
                 wanted_keys = [i, self.names[self.names.index(i) + 1]]
                 dictfilt = lambda x, y: dict([ (i,x[i]) for i in x if i in set(y) ])
 
