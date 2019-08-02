@@ -599,11 +599,11 @@ class GeneratePresentation(Reports):
         
         df_names = self.names.copy()
         # Delete last item from list of names (the whole year)
-        del df_names[-1]
+        # del df_names[-1]
 
         for i in df_names:  
-            if i == self.month:
-                wanted_keys = [i, self.names[self.names.index(i) + 1]]
+            if i == str(self.year):
+                wanted_keys = [i]
                 dictfilt = lambda x, y: dict([ (i,x[i]) for i in x if i in set(y) ])
 
                 # master_pptx = self.country_code + ".pptx"
