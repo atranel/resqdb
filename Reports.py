@@ -368,6 +368,8 @@ class Reports:
             
             # Calculate IVtPa median
             # thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
+            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, False) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
+            
             thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['TBY_DONE'].isin([1]) & df['STROKE_TYPE'].isin([1])].copy()
             thrombectomy_df.fillna(0, inplace=True)
             statistic = self.site_id_mapped_to_site_name.copy()
@@ -398,7 +400,10 @@ class Reports:
                 incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
 
-                thrombectomy = thrombectomy_df[(thrombectomy_df['TBY'] > 0) & (thrombectomy_df['TBY'] < 700)].copy()
+
+                included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
+                included_in_median.to_csv('included_in_median.csv', sep=',')
+                thrombectomy = included_in_median[(included_in_median['TBY'] > 0) & (included_in_median['TBY'] < 700)].copy()
 
                 if thrombectomy.empty:
                     statistic['# TBY'] = 0
@@ -413,7 +418,8 @@ class Reports:
                     statistic['Median DTG (minutes) - second hospital'] = 0
                 else:
                     # Total patients
-                    total_patients = thrombectomy.groupby(['Protocol ID']).size().reset_index(name="# TBY")
+                    # total_patients = thrombectomy.groupby(['Protocol ID']).size().reset_index(name="# TBY")
+                    total_patients = thrombectomy_df.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     statistic = statistic.merge(total_patients, on='Protocol ID', how='outer') # Merge with statistic dataframe
                     statistic.fillna(0, inplace=True)
 
