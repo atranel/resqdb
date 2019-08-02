@@ -94,8 +94,11 @@ class GeneratePreprocessedData:
         elif site_code is None and self.report is None and self.country_code is None and self.quarter is None:
             output_file = "preprocessed_data.xlsx"
         else:
-            output_file = self.report + "_" + self.country_code + "_" + self.quarter + "_preprocessed_data.xlsx"
-                
+            if self.country_code is None:
+                 output_file = self.report + "_" + self.quarter + "_preprocessed_data.xlsx"
+            else:
+                output_file = self.report + "_" + self.country_code + "_" + self.quarter + "_preprocessed_data.xlsx"
+        
         df = df.copy()
         
         # Convert dates to strings
@@ -107,7 +110,7 @@ class GeneratePreprocessedData:
             else:
                 return datetime.strftime(format)
         
-        if not csv:
+        if not self.csv:
             #if df['VISIT_DATE'].dtype != np.object:
             df['VISIT_DATE'] = df.apply(lambda x: convert_to_string(x['VISIT_DATE'], dateformat), axis=1)
             # if df['VISIT_DATE_OLD'].dtype != np.object:
@@ -119,7 +122,6 @@ class GeneratePreprocessedData:
             df['HOSPITAL_DATE_OLD'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE_OLD'], dateformat), axis=1)
             #if df['HOSPITAL_TIME'].dtype != np.object:
             df['HOSPITAL_TIME'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_TIME'], timeformat), axis=1)
-            print(df['DISCHARGE_DATE'].dtype)
             df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], dateformat), axis=1)
             #if df['DISCHARGE_DATE_OLD'].dtype != np.object:
             df['DISCHARGE_DATE_OLD'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE_OLD'], dateformat), axis=1)
@@ -155,13 +157,14 @@ class GeneratePreprocessedData:
             df['TBY_REFER_LIM_DISCHARGE_TIME'] = df.apply(lambda x: convert_to_string(x['TBY_REFER_LIM_DISCHARGE_TIME'], timeformat), axis=1)
             # if df['TBY_REFER_LIM_ADMISSION_TIME'].dtype != np.object:
             df['TBY_REFER_LIM_ADMISSION_TIME'] = df.apply(lambda x: convert_to_string(x['TBY_REFER_LIM_ADMISSION_TIME'], timeformat), axis=1)
-            df['CT_TIME'] = df.apply(lambda x: convert_to_string(x['CT_TIME'], timeformat), axis=1)
+            #df['CT_TIME'] = df.apply(lambda x: convert_to_string(x['CT_TIME'], timeformat), axis=1)
         else:
             df['HOSPITAL_DATE'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE'], dateformat), axis=1)
-            df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], dateformat), axis=1)
-
-        df.fillna(value="", inplace=True)
-
+            #df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], dateformat), axis=1)
+        
+        #df.fillna(value="", inplace=True)
+        df = df.replace(np.nan, '', regex=True)
+        
         workbook = xlsxwriter.Workbook(output_file)
         logging.info('Preprocessed data: The workbook was created.')
         preprocessed_data_sheet = workbook.add_worksheet('Preprocessed_raw_data')

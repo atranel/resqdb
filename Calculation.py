@@ -102,7 +102,7 @@ class ComputeStats:
     """
 
 
-    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=0):
+    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=30):
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
@@ -124,21 +124,25 @@ class ComputeStats:
 
             return country_name
 
-        if comparison == False:
-            self.df['Protocol ID'] = self.df.apply(lambda row: row['Protocol ID'].split()[2] if (len(row['Protocol ID'].split()) == 3) else row['Protocol ID'].split()[0], axis=1)
+        #if comparison == False:
+            #self.df['Protocol ID'] = self.df.apply(lambda row: row['Protocol ID'].split()[2] if (len(row['Protocol ID'].split()) == 3) else row['Protocol ID'].split()[0], axis=1)
             # uncomment if you want stats between countries and set comparison == True
             # self.df['Protocol ID'] = self.df.apply(lambda x: x['Protocol ID'].split("_")[0], axis=1)
 
         # If you want to compare, instead of Site Names will be Country names. 
         if comparison:
-            if self.df['Protocol ID'].dtype == np.object:
-                self.df['Site Name'] = self.df.apply(lambda x: get_country_name(x['Protocol ID']) if get_country_name(x['Protocol ID']) != "" else x['Protocol ID'], axis=1)
+            self.df['Protocol ID'] = self.df['Country']
+            self.df['Site Name'] = self.df['Country']
+            #if self.df['Protocol ID'].dtype == np.object:
+                #self.df['Site Name'] = self.df.apply(lambda x: get_country_name(x['Protocol ID']) if get_country_name(x['Protocol ID']) != "" else x['Protocol ID'], axis=1)
         
         if (country):
             country = self.df.copy()
-            self.country_name = pytz.country_names[country_code]
-            country['Protocol ID'] = self.country_name
-            country['Site Name'] = self.country_name
+            #self.country_name = pytz.country_names[country_code]
+           # country['Protocol ID'] = self.country_name
+            #country['Site Name'] = self.country_name
+            country['Protocol ID'] = country['Country']
+            country['Site Name'] = country['Country']
             self.df = pd.concat([self.df, country])
         else:
             self.country_name = ""
@@ -336,7 +340,6 @@ class ComputeStats:
         #########
         # Seperate calculation for CZ 
         if country_code == 'CZ':
-            print('Country code {0}!'.format(country_code))
             self.tmp = is_ich.groupby(['Protocol ID', 'NIHSS']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=1, new_column_name='# NIHSS - Not performed')
             self.statsDf['% NIHSS - Not performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not performed']/x['is_ich_patients']) * 100), 2) if x['is_ich_patients'] > 0 else 0, axis=1)
@@ -470,7 +473,6 @@ class ComputeStats:
 
             self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
 
-        
         ##############
         # MEDIAN DTN #
         ##############
@@ -925,6 +927,7 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="AFIB_OTHER_RECS", value=2, new_column_name='# other afib detection method - Not detected or not known')
         self.statsDf['% other afib detection method - Not detected or not known'] = self.statsDf.apply(lambda x: round(((x['# other afib detection method - Not detected or not known']/x['afib_not_detected_or_not_known_patients']) * 100), 2) if x['afib_not_detected_or_not_known_patients'] > 0 else 0, axis=1)
 
+        
         ############################
         # CAROTID ARTERIES IMAGING #
         ############################
@@ -1176,7 +1179,8 @@ class ComputeStats:
         self.statsDf['recommended_antithrombotics_with_afib_alive_patients'] = self._count_patients(dataframe=recommended_antithrombotics_with_afib_alive)
 
         self.statsDf['% patients prescribed antithrombotics with aFib'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics with aFib']/(x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients'])) * 100), 2) if (x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients']) > 0 else 0, axis=1)
-        
+    
+
         ###########
         # STATINS #
         ###########
@@ -1441,6 +1445,7 @@ class ComputeStats:
 
         self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
 
+
         ################
         # ANGEL AWARDS #
         ################
@@ -1596,6 +1601,8 @@ class ComputeStats:
 
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
 
+        self.statsDf.drop_duplicates(inplace=True)
+        
         self.sites = self._get_sites(self.statsDf)
 
     def _get_final_award(self, x):

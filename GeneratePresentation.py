@@ -108,7 +108,10 @@ class GeneratePresentation:
         shape = first_slide.shapes[5]
         text_frame = shape.text_frame
 
-        first_slide_text = self.country_name + "\nData Summary"
+        if self.country_name is None:
+            first_slide_text = "Data Summary"
+        else:
+            first_slide_text = self.country_name + "\nData Summary"
         #first_slide_text = "\nData Summary"
 
         p = text_frame.paragraphs[0]
@@ -868,7 +871,10 @@ class GeneratePresentation:
 
         # set pptx output name (for cz it'll be presentation_CZ.pptx)
         working_dir = os.getcwd()
-        pptx = self.report + "_" + site_code + "_" + self.quarter + ".pptx"
+        if site_code is None:
+            pptx = self.report + "_" + self.quarter + ".pptx"
+        else:
+            pptx = self.report + "_" + site_code + "_" + self.quarter + ".pptx"
         presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
         prs.save(presentation_path)

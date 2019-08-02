@@ -33,7 +33,7 @@ class Connection():
         start = time.time()
 
         # Create log file in the working folder
-        debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
+        debug = 'debug_' + datetime.datetime.now().strftime('%d-%m-%Y') + '.log' 
         log_file = os.path.join(os.getcwd(), debug)
         logging.basicConfig(filename=log_file,
                             filemode='a',
@@ -290,7 +290,6 @@ class Connection():
             df.rename(columns={'fabry_cs': 'fabry_en'}, inplace=True)
             # If CRF is v1.2 replace BLEEDING REASON with -999
             df['bleeding_reason_en'] = df.apply(lambda x: -999 if "RESQV12" in x['oc_oid'] else x['bleeding_reason_en'], axis=1)
-
             # If CRF is v1.2 replace INTERVENTION with -999
             df['intervention_en'] = df.apply(lambda x: -999 if "RESQV12" in x['oc_oid'] else x['intervention_en'], axis=1)
             # If CRF is v1.2 replace RECURRENT_STROKE value with -999
@@ -392,6 +391,7 @@ class Connection():
             df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
             df.rename(columns={'ANTITHROMBOTICS': 'ANTITHROMBOTICS_TMP', 'GLUCOSE': 'GLUCOSE_OLD'}, inplace=True)
 
+            # Create columns for admission time using hospital times (to keep previous calculation and setting)
             df['IVT_ONLY_ADMISSION_TIME'] = df.apply(lambda x: x['HOSPITAL_TIME'] if x['IVT_ONLY'] == 2 else None, axis=1)
             df['IVT_TBY_ADMISSION_TIME'] = df.apply(lambda x: x['HOSPITAL_TIME'] if x['IVT_TBY'] == 2 else None, axis=1)
             df['IVT_TBY_REFER_ADMISSION_TIME'] = df.apply(lambda x: x['HOSPITAL_TIME'] if x['IVT_TBY_REFER'] == 2 else None, axis=1)
@@ -410,9 +410,10 @@ class Connection():
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([4]), 'ASSESSED_FOR_REHAB'] = 2
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([5]), 'ASSESSED_FOR_REHAB'] = 3
 
+            # Fix glucose to be consistent (they are using . or , and sometimes also unknown)
             df['GLUCOSE'] = df.apply(lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
 
-            # Rename CT_MRI column to CT_MRI_OLD
+            # Rename CT_MRI column to CT_MRI_OLD and CT_TIME to CT_TIME_OLD
             df.rename(columns={'CT_MRI': 'CT_MRI_OLD', 'CT_TIME': 'CT_TIME_OLD'}, inplace=True)
             # Get ischemic patients from IVT/TBY form
             ischemic_pts = df[df['STROKE_TYPE'].isin([1])].copy()
@@ -427,7 +428,7 @@ class Connection():
             other_pts.rename(columns={'CT_MRI_OTHER': 'CT_MRI', 'CT_TIME_OTHER': 'CT_TIME'}, inplace=True)
             # Switch values for CT_MRI
             other_pts['CT_MRI'] = other_pts['CT_MRI'].replace({1: 2, 2: 1})
-            # If for times were selected option 3 and 4 change it to 2 (done after 1 hour)
+            # If for times were selected option 2, 3 and 4 change it to 2 (done after 1 hour)
             other_pts['CT_TIME'] = other_pts['CT_TIME'].replace({3: 2, 4: 2})
 
             df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)

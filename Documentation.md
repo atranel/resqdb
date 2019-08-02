@@ -13,3 +13,5 @@ sphinx-apidoc -f -o source/ ../
 make html
 ```
 This command will regenerate documentation in the html format. 
+
+
