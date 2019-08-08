@@ -1613,7 +1613,7 @@ class ComputeStats:
         :returns: award -- the proposed award
         """
         if x[self.total_patient_column] == False:
-            award = "NONE"
+            award = "STROKEREADY"
         else:
             award = "TRUE"
 
@@ -1627,11 +1627,11 @@ class ComputeStats:
             elif (float(thrombolysis_therapy_lt_60min) >= 75):
                 award = "DIAMOND"
             else: 
-                award = "NONE"
+                award = "STROKEREADY"
 
         thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
 
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(thrombolysis_therapy_lt_45min) <= 49.99):
                 if (award != "GOLD" or award == "DIAMOND"):
                     award = "PLATINUM"
@@ -1639,13 +1639,13 @@ class ComputeStats:
                 if (award != "GOLD"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
         thrombectomy_pts = x['# patients eligible thrombectomy']
         if thrombectomy_pts != 0:
             thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
-            if award != "NONE":
+            if award != "STROKEREADY":
                 if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
                     if (award == "PLATINUM" or award == "DIAMOND"):
                         award = "GOLD"
@@ -1653,10 +1653,10 @@ class ComputeStats:
                     if (award == "DIAMOND"):
                         award = "DIAMOND"
                 else: 
-                    award = "NONE"
+                    award = "STROKEREADY"
 
             thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
-            if award != "NONE":
+            if award != "STROKEREADY":
                 if (float(thrombectomy_therapy_lt_90min) <= 49.99):
                     if (award != "GOLD" or award == "DIAMOND"):
                         award = "PLATINUM"
@@ -1664,7 +1664,7 @@ class ComputeStats:
                     if (award == "DIAMOND"):
                         award = "DIAMOND"
                 else:
-                    award = "NONE"
+                    award = "STROKEREADY"
 
         '''
         recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
@@ -1674,10 +1674,10 @@ class ComputeStats:
             elif (float(recan_therapy_lt_60min) >= 75):
                 proposed_award = "DIAMOND"
             else: 
-                proposed_award = "NONE"
+                proposed_award = "STROKEREADY"
 
         recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
-        if proposed_award != "NONE":
+        if proposed_award != "STROKEREADY":
             if (float(recan_therapy_lt_45min) <= 49.99):
                 if (proposed_award != "GOLD" or proposed_award == "DIAMOND"):
                     proposed_award = "PLATINUM"
@@ -1685,11 +1685,11 @@ class ComputeStats:
                 if (proposed_award != "GOLD"):
                     proposed_award = "DIAMOND"
             else:
-                proposed_award = "NONE"
+                proposed_award = "STROKEREADY"
         '''
 
         recan_rate = x['% recanalization rate out of total ischemic incidence']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
                 if (award == "PLATINUM" or award == "DIAMOND"):
                     award = "GOLD"
@@ -1700,10 +1700,10 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         ct_mri = x['% suspected stroke patients undergoing CT/MRI']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
                 if (award == "PLATINUM" or award == "DIAMOND"):
                     award = "GOLD"
@@ -1714,10 +1714,10 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
                 if (award == "PLATINUM" or award == "DIAMOND"):
                     award = "GOLD"
@@ -1728,10 +1728,10 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
                 if (award == "PLATINUM" or award == "DIAMOND"):
                     award = "GOLD"
@@ -1742,10 +1742,10 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
                 if (award == "PLATINUM" or award == "DIAMOND"):
                     award = "GOLD"
@@ -1756,10 +1756,10 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU']
-        if award != "NONE":
+        if award != "STROKEREADY":
             if (float(stroke_unit) <= 0.99):
                 if (award == "DIAMOND"):
                     award = "PLATINUM"
@@ -1767,7 +1767,7 @@ class ComputeStats:
                 if (award == "DIAMOND"):
                     award = "DIAMOND"
             else:
-                award = "NONE"
+                award = "STROKEREADY"
 
         return award
 

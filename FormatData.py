@@ -622,7 +622,7 @@ class GenerateFormattedAngelsAwards:
                 cell_n = column + str(row)
                 worksheet.conditional_format(cell_n, {'type': 'text',
                                                     'criteria': 'containing',
-                                                    'value': 'NONE',
+                                                    'value': 'STROKEREADY',
                                                     'format': green})
 
                 worksheet.conditional_format(cell_n, {'type': 'text',
@@ -2159,7 +2159,7 @@ class GenerateFormattedStats:
                     cell_n = column + str(row)
                     worksheet.conditional_format(cell_n, {'type': 'text',
                                                         'criteria': 'containing',
-                                                        'value': 'NONE',
+                                                        'value': 'STROKEREADY',
                                                         'format': green})
 
                     worksheet.conditional_format(cell_n, {'type': 'text',
