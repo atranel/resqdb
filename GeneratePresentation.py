@@ -65,9 +65,7 @@ class GeneratePresentation:
 
         # If country is used as site, the country name is selected from countries dictionary by country code. :) 
         if (country):
-            if country_code == 'UZB':
-                country_code = 'UZ'
-            self.country_name = select_country(self.country_code)
+            self.country_name = self.df['Country'].iloc[0]
         else:
             self.country_name = None
 
