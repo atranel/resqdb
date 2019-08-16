@@ -41,7 +41,7 @@ class GeneratePreprocessedData:
     :type csv: bool
     """
 
-    def __init__(self, df, split_sites=False, site=None, report=None, quarter=None, country_code=None, csv=False):
+    def __init__(self, df, split_sites=False, site=None, report=None, quarter=None, country_code=None, csv=False, country_name=None):
 
         debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
         log_file = os.path.join(os.getcwd(), debug)
@@ -51,7 +51,7 @@ class GeneratePreprocessedData:
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-        self.df = df
+        self.df = df.copy()
         self.split_sites = split_sites
         self.report = report
         self.quarter = quarter
@@ -678,10 +678,10 @@ class GenerateFormattedStats:
     :type minimum_patients: int
     """
 
-    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=30, seperated_recan=True):
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, comp=False, minimum_patients=30, seperated_recan=True, country_name=None):
 
-        self.df_unformatted = df.copy()
-        self.df = df.copy()
+        self.df_unformatted = df.drop_duplicates(subset=['Site ID', 'Total Patients'], keep='first')
+        self.df = df.drop_duplicates(subset=['Site ID', 'Total Patients'], keep='first')
         self.country_code = country_code
         self.report = report
         self.quarter = quarter
@@ -708,9 +708,11 @@ class GenerateFormattedStats:
 
         # If country is used as site, the country name is selected from countries dictionary by country code. :) 
         if (country):
-            self.country_name = self.df['Country'].iloc[0]
+            self.country_name = country_name
         else:
-            self.country_name = None
+            self.country_name = country_name
+
+        print(country_name)
 
         # If split_sites is True, then go through dataframe and generate graphs for each site (the country will be included as site in each file).
         site_ids = self.df['Site ID'].tolist()

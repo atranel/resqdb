@@ -144,8 +144,9 @@ class ComputeStats:
             country['Protocol ID'] = country['Country']
             country['Site Name'] = country['Country']
             self.df = pd.concat([self.df, country])
+            self._country_name = country['Country'].iloc[0]
         else:
-            self.country_name = ""
+            self._country_name = ""
         
         self.statsDf = self.df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")
         # self.statsDf['Site Name'] = 
@@ -1945,6 +1946,11 @@ class ComputeStats:
         site_list = list(set(site_ids))
 
         return site_list
+
+    @property
+    def country_name(self):
+        return self._country_name
+
 
 
 

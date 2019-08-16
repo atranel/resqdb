@@ -40,9 +40,9 @@ class GeneratePresentation:
     :type quarter: str
     """
 
-    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None):
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, country_name=None):
 
-        self.df = df
+        self.df = df.drop_duplicates(subset=['Site ID', 'Total Patients'], keep='first')
         self.country_code = country_code
         self.report = report
         self.quarter = quarter
@@ -65,9 +65,9 @@ class GeneratePresentation:
 
         # If country is used as site, the country name is selected from countries dictionary by country code. :) 
         if (country):
-            self.country_name = self.df['Country'].iloc[0]
+            self.country_name = country_name
         else:
-            self.country_name = None
+            self.country_name = country_name
 
         # If split_sites is True, then go through dataframe and generate graphs for each site (the country will be included as site in each file).
         site_ids = self.df['Site ID'].tolist()
@@ -85,6 +85,7 @@ class GeneratePresentation:
         if (split_sites) and site is None:
             for i in site_ids:
                 df = self.df[self.df['Site ID'].isin([i, self.country_name])].copy()
+                print(i)
                 self._generate_graphs(df=df, site_code=i)
     
         # Produce formatted statistics for all sites + country as site
