@@ -628,7 +628,7 @@ class GeneratePresentation(Reports):
                 shape = first_slide.shapes[5]
                 text_frame = shape.text_frame
 
-                first_slide_text = self.country_name + "\nReports"
+                first_slide_text = self.country_name + "\nReports\n"
 
                 p = text_frame.paragraphs[0]
                 run = p.add_run()
@@ -637,6 +637,19 @@ class GeneratePresentation(Reports):
                 font = run.font
                 font.name = 'Century Gothic'
                 font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                text_frame_sub = shape.text_frame
+
+                text_month = date(1900, self.month, 1).strftime('%B') + ' ' + str(self.year)
+
+                p = text_frame_sub.paragraphs[0]
+                run = p.add_run()
+                run.text = text_month
+
+                font = run.font
+                font.name = 'Century Gothic'
+                font.size = Pt(18)
                 font.color.rgb = RGBColor(250,250,250)
 
                 main_col = 'Site Name'
@@ -829,7 +842,8 @@ class GeneratePresentation(Reports):
 
                 # set pptx output name (for cz it'll be presentation_CZ.pptx)
                 working_dir = os.getcwd()
-                pptx = self.country + "_" + str(self.year) + ".pptx"
+                pptx = str(self.year) + "_RES-Q_report.pptx"
+                #pptx = self.country + "_" + str(self.year) + ".pptx"
                 presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
                 prs.save(presentation_path)
@@ -851,7 +865,7 @@ class GeneratePresentation(Reports):
                 shape = first_slide.shapes[5]
                 text_frame = shape.text_frame
 
-                first_slide_text = self.country_name + "\nReports"
+                first_slide_text = self.country_name + "\nReports\n"
 
                 p = text_frame.paragraphs[0]
                 run = p.add_run()
@@ -860,6 +874,19 @@ class GeneratePresentation(Reports):
                 font = run.font
                 font.name = 'Century Gothic'
                 font.size = Pt(24)
+                font.color.rgb = RGBColor(250,250,250)
+
+                text_frame_sub = shape.text_frame
+
+                text_month = date(1900, self.month, 1).strftime('%B') + ' ' + str(self.year)
+
+                p = text_frame_sub.paragraphs[0]
+                run = p.add_run()
+                run.text = text_month
+
+                font = run.font
+                font.name = 'Century Gothic'
+                font.size = Pt(18)
                 font.color.rgb = RGBColor(250,250,250)
 
                 main_col = 'Site Name'
@@ -1005,7 +1032,12 @@ class GeneratePresentation(Reports):
 
                 # set pptx output name (for cz it'll be presentation_CZ.pptx)
                 working_dir = os.getcwd()
-                pptx = self.country + "_" + month_name + ".pptx"
+                if self.month < 10:
+                    month = '0' + str(self.month)
+                else:
+                    month = str(self.month)
+                pptx = str(self.year) + "_" + month + "_RES-Q_report.pptx"
+                #pptx = self.country + "_" + month_name + ".pptx"
                 presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
                 prs.save(presentation_path)  
