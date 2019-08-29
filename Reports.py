@@ -641,7 +641,16 @@ class GeneratePresentation(Reports):
 
                 text_frame_sub = shape.text_frame
 
-                text_month = date(1900, self.month, 1).strftime('%B') + ' ' + str(self.year)
+                first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
+                if self.month != 1:
+                    last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                else:
+                    last_month = ""
+
+                if self.month == 1:
+                    text_month = " ".join([first_month, str(self.year)])
+                else:
+                    text_month = first_month + " - " + last_month + "\n" + str(self.year)
 
                 p = text_frame_sub.paragraphs[0]
                 run = p.add_run()
@@ -653,8 +662,7 @@ class GeneratePresentation(Reports):
                 font.color.rgb = RGBColor(250,250,250)
 
                 main_col = 'Site Name'
-                first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
-                last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                
 
                 thrombolysis_stats_df = dictfilt(self.thrombolysis_stats_df, wanted_keys)
                 statistic_region_dfs = dictfilt(self.statistic_region_dfs, wanted_keys)
@@ -673,7 +681,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián door-to-needle time pro intravenózní trombolýzu - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Medián door-to-needle time pro intravenózní trombolýzu - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Medián door-to-needle time pro intravenózní trombolýzu - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Medián door-to-needle time pro intravenózní trombolýzu - " + month_name + " " + str(self.year)
@@ -688,7 +699,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
                     
                     if name == str(self.year):
-                        title = "Počet IVT na IC/KCC - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Počet IVT na IC/KCC - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Počet IVT na IC/KCC - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Počet IVT na IC/KCC - " + month_name + " " + str(self.year)
@@ -706,7 +720,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Medián viděn naposledy zdráv (=začátek symptomů) - příjezd do nemocnice - " + month_name + " " + str(self.year)
@@ -719,7 +736,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df.sort_values([column_name], ascending=True)
 
                     if name == str(self.year):
-                        title = "Počet IVT provedených v jednotlivých krajích - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Počet IVT provedených v jednotlivých krajích - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Počet IVT provedených v jednotlivých krajích - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Počet IVT provedených v jednotlivých krajích - " + month_name + " " + str(self.year)
@@ -732,7 +752,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df.sort_values([column_name], ascending=True)
 
                     if name == str(self.year):
-                        title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + first_month + " " + str(self.year)
+                        else:   
+                            title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Počet IVT na 100 000 obyvatel jednotlivých krajů - " + month_name + " " + str(self.year)
@@ -747,7 +770,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
                     
                     if name == str(self.year):
-                        title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + first_month + " " + str(self.year)
+                        else:
+                            title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + month_name + " " + str(self.year)
@@ -766,7 +792,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián door-to-groin time - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Medián door-to-groin time - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Medián door-to-groin time - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Medián door-to-groin time - " + month_name + " " + str(self.year)
@@ -786,7 +815,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Medián door-to-groin time - Primární příjem k intervenci MT - " + month_name + " " + str(self.year)
@@ -805,7 +837,10 @@ class GeneratePresentation(Reports):
                     tmp_df = tmp_df_zeros.append(tmp_df_not_zeros, ignore_index=False, sort=False)
                     
                     if name == str(self.year):
-                        title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + month_name + " " + str(self.year)
@@ -819,7 +854,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
                     
                     if name == str(self.year):
-                        title = "Počet MT na nemocnici - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "Počet MT na nemocnici - " + first_month + " " + str(self.year)
+                        else:
+                            title = "Počet MT na nemocnici - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
@@ -833,7 +871,10 @@ class GeneratePresentation(Reports):
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=False)
                     
                     if name == str(self.year):
-                        title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + first_month + "-" + last_month + " " + str(self.year)
+                        if last_month == "":
+                            title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + first_month + " " + str(self.year)
+                        else:
+                            title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + first_month + "-" + last_month + " " + str(self.year)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
                         title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
@@ -842,7 +883,14 @@ class GeneratePresentation(Reports):
 
                 # set pptx output name (for cz it'll be presentation_CZ.pptx)
                 working_dir = os.getcwd()
-                pptx = str(self.year) + "_RES-Q_report.pptx"
+                if self.month == 1:
+                    pptx = str(self.year) + "_RES-Q_report.pptx"
+                else:
+                    if self.month < 10:
+                        month = "0" + str(self.month)
+                    else:
+                        month = str(self.month)
+                    pptx = str(self.year) + "_01_" + month + "_RES-Q_report.pptx"
                 #pptx = self.country + "_" + str(self.year) + ".pptx"
                 presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 

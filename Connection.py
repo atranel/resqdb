@@ -85,9 +85,9 @@ class Connection():
         # Check which data should be exported
         if data == 'resq':
             # Create empty dictionary
-            self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from resq_ivttby_mix']
+            self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from thailand', 'SELECT * from resq_ivttby_mix']
             # List of dataframe names
-            self.names = ['resq', 'ivttby']
+            self.names = ['resq', 'ivttby', 'thailand']
         elif data == 'atalaia': 
             self.sqls = ['SELECT * from atalaia_mix']
             self.names = []
@@ -168,7 +168,6 @@ class Connection():
                     self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
                     logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!.".format(self.names[i]))
 
-                
                 subject_ids = self.df['Subject ID'].tolist()
                 duplicates = [item for item, count in collections.Counter(subject_ids).items() if count > 1]
 
@@ -440,6 +439,57 @@ class Connection():
 
             self.dict_df[name] = df
 
+        elif 'thailand' in name:
+            
+            # Get only columns ending with _en
+            cols = ['site_id', 'facility_name', 'label', 'door_to_groin', 'door_to_needle']
+            cols.extend([c for c in df.columns if c.endswith('_cz')])
+
+            df = df[cols].copy()
+            # Remove _en suffix from column names
+            cols = df.columns
+            suffix = "_cz"
+            new_cols = []
+            for c in cols:
+                if c.endswith(suffix):
+                    new_cols.append(c[:len(c)-len(suffix)].upper())
+                elif c == 'site_id':
+                    new_cols.append('Protocol ID')
+                elif c == "facility_name":
+                    new_cols.append('Site Name')
+                elif c == "label":
+                    new_cols.append('Subject ID')
+                elif c == "oc_oid":
+                    new_cols.append('crf_parent_name')
+                elif c == "door_to_groin" or c == "door_to_needle":
+                    new_cols.append(c.upper())
+                else:
+                    new_cols.append(c)
+            
+            df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
+
+            df.loc[df['RECANALIZATION_PROCEDURES'] == 2, 'IVT_ONLY'] = 1
+            df.loc[df['IVT_ONLY'] == 1, 'IVT_ONLY_NEEDLE_TIME'] = df['DOOR_TO_NEEDLE']
+
+            df.loc[df['RECANALIZATION_PROCEDURES'] == 3, 'IVT_TBY'] = 1
+            df.loc[df['IVT_TBY'] == 1, 'IVT_TBY_NEEDLE_TIME'] = df['DOOR_TO_NEEDLE']
+            df.loc[df['IVT_TBY'] == 1, 'IVT_TBY_GROIN_TIME'] = df['DOOR_TO_GROIN']
+
+            df.loc[df['RECANALIZATION_PROCEDURES'] == 4, 'TBY_ONLY'] = 1
+            df.loc[df['TBY_ONLY'] ==1, 'TBY_ONLY_GROIN_PUNCTURE_TIME'] = df['DOOR_TO_GROIN']
+
+            df.loc[df['RECANALIZATION_PROCEDURES'] == 5, 'IVT_TBY_REFER'] = 1
+            df.loc[df['IVT_TBY_REFER'] == 1, 'IVT_TBY_REFER_NEEDLE_TIME'] = df['DOOR_TO_NEEDLE']
+
+            df['CAROTID_STENOSIS'] = pd.to_numeric(df['CAROTID_STENOSIS'])
+            df['ANTIHYPERTENSIVE'] = pd.to_numeric(df['ANTIHYPERTENSIVE'])
+
+            # Create country column
+            df['Country'] = 'Thailand'
+
+            logging.info("Connection: Column names in Thailand were changed successfully.")
+
+            self.dict_df[name] = df
 
     def _get_tmp_antithrombotics(self, col_vals, afib):
         """ The function converting the value for antitrombotics from IVT/TBY form to RES-Q v2.0. 

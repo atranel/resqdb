@@ -1216,6 +1216,7 @@ class ComputeStats:
         # CAROTID STENOSIS #
         ####################
         self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_STENOSIS']).size().to_frame('count').reset_index()
+        print(self.tmp)
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS", value=1, new_column_name='# carotid stenosis - 50%-70%')
         self.statsDf['% carotid stenosis - 50%-70%'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis - 50%-70%']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
