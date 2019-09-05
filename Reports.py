@@ -1141,7 +1141,7 @@ class GenerateGraphs:
 
         # Estimate font sizes based on number of sites included in the graph
         if (len(self.dataframe) > 15):
-            self.category_font_size = Pt(8)
+            self.category_font_size = Pt(10)
             self.data_label_font_size = Pt(8)
         else:
             self.category_font_size = Pt(11)
@@ -1187,7 +1187,7 @@ class GenerateGraphs:
         # Add textbox explanation
         if self.content is not None:
             len_df = len(self.dataframe[self.dataframe[self.column_name] > 0])
-            if len_df < 13:
+            if len_df < 12:
                 left = Cm(24.7)
                 top = Cm(12)
                 width = Cm(8)
@@ -1210,7 +1210,7 @@ class GenerateGraphs:
                 paragraph.line_spacing = Pt(18)
                 paragraph.alignment = PP_ALIGN.CENTER
                 for run in paragraph.runs:
-                    run.font.size = Pt(9)
+                    run.font.size = Pt(10.5)
                     run.font.name = self.font_name
 
         chart_data = ChartData()

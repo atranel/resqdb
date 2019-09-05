@@ -949,6 +949,7 @@ class ComputeStats:
         # Create dataframe with dead patients excluded
         antithrombotics_with_cvt = is_tia_cvt[~is_tia_cvt['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['antithrombotics_patients_with_cvt'] = self._count_patients(dataframe=antithrombotics_with_cvt)
+        
         ischemic_transient_cerebral_dead = is_tia_cvt[is_tia_cvt['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['ischemic_transient_cerebral_dead_patients'] = self._count_patients(dataframe=ischemic_transient_cerebral_dead)
         self.tmp = antithrombotics_with_cvt.groupby(['Protocol ID', 'ANTITHROMBOTICS']).size().to_frame('count').reset_index()
