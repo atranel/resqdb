@@ -399,6 +399,7 @@ class Reports:
 
                 incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
+                incorrect_tby_times.to_csv('incorrect_tby_times.csv', sep=',')
 
 
                 included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
