@@ -1217,7 +1217,6 @@ class ComputeStats:
         # CAROTID STENOSIS #
         ####################
         self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_STENOSIS']).size().to_frame('count').reset_index()
-        print(self.tmp)
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS", value=1, new_column_name='# carotid stenosis - 50%-70%')
         self.statsDf['% carotid stenosis - 50%-70%'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis - 50%-70%']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
@@ -1374,7 +1373,7 @@ class ComputeStats:
         tmp_o3 = discharge_subset_another_centre.groupby(['Protocol ID', 'DISCHARGE_OTHER_FACILITY_O3']).size().to_frame('count').reset_index()
 
         # Calculate number of patients entered to the old form
-        self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_OTHER_FACILITY_O1", value=-999, new_column_name='tmp')
+        self.statsDf.loc[:, 'tmp'] = 0
 
         self.statsDf['# department transferred to within another centre - Acute rehabilitation'] = self._get_values_only_columns(column_name="DISCHARGE_OTHER_FACILITY_O1", value=1, dataframe=self.tmp) + self._get_values_only_columns(column_name="DISCHARGE_OTHER_FACILITY_O2", value=1, dataframe=tmp_o2) + self._get_values_only_columns(column_name="DISCHARGE_OTHER_FACILITY_O3", value=1, dataframe=tmp_o3)
         self.statsDf['% department transferred to within another centre - Acute rehabilitation'] = self.statsDf.apply(lambda x: round(((x['# department transferred to within another centre - Acute rehabilitation']/(x['discharge_subset_another_centre_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_another_centre_patients'] - x['tmp']) > 0 else 0, axis=1)
