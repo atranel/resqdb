@@ -134,11 +134,12 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
+        #title = 'TOTAL PATIENTS'
+        
         country_patients = str(max(tmp_df[column_name].tolist()))
         title = 'TOTAL PATIENTS (n = {})'.format(country_patients)
         if self.country_name is not None:
             tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
-
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
         ##########################
@@ -614,7 +615,8 @@ class GeneratePresentation:
         ##################################################
         # % PATIENTS PRESCRIBED ANTICOAGULANTS WITH AFIB #
         ##################################################
-        column_name = '% patients prescribed anticoagulants with aFib'
+        #column_name = '% patients prescribed anticoagulants with aFib'
+        column_name = '% afib patients discharged with anticoagulants'
 
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)

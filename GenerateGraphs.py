@@ -245,7 +245,8 @@ class GenerateGraphs:
             1: RGBColor(237, 125, 49), # orange
             2: RGBColor(165, 165, 165), # gray
             3: RGBColor(255, 192, 0), # yellow
-            4: RGBColor(59, 100, 173), # blue
+            #4: RGBColor(59, 100, 173), # blue
+            4: RGBColor(136, 106, 159),
             5: RGBColor(98, 153, 62), # green
             6: RGBColor(151, 185, 224), # light blue
             7: RGBColor(241, 167, 138), # beige       
