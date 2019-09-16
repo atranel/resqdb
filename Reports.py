@@ -318,7 +318,8 @@ class Reports:
                 incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True]
 
                 statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
-                
+                incorrect_ivtpa_times.to_csv('incorrect_ivtpa_times.csv', sep=',')
+
                 thrombolysis = thrombolysis_df[(thrombolysis_df['IVTPA'] > 0) & (thrombolysis_df['IVTPA'] < 400)].copy()
 
                 if thrombolysis.empty:
@@ -389,8 +390,8 @@ class Reports:
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 # Add also if tby_refer_all and tby_refer_lim has been selected, but also version of ivt/tby form has to be checked
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_REFER_ALL_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 7 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_REFER_LIM_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 8 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_REFER_ALL_ADMISSION_TIME'], x['TBY_REFER_ALL_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 7 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_REFER_LIM_ADMISSION_TIME'], x['TBY_REFER_LIM_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 8 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
