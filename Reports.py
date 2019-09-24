@@ -366,13 +366,26 @@ class Reports:
 
         # Iterate through filtered dataframes
         for name, df in self.filtered_dfs.items():
+
+            first_hosp_mapping = {
+                'CZ_004': 'Municipal Hospital Ostrava - Neurologické oddělení',
+                'CZ_024': 'Krajská zdravotní, a.s. - Nemocnice Chomutov, o.z.',
+                'CZ_025': 'Faculty Hospital Plzen',
+                'CZ_026': 'Hospital Teplice',
+                'CZ_041': 'Central military hospital - Praha 6'
+            }
             
             # Calculate IVtPa median
             # thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
-            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, False) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
+            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
             df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else (x['TBY_DONE'], True), axis=1))
             df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
+            df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
             
+            df['FIRST_HOSPITAL'] = df.apply(lambda x: 1 if (x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] in first_hosp_mapping.keys() and (x['FIRST_ARRIVAL_HOSP'] == 'unknown' or x['FIRST_ARRIVAL_HOSP'] == first_hosp_mapping[x['Protocol ID']])) else x['FIRST_HOSPITAL'], axis=1)
+
+            df['FIRST_HOSPITAL'] = df.apply(lambda x: 2 if (x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] in first_hosp_mapping.keys() and (x['FIRST_ARRIVAL_HOSP'] != 'unknown' or x['FIRST_ARRIVAL_HOSP'] != first_hosp_mapping[x['Protocol ID']])) else x['FIRST_HOSPITAL'], axis=1)
+
             thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['TBY_DONE'].isin([1]) & df['STROKE_TYPE'].isin([1])].copy()
             thrombectomy_df.fillna(0, inplace=True)
             statistic = self.site_id_mapped_to_site_name.copy()
