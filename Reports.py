@@ -19,9 +19,6 @@ from scipy.stats import sem, t
 from scipy import mean
 from resqdb.Calculation import FilterDataset
 from pptx import Presentation
-from pptx.util import Cm, Pt, Inches
-from pptx.dml.color import RGBColor
-from pptx import Presentation
 from pptx.chart.data import CategoryChartData, ChartData
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.chart import XL_CHART_TYPE, XL_TICK_MARK, XL_TICK_LABEL_POSITION, XL_LEGEND_POSITION, XL_LABEL_POSITION
@@ -377,9 +374,12 @@ class Reports:
             
             # Calculate IVtPa median
             # thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
+            
             df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
+
             df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else (x['TBY_DONE'], True), axis=1))
             df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
+
             df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
             
             df['FIRST_HOSPITAL'] = df.apply(lambda x: 1 if (x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] in first_hosp_mapping.keys() and (x['FIRST_ARRIVAL_HOSP'] == 'unknown' or x['FIRST_ARRIVAL_HOSP'] == first_hosp_mapping[x['Protocol ID']])) else x['FIRST_HOSPITAL'], axis=1)
@@ -493,8 +493,8 @@ class Reports:
                 region_total_patients['# IVT per population'] = 0
             else:
                 # Get results per region
-                ischemic_cmp['Site Name'] = ischemic_cmp.apply(lambda x: self.get_region(x['Protocol ID']), axis=1)
-                total_patients =  ischemic_cmp.groupby(['Site Name']).size().reset_index(name='Total patients')
+                thrombolysis['Site Name'] = thrombolysis.apply(lambda x: self.get_region(x['Protocol ID']), axis=1)
+                total_patients =  thrombolysis.groupby(['Site Name']).size().reset_index(name='Total patients')
                 region_total_patients = region_total_patients.merge(total_patients, on='Site Name', how='outer')
                 region_total_patients.fillna(0, inplace=True)
 
@@ -715,15 +715,17 @@ class GeneratePresentation(Reports):
                     column_name = '# IVT'
                     axis_title = 'Počet trombolýz'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+
+                    total_pts = sum(tmp_df[column_name].tolist())
                     
                     if name == str(self.year):
                         if last_month == "":
-                            title = "Počet IVT na IC/KCC - " + first_month + " " + str(self.year)
+                            title = "Počet IVT na IC/KCC - {} {} (n={})".format(first_month, self.year, total_pts) 
                         else:
-                            title = "Počet IVT na IC/KCC - " + first_month + "-" + last_month + " " + str(self.year)
+                            title = "Počet IVT na IC/KCC - {}-{} {} (n={})".format(first_month, last_month, self.year, total_pts) 
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
-                        title = "Počet IVT na IC/KCC - " + month_name + " " + str(self.year)
+                        title = "Počet IVT na IC/KCC - {} {} (n={})".format(month_name, self.year, total_pts) 
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
@@ -753,14 +755,16 @@ class GeneratePresentation(Reports):
                     column_name = 'Total patients'
                     tmp_df = df.sort_values([column_name], ascending=True)
 
+                    total_pts = sum(tmp_df[column_name].tolist())
+
                     if name == str(self.year):
                         if last_month == "":
-                            title = "Počet IVT provedených v jednotlivých krajích - " + first_month + " " + str(self.year)
+                            title = "Počet IVT provedených v jednotlivých krajích - {} {} (n={})".format(first_month, self.year, total_pts)
                         else:
-                            title = "Počet IVT provedených v jednotlivých krajích - " + first_month + "-" + last_month + " " + str(self.year)
+                            title = "Počet IVT provedených v jednotlivých krajích - {}-{} {} (n={})".format(first_month, last_month, self.year, total_pts)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
-                        title = "Počet IVT provedených v jednotlivých krajích - " + month_name + " " + str(self.year)
+                        title = "Počet IVT provedených v jednotlivých krajích - {} {} (n={})".format(month_name, self.year, total_pts)
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
@@ -870,15 +874,17 @@ class GeneratePresentation(Reports):
                     column_name = '# TBY'
                     axis_title = 'Počet MT'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-                    
+
+                    total_pts = sum(tmp_df[column_name].tolist())
+
                     if name == str(self.year):
                         if last_month == "":
-                            title = "Počet MT na nemocnici - " + first_month + " " + str(self.year)
+                            title = "Počet MT na nemocnici - {} {} (n={})".format(first_month, self.year, total_pts)
                         else:
-                            title = "Počet MT na nemocnici - " + first_month + "-" + last_month + " " + str(self.year)
+                            title = "Počet MT na nemocnici - {}-{} {} (n={})".format(first_month, last_month, self.year, total_pts)
                     else:
                         month_name = datetime(self.year, name, 1, 0, 0).strftime("%b")
-                        title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
+                        title = "Počet MT na nemocnici - {} {} (n={})".format(month_name, self.year, total_pts)
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
