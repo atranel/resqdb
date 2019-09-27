@@ -1,0 +1,252 @@
+{
+    "CZ_001": {
+        "angels_name": "Fakultní nemocnice u sv. Anny v Brně",
+        "current_name": "St. Anne's University Hospital Brno",
+        "report_name": "Brno - FN u sv. Anny"
+    },
+    "CZ_002": {
+        "angels_name": "Fakultní nemocnice Motol",
+        "current_name": "University Hospital Motol Prague",
+        "report_name": "Praha - FN Motol "
+    },
+    "CZ_003": {
+        "angels_name": "Oblastní nemocnice Příbram",
+        "current_name": "Area Hospital Příbram - Neurology",
+        "report_name": "Příbram"
+    },
+    "CZ_004": {
+        "angels_name": "Městská nemocnice Ostrava",
+        "current_name": "Municipal Hospital Ostrava",
+        "report_name": "Ostrava - Městská nemocnice"
+    },
+    "CZ_005": {
+        "angels_name": "Klaudiánova nemocnice",
+        "current_name": "Klaudians Hospital Mlada Boleslav",
+        "report_name": "Mladá Boleslav"
+    },
+    "CZ_006": {
+        "angels_name": "Vítkovická nemocnice",
+        "current_name": "Vítkovice Hospital Ostrava",
+        "report_name": "Ostrava - Vítkovice"
+    },
+    "CZ_007": {
+        "angels_name": "Nemocnice Jihlava",
+        "current_name": "Jihlava Hospital ",
+        "report_name": "Jihlava "
+    },
+    "CZ_008": {
+        "angels_name": "Fakultní nemocnice Královské Vinohrady",
+        "current_name": "Faculty Hospital Kralovske Vinohrady Prague",
+        "report_name": "Praha - FN Královské Vinohrady"
+    },
+    "CZ_009": {
+        "angels_name": "Všeobecná fakultní nemocnice v Praze ",
+        "current_name": "General Faculty Hospital Prague",
+        "report_name": "Praha - VFN "
+    },
+    "CZ_010": {
+        "angels_name": "Fakultní nemocnice Hradec Králové",
+        "current_name": "University Hospital Hradec Kralove",
+        "report_name": "Hradec Králové"
+    },
+    "CZ_011": {
+        "angels_name": "Nemocnice Jindřichův Hradec",
+        "current_name": "Hospital Jindrichuv Hradec",
+        "report_name": "Jindřichův Hradec "
+    },
+    "CZ_012": {
+        "angels_name": "Litomyšlská nemocnice",
+        "current_name": "Litomysl Hospital",
+        "report_name": "Litomyšl"
+    },
+    "CZ_013": {
+        "angels_name": "Nemocnice České Budějovice",
+        "current_name": "Hospital České Budějovice",
+        "report_name": "České Budějovice"
+    },
+    "CZ_014": {
+        "angels_name": "Nemocnice Písek",
+        "current_name": "Pisek Hospital",
+        "report_name": "Písek"
+    },
+    "CZ_015": {
+        "angels_name": "Karlovarská krajská nemocnice",
+        "current_name": "Karlovarská krajská nemocnice, a.s.",
+        "report_name": "Karlovy Vary"
+    },
+    "CZ_016": {
+        "angels_name": "Nemocnice Vyškov",
+        "current_name": "Vyskov Hospital - Neurology",
+        "report_name": "Vyškov"
+    },
+    "CZ_017": {
+        "angels_name": "Nemocnice Na Homolce",
+        "current_name": "Na Homolce Hospital",
+        "report_name": "Praha - Nemocnice Na Homolce"
+    },
+    "CZ_018": {
+        "angels_name": "Fakultní nemocnice Ostrava",
+        "current_name": "University Hospital Ostrava",
+        "report_name": "Ostrava - FN Ostrava"
+    },
+    "CZ_019": {
+        "angels_name": "Nemocnice Litoměřice",
+        "current_name": "Litomerice city hospital",
+        "report_name": "Litoměřice"
+    },
+    "CZ_020": {
+        "angels_name": "Oblastní nemocnice Kladno",
+        "current_name": "Regional Hospital Kladno",
+        "report_name": "Kladno"
+    },
+    "CZ_021": {
+        "angels_name": "Uherskohradišťská nemocnice",
+        "current_name": "Regional Hospital of Uherské Hradiště",
+        "report_name": "Uherské Hradiště"
+    },
+    "CZ_022": {
+        "angels_name": "Nemocnice Prostějov",
+        "current_name": "Prostějov Hospital",
+        "report_name": "Prostějov "
+    },
+    "CZ_023": {
+        "angels_name": "Krajská nemocnice T.Bati ve Zlíně",
+        "current_name": "T.Bata Regional Hospital Zlín",
+        "report_name": "Zlín"
+    },
+    "CZ_024": {
+        "angels_name": "Nemocnice Chomutov",
+        "current_name": "Krajská zdravotní, a.s. - Nemocnice Chomutov, o.z.",
+        "report_name": "Chomutov"
+    },
+    "CZ_025": {
+        "angels_name": "Fakultní nemocnice Plzeň",
+        "current_name": "Faculty Hospital Plzen",
+        "report_name": "Plzeň"
+    },
+    "CZ_026": {
+        "angels_name": "Nemocnice Teplice",
+        "current_name": "Hospital Teplice",
+        "report_name": "Teplice"
+    },
+    "CZ_027": {
+        "angels_name": "Nemocnice Znojmo",
+        "current_name": "Nemocnice Znojmo",
+        "report_name": "Znojmo"
+    },
+    "CZ_028": {
+        "angels_name": "Karvinská hornická nemocnice",
+        "current_name": "Karvinska hornicka nemocnice",
+        "report_name": "Karviná"
+    },
+    "CZ_029": {
+        "angels_name": "Nemocnice Na Homolce",
+        "current_name": "Hospital in Nove Mesto na Morave",
+        "report_name": "Nové Město na Moravě"
+    },
+    "CZ_030": {
+        "angels_name": "Nemocnice Pardubického kraje",
+        "current_name": "Regional hospital Pardubice",
+        "report_name": "Pardubice"
+    },
+    "CZ_031": {
+        "angels_name": "Oblastní nemocnice Náchod",
+        "current_name": "Regional hospital Nachod",
+        "report_name": "Náchod"
+    },
+    "CZ_032": {
+        "angels_name": "Thomayerova nemocnice",
+        "current_name": "Thomayer's Hospital Prague",
+        "report_name": "Praha - Thomayerova nemocnice"
+    },
+    "CZ_033": {
+        "angels_name": "Nemocnice Blansko",
+        "current_name": "Hospital Blansko",
+        "report_name": "Blansko"
+    },
+    "CZ_034": {
+        "angels_name": "Fakultní nemocnice Brno",
+        "current_name": "University Hospital Brno",
+        "report_name": "Brno - FN Brno"
+    },
+    "CZ_035": {
+        "angels_name": "Nemocnice Břeclav",
+        "current_name": "Hospital Břeclav",
+        "report_name": "Břeclav"
+    },
+    "CZ_036": {
+        "angels_name": "Krajská nemocnice Liberec",
+        "current_name": "Regional hospital Liberec",
+        "report_name": "Liberec"
+    },
+    "CZ_038": {
+        "angels_name": "Nemocnice Česká Lípa",
+        "current_name": "Hospital Česká Lípa",
+        "report_name": "Česká Lípa"
+    },
+    "CZ_039": {
+        "angels_name": "Masarykova nemocnice v Ústí nad Labem",
+        "current_name": "Masaryk hospital Usti nad Labem",
+        "report_name": "Ústí nad Labem "
+    },
+    "CZ_040": {
+        "angels_name": "Nemocnice Sokolov",
+        "current_name": "NEMOS Sokolov, Hospital Sokolov",
+        "report_name": "Sokolov"
+    },
+    "CZ_041": {
+        "angels_name": "Ústřední vojenská nemocnice v Praze",
+        "current_name": "Central military hospital",
+        "report_name": "Praha - ÚVN"
+    },
+    "CZ_042": {
+        "angels_name": "Fakultní nemocnice Olomouc",
+        "current_name": "University Hospital Olomouc",
+        "report_name": "Olomouc"
+    },
+    "CZ_043": {
+        "angels_name": "Oblastní nemocnice Kolín",
+        "current_name": "Hospital Kolín - Středočeský kraj",
+        "report_name": "Kolín"
+    },
+    "CZ_044": {
+        "angels_name": "Sdružené zdravotnické zařízení Krnov",
+        "current_name": "Associated Medical Devices Krnov - Neurology",
+        "report_name": "Krnov"
+    },
+    "CZ_045": {
+        "angels_name": "Oblastní nemocnice Trutnov",
+        "current_name": "Regional Hospital Trutnov",
+        "report_name": "Trutnov"
+    },
+    "CZ_046": {
+        "angels_name": "Nemocnice Děčín",
+        "current_name": "Decin Hospital, Krajska zdravotni, a.s.",
+        "report_name": "Děčín"
+    },
+    "CZ_047": {
+        "angels_name": "Nemocnice Třinec",
+        "current_name": "Hospital Trinec",
+        "report_name": "Třinec"
+    },
+    "CZ_049": {
+        "angels_name": "Nemocnice Nový Jičín",
+        "current_name": "Hospital Novy Jicin - Neurology",
+        "report_name": "Nový Jičín"
+    },
+    "CZ_050": {
+        "angels_name": "Nemocnice Rudolfa a Stefanie",
+        "current_name": "Rudolf & Stefanie Benesov Hospital - Neurology",
+        "report_name": "Benešov"
+    },
+    "CZ_051": {
+        "angels_name": "Nemocnice Hořovice",
+        "current_name": "NH Hospital a.s. - Neurology",
+        "report_name": "Hořovice"
+    },
+    "CZ_052": {
+        "angels_name": "Nemocnice Hořovice",
+        "current_name": "New Hospital Brno - Neurology",
+        "report_name": "Hořovice"
+    }
+}

@@ -28,6 +28,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE
 from pptx.oxml.xmlchemy import OxmlElement
 import xlsxwriter
+import json
 
 
 class Reports:
@@ -46,64 +47,9 @@ class Reports:
     def __init__(self, df, year, month, country):
     
         # create dataframe with regions, to each region assign population and hospitals
-        self.regions = {
-            'Hlavní město Praha': {
-                'population': 1286399, 
-                'hospitals': ['CZ_017', 'CZ_008', 'CZ_002', 'CZ_041', 'CZ_009', 'CZ_032'],
-            }, 
-            'Středočeský kraj': {
-                'population': 1352795,
-                'hospitals': ['CZ_005', 'CZ_020', 'CZ_043', 'CZ_003'],
-            },
-            'Jihočeský kraj': {
-                'population': 637460,
-                'hospitals': ['CZ_013', 'CZ_014', 'CZ_011'],
-            },
-            'Plzeňský kraj': {
-                'population': 574694,
-                'hospitals': ['CZ_025'],
-            },
-            'Karlovarský kraj': {
-                'population': 310245,
-                'hospitals': ['CZ_015', 'CZ_040'],
-            },
-            'Ústecký kraj': {
-                'population': 830371,
-                'hospitals': ['CZ_039', 'CZ_024', 'CZ_046', 'CZ_019', 'CZ_026'],
-            },
-            'Liberecký kraj': {
-                'population': 439262,
-                'hospitals': ['CZ_036', 'CZ_038'],
-            },
-            'Královéhradecký kraj': {
-                'population': 555683,
-                'hospitals': ['CZ_010', 'CZ_031', 'CZ_045'],
-            },
-            'Pardubický kraj': {
-                'population': 505285,
-                'hospitals': ['CZ_030', 'CZ_012'],
-            }, 
-            'Vysočina': {
-                'population': 512727,
-                'hospitals': ['CZ_007', 'CZ_029'],
-            },
-            'Jihomoravský kraj': {
-                'population': 1169788,
-                'hospitals': ['CZ_034', 'CZ_001', 'CZ_033', 'CZ_035', 'CZ_016', 'CZ_027'],
-            },
-            'Olomoucký kraj': {
-                'population': 639946,
-                'hospitals': ['CZ_042', 'CZ_022'],
-            },
-            'Zlínský kraj': {
-                'population': 590459,
-                'hospitals': ['CZ_023', 'CZ_021'],
-            },
-            'Moravskoslezký kraj': {
-                'population': 1236028,
-                'hospitals': ['CZ_018', 'CZ_004', 'CZ_044', 'CZ_047', 'CZ_006', 'CZ_028', 'CZ_049']
-            }
-        }
+        path = os.path.join(os.path.dirname(__file__), 'tmp', 'regions.json')
+        with open(path, 'r', encoding='utf-8') as json_file:
+            self.regions = json.load(json_file)
 
         # Create dataframe with hospitals who do thrombectomy
         self.hospitals_mt = ['CZ_034', # FN Brno
@@ -147,7 +93,10 @@ class Reports:
                             level=logging.DEBUG)
 
         # Get only dataframe for selected country
-        self.country_df = FilterDataset(df=self.df, country=self.country).fdf
+        fd_ojb = FilterDataset(df=self.df, country=self.country)
+        df = fd_ojb.fdf.copy()
+        df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
+        self.country_df = df
 
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
@@ -176,16 +125,21 @@ class Reports:
 
             # Create object FilterDataset
             fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
+            df = fd_ojb.fdf.copy()
+            df['Protocol ID']
+            df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
 
             # Add dataframe into dictionary
-            dfs[month] = fd_ojb.fdf
+            dfs[month] = df
 
         # Filter dataframe for whole year
         start_date = datetime(self.year, 1, 1, 0, 0)
         # End date from current_month
         end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
         fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
-        dfs[str(self.year)] = fd_obj.fdf
+        df = fd_obj.fdf.copy()
+        df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
+        dfs[str(self.year)] = df
         
         return dfs
 
@@ -291,7 +245,10 @@ class Reports:
 
             # Calculate IVtPa median
             ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy()		
-            thrombolysis_df = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()											# only patients with ischemic stroke
+            thrombolysis_df = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()	
+
+            print('Thrombolysis {} - {}'.format(name, len(thrombolysis_df)))
+            # only patients with ischemic stroke
             # thrombolysis_df = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
             if thrombolysis_df.empty:
                 statistic['Median DTN (minutes)'] = 0
@@ -303,6 +260,8 @@ class Reports:
                 thrombolysis_df.fillna(0, inplace=True)
                 #thrombolysis_df['IVTPA'] = thrombolysis_df['IVT_ONLY_NEEDLE_TIME'] + thrombolysis_df['IVT_ONLY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_NEEDLE_TIME_MIN'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME'] + thrombolysis_df['IVT_TBY_REFER_NEEDLE_TIME_MIN']       			# get one column with all needle times
 
+                statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+
                 # Get number of incorrectly entered times
                 thrombolysis_df['INCORRECT_TIMES'] = False
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
@@ -312,9 +271,7 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY_REFER'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
-                incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True]
-
-                statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
+                incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True].copy()
                 incorrect_ivtpa_times.to_csv('incorrect_ivtpa_times.csv', sep=',')
 
                 thrombolysis = thrombolysis_df[(thrombolysis_df['IVTPA'] > 0) & (thrombolysis_df['IVTPA'] <= 400)].copy()
@@ -334,6 +291,7 @@ class Reports:
                     statistic = statistic.merge(thrombolysis_grouped, how='outer') # Merge with statistic dataframe
 
                     # Get number of IVTs on IC/KCC
+                    # statistic['# IVT'] = self.count_patients(df=thrombolysis, statistic=statistic)
                     statistic['# IVT'] = self.count_patients(df=thrombolysis, statistic=statistic)
 
                     # Get difference in minutes between hospitalization and last visit
@@ -481,6 +439,8 @@ class Reports:
 
         # Iterate through filtered dataframes
         for name, df in self.filtered_dfs.items():
+            
+
             # Calculate IVtPa median
             ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy() 													# only patients with ischemic stroke
             # thrombolysis = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
@@ -712,11 +672,11 @@ class GeneratePresentation(Reports):
                 # Iterate through dictionaries with statistics
                 for name, df in thrombolysis_stats_df.items():
                     # MEDIAN DGT
-                    column_name = '# IVT'
+                    column_name = 'Total patients undergone IVT'
                     axis_title = 'Počet trombolýz'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
 
-                    total_pts = sum(tmp_df[column_name].tolist())
+                    total_pts = round(sum(tmp_df[column_name].tolist()))
                     
                     if name == str(self.year):
                         if last_month == "":

@@ -46,39 +46,10 @@ class Connection():
         path = os.path.dirname(__file__)
         self.database_ini = os.path.join(path, 'database.ini')
 
-         # Read temporary csv file with CZ report names and Angels Awards report names
-        cz_names_path = os.path.join(path, 'tmp', 'czech_mapping.csv')
-        try:
-            incorrect = True
-            with open(cz_names_path, encoding="utf-8") as csv_file:
-                cz_names_reader = csv.DictReader(csv_file)
-                cz_names_dict = {}
-                for row in cz_names_reader:
-                    tmp = {}
-                    tmp['current_name'] = row['Current name In the RES-Q Database']
-                    tmp['report_name'] = row['RES-Q reports name']
-                    tmp['angels_name'] = row['Name for ESO ANGELS awards']
-                    cz_names_dict[row['Site ID']] = tmp
-                logging.info('Identified encoding UTF-8!')
-                incorrect = False
-        except: 
-            logging.info('Incorrect encoding.')
-
-        if incorrect:
-            try:
-                with open(cz_names_path, encoding="ISO-8859-1") as csv_file:
-                    cz_names_reader = csv.DictReader(csv_file)
-                    cz_names_dict = {}
-                    for row in cz_names_reader:
-                        tmp = {}
-                        tmp['current_name'] = row['Current name In the RES-Q Database']
-                        tmp['report_name'] = row['RES-Q reports name']
-                        tmp['angels_name'] = row['Name for ESO ANGELS awards']
-                        cz_names_dict[row['Site ID']] = tmp
-                logging.info('Identified encoding ISO-8859-1!')
-                incorrect = False
-            except: 
-                logging.info('Incorrect encoding.')
+        # Read temporary csv file with CZ report names and Angels Awards report names
+        path = os.path.join(os.path.dirname(__file__), 'tmp', 'czech_mapping.json')
+        with open(path, 'r', encoding='utf-8') as json_file:
+            cz_names_dict = json.load(json_file)
 
         # Set section
         datamix = 'datamix'
