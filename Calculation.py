@@ -137,14 +137,14 @@ class ComputeStats:
                 #self.df['Site Name'] = self.df.apply(lambda x: get_country_name(x['Protocol ID']) if get_country_name(x['Protocol ID']) != "" else x['Protocol ID'], axis=1)
         
         if (country):
-            country = self.df.copy()
+            country_df = self.df.copy()
             #self.country_name = pytz.country_names[country_code]
            # country['Protocol ID'] = self.country_name
             #country['Site Name'] = self.country_name
-            country['Protocol ID'] = country['Country']
-            country['Site Name'] = country['Country']
-            self.df = pd.concat([self.df, country])
-            self._country_name = country['Country'].iloc[0]
+            country_df['Protocol ID'] = country_df['Country']
+            country_df['Site Name'] = country_df['Country']
+            self.df = pd.concat([self.df, country_df])
+            self._country_name = country_df['Country'].iloc[0]
         else:
             self._country_name = ""
         
@@ -945,6 +945,16 @@ class ComputeStats:
                 date2 = date(2019, 8, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
                 cz_df = obj.fdf.copy()
+                if (country):
+                    country_df = cz_df.copy()
+                    #self.country_name = pytz.country_names[country_code]
+                    # country['Protocol ID'] = self.country_name
+                    #country['Site Name'] = self.country_name
+                    country_df['Protocol ID'] = country_df['Country']
+                    country_df['Site Name'] = country_df['Country']
+                    
+                    cz_df = pd.concat([cz_df, country_df])
+
                 cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
                 self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
 
@@ -963,6 +973,16 @@ class ComputeStats:
                 date2 = date(2019, 12, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
                 cz_df = obj.fdf.copy()
+                if (country):
+                    country_df = cz_df.copy()
+                    #self.country_name = pytz.country_names[country_code]
+                    # country['Protocol ID'] = self.country_name
+                    #country['Site Name'] = self.country_name
+                    country_df['Protocol ID'] = country_df['Country']
+                    country_df['Site Name'] = country_df['Country']
+                    
+                    cz_df = pd.concat([cz_df, country_df])
+
                 cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
                 self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
 
