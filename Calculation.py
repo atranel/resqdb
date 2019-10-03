@@ -18,8 +18,6 @@ import scipy.stats as st
 from scipy.stats import sem, t
 from scipy import mean
 
-
-
 class FilterDataset:
     """ The class filtrating the dataframe by date or by country. 
 
@@ -102,11 +100,13 @@ class ComputeStats:
     """
 
 
-    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=30):
+    def __init__(self, df, country = False, country_code = "", comparison=False, patient_limit=30, period=None, raw_data=None):
 
         self.df = df.copy()
         self.df.fillna(0, inplace=True)
         self.patient_limit = patient_limit
+        self.period = period
+        self.raw_data = raw_data
 
         # Rename 'RES-Q reports name' column to 'Site Name'
         if 'ESO Angels name' in self.df.columns:
@@ -932,16 +932,63 @@ class ComputeStats:
         ############################
         # CAROTID ARTERIES IMAGING #
         ############################
-        self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
+        if country_code == 'CZ':
+            if (self.period.startswith('Q1') and self.period.endswith('2019')):
+                self.statsDf.loc[:, '# carotid arteries imaging - Not known'] = 'N/A'
+                self.statsDf.loc[:, '% carotid arteries imaging - Not known'] = 'N/A'
+                self.statsDf.loc[:, '# carotid arteries imaging - Yes'] = 'N/A'
+                self.statsDf.loc[:, '% carotid arteries imaging - Yes'] = 'N/A'
+                self.statsDf.loc[:, '# carotid arteries imaging - No'] = 'N/A'
+                self.statsDf.loc[:, '% carotid arteries imaging - No'] = 'N/A'
+            elif ((self.period.startswith('Q2') or self.period.startswith('H1')) and self.period.endswith('2019')):
+                date1 = date(2019, 7, 19)
+                date2 = date(2019, 8, 31)
+                obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
+                cz_df = obj.fdf.copy()
+                cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
+                self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
+
+                self.tmp = cz_df_is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
+      
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
+                self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['cz_df_is_tia_pts']) * 100), 2) if x['cz_df_is_tia_pts'] > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
+                self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
+                self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+            elif (self.period == '2019'):
+                date1 = date(2019, 7, 19)
+                date2 = date(2019, 12, 31)
+                obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
+                cz_df = obj.fdf.copy()
+                cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
+                self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
+
+                self.tmp = cz_df_is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
+      
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
+                self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['cz_df_is_tia_pts']) * 100), 2) if x['cz_df_is_tia_pts'] > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
+                self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
+                self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+            if 'cz_df_is_tia_pts' in self.statsDf.columns:
+                self.statsDf.drop(['cz_df_is_tia_pts'], inplace=True, axis=1)
+        else:
+            self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
         
-        self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
-        self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
-        
-        self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
-        self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
-        
-        self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
-        self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
+            self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
+            self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
+            self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
 
         ############################
         # ANTITHROMBOTICS WITH CVT #

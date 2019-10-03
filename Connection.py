@@ -18,6 +18,7 @@ from threading import Thread
 import collections
 import datetime
 import csv
+import json
 
 class Connection():
     """ The class connecting to the database and exporting the data for the Slovakia. 

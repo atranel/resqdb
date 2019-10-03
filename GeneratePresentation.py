@@ -589,13 +589,13 @@ class GeneratePresentation:
         # CAROTID ARTERIES IMAGING - YES #
         ##################################
         column_name = '% carotid arteries imaging - Yes'
+        if df[column_name].values[0] != 'N/A':
+            tmp_df = df[[main_col, column_name]]
+            tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        tmp_df = df[[main_col, column_name]]
-        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+            title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
 
-        title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
-
-        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+            GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
         ##############################
         # ANTITHROMBOTICS PRESCRIBED #
