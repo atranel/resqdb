@@ -942,12 +942,15 @@ class GeneratePresentation(Reports):
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, coloring=True, content=content)
 
-                column_name = '# IVT'
+
+                column_name = 'Total patients undergone IVT'
                 axis_title = 'Počet trombolýz'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
 
+                total_pts = sum(tmp_df[column_name].tolist())
+
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
-                title = "Počet IVT na IC/KCC - " + month_name + " " + str(self.year)
+                title = "Počet IVT na IC/KCC - {} {} (n={})".format(month_name, self.year, total_pts)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 
@@ -969,8 +972,10 @@ class GeneratePresentation(Reports):
                 column_name = 'Total patients'
                 tmp_df = df.sort_values([column_name], ascending=True)
 
+                total_pts = sum(tmp_df[column_name].tolist())
+
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
-                title = "Počet IVT provedených v jednotlivých krajích - " + month_name + " " + str(self.year)
+                title = "Počet IVT provedených v jednotlivých krajích - {} {} (n={})".format(month_name, self.year, total_pts)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, region=True)
 
@@ -1041,14 +1046,16 @@ class GeneratePresentation(Reports):
                 title = "Medián door-to-groin time - Sekundární příjem k intervenci MT - " + month_name + " " + str(self.year)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, content=content)
-                
+
                 # Median DTG
                 column_name = '# TBY'
                 axis_title = 'Počet MT'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+
+                total_pts = sum(tmp_df[column_name].tolist())
                 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
-                title = "Počet MT na nemocnici  - " + month_name + " " + str(self.year)
+                title = "Počet MT na nemocnici - {} {} (n={})".format(month_name, self.year, total_pts)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title)
 

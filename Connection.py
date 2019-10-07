@@ -77,7 +77,8 @@ class Connection():
                 self.connect(self.sqls[2], datamix, nprocess, df_name='resq_ivttby_mix')
                 self.resq_ivttby_mix = self.dictdb_df['resq_ivttby_mix']
                 self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
-                del self.dictdb_df['resq_ivttby_mix']
+                if 'resq_ivttby_mix' in self.dictdb_df.keys():
+                    del self.dictdb_df['resq_ivttby_mix']
 
                 for k, v in self.dictdb_df.items():
                     self.prepare_resq_df(df=v, name=k)
@@ -118,8 +119,9 @@ class Connection():
                 tdelta = (end-start)/60
                 logging.info('The database data were exported in {0} minutes.'.format(tdelta))
 
-                #self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
-                del self.dictdb_df['resq_ivttby_mix']
+                # self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
+                if 'resq_ivttby_mix' in self.dictdb_df.keys():
+                    del self.dictdb_df['resq_ivttby_mix']
 
                 treads = []
                 for i in range(0, len(self.names)):
