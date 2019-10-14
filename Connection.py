@@ -81,7 +81,7 @@ class Connection():
                     del self.dictdb_df['resq_ivttby_mix']
 
                 for k, v in self.dictdb_df.items():
-                    self.prepare_resq_df(df=v, name=k)
+                    self.prepare_df(df=v, name=k)
 
                 self.df = pd.DataFrame()
                 for i in range(0, len(self.names)):
@@ -90,7 +90,7 @@ class Connection():
                 # Get all country code in dataframe
                 self.countries = self._get_countries(df=self.df)
                 # Get preprocessed data
-                self.preprocessed_data = self.check_data(df=self.df)
+                self.preprocessed_data = self.check_data(df=self.df, nprocess=1)
 
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')

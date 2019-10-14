@@ -152,7 +152,6 @@ class ComputeStats:
         # self.statsDf['Site Name'] = 
 
         self.statsDf = self.statsDf[['Protocol ID', 'Site Name', 'Total Patients']]
-
         self.statsDf['Median patient age'] = self.df.groupby(['Protocol ID']).AGE.agg(['median']).rename(columns={'median': 'Median patient age'})['Median patient age'].tolist()
 
         # get patietns with ischemic stroke (ISch) (1)
@@ -506,14 +505,31 @@ class ComputeStats:
             h = std_err * t.ppf((1 + confidence) / 2, n - 1)
             return m, m-h, m+h
 
-        self.statsDf.loc[:, '# IV tPa'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
-        self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
+        if country_code == 'CZ':
+            print("I'm here")
+            self.tmp = isch.groupby(['Protocol ID', 'IVT_DONE']).size().to_frame('count').reset_index()
+            self.statsDf = self._get_values_for_factors(column_name="IVT_DONE", value=1, new_column_name='# IV tPa')
+            self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
+            
+            # Create temporary dataframe with the patients who has been treated with thrombolysis
+            recanalization_procedure_iv_tpa = isch[isch['IVT_DONE'].isin([1])].copy()
+            recanalization_procedure_iv_tpa.fillna(0, inplace=True)
+            # Create one column with times of door to thrombolysis 
+            thrombolysis = recanalization_procedure_iv_tpa[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 400)].copy()
 
-        # Create temporary dataframe with the patients who has been treated with thrombolysis
-        recanalization_procedure_iv_tpa = isch[isch['RECANALIZATION_PROCEDURES'].isin([2, 3, 5])].copy()
-        recanalization_procedure_iv_tpa.fillna(0, inplace=True)
-        # Create one column with times of door to thrombolysis 
-        recanalization_procedure_iv_tpa['IVTPA'] = recanalization_procedure_iv_tpa['IVT_ONLY_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_ONLY_NEEDLE_TIME_MIN'] + recanalization_procedure_iv_tpa['IVT_TBY_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_TBY_NEEDLE_TIME_MIN'] + recanalization_procedure_iv_tpa['IVT_TBY_REFER_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_TBY_REFER_NEEDLE_TIME_MIN']
+            tmp = thrombolysis.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index()
+            self.statsDf = self.statsDf.merge(tmp, how='outer')
+            self.statsDf.fillna(0, inplace=True)
+
+        else:
+            self.statsDf.loc[:, '# IV tPa'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+            self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
+
+            # Create temporary dataframe with the patients who has been treated with thrombolysis
+            recanalization_procedure_iv_tpa = isch[isch['RECANALIZATION_PROCEDURES'].isin([2, 3, 5])].copy()
+            recanalization_procedure_iv_tpa.fillna(0, inplace=True)
+            # Create one column with times of door to thrombolysis 
+            recanalization_procedure_iv_tpa['IVTPA'] = recanalization_procedure_iv_tpa['IVT_ONLY_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_ONLY_NEEDLE_TIME_MIN'] + recanalization_procedure_iv_tpa['IVT_TBY_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_TBY_NEEDLE_TIME_MIN'] + recanalization_procedure_iv_tpa['IVT_TBY_REFER_NEEDLE_TIME'] + recanalization_procedure_iv_tpa['IVT_TBY_REFER_NEEDLE_TIME_MIN']
 
         
         # sites_ids = recanalization_procedure_iv_tpa['Protocol ID'].tolist()
@@ -528,9 +544,9 @@ class ComputeStats:
         # #print(interval_vals)
         # interval_vals_df = pd.DataFrame.from_dict(interval_vals, orient='index', columns=['Protocol ID', 'Confidence interval DTN (Mean)', 'Confidence interval DTN (Median)'])
         
-        tmp = recanalization_procedure_iv_tpa.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index()
-        self.statsDf = self.statsDf.merge(tmp, how='outer')
-        self.statsDf.fillna(0, inplace=True)
+            tmp = recanalization_procedure_iv_tpa.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index()
+            self.statsDf = self.statsDf.merge(tmp, how='outer')
+            self.statsDf.fillna(0, inplace=True)
 
         # self.statsDf = self.statsDf.merge(interval_vals_df, how='outer')
         
@@ -539,8 +555,23 @@ class ComputeStats:
         ##############
         # Seperate calculation of TBY for CZ
         if country_code == 'CZ':
-            # self.statsDf.loc[:, '# TBY'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'], axis=1)
+            print("I'm here")
+            self.tmp = isch.groupby(['Protocol ID', 'TBY_DONE']).size().to_frame('count').reset_index()
+            self.statsDf = self._get_values_for_factors(column_name="TBY_DONE", value=1, new_column_name='# TBY')
+            self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
             
+            # Create temporary dataframe with the patients who has been treated with thrombolysis
+            recanalization_procedure_tby_dtg = isch[isch['TBY_DONE'].isin([1])].copy()
+            recanalization_procedure_tby_dtg.fillna(0, inplace=True)
+            # Create one column with times of door to thrombolysis 
+            thrombectomy = recanalization_procedure_tby_dtg[(recanalization_procedure_tby_dtg['TBY'] > 0) & (recanalization_procedure_tby_dtg['TBY'] <= 700)].copy()
+
+            tmp = thrombectomy.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
+            self.statsDf = self.statsDf.merge(tmp, how='outer')
+            self.statsDf.fillna(0, inplace=True)
+
+            # self.statsDf.loc[:, '# TBY'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'], axis=1)
+            """
             self.statsDf.loc[:, '# TBY'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + endovascular treatment'], axis=1)
             self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
 
@@ -552,6 +583,7 @@ class ComputeStats:
             # Get IVTPA in minutes
             # recanalization_procedure_tby_dtg['TBY'] = recanalization_procedure_tby_dtg['TBY_ONLY_GROIN_PUNCTURE_TIME'] + recanalization_procedure_tby_dtg['TBY_ONLY_GROIN_TIME_MIN'] + recanalization_procedure_tby_dtg['IVT_TBY_GROIN_TIME'] + recanalization_procedure_tby_dtg['IVT_TBY_GROIN_TIME_MIN'] + recanalization_procedure_tby_dtg['TBY_REFER_ALL_GROIN_PUNCTURE_TIME'] + recanalization_procedure_tby_dtg['TBY_REFER_LIM_GROIN_PUNCTURE_TIME'] + recanalization_procedure_tby_dtg['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'] + recanalization_procedure_tby_dtg['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN']
             recanalization_procedure_tby_dtg['TBY'] = recanalization_procedure_tby_dtg['TBY_ONLY_GROIN_PUNCTURE_TIME'] + recanalization_procedure_tby_dtg['TBY_ONLY_GROIN_TIME_MIN'] + recanalization_procedure_tby_dtg['IVT_TBY_GROIN_TIME'] + recanalization_procedure_tby_dtg['IVT_TBY_GROIN_TIME_MIN']
+            """
            
             # sites_ids = recanalization_procedure_tby_dtg['Protocol ID'].tolist()
             # sites_ids = set(sites_ids)
@@ -585,9 +617,9 @@ class ComputeStats:
             
             # recanalization_procedure_tby['TBY'] = recanalization_procedure_tby.loc[:, ['TBY_ONLY_GROIN_PUNCTURE_TIME', 'TBY_ONLY_GROIN_PUNCTURE_TIME_MIN', 'IVT_TBY_GROIN_TIME', 'IVT_TBY_GROIN_TIME_MIN']].sum(1).reset_index()[0].tolist()
 
-        tmp = recanalization_procedure_tby_dtg.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
-        self.statsDf = self.statsDf.merge(tmp, how='outer')
-        self.statsDf.fillna(0, inplace=True)
+            tmp = recanalization_procedure_tby_dtg.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
+            self.statsDf = self.statsDf.merge(tmp, how='outer')
+            self.statsDf.fillna(0, inplace=True)
 
         # self.statsDf = self.statsDf.merge(interval_vals_df, how='outer')
 

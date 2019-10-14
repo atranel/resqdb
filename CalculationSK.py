@@ -537,7 +537,7 @@ class ComputeStats:
         
         if comparison == False:
             self.statsDf = self.df.groupby(['Protocol ID']).size().reset_index(name="Total Patients")
-            self.statsDf['Site Name'] = ""
+            self.statsDf['Site Name'] = 'Slovakia'
             self.statsDf = self.statsDf[['Protocol ID', 'Site Name', 'Total Patients']]
         else:
             self.statsDf = self.df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")
