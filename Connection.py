@@ -565,7 +565,7 @@ class Connection():
 
         if tdeltaMin > 60:
             res = 2
-        elif tdeltaMin <= 60 and tdeltaMin > 0:
+        elif tdeltaMin <= 60 and tdeltaMin >= 0:
             res = 1
         else:
             res = -2
