@@ -645,12 +645,17 @@ class GenerateFormattedAngelsAwards:
         column = xl_col_to_name(index)
         proposed_award(column)
 
-        hidden_columns = ['% patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 45 minutes']
+        index = column_names.index('Proposed Award (old calculation)')
+        column = xl_col_to_name(index)
+        proposed_award(column)
+
+        hidden_columns = ['% patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 45 minutes', 'Proposed Award (old calculation)']
         				
         for i in hidden_columns:
-            index = column_names.index(i)
-            column = xl_col_to_name(index)
-            worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
+            if i in column_names:
+                index = column_names.index(i)
+                column = xl_col_to_name(index)
+                worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
 
         workbook1.close()
 

@@ -1700,8 +1700,10 @@ class ComputeStats:
         
         self.statsDf.fillna(0, inplace=True)
 
-        self.angels_awards_tmp['Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x), axis=1)
+        self.angels_awards_tmp.loc[:, 'Proposed Award (old calculation)'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x, new_calculation=False), axis=1)
+        self.angels_awards_tmp.loc[:, 'Proposed Award'] = self.angels_awards_tmp.apply(lambda x: self._get_final_award(x, new_calculation=True), axis=1)
         
+        self.statsDf['Proposed Award (old calculation)'] = self.angels_awards_tmp['Proposed Award (old calculation)']
         self.statsDf['Proposed Award'] = self.angels_awards_tmp['Proposed Award'] 
 
         self.statsDf.rename(columns={"Protocol ID": "Site ID"}, inplace=True)
@@ -1710,7 +1712,7 @@ class ComputeStats:
         
         self.sites = self._get_sites(self.statsDf)
 
-    def _get_final_award(self, x):
+    def _get_final_award(self, x, new_calculation=True):
         """ The function calculating the proposed award. 
 
         :param x: the row from temporary dataframe
@@ -1720,160 +1722,155 @@ class ComputeStats:
         if x[self.total_patient_column] == False:
             award = "STROKEREADY"
         else:
-            award = "TRUE"
+            if new_calculation:
+                thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
 
-    
-        thrombolysis_therapy_lt_60min = x['% patients treated with door to thrombolysis < 60 minutes']
-
-        # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
-        if award == "TRUE":
-            if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
-                award = "GOLD"
-            elif (float(thrombolysis_therapy_lt_60min) >= 75):
-                award = "DIAMOND"
-            else: 
-                award = "STROKEREADY"
-
-        thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
-
-        if award != "STROKEREADY":
-            if (float(thrombolysis_therapy_lt_45min) <= 49.99):
-                if (award != "GOLD" or award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(thrombolysis_therapy_lt_45min) >= 50):
-                if (award != "GOLD"):
+                # Calculate award for thrombolysis, if no patients were eligible for thrombolysis and number of total patients was greater than minimum than the award is set to DIAMOND 
+                if (float(thrombolysis_therapy_lt_60min) >= 50 and float(thrombolysis_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(thrombolysis_therapy_lt_60min) >= 75):
                     award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
-
-        # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
-        thrombectomy_pts = x['# patients eligible thrombectomy']
-        if thrombectomy_pts != 0:
-            thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
-            if award != "STROKEREADY":
-                if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
-                    if (award == "PLATINUM" or award == "DIAMOND"):
-                        award = "GOLD"
-                elif (float(thrombectomy_therapy_lt_120min) >= 75):
-                    if (award == "DIAMOND"):
-                        award = "DIAMOND"
                 else: 
                     award = "STROKEREADY"
 
-            thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+                thrombolysis_therapy_lt_45min = x['% patients treated with door to thrombolysis < 45 minutes']
+
+                if award != "STROKEREADY":
+                    if (float(thrombolysis_therapy_lt_45min) <= 49.99):
+                        if (award != "GOLD" or award == "DIAMOND"):
+                            award = "PLATINUM"
+                    elif (float(thrombolysis_therapy_lt_45min) >= 50):
+                        if (award != "GOLD"):
+                            award = "DIAMOND"
+                    else:
+                        award = "STROKEREADY"
+
+
+                # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
+                thrombectomy_pts = x['# patients eligible thrombectomy']
+                if thrombectomy_pts != 0:
+                    thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
+                    if award != "STROKEREADY":
+                        if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
+                            if (award == "PLATINUM" or award == "DIAMOND"):
+                                award = "GOLD"
+                        elif (float(thrombectomy_therapy_lt_120min) >= 75):
+                            if (award == "DIAMOND"):
+                                award = "DIAMOND"
+                        else: 
+                            award = "STROKEREADY"
+
+                    thrombectomy_therapy_lt_90min = x['% patients treated with door to thrombectomy < 90 minutes']
+                    if award != "STROKEREADY":
+                        if (float(thrombectomy_therapy_lt_90min) <= 49.99):
+                            if (award != "GOLD" or award == "DIAMOND"):
+                                award = "PLATINUM"
+                        elif (float(thrombectomy_therapy_lt_90min) >= 50):
+                            if (award == "DIAMOND"):
+                                award = "DIAMOND"
+                        else:
+                            award = "STROKEREADY"
+            else:
+                recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
+                if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
+                    award = "GOLD"
+                elif (float(recan_therapy_lt_60min) >= 75):
+                    award = "DIAMOND"
+                else: 
+                    award = "STROKEREADY"
+
+                recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
+                if award != "STROKEREADY":
+                    if (float(recan_therapy_lt_45min) <= 49.99):
+                        if (award != "GOLD" or award == "DIAMOND"):
+                            award = "PLATINUM"
+                    elif (float(recan_therapy_lt_45min) >= 50):
+                        if (award != "GOLD"):
+                            award = "DIAMOND"
+                    else:
+                        award = "STROKEREADY"
+
+            recan_rate = x['% recanalization rate out of total ischemic incidence']
             if award != "STROKEREADY":
-                if (float(thrombectomy_therapy_lt_90min) <= 49.99):
-                    if (award != "GOLD" or award == "DIAMOND"):
+                if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(recan_rate) >= 15 and float(recan_rate) <= 24.99):
+                    if (award == "DIAMOND"):
                         award = "PLATINUM"
-                elif (float(thrombectomy_therapy_lt_90min) >= 50):
+                elif (float(recan_rate) >= 25):
                     if (award == "DIAMOND"):
                         award = "DIAMOND"
                 else:
                     award = "STROKEREADY"
 
-        '''
-        recan_therapy_lt_60min = x['% patients treated with door to recanalization therapy < 60 minutes']
-        if proposed_award == "TRUE":
-            if (float(recan_therapy_lt_60min) >= 50 and float(recan_therapy_lt_60min) <= 74.99):
-                proposed_award = "GOLD"
-            elif (float(recan_therapy_lt_60min) >= 75):
-                proposed_award = "DIAMOND"
-            else: 
-                proposed_award = "STROKEREADY"
 
-        recan_therapy_lt_45min = x['% patients treated with door to recanalization therapy < 45 minutes']
-        if proposed_award != "STROKEREADY":
-            if (float(recan_therapy_lt_45min) <= 49.99):
-                if (proposed_award != "GOLD" or proposed_award == "DIAMOND"):
-                    proposed_award = "PLATINUM"
-            elif (float(recan_therapy_lt_45min) >= 50):
-                if (proposed_award != "GOLD"):
-                    proposed_award = "DIAMOND"
-            else:
-                proposed_award = "STROKEREADY"
-        '''
+            ct_mri = x['% suspected stroke patients undergoing CT/MRI']
+            if award != "STROKEREADY":
+                if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(ct_mri) >= 85 and float(ct_mri) <= 89.99):
+                    if (award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(ct_mri) >= 90):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "STROKEREADY"
 
-        recan_rate = x['% recanalization rate out of total ischemic incidence']
-        if award != "STROKEREADY":
-            if (float(recan_rate) >= 5 and float(recan_rate) <= 14.99):
-                if (award == "PLATINUM" or award == "DIAMOND"):
-                    award = "GOLD"
-            elif (float(recan_rate) >= 15 and float(recan_rate) <= 24.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(recan_rate) >= 25):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
+            dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
+            if award != "STROKEREADY":
+                if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(dysphagia_screening) >= 85 and float(dysphagia_screening) <= 89.99):
+                    if (award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(dysphagia_screening) >= 90):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "STROKEREADY"
 
-        ct_mri = x['% suspected stroke patients undergoing CT/MRI']
-        if award != "STROKEREADY":
-            if (float(ct_mri) >= 80 and float(ct_mri) <= 84.99):
-                if (award == "PLATINUM" or award == "DIAMOND"):
-                    award = "GOLD"
-            elif (float(ct_mri) >= 85 and float(ct_mri) <= 89.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(ct_mri) >= 90):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
+            discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
+            if award != "STROKEREADY":
+                if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(discharged_with_antiplatelets_final) >= 85 and float(discharged_with_antiplatelets_final) <= 89.99):
+                    if (award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(discharged_with_antiplatelets_final) >= 90):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "STROKEREADY"
 
-        dysphagia_screening = x['% all stroke patients undergoing dysphagia screening']
-        if award != "STROKEREADY":
-            if (float(dysphagia_screening) >= 80 and float(dysphagia_screening) <= 84.99):
-                if (award == "PLATINUM" or award == "DIAMOND"):
-                    award = "GOLD"
-            elif (float(dysphagia_screening) >= 85 and float(dysphagia_screening) <= 89.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(dysphagia_screening) >= 90):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
+            discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
+            if award != "STROKEREADY":
+                if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
+                    if (award == "PLATINUM" or award == "DIAMOND"):
+                        award = "GOLD"
+                elif (float(discharged_with_anticoagulants_final) >= 85 and float(discharged_with_anticoagulants_final) <= 89.99):
+                    if (award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(discharged_with_anticoagulants_final) >= 90):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "STROKEREADY"
 
-        discharged_with_antiplatelets_final = x['% ischemic stroke patients discharged (home) with antiplatelets']
-        if award != "STROKEREADY":
-            if (float(discharged_with_antiplatelets_final) >= 80 and float(discharged_with_antiplatelets_final) <= 84.99):
-                if (award == "PLATINUM" or award == "DIAMOND"):
-                    award = "GOLD"
-            elif (float(discharged_with_antiplatelets_final) >= 85 and float(discharged_with_antiplatelets_final) <= 89.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(discharged_with_antiplatelets_final) >= 90):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
-
-        
-        discharged_with_anticoagulants_final = x['% afib patients discharged (home) with anticoagulants']
-        if award != "STROKEREADY":
-            if (float(discharged_with_anticoagulants_final) >= 80 and float(discharged_with_anticoagulants_final) <= 84.99):
-                if (award == "PLATINUM" or award == "DIAMOND"):
-                    award = "GOLD"
-            elif (float(discharged_with_anticoagulants_final) >= 85 and float(discharged_with_anticoagulants_final) <= 89.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(discharged_with_anticoagulants_final) >= 90):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
-
-        stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU']
-        if award != "STROKEREADY":
-            if (float(stroke_unit) <= 0.99):
-                if (award == "DIAMOND"):
-                    award = "PLATINUM"
-            elif (float(stroke_unit) >= 1):
-                if (award == "DIAMOND"):
-                    award = "DIAMOND"
-            else:
-                award = "STROKEREADY"
+            stroke_unit = x['% stroke patients treated in a dedicated stroke unit / ICU']
+            if award != "STROKEREADY":
+                if (float(stroke_unit) <= 0.99):
+                    if (award == "DIAMOND"):
+                        award = "PLATINUM"
+                elif (float(stroke_unit) >= 1):
+                    if (award == "DIAMOND"):
+                        award = "DIAMOND"
+                else:
+                    award = "STROKEREADY"
 
         return award
 
