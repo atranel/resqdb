@@ -1039,7 +1039,7 @@ class ComputeStats:
                 
                 self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
                 self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['is_tia_patients'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['is_tia_patients'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
-                
+
             if 'cz_df_is_tia_pts' in self.statsDf.columns:
                 self.statsDf.drop(['cz_df_is_tia_pts'], inplace=True, axis=1)
         else:
@@ -1760,7 +1760,8 @@ class ComputeStats:
 
                 # Calculate award for thrombectomy, if no patients were eligible for thrombectomy and number of total patients was greater than minimum than the award is set to the possible proposed award (eg. if in thrombolysis step award was set to GOLD then the award will be GOLD)
                 thrombectomy_pts = x['# patients eligible thrombectomy']
-                if thrombectomy_pts != 0:
+                # if thrombectomy_pts != 0:
+                if thrombectomy_pts > 3:
                     thrombectomy_therapy_lt_120min = x['% patients treated with door to thrombectomy < 120 minutes']
                     if award != "STROKEREADY":
                         if (float(thrombectomy_therapy_lt_120min) >= 50 and float(thrombectomy_therapy_lt_120min) <= 74.99):
