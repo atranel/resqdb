@@ -15,7 +15,7 @@ import os
 from datetime import datetime, date
 import sqlite3
 import pytz
-from resqdb.GenerateGraphs import GenerateGraphs
+from resqdb.GenerateGraphs import GenerateGraphs, GenerateGraphsQuantiles
 import xlsxwriter
 from pptx import Presentation
 from pptx.util import Cm, Pt, Inches
@@ -85,7 +85,6 @@ class GeneratePresentation:
         if (split_sites) and site is None:
             for i in site_ids:
                 df = self.df[self.df['Site ID'].isin([i, self.country_name])].copy()
-                print(i)
                 self._generate_graphs(df=df, site_code=i)
     
         # Produce formatted statistics for all sites + country as site
@@ -311,6 +310,7 @@ class GeneratePresentation:
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
+
         ############################
         # RECANALIZATION TREATMENT #
         ############################
@@ -323,6 +323,7 @@ class GeneratePresentation:
         title = "% IV tPa for IS"
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
+
 
         ####################################################
         # RECANALIZATION TREATMENT IN COMPREHENSIVE CENTRE #
@@ -364,6 +365,19 @@ class GeneratePresentation:
         title = "% RECANALIZATION PROCEDURES for IS"
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
+
+        ##########################
+        # % patients recanalized #
+        ##########################
+        column_name = '% patients recanalized'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% of recanalized patients"
+
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
 
         ################
         # % median DTN #
@@ -879,6 +893,367 @@ class GeneratePresentation:
         presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
         prs.save(presentation_path)
+
+class GeneratePresentationQuantiles:
+    """ The class generating the presentation with quantiles.
+
+    :param df: the dataframe with calculated statistics
+    :type df: pandas dataframe
+    :param country: `True` if country is included in the statistics as site
+    :type country: bool
+    :param country_code: the country code
+    :type country_code: str
+    :param split_sites: `True` if presentation should be generated per sites seperately
+    :type split_sites: bool
+    :param site: the site code
+    :type site: str
+    :param report: the type of the report eg. quarter
+    :type report: str
+    :param quarter: the type of the period eg. Q1_2019
+    :type quarter: str
+    """
+
+    def __init__(self, df, country=False, country_code=None, split_sites=False, site=None, report=None, quarter=None, country_name=None):
+
+        self.df = df.drop_duplicates(subset=['Site ID', 'Total Patients'], keep='first')
+        self.country_code = country_code
+        self.report = report
+        self.quarter = quarter
+
+        #master_pptx = self.country_code + ".pptx"
+        script_dir = os.path.dirname(__file__) 
+        master_pptx = "master.pptx"
+        self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
+
+        # Connect to database and get country name according to country code.
+        def select_country(value):
+            """ The function obtaining the name of country from the package pytz based on the country code. 
+
+            :param value: the country code
+            :type value: str
+            :returns: the country name
+            """
+            country_name = pytz.country_names[value]
+            return country_name
+
+        # If country is used as site, the country name is selected from countries dictionary by country code. :) 
+        if (country):
+            self.country_name = country_name
+        else:
+            self.country_name = country_name
+
+        # If split_sites is True, then go through dataframe and generate graphs for each site (the country will be included as site in each file).
+        site_ids = self.df['Site ID'].tolist()
+        # Delete country name from side ids list.
+        try:
+            site_ids.remove(self.country_name)
+        except:
+            pass
+
+        if site is not None:
+            df = self.df[self.df['Site ID'].isin([site, self.country_name])].copy()
+            self._generate_graphs(df=df, site_code=site)
+
+        # Generate formatted statistics for all sites individualy + country as site is included
+        if (split_sites) and site is None:
+            for i in site_ids:
+                df = self.df[self.df['Site ID'].isin([i, self.country_name])].copy()
+                print(i)
+                self._generate_graphs(df=df, site_code=i)
+    
+        # Produce formatted statistics for all sites + country as site
+        if site is None:
+            self._generate_graphs(df=self.df, site_code=country_code)
+
+    def _generate_graphs(self, df, site_code=None):
+        """ The function opening the presentation and generating graphs. 
+        
+        :param df: the dataframe with calculated statistic
+        :type df: pandas dataframe
+        :param site_code: the site ID
+        :type site_code: str
+        """
+        
+        prs = Presentation(self.master)
+
+        first_slide = prs.slides[0]
+        shape = first_slide.shapes[5]
+        text_frame = shape.text_frame
+
+        if self.country_name is None:
+            first_slide_text = "Data Summary"
+        else:
+            first_slide_text = self.country_name + "\nData Summary"
+        #first_slide_text = "\nData Summary"
+
+        p = text_frame.paragraphs[0]
+        run = p.add_run()
+        run.text = first_slide_text
+
+        font = run.font
+        font.name = 'Century Gothic'
+        font.size = Pt(24)
+        font.color.rgb = RGBColor(250,250,250)
+
+        # if (self.country_name in ['Ukraine', 'Poland'] and len(df) > 2):
+        #     main_col = 'Site ID'
+        # else:
+        main_col =  'Site Name'
+
+        ########################
+        #### TOTAL PATIENTS ####
+        ########################
+        column_name = 'Total Patients'
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        #title = 'TOTAL PATIENTS'
+        
+        country_patients = str(max(tmp_df[column_name].tolist()))
+        title = 'TOTAL PATIENTS'
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        #####################################
+        #### Department type - neurology ####
+        #####################################
+        column_name = '% department type - neurology'
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        #title = 'TOTAL PATIENTS'
+        
+        country_patients = str(max(tmp_df[column_name].tolist()))
+        title = '% DEPARTMENT TYPE ALLOCATION out of all cases - neurology'
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% patients hospitalized in stroke unit / ICU'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% HOSPITALIZATION DESTINATION out of all cases – stroke unit"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% stroke type - ischemic stroke'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% STROKE TYPE out of all cases - ischemic"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% NIHSS - Performed'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% NIHSS PERFORMED for IS, ICH, CVT"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% CT/MRI - performed'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% CT/MRI PERFORMED for IS, ICH, CVT, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% CT/MRI - Performed within 1 hour after admission'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% CT/MRI PERFORMED WITHIN 1 HOUR AFTER ADMISSION for IS, ICH, CVT, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% patients recanalized'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% RECANALIZATION PROCEDURES for IS"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+        
+        
+        column_name = '% IV tPa'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% IV tPa for IS"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% TBY'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% MT for IS"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = 'Median DTN (minutes)'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = "MEDIAN DOOR-TO-NEEDLE TIME (minutes) for thrombolyzed patients"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+        
+        
+        column_name = 'Median DTG (minutes)'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = "MEDIAN DOOR-TO-GROIN TIME (minutes) for patients receiving endovascular treatment in a comprehensive centre"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = 'Median TBY DIDO (minutes)'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "MEDIAN DOOR-IN-DOOR-OUT TIME (minutes) for patients referred from a primary centre to another centre for recanalization therapy"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% dysphagia screening - Guss test'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = "% DYSPHAGIA SCREENING PERFORMED for IS, ICH, CVT – GUSS test"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% carotid arteries imaging - Yes'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% recommended to a cerebrovascular expert - Recommended'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% RECOMMENDED TO A CEREBROVASCULAR EXPERT out of all cases"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% patients assessed for rehabilitation - Yes'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% REHABILITATION ASSESSMENT out of all cases"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% patients prescribed statins - Yes'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% DISCHARGED WITH STATINS for IS, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% prescribed antihypertensives - Yes'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = "% ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% afib patients discharged with anticoagulants'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% patients detected for aFib'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% PATIENTS DETECTED FOR AFIB for IS, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% afib patients discharged home with anticoagulants'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% PATIENTS DISCHARGED HOME WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+        column_name = '% patients prescribed antiplatelets without aFib with CVT'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = '% patients prescribed antiplatelets without aFib with CVT'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+        title = "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        column_name = 'Median discharge mRS'
+
+        tmp_df = df[[main_col, column_name]]
+        tmp_df = tmp_df.sort_values([column_name], ascending = False)
+
+        title = "Median discharge mRS"
+
+        GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+
+        
+        # set pptx output name (for cz it'll be presentation_CZ.pptx)
+        working_dir = os.getcwd()
+        if site_code is None:
+            pptx = self.report + "_" + self.quarter + "_quantiles.pptx"
+        else:
+            pptx = self.report + "_" + site_code + "_" + self.quarter + "_quantiles.pptx"
+        presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
+
+        prs.save(presentation_path)
+
 
 
 

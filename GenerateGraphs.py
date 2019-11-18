@@ -388,3 +388,194 @@ class GenerateGraphs:
         else:
             chart.legend.font.size = Pt(12)
 
+class GenerateGraphsQuantiles:
+    """ The class generating presentation with graphs for general reports.
+
+    :param dataframe: the dataframe with calculated statistics
+    :type dataframe: pandas dataframe
+    :param presentation: the opened presentation document
+    :type presentation: Presentation object
+    :param title: the title of the slide
+    :type title: str
+    :param column_name: the column name from the dataframe to be shown in the graph
+    :type column_name: str
+    :param graph_type: the type of graph to be generated
+    :type graph_type: str
+    :param number_of_series: the number of columns to be shown in the stacked barplot
+    :type number_of_series: int
+    :param legend: the list of names to be used in the legend in the stacked barplot
+    :type legend: list
+    :param country: the country name used in the first slide
+    :type country: str
+    """
+
+    def __init__(self, dataframe, presentation, title, column_name, graph_type = None, number_of_series=0, legend=None, country=None):
+
+        self.dataframe = dataframe
+        self.presentation = presentation
+        self.title = title
+        self.column_name = column_name
+        self.number_of_series = number_of_series
+        self.legend = legend
+        self.country_name = country
+        self.font_name = 'Century Gothic'
+
+        # If country name is Ukraine or Poland set as categories value Site IDs not Site Name due to huge amount of sites in graph
+        # if (self.country_name in ['Ukraine', 'Poland'] and len(self.dataframe) > 2):
+        #     self.categories_column = 'Site ID'
+        # else:
+        self.categories_column = 'Site Name'
+            
+        # Estimate font sizes based on number of sites included in the graph
+        if (len(self.dataframe) > 60):
+            self.category_font_size = Pt(4)
+            self.data_label_font_size = Pt(4)
+        elif (len(self.dataframe) > 50 and len(self.dataframe) <= 60):
+            self.category_font_size = Pt(6)
+            self.data_label_font_size = Pt(6)
+        else:
+            self.category_font_size = Pt(8)
+            self.data_label_font_size = Pt(8)
+
+        # Select graph which should be exported
+        self._create_barplot(dataframe=self.dataframe, title=self.title, column_name=self.column_name)
+
+    def _get_length_of_legend(self, legend):
+        """ The function adjusting the number of letters in legend to quess the number of columns in the legend! 
+        
+        :param legend: the names of legend
+        :type legend: list
+        :returns: the adjusted number of letters
+        """
+        count = 0
+
+        for i in legend:
+            count = count + len(i)
+        
+        return count
+
+
+    def _set_transparency(self, transparency, elm):
+        """ The function set the transparency of the row. 
+
+        :param transparency: the transparency in %
+        :type transparency: int
+        :param elm: the element which transparency should be changed
+        :type elm: format.line.color._xFill
+        """
+        a = str(100 - transparency) + '196'
+        
+        alpha = OxmlElement('a:alpha')
+        alpha.set('val', a)
+        elm.srgbClr.append(alpha)
+
+
+    def _create_barplot(self, dataframe, title, column_name):
+        """ The function creating the normal barplot graph into the presentation based on the graph type. 
+        
+        :param df: the dataframe with data to be shown
+        :type df: pandas dataframe
+        :param title: the title of the graph
+        :type title: str
+        :param column_name: the column name to be displayed in the graph
+        :type column_name: str
+        """
+        maximum = 0
+
+        # If graph is in %, set maximum valut to 100. 
+        if '%' in title.lower():
+            maximum = 100
+            if self.country_name == 'Czech Republic':
+                values = [round(x, 0) for x in dataframe[column_name].tolist()]
+        else:
+            maximum = round((max(dataframe[column_name].tolist())),1)
+            if self.country_name == 'Czech Republic':
+                values = dataframe[column_name].tolist()
+
+        # Add slide to presentation (layout 11 is our custom layout where only title 'Agency FB', color: RGBColor(43, 88, 173)  and size:24 is set)
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        # Get title object
+        title_placeholders = slide.shapes.title
+        # Set title
+        title_placeholders.text = title
+
+        chart_data = ChartData()
+        chart_data.categories = dataframe[self.categories_column].tolist()
+        chart_data.add_series(column_name, dataframe[column_name].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(16.5),
+            'width': Cm(32),
+            'left': Cm(0.7),
+            'top': Cm(2)
+            }
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart
+
+        # Get series of chart
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        site_names = dataframe[self.categories_column].tolist()
+        if (len(dataframe) > 2):
+            for idx, point in enumerate(series.points):
+                fill = point.format.fill
+                fill.solid()
+                if (site_names[idx] == self.country_name):
+                    fill.fore_color.rgb = RGBColor(128,0,0)
+                elif (site_names[idx] == 'Q1' or site_names[idx] == 'Q3'):
+                    fill.fore_color.rgb = RGBColor(84,130,53)
+                else:
+                    fill.fore_color.rgb = RGBColor(43, 88, 173)
+        else:
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(43, 88, 173) 
+
+        # Get plot 
+        plot = chart.plots[0]
+        # Set for each bar same color
+        plot.vary_by_categories = False
+        # Show data labels and set font
+        plot.has_data_labels = True
+        # Change gap width
+        plot.gap_width = 100
+
+        
+        data_labels = plot.data_labels
+        data_labels.font.size = self.data_label_font_size
+        data_labels.font.bold = True
+        data_labels.font.name = self.font_name
+
+        if 'Total Patients' in column_name or 'Median patient age' in column_name:
+            value_axis = chart.value_axis
+            value_axis.visible = False
+            value_axis.has_major_gridlines = False
+        else:
+            # Value for x-axis (change font size, name, and other things)
+            value_axis = chart.value_axis
+            tick_labels = value_axis.tick_labels
+            tick_labels.font.size = self.category_font_size
+            tick_labels.font.name = self.font_name
+            
+            # Don't show major gridlines
+            value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+            value_axis.has_major_gridlines = False
+            # Set range of axis
+            value_axis.maximum_scale = maximum
+            value_axis.minimum_scale = 0
+       
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        category_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+        solidFill = category_axis.format.line.color._xFill
+        self._set_transparency(100, solidFill)
+
+        # Delete tick marks
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_axis.major_unit = 1
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+

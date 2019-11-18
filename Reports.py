@@ -169,7 +169,6 @@ class Reports:
         :type hospital_date: date
         :returns: the difference in minutes
         """
-        
         if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
             time_diff = hospital_date - visit_date
             # Convert difference to minutes

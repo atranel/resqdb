@@ -464,10 +464,19 @@ class ComputeStats:
         # Get recanalization procedure differently for CZ, they are taking the possible values differently
         if country_code == 'CZ':
             # self.statsDf['# patients recanalized'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] +  x['# recanalization procedures - Endovascular treatment alone']  + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'], axis=1)
-            self.statsDf['# patients recanalized'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] +  x['# recanalization procedures - Endovascular treatment alone'], axis=1)
+            recanalized_df = isch.loc[isch['IVT_DONE'].isin([1]) | isch['TBY_DONE'].isin([1])]
+            self.statsDf['# patients recanalized'] = self._count_patients(dataframe=recanalized_df)
+
+            recanalized_denominator_df = isch.loc[isch['IVT_DONE'].isin([1]) | isch['TBY_DONE'].isin([1]) | isch['RECANALIZATION_PROCEDURES'].isin([1])]
+            self.statsDf['denominator'] =self._count_patients(dataframe=recanalized_denominator_df)
+
+            #self.statsDf['# patients recanalized'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] +  x['# recanalization procedures - Endovascular treatment alone'], axis=1)
 
             #self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
-            self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
+
+            #self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/(x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre'])) * 100), 2) if (x['isch_patients'] - x['# recanalization procedures - Referred to another centre for endovascular treatment'] - x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] - x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre'] - x['# recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre']) > 0 else 0, axis=1)
+            self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/x['denominator']) * 100), 2) if x['denominator'] > 0 else 0, axis=1)
+            self.statsDf.drop(['denominator'], inplace=True, axis=1)
         else:
             self.statsDf['# patients recanalized'] = self.statsDf.apply(lambda x: x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'] +  x['# recanalization procedures - Endovascular treatment alone'], axis=1)
 
@@ -506,7 +515,6 @@ class ComputeStats:
             return m, m-h, m+h
 
         if country_code == 'CZ':
-            print("I'm here")
             self.tmp = isch.groupby(['Protocol ID', 'IVT_DONE']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="IVT_DONE", value=1, new_column_name='# IV tPa')
             self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
@@ -555,7 +563,6 @@ class ComputeStats:
         ##############
         # Seperate calculation of TBY for CZ
         if country_code == 'CZ':
-            print("I'm here")
             self.tmp = isch.groupby(['Protocol ID', 'TBY_DONE']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="TBY_DONE", value=1, new_column_name='# TBY')
             self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
@@ -902,6 +909,9 @@ class ComputeStats:
         
         self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=5, new_column_name='# afib/flutter - Not known')
         self.statsDf['% afib/flutter - Not known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
+
+        self.statsDf['afib_flutter_detected_only'] = self.statsDf['# afib/flutter - Newly-detected at admission'] + self.statsDf['# afib/flutter - Detected during hospitalization']
+        self.statsDf['% patients detected for aFib'] = self.statsDf.apply(lambda x: round(((x['afib_flutter_detected_only']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
 
         #########################
         # AFIB DETECTION METHOD #
@@ -1553,8 +1563,12 @@ class ComputeStats:
 
         self.statsDf['wrong_tby'] = self._count_patients(dataframe=wrong_tby)
 
-        self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone']) - x['wrong_tby'], axis=1)
-        self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
+        if country_code == 'CZ':
+            self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']) - x['wrong_tby'], axis=1)
+            self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
+        else:
+            self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone']) - x['wrong_tby'], axis=1)
+            self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
 
         self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
 
