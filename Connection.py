@@ -173,6 +173,13 @@ class Connection():
 
                 self.preprocessed_data['RES-Q reports name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['report_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
                 self.preprocessed_data['ESO Angels name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['angels_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
+
+                ##############
+                # ONSET TIME #
+                ##############
+                # Get difference in minutes between hospitalization and last visit
+                self.preprocessed_data['LAST_SEEN_NORMAL'] = self.preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
+                self.preprocessed_data['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
             
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
@@ -660,3 +667,24 @@ class Connection():
         res.rename(columns=dict(zip(res.columns[0:], new_cols)), inplace=True)
         logging.info("Connection: Column names in RESQ were changed successfully.")
         return res
+
+    def time_diff(self, visit_date, hospital_date):
+        """ The function calculating the difference in minutes between two dates. 
+
+        :param visit_date: the last seen normal date
+        :type visit_date: date
+        :param hospital_date: the date of hospitalization
+        :type hospital_date: date
+        :returns: the difference in minutes
+        """
+        if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+            time_diff = hospital_date - visit_date
+            # Convert difference to minutes
+            total_minutes = time_diff.total_seconds() / 60.0
+        else:
+            total_minutes = 0
+
+        if total_minutes < 0 or total_minutes > 40000:
+            total_minutes = 0
+        
+        return total_minutes

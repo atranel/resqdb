@@ -1550,6 +1550,12 @@ class ComputeStats:
         self.statsDf = self.statsDf.merge(positive_hospital_days.groupby(['Protocol ID']).HOSPITAL_DAYS.agg(['median']).rename(columns={'median': 'Median hospital stay (days)'})['Median hospital stay (days)'].reset_index(), how='outer')
         self.statsDf.fillna(0, inplace=True)
 
+        ###########################
+        # MEDIAN LAST SEEN NORMAL #
+        ###########################
+        self.statsDf = self.statsDf.merge(self.df[self.df['LAST_SEEN_NORMAL'] != 0].groupby(['Protocol ID']).LAST_SEEN_NORMAL.agg(['median']).rename(columns={'median': 'Median last seen normal'})['Median last seen normal'].reset_index(), how='outer')
+        self.statsDf.fillna(0, inplace=True)
+
         # ELIGIBLE RECANALIZATION
 
         wrong_ivtpa = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 0]
