@@ -66,22 +66,14 @@ class Reports:
             'CZ_041', # Ustredni vojenska nemocnice
             'CZ_025', # Plzen
             'CZ_042', # Olomouc
-            'CZ_008', # Kralovske Vinohrady
+            'CZ_008', # Kralovske Vinohrady,
+            'CZ'
         ]
 
-        self.df = df
         self.year = year
         self.country = country
         self.month = month
-
-        # Rename 'RES-Q reports name' column to 'Site Name'
-        if 'RES-Q reports name' in self.df.columns:
-            self.df.rename(columns={'Site Name': 'Site Name Old', 'RES-Q reports name': 'Site Name'}, inplace=True)
-
-        # Get site names to hospitals_mt
-        self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first').reset_index()
-        
-        self.site_id_mapped_to_site_name.drop(['index'], inplace=True, axis=1)
+        self.country_name = 'Česká republika'
 
         debug = 'reports_debug_' + datetime.now().strftime('%d-%m-%Y') + '.log'
         # Create log file in the working folder
@@ -93,10 +85,29 @@ class Reports:
                             level=logging.DEBUG)
 
         # Get only dataframe for selected country
-        fd_ojb = FilterDataset(df=self.df, country=self.country)
+        fd_ojb = FilterDataset(df=df, country=self.country)
         df = fd_ojb.fdf.copy()
         df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
+        tmp_country_df = df.copy()
+        tmp_country_df['RES-Q reports name'] = self.country_name
+        tmp_country_df['Site Name'] = self.country_name
+        tmp_country_df['Protocol ID'] = 'CZ'
+        df = df.append(tmp_country_df, ignore_index=True, sort=False)
+        df.to_csv("test.csv", sep=",")
+
         self.country_df = df
+        self.df = df.copy()
+        
+        # Rename 'RES-Q reports name' column to 'Site Name'
+        if 'RES-Q reports name' in self.df.columns:
+            self.df.rename(columns={'Site Name': 'Site Name Old', 'RES-Q reports name': 'Site Name'}, inplace=True)
+
+        # Get site names to hospitals_mt
+        self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first').reset_index()
+        
+        self.site_id_mapped_to_site_name.drop(['index'], inplace=True, axis=1)
+        
+
 
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
@@ -129,6 +140,8 @@ class Reports:
             df['Protocol ID']
             df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
 
+            
+
             # Add dataframe into dictionary
             dfs[month] = df
 
@@ -139,6 +152,7 @@ class Reports:
         fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
         df = fd_obj.fdf.copy()
         df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
+
         dfs[str(self.year)] = df
         
         return dfs
@@ -241,12 +255,11 @@ class Reports:
         for name, df in self.filtered_dfs.items():
              
             statistic = self.country_df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")			# Get Protocol IDs and Total Patients
-
             # Calculate IVtPa median
             ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy()		
             thrombolysis_df = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()	
 
-            print('Thrombolysis {} - {}'.format(name, len(thrombolysis_df)))
+            # print('Thrombolysis {} - {}'.format(name, len(thrombolysis_df)))
             # only patients with ischemic stroke
             # thrombolysis_df = ischemic_cmp[ischemic_cmp['RECANALIZATION_PROCEDURES'].isin([2,3,5])].copy() 	# only patients with ischemic stroke who underwent recanalizaiton procedure (IVtPa, IVtPa + TBY, IVtPa + referred for TBY)
             if thrombolysis_df.empty:
@@ -294,8 +307,8 @@ class Reports:
                     statistic['# IVT'] = self.count_patients(df=thrombolysis, statistic=statistic)
 
                     # Get difference in minutes between hospitalization and last visit
-                    thrombolysis['LAST_SEEN_NORMAL'] = thrombolysis.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
-                    thrombolysis['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
+                    #thrombolysis['LAST_SEEN_NORMAL'] = thrombolysis.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
+                    #thrombolysis['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
                     last_seen_normal_grouped = thrombolysis[thrombolysis['LAST_SEEN_NORMAL'] != 0].groupby(['Protocol ID']).LAST_SEEN_NORMAL.agg(['median']).rename(columns={'median': 'Median last seen normal'}).reset_index()
                     statistic = statistic.merge(last_seen_normal_grouped, how='outer') # Merge with statistic dataframe
 
@@ -375,7 +388,7 @@ class Reports:
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
                 incorrect_tby_times.to_csv('incorrect_tby_times.csv', sep=',')
 
-
+                thrombectomy_df.to_csv('thrombectomy_{}.csv'.format(name), sep=',')
                 included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
                 included_in_median.to_csv('included_in_median.csv', sep=',')
                 thrombectomy = included_in_median[(included_in_median['TBY'] > 0) & (included_in_median['TBY'] < 700)].copy()
@@ -515,6 +528,7 @@ class Reports:
             
             sheet = workbook.add_worksheet(sheet_name)
             
+            df.fillna(0, inplace=True)
             values = df.values.tolist()
             nrow = len(df)
 
@@ -595,9 +609,11 @@ class GeneratePresentation(Reports):
                 self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
                 # If country is used as site, the country name is selected from countries dictionary by country code. :) 
-                if self.country == 'UZB':
+                '''if self.country == 'UZB':
                     self.country = 'UZ'
                 self.country_name = pytz.country_names[self.country]
+                '''
+                self.country_name = 'Česká republika'
 
                 prs = Presentation(self.master)
 
@@ -674,6 +690,7 @@ class GeneratePresentation(Reports):
                     column_name = 'Total patients undergone IVT'
                     axis_title = 'Počet trombolýz'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
+                    tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
 
                     total_pts = round(sum(tmp_df[column_name].tolist()))
                     
@@ -833,7 +850,7 @@ class GeneratePresentation(Reports):
                     column_name = '# TBY'
                     axis_title = 'Počet MT'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-
+                    tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
                     total_pts = sum(tmp_df[column_name].tolist())
 
                     if name == str(self.year):
@@ -886,9 +903,10 @@ class GeneratePresentation(Reports):
                 self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
 
                 # If country is used as site, the country name is selected from countries dictionary by country code. :) 
-                if self.country == 'UZB':
+                '''if self.country == 'UZB':
                     self.country = 'UZ'
-                self.country_name = pytz.country_names[self.country]
+                self.country_name = pytz.country_names[self.country]'''
+                self.country_name = "Česká republika"
 
                 prs = Presentation(self.master)
 
@@ -945,7 +963,7 @@ class GeneratePresentation(Reports):
                 column_name = 'Total patients undergone IVT'
                 axis_title = 'Počet trombolýz'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-
+                tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
                 total_pts = sum(tmp_df[column_name].tolist())
 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
@@ -1050,7 +1068,7 @@ class GeneratePresentation(Reports):
                 column_name = '# TBY'
                 axis_title = 'Počet MT'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-
+                tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
                 total_pts = sum(tmp_df[column_name].tolist())
                 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
@@ -1162,6 +1180,7 @@ class GenerateGraphs:
             'green': RGBColor(98, 153, 62), 
             'crimsom': RGBColor(220, 20, 60), 
             'blue': RGBColor(43, 88, 173),
+            'wine_red': RGBColor(134, 0, 0)
         }
 
         site_names = self.dataframe[self.categories_column].tolist()
@@ -1219,14 +1238,18 @@ class GenerateGraphs:
 
         # Get series of chart
         series = chart.series[0]
-        
+
+       
         if self.coloring:
             # Coloring for median values - <= 20 green, > 20 and <= 30 yellow, else crimsom
             for idx, point in enumerate(series.points):
                 fill = point.format.fill
                 fill.solid()
                 value = values[idx]
-                if (value > 0 and value <= 20):
+                
+                if (site_names[idx] == self.country_name):
+                    fill.fore_color.rgb = colors['wine_red']                    
+                elif (value > 0 and value <= 20):
                     fill.fore_color.rgb = colors['green']
                 elif (value > 20 and value <= 30):
                     fill.fore_color.rgb = colors['yellow']
@@ -1248,13 +1271,19 @@ class GenerateGraphs:
             for idx, point in enumerate(series.points):
                 fill = point.format.fill
                 fill.solid()
-                fill.fore_color.rgb = colors['crimsom']
+                if (site_names[idx] == self.country_name):
+                    fill.fore_color.rgb = colors['wine_red']   
+                else:
+                    fill.fore_color.rgb = colors['crimsom']
         else:
             # Blue color for the remaining values 
             for idx, point in enumerate(series.points):
                 fill = point.format.fill
                 fill.solid()
-                fill.fore_color.rgb = colors['blue']
+                if (site_names[idx] == self.country_name):
+                    fill.fore_color.rgb = colors['wine_red']     
+                else:
+                    fill.fore_color.rgb = colors['blue']
 
         # Get plot 
         plot = chart.plots[0]

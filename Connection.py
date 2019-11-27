@@ -53,7 +53,8 @@ class Connection():
             cz_names_dict = json.load(json_file)
 
         # Set section
-        datamix = 'datamix-backup'
+        # datamix = 'datamix-backup'
+        datamix = 'datamix'
         # Check which data should be exported
         if data == 'resq':
             # Create empty dictionary

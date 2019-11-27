@@ -140,7 +140,7 @@
         "report_name": "Karviná"
     },
     "CZ_029": {
-        "angels_name": "Nemocnice Na Homolce",
+        "angels_name": "Nemocnice Nové Město na Moravě",
         "current_name": "Hospital in Nove Mesto na Morave",
         "report_name": "Nové Město na Moravě"
     },
@@ -242,11 +242,6 @@
     "CZ_051": {
         "angels_name": "Nemocnice Hořovice",
         "current_name": "NH Hospital a.s. - Neurology",
-        "report_name": "Hořovice"
-    },
-    "CZ_052": {
-        "angels_name": "Nemocnice Hořovice",
-        "current_name": "New Hospital Brno - Neurology",
         "report_name": "Hořovice"
     }
 }

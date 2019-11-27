@@ -999,7 +999,7 @@ class GenerateFormattedStats:
 
         for i in range(first_index, last_index+1):
             if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', rehab_assess_color)
+                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS, ICH, SAH and CVT', rehab_assess_color)
             else:
                 worksheet.write(xl_rowcol_to_cell(1, i), '', rehab_assess_color)
 
@@ -1488,9 +1488,9 @@ class GenerateFormattedStats:
 
         for i in range(first_index, last_index+1):
             if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # CVT', intervention_color)
+                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # CVT', vt_treatment_color)
             else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', intervention_color)
+                worksheet.write(xl_rowcol_to_cell(1, i), '', vt_treatment_color)
 
         #######################
         # ATRIAL FIBRILLATION #
@@ -1890,7 +1890,7 @@ class GenerateFormattedStats:
             'fg_color': colors.get("angel_awards")})
 
         first_index = column_names.index(self.total_patients_column)
-        last_index = column_names.index('% stroke patients treated in a dedicated stroke unit / ICU')
+        last_index = column_names.index('Proposed Award')
         first_cell = xl_rowcol_to_cell(0, first_index)
         last_cell = xl_rowcol_to_cell(0, last_index)
 
@@ -1902,7 +1902,7 @@ class GenerateFormattedStats:
             else:
                 worksheet.write(xl_rowcol_to_cell(1, i), '', awards_color)
 
-        hidden_columns = ['# patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 60 minutes', '# patients treated with door to recanalization therapy < 45 minutes', '% patients treated with door to recanalization therapy < 45 minutes', '# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 120 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU']
+        hidden_columns = ['# patients treated with door to recanalization therapy < 60 minutes', '% patients treated with door to recanalization therapy < 60 minutes', '# patients treated with door to recanalization therapy < 45 minutes', '% patients treated with door to recanalization therapy < 45 minutes', '# patients treated with door to thrombolysis < 60 minutes', '# patients treated with door to thrombolysis < 45 minutes', '# patients treated with door to thrombectomy < 120 minutes', '# patients treated with door to thrombectomy < 90 minutes', '# recanalization rate out of total ischemic incidence', '# suspected stroke patients undergoing CT/MRI', '# all stroke patients undergoing dysphagia screening', '# ischemic stroke patients discharged with antiplatelets', '% ischemic stroke patients discharged with antiplatelets', '# ischemic stroke patients discharged home with antiplatelets', '% ischemic stroke patients discharged home with antiplatelets', '# ischemic stroke patients discharged (home) with antiplatelets', '# afib patients discharged with anticoagulants', '% afib patients discharged with anticoagulants', '# afib patients discharged home with anticoagulants', '% afib patients discharged home with anticoagulants', '# afib patients discharged (home) with anticoagulants', '# stroke patients treated in a dedicated stroke unit / ICU', 'Proposed Award (old calculation)']
         				
         for i in hidden_columns:
             index = column_names.index(i)

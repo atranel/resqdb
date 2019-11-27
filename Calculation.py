@@ -271,13 +271,13 @@ class ComputeStats:
         ###############################
         # ASSESSED FOR REHABILITATION #
         ###############################
-        self.tmp = self.df.groupby(['Protocol ID', 'ASSESSED_FOR_REHAB']).size().to_frame('count').reset_index()
+        self.tmp = is_ich_sah_cvt.groupby(['Protocol ID', 'ASSESSED_FOR_REHAB']).size().to_frame('count').reset_index()
         self.statsDf = self._get_values_for_factors(column_name="ASSESSED_FOR_REHAB", value=3, new_column_name='# patients assessed for rehabilitation - Not known')
-        self.statsDf['% patients assessed for rehabilitation - Not known'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - Not known']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+        self.statsDf['% patients assessed for rehabilitation - Not known'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - Not known']/x['is_ich_sah_cvt_patients']) * 100), 2) if x['is_ich_sah_cvt_patients'] > 0 else 0, axis=1)
         self.statsDf = self._get_values_for_factors(column_name="ASSESSED_FOR_REHAB", value=1, new_column_name='# patients assessed for rehabilitation - Yes')
-        self.statsDf['% patients assessed for rehabilitation - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - Yes']/(x['Total Patients'] - x['# patients assessed for rehabilitation - Not known'])) * 100), 2) if (x['Total Patients'] - x['# patients assessed for rehabilitation - Not known']) > 0 else 0, axis=1)
+        self.statsDf['% patients assessed for rehabilitation - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - Yes']/(x['is_ich_sah_cvt_patients'] - x['# patients assessed for rehabilitation - Not known'])) * 100), 2) if (x['is_ich_sah_cvt_patients'] - x['# patients assessed for rehabilitation - Not known']) > 0 else 0, axis=1)
         self.statsDf = self._get_values_for_factors(column_name="ASSESSED_FOR_REHAB", value=2, new_column_name='# patients assessed for rehabilitation - No')
-        self.statsDf['% patients assessed for rehabilitation - No'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - No']/(x['Total Patients'] - x['# patients assessed for rehabilitation - Not known'])) * 100), 2) if (x['Total Patients'] - x['# patients assessed for rehabilitation - Not known']) > 0 else 0, axis=1)
+        self.statsDf['% patients assessed for rehabilitation - No'] = self.statsDf.apply(lambda x: round(((x['# patients assessed for rehabilitation - No']/(x['is_ich_sah_cvt_patients'] - x['# patients assessed for rehabilitation - Not known'])) * 100), 2) if (x['is_ich_sah_cvt_patients'] - x['# patients assessed for rehabilitation - Not known']) > 0 else 0, axis=1)
 
         ###############
         # STROKE TYPE #
