@@ -268,6 +268,11 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="HOSPITALIZED_IN", value=3, new_column_name='# patients hospitalized in standard bed')
         self.statsDf['% patients hospitalized in standard bed'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in standard bed']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
+        self.statsDf['# patients hospitalized in stroke unit / ICU or monitored bed'] = self.statsDf['# patients hospitalized in stroke unit / ICU'] + self.statsDf['# patients hospitalized in monitored bed with telemetry']
+        self.statsDf['% patients hospitalized in stroke unit / ICU or monitored bed'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in stroke unit / ICU or monitored bed']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+
+                
+
         ###############################
         # ASSESSED FOR REHABILITATION #
         ###############################

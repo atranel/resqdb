@@ -1028,12 +1028,12 @@ class GeneratePresentationQuantiles:
         GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
 
-        column_name = '% patients hospitalized in stroke unit / ICU'
+        column_name = '% patients hospitalized in stroke unit / ICU or monitored bed'
 
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% HOSPITALIZATION DESTINATION out of all cases – stroke unit"
+        title = "% HOSPITALIZATION DESTINATION out of all cases – stroke unit or monitored bed"
 
         GenerateGraphsQuantiles(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
