@@ -534,7 +534,12 @@ class Connection():
                             for val in x:
                                 res = anticoagulants_dict[val]
                         else:
-                            res = 10
+                            x = set(antiplatelets_vals).intersection(set(vals))
+                            if bool(x):
+                                res = 1
+                            else:
+                                res = 10
+                            #res = 10
 
             #print("Vals: {0}, Results: {1}".format(vals, res))
             return res

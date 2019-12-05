@@ -691,7 +691,6 @@ class GeneratePresentation(Reports):
                     axis_title = 'Počet trombolýz'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
                     tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-
                     total_pts = round(sum(tmp_df[column_name].tolist()))
                     
                     if name == str(self.year):
@@ -964,7 +963,7 @@ class GeneratePresentation(Reports):
                 axis_title = 'Počet trombolýz'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
                 tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-                total_pts = sum(tmp_df[column_name].tolist())
+                total_pts = round(sum(tmp_df[column_name].tolist()))
 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT na IC/KCC - {} {} (n={})".format(month_name, self.year, total_pts)

@@ -24,6 +24,7 @@ import xlsxwriter
 from pptx import Presentation
 from pptx.util import Cm, Pt, Inches
 from pptx.dml.color import RGBColor
+from pptx.oxml.table import CT_Table
 
 import pytz
 
@@ -191,16 +192,25 @@ class GenerateNationalComparisonGraphs:
         ###################
         ## OUTCOME table ##
         ###################
+
+
+
+
         if outcome is not None:
             slide = prs.slides.add_slide(prs.slide_layouts[11])
             title_placeholders = slide.shapes.title
             title_placeholders.text = "VÝSLEDKY PODLE SKUPIN PACIENTŮ"
 
             # table_placeholder = slide.shapes[1]
-            x, y, cx, cy = Inches(2), Inches(2), Inches(4), Inches(1.5)
-            shape = slide.shapes.add_table(7, 3, x, y, cx, cy)
-            table = shape.table
+            x, y, width, height = Cm(7), Cm(5.5), Cm(20), Cm(8)
+            shape = slide.shapes.add_table(7, 3, x, y, width, height)
+            # set table look
+            # Change table style (https://github.com/scanny/python-pptx/issues/27)
+            style_id = '{7DF18680-E054-41AD-8BC1-D1AEF772440D}'
+            tbl = shape._element.graphic.graphicData.tbl
+            tbl[0][-1].text = style_id
 
+            table = shape.table
             # table = shape.table
             tmp_df = outcome[['Patient Group', 'n', 'Median discharge mRS']]
 
@@ -900,9 +910,9 @@ class GenerateNationalComparisonGraphs:
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
         if site_code == 'CZ':
-            title = "% VYŠETŘENÍ FYZIOTERAPEUTEM ze všech případů"
+            title = "% VYŠETŘENÍ FYZIOTERAPEUTEM u iCMP, ICH, CVT a SAK"
         else: 
-            title = "% REHABILITATION ASSESSMENT out of all cases"
+            title = "% REHABILITATION ASSESSMENT for IS, ICH, CVT and SAH"
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -1204,7 +1214,7 @@ class GenerateNationalComparisonGraphs:
         legend = []
         legends.append(legend)
         if site_code == "CZ":
-            titles.append("% pacientů s předepsanými antitrombotiky a  s fibrilací síní")
+            titles.append("% pacientů s předepsanými antitrombotiky a s fibrilací síní")
         else:
             titles.append("% patients prescribed antithrombotics with aFib")
         graph_types.append("normal")
