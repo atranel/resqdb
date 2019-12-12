@@ -85,11 +85,14 @@ class Reports:
                             level=logging.DEBUG)
 
         # Get only dataframe for selected country
+        # Rename 'RES-Q reports name' column to 'Site Name'
+        if 'RES-Q reports name' in df.columns:
+            df.rename(columns={'Site Name': 'Site Name Old', 'RES-Q reports name': 'Site Name'}, inplace=True)
+
         fd_ojb = FilterDataset(df=df, country=self.country)
         df = fd_ojb.fdf.copy()
         df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
         tmp_country_df = df.copy()
-        tmp_country_df['RES-Q reports name'] = self.country_name
         tmp_country_df['Site Name'] = self.country_name
         tmp_country_df['Protocol ID'] = 'CZ'
         df = df.append(tmp_country_df, ignore_index=True, sort=False)
@@ -97,18 +100,12 @@ class Reports:
 
         self.country_df = df
         self.df = df.copy()
-        
-        # Rename 'RES-Q reports name' column to 'Site Name'
-        if 'RES-Q reports name' in self.df.columns:
-            self.df.rename(columns={'Site Name': 'Site Name Old', 'RES-Q reports name': 'Site Name'}, inplace=True)
 
         # Get site names to hospitals_mt
         self.site_id_mapped_to_site_name = self.df[self.df['Protocol ID'].isin(self.hospitals_mt)][['Protocol ID', 'Site Name']].drop_duplicates(subset='Protocol ID', keep='first').reset_index()
         
         self.site_id_mapped_to_site_name.drop(['index'], inplace=True, axis=1)
         
-
-
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
         self.names = list(self.filtered_dfs.keys())
@@ -140,7 +137,6 @@ class Reports:
             df['Protocol ID']
             df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
 
-            
 
             # Add dataframe into dictionary
             dfs[month] = df
@@ -347,10 +343,10 @@ class Reports:
             
             df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
 
-            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else (x['TBY_DONE'], True), axis=1))
-            df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
+            #df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else (x['TBY_DONE'], True), axis=1))
+            #df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
 
-            df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
+            #df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
             
             df['FIRST_HOSPITAL'] = df.apply(lambda x: 1 if (x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] in first_hosp_mapping.keys() and (x['FIRST_ARRIVAL_HOSP'] == 'unknown' or x['FIRST_ARRIVAL_HOSP'] == first_hosp_mapping[x['Protocol ID']])) else x['FIRST_HOSPITAL'], axis=1)
 

@@ -19,7 +19,7 @@ import numpy as np
 import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import pytz
 
 class GeneratePreprocessedData:
@@ -105,7 +105,7 @@ class GeneratePreprocessedData:
         dateformat = "%m/%d/%Y"
         timeformat = "%H:%M"
         def convert_to_string(datetime, format):
-            if datetime is None or datetime is np.nan:
+            if datetime is None or datetime is np.nan or pd.isnull(datetime):
                 return datetime
             else:
                 return datetime.strftime(format)
@@ -297,28 +297,40 @@ class GenerateFormattedAngelsAwards:
     :param minimum_patients: the minimum number of patients sites need to met condition for total patients
     :type minimum_patients: int
     """
-    def __init__(self, df, report=None, quarter=None, minimum_patients=30):
+    def __init__(self, df, one_workbook=False, report=None, quarter=None, minimum_patients=30):
 
         self.df = df
         self.report = report
         self.quarter = quarter
         self.minimum_patients = minimum_patients
 
-        self.formate(self.df)
+        if self.report is None and self.quarter is None:
+            output_file = "angels_awards.xlsx"
+        else:
+            output_file = self.report + "_" + self.quarter + "_angels_awards.xlsx"
+        
+        workbook1 = xlsxwriter.Workbook(output_file, {'strings_to_numbers': True})
 
-    def formate(self, df):
+        if one_workbook:
+            if isinstance(self.df, OrderedDict):
+                for key, val in self.df.items():
+                    self.formate(val, workbook1, sheet_name=key)
+        else:
+            self.formate(self.df, workbook1)
+
+        workbook1.close()
+
+    def formate(self, df, workbook1, sheet_name=None):
         """ The function formatting the Angels Awards data. 
 
         :param df: the temporary dataframe containing only column needed to propose award
         :type df: pandas dataframe
         """
-        if self.report is None and self.quarter is None:
-            output_file = "angels_awards.xslx"
+        
+        if sheet_name is None:
+            worksheet = workbook1.add_worksheet()
         else:
-            output_file = self.report + "_" + self.quarter + "_angels_awards.xlsx"
-            
-        workbook1 = xlsxwriter.Workbook(output_file, {'strings_to_numbers': True})
-        worksheet = workbook1.add_worksheet()
+            worksheet = workbook1.add_worksheet(sheet_name)
 
         worksheet.set_column(0, 2, 15)
         worksheet.set_column(2, 20, 40)
@@ -656,8 +668,6 @@ class GenerateFormattedAngelsAwards:
                 index = column_names.index(i)
                 column = xl_col_to_name(index)
                 worksheet.set_column(column + ":" + column, None, None, {'hidden': True})
-
-        workbook1.close()
 
 
 class GenerateFormattedStats:

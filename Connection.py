@@ -18,6 +18,7 @@ from threading import Thread
 import collections
 import datetime
 import csv
+from dateutil.relativedelta import relativedelta
 import json
 
 class Connection():
@@ -92,6 +93,33 @@ class Connection():
                 self.countries = self._get_countries(df=self.df)
                 # Get preprocessed data
                 self.preprocessed_data = self.check_data(df=self.df, nprocess=1)
+
+                self.preprocessed_data['RES-Q reports name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['report_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
+                self.preprocessed_data['ESO Angels name'] = self.preprocessed_data.apply(lambda x: cz_names_dict[x['Protocol ID']]['angels_name'] if 'Czech Republic' in x['Country'] and x['Protocol ID'] in cz_names_dict.keys() else x['Site Name'], axis=1)
+
+                ##############
+                # ONSET TIME #
+                ##############
+                self.preprocessed_data['HOSPITAL_TIME'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_TIME'], format='%H:%M:%S').dt.time
+                try:
+                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) else None, axis=1)
+                    #self.preprocessed_data['HOSPITAL_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_DATE'] + ' ' + self.preprocessed_data['HOSPITAL_TIME'])
+                except ValueError as error:
+                    logging.error("Error occured when converting hospital date and time into timestamp object - {}.".format(error))
+                
+                self.preprocessed_data['VISIT_DATE'] = self.preprocessed_data.apply(lambda x: self.fix_date(x['VISIT_DATE'], x['HOSPITAL_DATE']), axis=1)
+                self.preprocessed_data['VISIT_TIME'] = pd.to_datetime(self.preprocessed_data['VISIT_TIME'], format='%H:%M:%S').dt.time
+            
+                try:
+                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) else None, axis=1)
+                    #self.preprocessed_data['VISIT_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['VISIT_DATE'] + ' ' + self.preprocessed_data['VISIT_TIME'])
+                except ValueError as error:
+                    logging.error("Error occured when converting visit date and time into timestamp object - {}.".format(error))			
+
+                # Get difference in minutes between hospitalization and last visit
+                self.preprocessed_data['LAST_SEEN_NORMAL'] = self.preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
+                self.preprocessed_data['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
+        
 
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
@@ -178,6 +206,22 @@ class Connection():
                 ##############
                 # ONSET TIME #
                 ##############
+                self.preprocessed_data['HOSPITAL_TIME'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_TIME'], format='%H:%M:%S').dt.time
+                try:
+                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) else None, axis=1)
+                    #self.preprocessed_data['HOSPITAL_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_DATE'] + ' ' + self.preprocessed_data['HOSPITAL_TIME'])
+                except ValueError as error:
+                    logging.error("Error occured when converting hospital date and time into timestamp object - {}.".format(error))
+                
+                self.preprocessed_data['VISIT_DATE'] = self.preprocessed_data.apply(lambda x: self.fix_date(x['VISIT_DATE'], x['HOSPITAL_DATE']), axis=1)
+                self.preprocessed_data['VISIT_TIME'] = pd.to_datetime(self.preprocessed_data['VISIT_TIME'], format='%H:%M:%S').dt.time
+            
+                try:
+                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) else None, axis=1)
+                    #self.preprocessed_data['VISIT_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['VISIT_DATE'] + ' ' + self.preprocessed_data['VISIT_TIME'])
+                except ValueError as error:
+                    logging.error("Error occured when converting visit date and time into timestamp object - {}.".format(error))			
+
                 # Get difference in minutes between hospitalization and last visit
                 self.preprocessed_data['LAST_SEEN_NORMAL'] = self.preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
                 self.preprocessed_data['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
@@ -683,7 +727,7 @@ class Connection():
         :type hospital_date: date
         :returns: the difference in minutes
         """
-        if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
+        if (type(visit_date) is pd.Timestamp or type(visit_date) is datetime.datetime) and (type(hospital_date) is pd.Timestamp or type(hospital_date) is datetime.datetime):
             time_diff = hospital_date - visit_date
             # Convert difference to minutes
             total_minutes = time_diff.total_seconds() / 60.0
@@ -694,3 +738,14 @@ class Connection():
             total_minutes = 0
         
         return total_minutes
+
+    def fix_date(self, visit_date, hospital_date):
+        """ Fix date in the case that visit year is incorrect. """
+        
+        if visit_date is None:
+            return None
+        else:
+            if visit_date.year > datetime.datetime.now().year:
+                visit_date = hospital_date + relativedelta(year=hospital_date.year)
+        
+        return visit_date
