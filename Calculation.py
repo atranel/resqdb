@@ -31,7 +31,7 @@ class FilterDataset:
     :type date2: date
     """
 
-    def __init__(self, df, country=None, date1=None, date2=None):
+    def __init__(self, df, country=None, date1=None, date2=None, column='DISCHARGE_DATE'):
 
         debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
         log_file = os.path.join(os.getcwd(), debug)
@@ -55,9 +55,13 @@ class FilterDataset:
         
         if self.date1 is not None and self.date2 is not None:
 
-            self.fdf = self._filter_by_date()
-            logging.info('FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
-        
+            if column == 'DISCHARGE_DATE':
+                self.fdf = self._filter_by_date()
+                logging.info('FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
+            elif column == 'HOSPITAL_DATE':
+                self.fdf = self._filter_by_hospital_date()
+                logging.info('FilterDataset: Data have been filtered by hospital date for dates {} - {}!'.format(self.date1, self.date2))
+
         
     def _filter_by_country(self):
         """ The function filtering dataframe by country. 
@@ -80,6 +84,20 @@ class FilterDataset:
             self.date2 = self.date2.date()
 
         df = self.fdf[(self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2)]
+
+        return df
+
+    def _filter_by_hospital_date(self):
+        ''' The function filtering dataframe by admission date. 
+
+        :returns df: the dataframe including only rows where admission date is between these two days
+        '''
+        if isinstance(self.date1, datetime):
+            self.date1 = self.date1.date()
+        if isinstance(self.date2, datetime):
+            self.date2 = self.date2.date()
+
+        df = self.fdf[(self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)]
 
         return df
 
