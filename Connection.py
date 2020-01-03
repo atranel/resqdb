@@ -174,11 +174,13 @@ class Connection():
                 subject_ids = self.df['Subject ID'].tolist()
                 duplicates = [item for item, count in collections.Counter(subject_ids).items() if count > 1]
 
+                
                 for i in duplicates:
-                    duplicates_rows = self.df[self.df['Subject ID'] == i]
+                    duplicates_rows = self.df[(self.df['Subject ID'] == i) & (~pd.isnull(self.df['crf_parent_name']))]
                     set_tmp = set(duplicates_rows['Protocol ID'])
                     if len(set_tmp) == 1:
                         crfs = duplicates_rows['crf_parent_name'].tolist()
+
                         #print(duplicates_rows[['Subject ID', 'Protocol ID']])
                         for i in crfs:
                             if 'RESQV12' in i:
@@ -193,6 +195,7 @@ class Connection():
 
                         #print(duplicates_rows['crf_parent_name'])
                         #print("Keep form: {0}, deleted row: {1}".format(keep_crf, index))
+                
                     
                 # Get all country code in dataframe
                 self.countries = self._get_countries(df=self.df)
