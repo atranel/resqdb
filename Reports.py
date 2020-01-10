@@ -29,6 +29,9 @@ from pptx.enum.dml import MSO_LINE
 from pptx.oxml.xmlchemy import OxmlElement
 import xlsxwriter
 import json
+from pptx.oxml.table import CT_Table
+from pptx.enum.text import PP_ALIGN
+import statistics
 
 
 class Reports:
@@ -92,12 +95,24 @@ class Reports:
         fd_ojb = FilterDataset(df=df, country=self.country)
         df = fd_ojb.fdf.copy()
         df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
+        df.to_csv("test.csv", sep=",")
+
+        # Get all sites which have more than 5 patients in the development form
+        """
+        self.development_forms_counts = df.loc[df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10'].groupby(['Protocol ID', 'Site Name', 'crf_parent_name']).size().reset_index().rename(columns={0: 'n'})
+        # Get sites for which patients in development should be removed
+        to_remove = self.development_forms_counts.loc[self.development_forms_counts['n'] <= 5, 'Protocol ID'].tolist()
+        # Get indexes which should be removed
+        indexes = df.index[(df['Protocol ID'].isin(to_remove)) & (df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10')].tolist()
+        df.drop(indexes, inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        """
+
         tmp_country_df = df.copy()
         tmp_country_df['Site Name'] = self.country_name
         tmp_country_df['Protocol ID'] = 'CZ'
         df = df.append(tmp_country_df, ignore_index=True, sort=False)
-        df.to_csv("test.csv", sep=",")
-
+        
         self.country_df = df
         self.df = df.copy()
 
@@ -109,6 +124,8 @@ class Reports:
         # Filter dataframes per month
         self.filtered_dfs = self.filter_dataframe()
         self.names = list(self.filtered_dfs.keys())
+        self.incorrect_ivtpa = {}
+        self.incorrect_tby = {}
         self.thrombolysis_stats_df = self.calculate_thrombolysis()
         self.thrombectomy_stats_df = self.calculate_thrombectomy()
         self.statistic_region_dfs = self.calculate_statistic_per_region()
@@ -280,7 +297,8 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY_REFER'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True].copy()
-                incorrect_ivtpa_times.to_csv('incorrect_ivtpa_times.csv', sep=',')
+                incorrect_ivtpa_times_save = incorrect_ivtpa_times.loc[incorrect_ivtpa_times['Protocol ID'] != "CZ"].copy()
+                incorrect_ivtpa_times_save.to_csv('incorrect_ivtpa_times.csv', sep=',')
 
                 thrombolysis = thrombolysis_df[(thrombolysis_df['IVTPA'] > 0) & (thrombolysis_df['IVTPA'] <= 400)].copy()
 
@@ -301,6 +319,7 @@ class Reports:
                     # Get number of IVTs on IC/KCC
                     # statistic['# IVT'] = self.count_patients(df=thrombolysis, statistic=statistic)
                     statistic['# IVT'] = self.count_patients(df=thrombolysis, statistic=statistic)
+                    statistic.loc[statistic['Protocol ID'] == 'CZ', '# IVT'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['# IVT'].tolist()))
 
                     # Get difference in minutes between hospitalization and last visit
                     #thrombolysis['LAST_SEEN_NORMAL'] = thrombolysis.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
@@ -315,11 +334,14 @@ class Reports:
                         statistic['# incorrect IVtPa times'] = self.count_patients(df=incorrect_ivtpa_times, statistic=statistic)
                         statistic['% incorrect IVtPa times'] = round((statistic['# incorrect IVtPa times'] / statistic['Total patients undergone IVT'])*100, 2)
 
+                statistic.loc[statistic['Protocol ID'] == 'CZ', 'Total patients undergone IVT'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['Total patients undergone IVT'].tolist()))
+
             statistic.fillna(0, inplace=True)
 
             #statistic.to_csv(str(name) + '.csv', sep=',')
 
             stats_dfs[name] = statistic
+            self.incorrect_ivtpa[name] = incorrect_ivtpa_times_save
         
         return stats_dfs
 
@@ -382,9 +404,10 @@ class Reports:
 
                 incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
-                incorrect_tby_times.to_csv('incorrect_tby_times.csv', sep=',')
+                incorrect_tby_times_save = incorrect_tby_times.loc[incorrect_tby_times['Protocol ID'] != "CZ"].copy()
+                incorrect_tby_times_save.to_csv('incorrect_tby_times.csv', sep=',')
 
-                thrombectomy_df.to_csv('thrombectomy_{}.csv'.format(name), sep=',')
+                #thrombectomy_df.to_csv('thrombectomy_{}.csv'.format(name), sep=',')
                 included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
                 included_in_median.to_csv('included_in_median.csv', sep=',')
                 thrombectomy = included_in_median[(included_in_median['TBY'] > 0) & (included_in_median['TBY'] < 700)].copy()
@@ -434,10 +457,14 @@ class Reports:
                         # thrombectomy_second['TBY'] = thrombectomy_second['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_second['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_second['IVT_TBY_GROIN_TIME'] + thrombectomy_second['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
                         thrombectomy_second_grouped = thrombectomy_second.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes) - second hospital'}).reset_index()
                         statistic = statistic.merge(thrombectomy_second_grouped, how='outer') # Merge with statistic dataframe
+                
+                statistic.loc[statistic['Protocol ID'] == 'CZ', 'Total patients undergone TBY'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['Total patients undergone TBY'].tolist()))
+
 
             statistic.fillna(0, inplace=True)
 
             stats_dfs[name] = statistic
+            self.incorrect_tby[name] = incorrect_tby_times_save
 
         return stats_dfs
 
@@ -467,6 +494,8 @@ class Reports:
                 region_total_patients.fillna(0, inplace=True)
 
                 region_total_patients['# IVT per population'] = region_total_patients.apply(lambda x: round((x['Total patients']/self.regions[x['Site Name']]['population'])*100000, 2) if x['Total patients'] > 0 else 0, axis=1)
+
+                region_total_patients.loc[region_total_patients['Site Name'] == self.country_name, 'Total patients'] = int(statistics.mean(region_total_patients.loc[region_total_patients['Site Name'] != self.country_name]['Total patients'].tolist()))
 
             stats_dfs[name] = region_total_patients
         
@@ -686,8 +715,8 @@ class GeneratePresentation(Reports):
                     column_name = 'Total patients undergone IVT'
                     axis_title = 'Počet trombolýz'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-                    tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-                    total_pts = round(sum(tmp_df[column_name].tolist()))
+                    #tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
+                    total_pts = round(sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name][column_name].tolist()))
                     
                     if name == str(self.year):
                         if last_month == "":
@@ -726,7 +755,8 @@ class GeneratePresentation(Reports):
                     column_name = 'Total patients'
                     tmp_df = df.sort_values([column_name], ascending=True)
 
-                    total_pts = sum(tmp_df[column_name].tolist())
+                    total_pts = round(sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name][column_name].tolist()))
+                    #total_pts = sum(tmp_df[column_name].tolist())
 
                     if name == str(self.year):
                         if last_month == "":
@@ -772,12 +802,33 @@ class GeneratePresentation(Reports):
                         title = "% nezadaných nebo chybně zadaných údajů pro DNT - " + month_name + " " + str(self.year)
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+                # Iterate through dictionaries with statistics
+                
+                for name, df in thrombolysis_stats_df.items():
+                    # Generate table for incorrect IVTPA
+                    df = self.incorrect_ivtpa[name]
+                    title = 'Pacienti, kteří mají nesprávně zadané údaje pro výpočet DNT'
+                    content = ['Údaj DTN je brán jako nesprávný pokud je čas v minutách: ', 
+                        '\ta) menší nebo roven 0 nebo',
+                        '\tb) větší než 400.',
+                        'Ve většině případů se jedná o chybu, kdy čas léčby předchází čas hospitalizace.',
+                        '\n',
+                    ]
+                    """
+                    if not self.development_forms_counts.loc[self.development_forms_counts['n'] > 5].empty:
+                        content.append('V případě chybného údaje ve formuláři F_RESQ_IVT_TBY_1565_DEVCZ10 již bohužel není možné udělat změny, jednalo se o testovací verzi a tento formulář se již nepoužívá. Pacienti jsou započítáni do celkového počtu pouze v případě, jestliže celkový počet pacientů v tomto formuláři byl větší než 5.')
+                        content.append('Více jak 5 pacientů mají v tomto formuláři tyto nemocnice: {}.'.format(', '.join(self.development_forms_counts.loc[(self.development_forms_counts['n'] > 5) & (self.development_forms_counts['Site Name'] != self.country_name), 'Site Name'].tolist())))
+                        content.append('V případě zájmu o upravení a upřesnění dat z této verze nás prosím kontaktuje na qualityregistry@fnusa.cz.')
+                        """
+                    GenerateTable(df=df, presentation=prs, title=title, content=content)
+                    
+                
 
                 for name, df in thrombectomy_stats_df.items():
                     # Median DTG
                     column_name = 'Median DTG (minutes)'
                     axis_title = "Čas [min]"
-                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                    content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                     tmp_df_orig = df[[main_col, column_name]]
                     tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -800,7 +851,7 @@ class GeneratePresentation(Reports):
                     # Median DTG
                     column_name = 'Median DTG (minutes) - first hospital'
                     axis_title = "Čas [min]"
-                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                    content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                     tmp_df_orig = df[[main_col, column_name]]
                     tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -822,7 +873,7 @@ class GeneratePresentation(Reports):
                     # Median DTG
                     column_name = 'Median DTG (minutes) - second hospital'
                     axis_title = "Čas [min]"
-                    content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                    content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                     tmp_df_orig = df[[main_col, column_name]]
                     tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -875,6 +926,19 @@ class GeneratePresentation(Reports):
                         title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
 
                     GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                
+                for name, df in thrombectomy_stats_df.items():
+                    # Save table with incorrect DTG
+                    df = self.incorrect_tby[name]
+                    title = 'Pacienti, kteří mají nesprávně zadané údaje pro výpočet DTG'
+                    content = ['Údaj DTG je brán jako nesprávný pokud je čas v minutách: ', 
+                        '\ta) menší nebo roven 0 nebo',
+                        '\tb) větší než 700.',
+                        'Ve většině případů se jedná o chybu, kdy čas léčby předchází čas hospitalizace.', 
+                    ]
+                    GenerateTable(df=df, presentation=prs, title=title, content=content)
+                
 
                 # set pptx output name (for cz it'll be presentation_CZ.pptx)
                 working_dir = os.getcwd()
@@ -958,8 +1022,8 @@ class GeneratePresentation(Reports):
                 column_name = 'Total patients undergone IVT'
                 axis_title = 'Počet trombolýz'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-                tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-                total_pts = round(sum(tmp_df[column_name].tolist()))
+                #tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
+                total_pts = round(sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name][column_name].tolist()))
 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT na IC/KCC - {} {} (n={})".format(month_name, self.year, total_pts)
@@ -983,8 +1047,8 @@ class GeneratePresentation(Reports):
                 df = self.statistic_region_dfs[i]
                 column_name = 'Total patients'
                 tmp_df = df.sort_values([column_name], ascending=True)
-
-                total_pts = sum(tmp_df[column_name].tolist())
+                total_pts = round(sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name][column_name].tolist()))
+                #total_pts = sum(tmp_df[column_name].tolist())
 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet IVT provedených v jednotlivých krajích - {} {} (n={})".format(month_name, self.year, total_pts)
@@ -1012,12 +1076,22 @@ class GeneratePresentation(Reports):
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
 
+                # Generate table for incorrect IVTPA
+                df = self.incorrect_ivtpa[i]
+                title = 'Pacienti, kteří mají nesprávně zadané údaje pro výpočet DNT'
+                content = ['Údaj DNT je brán jako nesprávný, pokud je čas v minutách: ', 
+                    '\ta) menší nebo roven 0 nebo',
+                    '\tb) větší než 400.',
+                    'Ve většině případů se jedná o chybu, kdy čas léčby předchází čas hospitalizace.', 
+                ]
+                GenerateTable(df=df, presentation=prs, title=title, content=content)
+
                 # Iterate through dictionaries with statistics
                 df = self.thrombectomy_stats_df[i]
 
                 column_name = 'Median DTG (minutes)'
                 axis_title = "Čas [min]"
-                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                 tmp_df_orig = df[[main_col, column_name]]
                 tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -1032,7 +1106,7 @@ class GeneratePresentation(Reports):
                 # Median DTG
                 column_name = 'Median DTG (minutes) - first hospital'
                 axis_title = "Čas [min]"
-                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                 tmp_df_orig = df[[main_col, column_name]]
                 tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -1047,7 +1121,7 @@ class GeneratePresentation(Reports):
                 # Median DTG
                 column_name = 'Median DTG (minutes) - second hospital'
                 axis_title = "Čas [min]"
-                content = ["Parametr medián DOOR-TO-GROION TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
+                content = ["Parametr medián DOOR-TO-GROIN TIME je čas, který odráží kvalitu nemocničního managementu.", "Tento čas musí zahrnovat všechen čas, který uplyne od překročení pacienta prvních dvěří nemocnice až po vpich do třísla."]
 
                 tmp_df_orig = df[[main_col, column_name]]
                 tmp_df_zeros = tmp_df_orig[tmp_df_orig[column_name] == 0]
@@ -1080,6 +1154,16 @@ class GeneratePresentation(Reports):
                 title = "% nezadaných nebo chybně zadaných údajů pro DGT - " + month_name + " " + str(self.year)
 
                 GenerateGraphs(df=tmp_df, presentation=prs, title=title, column_name=column_name, country_name=self.country_name, axis_name=axis_title, incorrect=True, maximum=100)
+
+                # Save table with incorrect DTG
+                df = self.incorrect_tby[i]
+                title = 'Pacienti, kteří mají nesprávně zadané údaje pro výpočet DTG'
+                content = ['Údaj DTG je brán jako nesprávný, pokud je čas v minutách: ', 
+                    '\ta) menší nebo roven 0 nebo',
+                    '\tb) větší než 700.',
+                    'Ve většině případů se jedná o chybu, kdy čas léčby předchází čas hospitalizace.', 
+                ]
+                GenerateTable(df=df, presentation=prs, title=title, content=content)
 
                 # set pptx output name (for cz it'll be presentation_CZ.pptx)
                 working_dir = os.getcwd()
@@ -1166,7 +1250,6 @@ class GenerateGraphs:
         alpha.set('val', a)
         elm.srgbClr.append(alpha)
 
-
     def _create_barplot(self):
         """ The function creating the new graph into the presentation based on the graph type. """
 
@@ -1204,11 +1287,17 @@ class GenerateGraphs:
 
             # Add textbox with explanation
             txBox = slide.shapes.add_textbox(left, top, width, height)
+            txBox.text_frame.clear()
             txBox.text_frame.word_wrap = True
             for i in range(0, len(self.content)):
-                p = txBox.text_frame.add_paragraph()
-                run = p.add_run()
-                run.text = self.content[i]
+                if i == 0:
+                    p = txBox.text_frame.paragraphs[0]
+                    run = p.add_run()
+                    run.text = self.content[i]
+                else:
+                    p = txBox.text_frame.add_paragraph()
+                    run = p.add_run()
+                    run.text = self.content[i]
             
             for paragraph in txBox.text_frame.paragraphs:
                 paragraph.line_spacing = Pt(18)
@@ -1257,6 +1346,8 @@ class GenerateGraphs:
                 fill.solid()
                 if idx == values.count(0):
                     fill.fore_color.rgb = colors['crimsom']
+                elif (site_names[idx] == self.country_name):
+                    fill.fore_color.rgb = colors['yellow']  
                 elif idx == (len(values) - 1):
                     fill.fore_color.rgb = colors['green']
                 else:
@@ -1329,6 +1420,101 @@ class GenerateGraphs:
         category_labels.font.size = self.category_font_size
         category_labels.font.name = self.font_name
 
+
+class GenerateTable:
+
+    """ The class creates table on the slide in the presentation.
+
+        :param df: the dataframe with calculated statistics
+        :type df: pandas dataframe
+        :param presentation: the opened document (pptx)
+        :type presentation: Presentation object
+        :param title: the title of the slide
+        :type title: str
+        """
+    def __init__(self, df, presentation, title, content):
+
+        df = df.loc[df['crf_parent_name'] != 'F_RESQ_IVT_TBY_1565_DEVCZ10']
+        self.dataframe = df[['Site Name', 'Subject ID']].copy().sort_values(['Site Name'], ascending=True).reset_index(drop=True)
+        self.presentation = presentation
+        self.title = title
+        self.content = content
+
+        parts = len(self.dataframe)//15 # number of parts to which df should be split
+        modulo = len(self.dataframe)%15 # if modulo is not zero, then there will be one more slide
+        if modulo != 0:
+            parts = parts + 1
+
+        for i in range(0, parts):
+            if (i + 1) == parts:
+                start = i * 15
+                df = self.dataframe[start:].copy().reset_index(drop=True)
+            else:
+                start = i * 15
+                end = (i + 1) * 15
+                df = self.dataframe[start:end].copy().reset_index(drop=True)
+            self._create_table(df)
+
+    def _create_table(self, df):
+        """ The function generating new table in the presentation. """      
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        left = Cm(22)
+        top = Cm(2)
+        width = Cm(10)
+        height = Cm(5)
+
+        # Add textbox with explanation
+        txBox = slide.shapes.add_textbox(left, top, width, height)
+        txBox.text_frame.clear()
+        txBox.text_frame.word_wrap = True
+        
+        for i in range(0, len(self.content)):
+            if i == 0:
+                p = txBox.text_frame.paragraphs[0]
+                run = p.add_run()
+                run.text = self.content[i]
+            else:
+                p = txBox.text_frame.add_paragraph()
+                run = p.add_run()
+                run.text = self.content[i]
+        
+        for paragraph in txBox.text_frame.paragraphs:
+            paragraph.line_spacing = Pt(18)
+            paragraph.alignment = PP_ALIGN.LEFT
+            for run in paragraph.runs:
+                run.font.size = Pt(10)
+
+        # table_placeholder = slide.shapes[1]
+        left, top, width, height = Cm(1), Cm(2), Cm(20), Cm(len(df) + 1)
+        shape = slide.shapes.add_table(len(df) + 1, len(df.columns), left, top, width, height)
+        
+        # set table look
+        # Change table style (https://github.com/scanny/python-pptx/issues/27)
+        style_id = '{7DF18680-E054-41AD-8BC1-D1AEF772440D}'
+        tbl = shape._element.graphic.graphicData.tbl
+        tbl[0][-1].text = style_id
+
+        table = shape.table
+        # table = shape.table
+
+        # Set column names
+        columns = ['Nemocnice', 'Subject ID']
+        for i in range(0, len(columns)):
+            cell = table.cell(0, i) # Get cell in the first row
+            cell.text = columns[i]
+            for paragraphs in cell.text_frame.paragraphs:
+                for run in paragraphs.runs:
+                    run.font.size = Pt(10)
+        for index, row in df.iterrows():
+            for i in range(0, len(row)):
+                cell = table.cell(index + 1, i)
+                cell.text = str(row[i])
+                for paragraphs in cell.text_frame.paragraphs:
+                    for run in paragraphs.runs:
+                        run.font.size = Pt(10)
 
 
             
