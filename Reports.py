@@ -97,7 +97,14 @@ class Reports:
         df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
         df.to_csv("test.csv", sep=",")
 
+        dev_form = df.loc[df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10'].copy()
+        dev_form = dev_form[['Site Name', 'crf_parent_name', 'Subject ID', 'HOSPITAL_DATE', 'DISCHARGE_DATE']]
+        dev_form = dev_form.astype(str)
+        dev_form.to_csv("development_form.csv", sep=",", encoding='utf-8', index=False)
+
         # Get all sites which have more than 5 patients in the development form
+        development_form_counts = df.loc[df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10'].groupby(['Protocol ID', 'Site Name', 'crf_parent_name']).size().reset_index().rename(columns={0: 'n'})
+        development_form_counts.to_csv("development_form_counts.csv", sep=",", encoding='utf-8', index=False)
         """
         self.development_forms_counts = df.loc[df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10'].groupby(['Protocol ID', 'Site Name', 'crf_parent_name']).size().reset_index().rename(columns={0: 'n'})
         # Get sites for which patients in development should be removed
