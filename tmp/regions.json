@@ -1,6 +1,6 @@
 {
     "Hlavní město Praha": {
-        "population": 1318688,
+        "population": 1286399,
         "hospitals": [
             "CZ_017",
             "CZ_008",
@@ -11,7 +11,7 @@
         ]
     },
     "Středočeský kraj": {
-        "population": 1381564,
+        "population": 1352795,
         "hospitals": [
             "CZ_005",
             "CZ_020",
@@ -22,7 +22,7 @@
         ]
     },
     "Jihočeský kraj": {
-        "population": 643732,
+        "population": 637460,
         "hospitals": [
             "CZ_013",
             "CZ_014",
@@ -30,20 +30,20 @@
         ]
     },
     "Plzeňský kraj": {
-        "population": 588751,
+        "population": 574694,
         "hospitals": [
             "CZ_025"
         ]
     },
     "Karlovarský kraj": {
-        "population": 294545,
+        "population": 310245,
         "hospitals": [
             "CZ_015",
             "CZ_040"
         ]
     },
     "Ústecký kraj": {
-        "population": 820767,
+        "population": 830371,
         "hospitals": [
             "CZ_039",
             "CZ_024",
@@ -53,14 +53,14 @@
         ]
     },
     "Liberecký kraj": {
-        "population": 443398,
+        "population": 439262,
         "hospitals": [
             "CZ_036",
             "CZ_038"
         ]
     },
     "Královéhradecký kraj": {
-        "population": 551565,
+        "population": 555683,
         "hospitals": [
             "CZ_010",
             "CZ_031",
@@ -68,21 +68,21 @@
         ]
     },
     "Pardubický kraj": {
-        "population": 521772,
+        "population": 505285,
         "hospitals": [
             "CZ_030",
             "CZ_012"
         ]
     },
     "Vysočina": {
-        "population": 509813,
+        "population": 512727,
         "hospitals": [
             "CZ_007",
             "CZ_029"
         ]
     },
     "Jihomoravský kraj": {
-        "population": 1190549,
+        "population": 1169788,
         "hospitals": [
             "CZ_034",
             "CZ_001",
@@ -93,21 +93,21 @@
         ]
     },
     "Olomoucký kraj": {
-        "population": 631971,
+        "population": 639946,
         "hospitals": [
             "CZ_042",
             "CZ_022"
         ]
     },
     "Zlínský kraj": {
-        "population": 582825,
+        "population": 590459,
         "hospitals": [
             "CZ_023",
             "CZ_021"
         ]
     },
     "Moravskoslezký kraj": {
-        "population": 1201221,
+        "population": 1236028,
         "hospitals": [
             "CZ_018",
             "CZ_004",
@@ -119,7 +119,7 @@
         ]
     },
     "Česká republika": {
-        "population": 10681161,
+        "population": 10562214,
         "hospitals": [
             "CZ"
         ]
