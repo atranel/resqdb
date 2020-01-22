@@ -395,6 +395,13 @@ class Connection():
             vals = [1,2,3,4,5,6]
             df['ct_time_cz'] = df.apply(lambda x: x['ct_time_2_cz'] if (x['ct_mri_cz'] in vals and pd.isnull(x['ct_time_cz'])) else x['ct_time_cz'], axis=1)
 
+            # Rename tby_refer_all_groin_puncture_time_cz and tby_refer_lim_groin_puncture_time_cz to something else, because we need to keep only these times with _cz_2
+            df.rename(columns={
+                'tby_refer_all_groin_puncture_time_cz': 'tby_refer_all_groin_puncture_time_cz_2',
+                'tby_refer_all_groin_puncture_time_cz_2': 'tby_refer_all_groin_puncture_time_cz',
+                'tby_refer_lim_groin_puncture_time_cz': 'tby_refer_lim_groin_puncture_time_cz_2',
+                'tby_refer_lim_groin_puncture_time_cz_2': 'tby_refer_lim_groin_puncture_time_cz',
+            })
             # Get only columns ending with _en
             cols = ['site_id', 'facility_name', 'label', 'oc_oid']
             cols.extend([c for c in df.columns if c.endswith('_cz')])

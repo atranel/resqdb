@@ -366,7 +366,11 @@ class CheckData:
         df['IVTPA'] = 0
         df['TBY'] = 0
         # Replace NaN values by 0
-        df.fillna({'IVT_ONLY_NEEDLE_TIME': 0, 'IVT_TBY_NEEDLE_TIME': 0, 'IVT_TBY_REFER_NEEDLE_TIME': 0})
+        df.fillna({
+            'IVT_ONLY_NEEDLE_TIME': 0, 
+            'IVT_TBY_NEEDLE_TIME': 0, 
+            'IVT_TBY_REFER_NEEDLE_TIME': 0
+            })
         # Fill IVT only needle time into IVTPA column
         df['IVTPA'] = df.apply(lambda x: x['IVT_ONLY_NEEDLE_TIME'] if x['IVT_ONLY'] == 1 else x['IVTPA'], axis=1)
 
@@ -425,7 +429,13 @@ class CheckData:
         # TBY_ONLY_PUNCTURE_TIME - HH:MM format
         # TBY_ONLY_GROIN_PUNCTURE_TIME - minutes
         # TBY_ONLY_GROIN_TIME_MIN - calculated by script (minutes)
-        df.fillna({'TBY_ONLY_GROIN_PUNCTURE_TIME': 0, 'IVT_TBY_GROIN_TIME': 0, 'TBY_REFER_ALL_GROIN_PUNCTURE_TIME': 0, 'TBY_REFER_LIM_GROIN_PUNCTURE_TIME': 0})
+
+        # Fill Nan values by 0
+        df.fillna({
+            'TBY_ONLY_GROIN_PUNCTURE_TIME': 0, 
+            'IVT_TBY_GROIN_TIME': 0, 
+            'TBY_REFER_ALL_GROIN_PUNCTURE_TIME': 0, 
+            'TBY_REFER_LIM_GROIN_PUNCTURE_TIME': 0})
 
         df['TBY'] = df.apply(lambda x: x['TBY_ONLY_GROIN_PUNCTURE_TIME'] if x['TBY_ONLY'] == 1 else x['TBY'], axis=1)
         df['TBY_ONLY_GROIN_PUNCTURE_TIME'] = df.apply(lambda x: 0 if x['TBY_ONLY'] == 2 else x['TBY_ONLY_GROIN_PUNCTURE_TIME'], axis=1)
