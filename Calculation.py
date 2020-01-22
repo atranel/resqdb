@@ -718,20 +718,24 @@ class ComputeStats:
         # DYPSHAGIA SCREENING #
         #######################
         # For CZ exclude CVT from the calculation 
+        # tag::dysphagia_screening[]
         if country_code == 'CZ':
-            self.tmp = is_ich.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING']).size().to_frame('count').reset_index()
+            is_ich_not_referred = is_ich.loc[~(is_ich['crf_parent_name'].isin(['F_RESQ_IVT_TBY_CZ_4']) & is_ich['RECANALIZATION_PROCEDURES'].isin([5,6]))].copy()
+            self.statsDf['is_ich_not_referred_patients'] = self._count_patients(dataframe=is_ich_not_referred) 
+            
+            self.tmp = is_ich_not_referred.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=6, new_column_name='# dysphagia screening - not known')
-            self.statsDf['% dysphagia screening - not known'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - not known']/x['is_ich_patients']) * 100), 2) if x['is_ich_patients'] > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - not known'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - not known']/x['is_ich_not_referred_patients']) * 100), 2) if x['is_ich_not_referred_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=1, new_column_name='# dysphagia screening - Guss test')
-            self.statsDf['% dysphagia screening - Guss test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Guss test']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - Guss test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Guss test']/(x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=2, new_column_name='# dysphagia screening - Other test')
-            self.statsDf['% dysphagia screening - Other test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Other test']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - Other test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Other test']/(x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=3, new_column_name='# dysphagia screening - Another centre')
-            self.statsDf['% dysphagia screening - Another centre'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Another centre']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - Another centre'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Another centre']/(x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=4, new_column_name='# dysphagia screening - Not done')
-            self.statsDf['% dysphagia screening - Not done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Not done']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - Not done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Not done']/(x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=5, new_column_name='# dysphagia screening - Unable to test')
-            self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+            self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_not_referred_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             # self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test'] + self.statsDf['# dysphagia screening - Another centre']
             self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test']
             # self.statsDf['% dysphagia screening done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening done']/(x['is_ich_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
@@ -752,6 +756,7 @@ class ComputeStats:
             self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test'] + self.statsDf['# dysphagia screening - Another centre']
             self.statsDf['% dysphagia screening done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
+        # end::dysphagia_screening[]
 
         ############################
         # DYPSHAGIA SCREENING TIME #
@@ -925,32 +930,63 @@ class ComputeStats:
         ########
         # AFIB #
         ########
-        not_reffered = is_tia[~is_tia['RECANALIZATION_PROCEDURES'].isin([7])].copy()
-        self.statsDf['not_reffered_patients'] = self._count_patients(dataframe=not_reffered)
+        # tag::afib[]
+        if country_code == 'CZ':
+            not_reffered = is_tia.loc[~(is_tia['crf_parent_name'].isin(['F_RESQ_IVT_TBY_CZ_4']) & is_tia['RECANALIZATION_PROCEDURES'].isin([5,6,8]))].copy()
+            self.statsDf['not_reffered_patients'] = self._count_patients(dataframe=not_reffered) 
 
-        # Create dataframe with the patients referred to another hospital
-        reffered = is_tia[is_tia['RECANALIZATION_PROCEDURES'].isin([7])].copy()
-        self.statsDf['reffered_patients'] = self._count_patients(dataframe=reffered)
+            # Create dataframe with the patients referred to another hospital
+            reffered = is_tia[is_tia['RECANALIZATION_PROCEDURES'].isin([5,6,8])].copy()
+            self.statsDf['reffered_patients'] = self._count_patients(dataframe=reffered)
 
-        self.tmp = not_reffered.groupby(['Protocol ID', 'AFIB_FLUTTER']).size().to_frame('count').reset_index()
-        
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=1, new_column_name='# afib/flutter - Known')
-        self.statsDf['% afib/flutter - Known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
-        
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=2, new_column_name='# afib/flutter - Newly-detected at admission')
-        self.statsDf['% afib/flutter - Newly-detected at admission'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Newly-detected at admission']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
-        
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=3, new_column_name='# afib/flutter - Detected during hospitalization')
-        self.statsDf['% afib/flutter - Detected during hospitalization'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Detected during hospitalization']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
-        
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=4, new_column_name='# afib/flutter - Not detected')
-        self.statsDf['% afib/flutter - Not detected'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not detected']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
-        
-        self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=5, new_column_name='# afib/flutter - Not known')
-        self.statsDf['% afib/flutter - Not known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
+            self.tmp = not_reffered.groupby(['Protocol ID', 'AFIB_FLUTTER']).size().to_frame('count').reset_index()
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=1, new_column_name='# afib/flutter - Known')
+            self.statsDf['% afib/flutter - Known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=2, new_column_name='# afib/flutter - Newly-detected at admission')
+            self.statsDf['% afib/flutter - Newly-detected at admission'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Newly-detected at admission']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=3, new_column_name='# afib/flutter - Detected during hospitalization')
+            self.statsDf['% afib/flutter - Detected during hospitalization'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Detected during hospitalization']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=4, new_column_name='# afib/flutter - Not detected')
+            self.statsDf['% afib/flutter - Not detected'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not detected']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=5, new_column_name='# afib/flutter - Not known')
+            self.statsDf['% afib/flutter - Not known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
 
-        self.statsDf['afib_flutter_detected_only'] = self.statsDf['# afib/flutter - Newly-detected at admission'] + self.statsDf['# afib/flutter - Detected during hospitalization']
-        self.statsDf['% patients detected for aFib'] = self.statsDf.apply(lambda x: round(((x['afib_flutter_detected_only']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            self.statsDf['afib_flutter_detected_only'] = self.statsDf['# afib/flutter - Newly-detected at admission'] + self.statsDf['# afib/flutter - Detected during hospitalization']
+            self.statsDf['% patients detected for aFib'] = self.statsDf.apply(lambda x: round(((x['afib_flutter_detected_only']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+
+        else:
+            not_reffered = is_tia[~is_tia['RECANALIZATION_PROCEDURES'].isin([7])].copy()
+            self.statsDf['not_reffered_patients'] = self._count_patients(dataframe=not_reffered)
+
+            # Create dataframe with the patients referred to another hospital
+            reffered = is_tia[is_tia['RECANALIZATION_PROCEDURES'].isin([7])].copy()
+            self.statsDf['reffered_patients'] = self._count_patients(dataframe=reffered)
+
+            self.tmp = not_reffered.groupby(['Protocol ID', 'AFIB_FLUTTER']).size().to_frame('count').reset_index()
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=1, new_column_name='# afib/flutter - Known')
+            self.statsDf['% afib/flutter - Known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=2, new_column_name='# afib/flutter - Newly-detected at admission')
+            self.statsDf['% afib/flutter - Newly-detected at admission'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Newly-detected at admission']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=3, new_column_name='# afib/flutter - Detected during hospitalization')
+            self.statsDf['% afib/flutter - Detected during hospitalization'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Detected during hospitalization']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=4, new_column_name='# afib/flutter - Not detected')
+            self.statsDf['% afib/flutter - Not detected'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not detected']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="AFIB_FLUTTER", value=5, new_column_name='# afib/flutter - Not known')
+            self.statsDf['% afib/flutter - Not known'] = self.statsDf.apply(lambda x: round(((x['# afib/flutter - Not known']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1)
+
+            self.statsDf['afib_flutter_detected_only'] = self.statsDf['# afib/flutter - Newly-detected at admission'] + self.statsDf['# afib/flutter - Detected during hospitalization']
+            self.statsDf['% patients detected for aFib'] = self.statsDf.apply(lambda x: round(((x['afib_flutter_detected_only']/(x['is_tia_patients'] - x['reffered_patients'])) * 100), 2) if (x['is_tia_patients'] - x['reffered_patients']) > 0 else 0, axis=1) 
+        # end::afib[]
 
         #########################
         # AFIB DETECTION METHOD #
@@ -1418,53 +1454,113 @@ class ComputeStats:
         #####################
         # ANTIHYPERTENSIVES #
         #####################
-        self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'ANTIHYPERTENSIVE']).size().to_frame('count').reset_index()
+        # tag::antihypertensive[]
+        if country_code == 'CZ':
+            # filter patients with recanaliztion procedure 8 and form CZ_4 (antihypertensive not shown in the new version)
+            discharge_subset_alive_not_returned_back = discharge_subset_alive.loc[~(discharge_subset_alive['crf_parent_name'].isin(['F_RESQ_IVT_TBY_CZ_4']) & discharge_subset_alive['RECANALIZATION_PROCEDURES'].isin([5,6,8]))].copy()
+            self.statsDf['discharge_subset_alive_not_returned_back_patients'] = self._count_patients(dataframe=discharge_subset_alive_not_returned_back) 
 
-        self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=3, new_column_name='# prescribed antihypertensives - Not known')
-        self.statsDf['% prescribed antihypertensives - Not known'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Not known']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+            self.tmp = discharge_subset_alive_not_returned_back.groupby(['Protocol ID', 'ANTIHYPERTENSIVE']).size().to_frame('count').reset_index()
 
-        self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=1, new_column_name='# prescribed antihypertensives - Yes')
-        self.statsDf['% prescribed antihypertensives - Yes'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Yes']/(x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
-        
-        self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=2, new_column_name='# prescribed antihypertensives - No')
-        self.statsDf['% prescribed antihypertensives - No'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - No']/(x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=3, new_column_name='# prescribed antihypertensives - Not known')
+            self.statsDf['% prescribed antihypertensives - Not known'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Not known']/x['discharge_subset_alive_not_returned_back_patients']) * 100), 2) if x['discharge_subset_alive_not_returned_back_patients'] > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=1, new_column_name='# prescribed antihypertensives - Yes')
+            self.statsDf['% prescribed antihypertensives - Yes'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Yes']/(x['discharge_subset_alive_not_returned_back_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=2, new_column_name='# prescribed antihypertensives - No')
+            self.statsDf['% prescribed antihypertensives - No'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - No']/(x['discharge_subset_alive_not_returned_back_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
+
+        else:
+            self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'ANTIHYPERTENSIVE']).size().to_frame('count').reset_index()
+
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=3, new_column_name='# prescribed antihypertensives - Not known')
+            self.statsDf['% prescribed antihypertensives - Not known'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Not known']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=1, new_column_name='# prescribed antihypertensives - Yes')
+            self.statsDf['% prescribed antihypertensives - Yes'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - Yes']/(x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
+            
+            self.statsDf = self._get_values_for_factors(column_name="ANTIHYPERTENSIVE", value=2, new_column_name='# prescribed antihypertensives - No')
+            self.statsDf['% prescribed antihypertensives - No'] = self.statsDf.apply(lambda x: round(((x['# prescribed antihypertensives - No']/(x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['# prescribed antihypertensives - Not known']) > 0 else 0, axis=1)
+        # end::antihypertensive[]
+
 
         #####################
         # SMOKING CESSATION #
         #####################
-        self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'SMOKING_CESSATION']).size().to_frame('count').reset_index()
+        # tag::smoking[]
+        if country_code == 'CZ':
+            print('Im here')
+            self.tmp = discharge_subset_alive_not_returned_back.groupby(['Protocol ID', 'SMOKING_CESSATION']).size().to_frame('count').reset_index()
 
-        self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=3, new_column_name='# recommended to a smoking cessation program - not a smoker')
-        self.statsDf['% recommended to a smoking cessation program - not a smoker'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - not a smoker']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=3, new_column_name='# recommended to a smoking cessation program - not a smoker')
+            self.statsDf['% recommended to a smoking cessation program - not a smoker'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - not a smoker']/x['discharge_subset_alive_not_returned_back_patients']) * 100), 2) if x['discharge_subset_alive_not_returned_back_patients'] > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=1, new_column_name='# recommended to a smoking cessation program - Yes')
-        self.statsDf['% recommended to a smoking cessation program - Yes'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - Yes']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=1, new_column_name='# recommended to a smoking cessation program - Yes')
+            self.statsDf['% recommended to a smoking cessation program - Yes'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - Yes']/x['discharge_subset_alive_not_returned_back_patients']) * 100), 2) if x['discharge_subset_alive_not_returned_back_patients'] > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=2, new_column_name='# recommended to a smoking cessation program - No')
-        self.statsDf['% recommended to a smoking cessation program - No'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - No']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=2, new_column_name='# recommended to a smoking cessation program - No')
+            self.statsDf['% recommended to a smoking cessation program - No'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - No']/x['discharge_subset_alive_not_returned_back_patients']) * 100), 2) if x['discharge_subset_alive_not_returned_back_patients'] > 0 else 0, axis=1)
+
+        else:
+            self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'SMOKING_CESSATION']).size().to_frame('count').reset_index()
+
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=3, new_column_name='# recommended to a smoking cessation program - not a smoker')
+            self.statsDf['% recommended to a smoking cessation program - not a smoker'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - not a smoker']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=1, new_column_name='# recommended to a smoking cessation program - Yes')
+            self.statsDf['% recommended to a smoking cessation program - Yes'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - Yes']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=2, new_column_name='# recommended to a smoking cessation program - No')
+            self.statsDf['% recommended to a smoking cessation program - No'] = self.statsDf.apply(lambda x: round(((x['# recommended to a smoking cessation program - No']/x['discharge_subset_alive_patients']) * 100), 2) if x['discharge_subset_alive_patients'] > 0 else 0, axis=1)
+        # end::smoking[]
+
 
         ##########################
         # CEREBROVASCULAR EXPERT #
         ##########################
-        self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'CEREBROVASCULAR_EXPERT']).size().to_frame('count').reset_index()
+        # tag::cerebrovascular_expert[]
+        if country_code == 'CZ':
+            self.tmp = discharge_subset_alive_not_returned_back.groupby(['Protocol ID', 'CEREBROVASCULAR_EXPERT']).size().to_frame('count').reset_index()
 
-        # Claculate number of patients entered to the old form
-        self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=-999, new_column_name='tmp')
+            # Claculate number of patients entered to the old form
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=-999, new_column_name='tmp')
 
-        self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=1, new_column_name='# recommended to a cerebrovascular expert - Recommended, and appointment was made')
-        self.statsDf['% recommended to a cerebrovascular expert - Recommended, and appointment was made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, and appointment was made']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=1, new_column_name='# recommended to a cerebrovascular expert - Recommended, and appointment was made')
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended, and appointment was made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, and appointment was made']/(x['discharge_subset_alive_not_returned_back_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['tmp']) > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=2, new_column_name='# recommended to a cerebrovascular expert - Recommended, but appointment was not made')
-        self.statsDf['% recommended to a cerebrovascular expert - Recommended, but appointment was not made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=2, new_column_name='# recommended to a cerebrovascular expert - Recommended, but appointment was not made')
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended, but appointment was not made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made']/(x['discharge_subset_alive_not_returned_back_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['tmp']) > 0 else 0, axis=1)
 
-        self.statsDf.loc[:, '# recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: x['# recommended to a cerebrovascular expert - Recommended, and appointment was made'] + x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made'], axis=1)
-        self.statsDf['% recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+            self.statsDf.loc[:, '# recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: x['# recommended to a cerebrovascular expert - Recommended, and appointment was made'] + x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made'], axis=1)
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended']/(x['discharge_subset_alive_not_returned_back_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['tmp']) > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=3, new_column_name='# recommended to a cerebrovascular expert - Not recommended')
-        self.statsDf['% recommended to a cerebrovascular expert - Not recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Not recommended']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=3, new_column_name='# recommended to a cerebrovascular expert - Not recommended')
+            self.statsDf['% recommended to a cerebrovascular expert - Not recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Not recommended']/(x['discharge_subset_alive_not_returned_back_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_not_returned_back_patients'] - x['tmp']) > 0 else 0, axis=1)
 
-        self.statsDf.drop(['tmp'], inplace=True, axis=1)
+            self.statsDf.drop(['tmp'], inplace=True, axis=1)
 
+        else:
+            self.tmp = discharge_subset_alive.groupby(['Protocol ID', 'CEREBROVASCULAR_EXPERT']).size().to_frame('count').reset_index()
+
+            # Claculate number of patients entered to the old form
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=-999, new_column_name='tmp')
+
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=1, new_column_name='# recommended to a cerebrovascular expert - Recommended, and appointment was made')
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended, and appointment was made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, and appointment was made']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=2, new_column_name='# recommended to a cerebrovascular expert - Recommended, but appointment was not made')
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended, but appointment was not made'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+
+            self.statsDf.loc[:, '# recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: x['# recommended to a cerebrovascular expert - Recommended, and appointment was made'] + x['# recommended to a cerebrovascular expert - Recommended, but appointment was not made'], axis=1)
+            self.statsDf['% recommended to a cerebrovascular expert - Recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Recommended']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+
+            self.statsDf = self._get_values_for_factors(column_name="CEREBROVASCULAR_EXPERT", value=3, new_column_name='# recommended to a cerebrovascular expert - Not recommended')
+            self.statsDf['% recommended to a cerebrovascular expert - Not recommended'] = self.statsDf.apply(lambda x: round(((x['# recommended to a cerebrovascular expert - Not recommended']/(x['discharge_subset_alive_patients'] - x['tmp'])) * 100), 2) if (x['discharge_subset_alive_patients'] - x['tmp']) > 0 else 0, axis=1)
+
+            self.statsDf.drop(['tmp'], inplace=True, axis=1)
+        # end::cerebrovascular_expert[]
+        
         #########################
         # DISCHARGE DESTINATION #
         #########################

@@ -151,7 +151,6 @@ class Connection():
                 # self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
                 if 'resq_ivttby_mix' in self.dictdb_df.keys():
                     del self.dictdb_df['resq_ivttby_mix']
-
                 treads = []
                 for i in range(0, len(self.names)):
                     df_name = self.names[i]
@@ -397,11 +396,11 @@ class Connection():
 
             # Rename tby_refer_all_groin_puncture_time_cz and tby_refer_lim_groin_puncture_time_cz to something else, because we need to keep only these times with _cz_2
             df.rename(columns={
-                'tby_refer_all_groin_puncture_time_cz': 'tby_refer_all_groin_puncture_time_cz_2',
+                'tby_refer_all_groin_puncture_time_cz': 'tby_refer_all_groin_puncture_time_cz_3',
                 'tby_refer_all_groin_puncture_time_cz_2': 'tby_refer_all_groin_puncture_time_cz',
-                'tby_refer_lim_groin_puncture_time_cz': 'tby_refer_lim_groin_puncture_time_cz_2',
+                'tby_refer_lim_groin_puncture_time_cz': 'tby_refer_lim_groin_puncture_time_cz_3',
                 'tby_refer_lim_groin_puncture_time_cz_2': 'tby_refer_lim_groin_puncture_time_cz',
-            })
+            }, inplace=True)
             # Get only columns ending with _en
             cols = ['site_id', 'facility_name', 'label', 'oc_oid']
             cols.extend([c for c in df.columns if c.endswith('_cz')])
