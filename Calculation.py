@@ -31,7 +31,7 @@ class FilterDataset:
     :type date2: date
     """
 
-    def __init__(self, df, country=None, date1=None, date2=None, column='DISCHARGE_DATE'):
+    def __init__(self, df, country=None, date1=None, date2=None, column='DISCHARGE_DATE', by_columns=False):
 
         debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 
         log_file = os.path.join(os.getcwd(), debug)
@@ -52,15 +52,18 @@ class FilterDataset:
 
             self.fdf = self._filter_by_country()
             logging.info('FilterDataset: Data have been filtered for country {0}!'.format(self.country)) 
-        
-        if self.date1 is not None and self.date2 is not None:
 
-            if column == 'DISCHARGE_DATE':
-                self.fdf = self._filter_by_date()
-                logging.info('FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
-            elif column == 'HOSPITAL_DATE':
-                self.fdf = self._filter_by_hospital_date()
-                logging.info('FilterDataset: Data have been filtered by hospital date for dates {} - {}!'.format(self.date1, self.date2))
+        if self.date1 is not None and self.date2 is not None:
+            if not by_columns:
+                if column == 'DISCHARGE_DATE':
+                    self.fdf = self._filter_by_date()
+                    logging.info('FilterDataset: Data have been filtered for date {0} - {1}!'.format(self.date1, self.date2))
+                elif column == 'HOSPITAL_DATE':
+                    self.fdf = self._filter_by_hospital_date()
+                    logging.info('FilterDataset: Data have been filtered by hospital date for dates {} - {}!'.format(self.date1, self.date2))
+            else:
+                self.fdf = self._filter_by_hospital_and_discharge_date()
+                logging.info('FilterDataset: Data have been filtered by hospital or discharge date for dates {} - {}!'.format(self.date1, self.date2))
 
         
     def _filter_by_country(self):
@@ -68,7 +71,7 @@ class FilterDataset:
 
         :returns: df -- the dataframe including only rows containing in Protocol ID the country code
         """
-        df = self.fdf[self.fdf['Protocol ID'].str.startswith(self.country) == True]
+        df = self.fdf[self.fdf['Protocol ID'].str.startswith(self.country) == True].copy()
 
         return df
 
@@ -83,7 +86,7 @@ class FilterDataset:
         if isinstance(self.date2, datetime):
             self.date2 = self.date2.date()
 
-        df = self.fdf[(self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2)]
+        df = self.fdf[(self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2)].copy()
 
         return df
 
@@ -97,9 +100,22 @@ class FilterDataset:
         if isinstance(self.date2, datetime):
             self.date2 = self.date2.date()
 
-        df = self.fdf[(self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)]
+        df = self.fdf[(self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)].copy()
 
         return df
+
+    def _filter_by_hospital_and_discharge_date(self):
+        ''' The function filters dataframe by admission and discharge date. Eg. include patient if hospital date or discharge date are in the range.
+
+        '''
+        if isinstance(self.date1, datetime):
+            self.date1 = self.date1.date()
+        if isinstance(self.date2, datetime):
+            self.date2 = self.date2.date()
+
+        df = self.fdf[((self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)) | ((self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2))].copy()
+        return df
+
 
 
 class ComputeStats:

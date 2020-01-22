@@ -1447,56 +1447,73 @@ class GenerateTable:
         self.title = title
         self.content = content
 
-        parts = len(self.dataframe)//15 # number of parts to which df should be split
-        modulo = len(self.dataframe)%15 # if modulo is not zero, then there will be one more slide
+        parts = len(self.dataframe)//25 # number of parts to which df should be split
+        modulo = len(self.dataframe)%25 # if modulo is not zero, then there will be one more slide
         if modulo != 0:
             parts = parts + 1
 
         for i in range(0, parts):
             if (i + 1) == parts:
-                start = i * 15
+                start = i * 25
                 df = self.dataframe[start:].copy().reset_index(drop=True)
             else:
-                start = i * 15
-                end = (i + 1) * 15
+                start = i * 25
+                end = (i + 1) * 25
                 df = self.dataframe[start:end].copy().reset_index(drop=True)
-            self._create_table(df)
 
-    def _create_table(self, df):
-        """ The function generating new table in the presentation. """      
-        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
-        title_placeholders = slide.shapes.title
-        title_placeholders.text = self.title
-
-        left = Cm(22)
-        top = Cm(2)
-        width = Cm(10)
-        height = Cm(5)
-
-        # Add textbox with explanation
-        txBox = slide.shapes.add_textbox(left, top, width, height)
-        txBox.text_frame.clear()
-        txBox.text_frame.word_wrap = True
-        
-        for i in range(0, len(self.content)):
-            if i == 0:
-                p = txBox.text_frame.paragraphs[0]
-                run = p.add_run()
-                run.text = self.content[i]
+            if (i % 2) != 0:
+                self._create_table(df, new_slide=False, left=False)
             else:
-                p = txBox.text_frame.add_paragraph()
-                run = p.add_run()
-                run.text = self.content[i]
-        
-        for paragraph in txBox.text_frame.paragraphs:
-            paragraph.line_spacing = Pt(18)
-            paragraph.alignment = PP_ALIGN.LEFT
-            for run in paragraph.runs:
-                run.font.size = Pt(10)
+                self.slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+                self._create_table(df)
 
-        # table_placeholder = slide.shapes[1]
-        left, top, width, height = Cm(1), Cm(2), Cm(20), Cm(len(df) + 1)
-        shape = slide.shapes.add_table(len(df) + 1, len(df.columns), left, top, width, height)
+    @property
+    def slide(self):
+        return self._slide
+
+    @slide.setter
+    def slide(self, value):
+        self._slide = value
+
+    def _create_table(self, df, new_slide=True, left=True):
+        """ The function generating new table in the presentation. """      
+        if new_slide:
+            title_placeholders = self.slide.shapes.title
+            title_placeholders.text = self.title
+
+            left = Cm(24)
+            top = Cm(2)
+            width = Cm(8)
+            height = Cm(4)
+
+            # Add textbox with explanation
+            txBox = self.slide.shapes.add_textbox(left, top, width, height)
+            txBox.text_frame.clear()
+            txBox.text_frame.word_wrap = True
+            
+            for i in range(0, len(self.content)):
+                if i == 0:
+                    p = txBox.text_frame.paragraphs[0]
+                    run = p.add_run()
+                    run.text = self.content[i]
+                else:
+                    p = txBox.text_frame.add_paragraph()
+                    run = p.add_run()
+                    run.text = self.content[i]
+            
+            for paragraph in txBox.text_frame.paragraphs:
+                paragraph.line_spacing = Pt(18)
+                paragraph.alignment = PP_ALIGN.LEFT
+                for run in paragraph.runs:
+                    run.font.size = Pt(10)
+
+        if left:
+            # table_placeholder = slide.shapes[1]
+            left, top, width, height = Cm(1), Cm(2), Cm(11), Cm(1)
+            shape = self.slide.shapes.add_table(len(df) + 1, len(df.columns), left, top, width, height)
+        else:
+            left, top, width, height = Cm(12.5), Cm(2), Cm(11), Cm(1)
+            shape = self.slide.shapes.add_table(len(df) + 1, len(df.columns), left, top, width, height)
         
         # set table look
         # Change table style (https://github.com/scanny/python-pptx/issues/27)
@@ -1514,14 +1531,14 @@ class GenerateTable:
             cell.text = columns[i]
             for paragraphs in cell.text_frame.paragraphs:
                 for run in paragraphs.runs:
-                    run.font.size = Pt(10)
+                    run.font.size = Pt(8)
         for index, row in df.iterrows():
             for i in range(0, len(row)):
                 cell = table.cell(index + 1, i)
                 cell.text = str(row[i])
                 for paragraphs in cell.text_frame.paragraphs:
                     for run in paragraphs.runs:
-                        run.font.size = Pt(10)
+                        run.font.size = Pt(8)
 
 
             
