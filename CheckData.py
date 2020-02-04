@@ -365,6 +365,7 @@ class CheckData:
         # IVT_ONLY_NEEDLE_TIME_MIN - calculated by script (minutes) 
         df['IVTPA'] = 0
         df['TBY'] = 0
+        df['DIDO'] = 0
         # Replace NaN values by 0
         df.fillna({
             'IVT_ONLY_NEEDLE_TIME': 0, 
@@ -537,10 +538,22 @@ class CheckData:
         # IVT_TBY_REFER_DIDO_TIME_MIN - calculated by script (minutes)
         df['IVT_TBY_REFER_DIDO_TIME'] = df.apply(lambda x: np.nan if x['IVT_TBY_REFER'] == 2 else x['IVT_TBY_REFER_DIDO_TIME'], axis=1)
 
+        # tag::ivt_tby_refer_mins[]
+        df['DIDO'] = df.apply(lambda x: x['IVT_TBY_REFER_DIDO_TIME'] if (x['IVT_TBY_REFER'] == 1) else x['DIDO'], axis=1)
+        # end::ivt_tby_refer_mins[]
+
         if ('IVT_TBY_REFER_ADMISSION_TIME' in df.columns and 'IVT_TBY_REFER_DISCHARGE_TIME' in df.columns):
 
             df['IVT_TBY_REFER_DIDO_TIME_MIN'], df['IVT_TBY_REFER_DIDO_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['IVT_TBY_REFER_ADMISSION_TIME']), bolus_time=str(x['IVT_TBY_REFER_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['IVT_TBY_REFER'] == 2) else (0, False), axis=1))
+
+            # tag::ivt_tby_refer_timestamp[]
+            df['DIDO'] = df.apply(lambda x: x['IVT_TBY_REFER_DIDO_TIME_MIN'] if x['IVT_TBY_REFER'] == 2 else x['DIDO'], axis=1)
+            # end::ivt_tby_refer_timestamp[]
+
+        # tag::ivt_tby_refer_done[]
+        df['REFERRED_DONE'] = df.apply(lambda x: 1 if x['IVT_TBY_REFER'] in [1,2] else np.nan, axis=1)
+        # end::ivt_tby_refer_done[]
 
         # Create TBY_REFER column
         # TBY_REFER_ADMISSION_TIME - HH:MM format
@@ -549,11 +562,23 @@ class CheckData:
         # TBY_REFER_DIDO_TIME_MIN - calculated by script (minutes)
         df['TBY_REFER_DIDO_TIME'] = df.apply(lambda x: np.nan if x['TBY_REFER'] == 2 else x['TBY_REFER_DIDO_TIME'], axis=1)        
 
+        # tag::tby_refer_mins[]
+        df['DIDO'] = df.apply(lambda x: x['TBY_REFER_DIDO_TIME'] if (x['TBY_REFER'] == 1) else x['DIDO'], axis=1)
+        # end::tby_refer_mins[]
+
         # TBY refer dido time
         if ('TBY_REFER_DISCHARGE_TIME' in df.columns and 'TBY_REFER_ADMISSION_TIME' in df.columns):
 
             df['TBY_REFER_DIDO_TIME_MIN'], df['TBY_REFER_DIDO_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
                 x['TBY_REFER_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER'] == 2) else (0, False), axis=1))
+
+            # tag::tby_refer_timestamp[]
+            df['DIDO'] = df.apply(lambda x: x['TBY_REFER_DIDO_TIME_MIN'] if x['TBY_REFER'] == 2 else x['DIDO'], axis=1)
+            # end::tby_refer_timestamp[]
+
+        # tag::tby_refer_done[]
+        df['REFERRED_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER'] in [1,2] else x['REFERRED_DONE'], axis=1)
+        # end::tby_refer_done[]
 
         # Create TBY_REFER_ALL column
         # TBY_REFER_ALL_ADMISSION_TIME - HH:MM format
@@ -563,12 +588,40 @@ class CheckData:
         # Set nan to TBY_REFER_ALL_DIDO_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
         df['TBY_REFER_ALL_DIDO_TIME'] = df.apply(lambda x: np.nan if x['TBY_REFER_ALL'] == 2 else x['TBY_REFER_ALL_DIDO_TIME'], axis=1)
 
+        # tag::tby_refer_all_mins[]
+        df['DIDO'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if (x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) else x['DIDO'], axis=1)
+        # end::tby_refer_all_mins[]
+
+        # tag::pl_tby_refer_all_time_mins[]
+        # If crf parent name is F_RESQV20DEV_PL and time was entered in minutes fill TBY column by DIDO time
+        df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if (x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] in ['F_RESQV20DEV_PL']) else x['TBY'], axis=1)
+        # end::pl_tby_refer_all_time_mins[]
+
         # TBY refer all dido time
         if ('TBY_REFER_ALL_DISCHARGE_TIME' in df.columns and 'TBY_REFER_ALL_ADMISSION_TIME' in df.columns):
 
+            # tag::tby_refer_all_timestamp[]
             df['TBY_REFER_ALL_DIDO_TIME_MIN'], df['TBY_REFER_ALL_DIDO_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
-                x['TBY_REFER_ALL_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_ALL_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_ALL'] == 2) else (0, False), axis=1))
+                x['TBY_REFER_ALL_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_ALL_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if (x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) else (0, False), axis=1))
 
+            df['DIDO'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME_MIN'] if (x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) else x['DIDO'], axis=1)
+            # end::tby_refer_all_timestamp[]
+
+            # tag::pl_tby_refer_all_timestamp[]
+            # If crf_parent_name is F_RESQV20DEV_PL calculate groin time from admission and discharge time if time entered in HH:MM
+            df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'], df['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(x['TBY_REFER_ALL_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_ALL_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] in ['F_RESQV20DEV_PL']) else (0, False), axis=1))
+
+            df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_GROIN_PUNCTURE_TIME_MIN'] if x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] in ['F_RESQV20DEV_PL'] else x['TBY'], axis=1)
+            # end::pl_tby_refer_all_timestamp[]
+
+        # tag::pl_tby_refer_all[]
+        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_ALL'] in [1,2] and x['crf_parent_name'] in ['F_RESQV20DEV_PL'] else x['TBY_DONE'], axis=1)
+        # end::pl_tby_refer_all[]
+
+        # tag::tby_refer_all_done[]
+        df['REFERRED_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_ALL'] in [1,2] and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2'] else x['REFERRED_DONE'], axis=1)
+        # end::tby_refer_all_done[]
+        
         # Create TBY_REFER_LIM column
         # TBY_REFER_LIM_ADMISSION_TIME - HH:MM format
         # TBY_REFER_LIM_DISCHARGE_TIME - HH:MM format
@@ -577,11 +630,59 @@ class CheckData:
         # Set nan to TBY_REFER_LIM_DIDO_TIME if times in HH:MM were filled in (delete values calculated by Mirek)
         df['TBY_REFER_LIM_DIDO_TIME'] = df.apply(lambda x: np.nan if x['TBY_REFER_LIM'] == 2 else x['TBY_REFER_LIM_DIDO_TIME'], axis=1)
 
+        # tag::tby_refer_lim_mins[]
+        df['DIDO'] = df.apply(lambda x: x['TBY_REFER_LIM_DIDO_TIME'] if (x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) else x['DIDO'], axis=1)
+        # end::tby_refer_lim_mins[]
+
+        # tag::pl_tby_refer_lim_time_mins[]
+        # If crf parent name is F_RESQV20DEV_PL and time was entered in minutes fill TBY column by DIDO time
+        df['TBY'] = df.apply(lambda x: x['TBY_REFER_LIM_DIDO_TIME'] if (x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] in ['F_RESQV20DEV_PL']) else x['TBY'], axis=1)
+        # end::pl_tby_refer_lim_time_mins[]
+
         # TBY refer lim dido time
         if ('TBY_REFER_LIM_DISCHARGE_TIME' in df.columns and 'TBY_REFER_LIM_ADMISSION_TIME' in df.columns):
 
-            df['TBY_REFER_LIM_DIDO_TIME_MIN'], df['TBY_REFER_LIM_DIDO_TIME_MIN_CHANGED'] = zip(*df.apply(lambda x: self._get_times_in_minutes(admission_time=str(
-                x['TBY_REFER_LIM_ADMISSION_TIME']), bolus_time=str(x['TBY_REFER_LIM_DISCHARGE_TIME']), hosp_time=str(x['HOSPITAL_TIME']), max_time=700) if(x['TBY_REFER_LIM'] == 2) else (0, False), axis=1))
+            # tag::tby_refer_lim_timestamp[]
+            df['TBY_REFER_LIM_DIDO_TIME_MIN'], \
+                df['TBY_REFER_LIM_DIDO_TIME_MIN_CHANGED'] = \
+                    zip(*df.apply(lambda x: self._get_times_in_minutes(
+                        admission_time=str(x['TBY_REFER_LIM_ADMISSION_TIME']), 
+                        bolus_time=str(x['TBY_REFER_LIM_DISCHARGE_TIME']), 
+                        hosp_time=str(x['HOSPITAL_TIME']), 
+                        max_time=700) \
+                            if (x['TBY_REFER_LIM'] == 2 \
+                                and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) 
+                            else (0, False), \
+                                axis=1))
+
+            df['DIDO'] = df.apply(lambda x: x['TBY_REFER_LIM_DIDO_TIME_MIN'] if (x['TBY_REFER_LIM'] == 2 and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2']) else x['DIDO'], axis=1)
+            # end::tby_refer_lim_timestamp[]
+
+            # tag::pl_tby_refer_lim_timestamp[]
+            # If crf_parent_name is F_RESQV20DEV_PL calculate groin time from admission and discharge time if time entered in HH:MM
+            df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN'], \
+                df['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN_CHANGED'] = \
+                    zip(*df.apply(lambda x: self._get_times_in_minutes(
+                        admission_time=str(x['TBY_REFER_LIM_ADMISSION_TIME']), 
+                        bolus_time=str(x['TBY_REFER_LIM_DISCHARGE_TIME']), 
+                        hosp_time=str(x['HOSPITAL_TIME']), 
+                        max_time=700) \
+                            if(x['TBY_REFER_LIM'] == 2 \
+                                and x['crf_parent_name'] in ['F_RESQV20DEV_PL']) 
+                            else (0, False), \
+                                axis=1))
+
+            df['TBY'] = df.apply(lambda x: x['TBY_REFER_LIM_GROIN_PUNCTURE_TIME_MIN'] if x['TBY_REFER_LIM'] == 2 and x['crf_parent_name'] in ['F_RESQV20DEV_PL'] else x['TBY'], axis=1)
+            # end::pl_tby_refer_lim_timestamp[]
+
+        # tag::pl_tby_refer_lim[]
+        df['TBY_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_LIM'] in [1,2] and x['crf_parent_name'] in ['F_RESQV20DEV_PL'] else x['TBY_DONE'], axis=1)
+        # end::pl_tby_refer_lim[]
+        
+        # tag::tby_refer_lim_done[]
+        df['REFERRED_DONE'] = df.apply(lambda x: 1 if x['TBY_REFER_LIM'] in [1,2] and x['crf_parent_name'] not in ['F_RESQV20DEV_PL', 'F_RESQ_IVT_TBY_CZ_4', 'F_RESQ_IVT_TBY_CZ_2'] else x['REFERRED_DONE'], axis=1)
+        # end::tby_refer_lim_done[]
+
   
         # Check if time columns are in dataframe, if not create them and fill with NaN values
         if ('IVT_TBY_REFER_NEEDLE_TIME' not in df.columns):
