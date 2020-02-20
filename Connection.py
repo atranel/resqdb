@@ -102,7 +102,7 @@ class Connection():
                 ##############
                 self.preprocessed_data['HOSPITAL_TIME'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_TIME'], format='%H:%M:%S').dt.time
                 try:
-                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) else None, axis=1)
+                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) and not pd.isnull(x['HOSPITAL_DATE']) else None, axis=1)
                     #self.preprocessed_data['HOSPITAL_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_DATE'] + ' ' + self.preprocessed_data['HOSPITAL_TIME'])
                 except ValueError as error:
                     logging.error("Error occured when converting hospital date and time into timestamp object - {}.".format(error))
@@ -111,7 +111,7 @@ class Connection():
                 self.preprocessed_data['VISIT_TIME'] = pd.to_datetime(self.preprocessed_data['VISIT_TIME'], format='%H:%M:%S').dt.time
             
                 try:
-                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) else None, axis=1)
+                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) and not pd.isnull(x['VISIT_DATE']) else None, axis=1)
                     #self.preprocessed_data['VISIT_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['VISIT_DATE'] + ' ' + self.preprocessed_data['VISIT_TIME'])
                 except ValueError as error:
                     logging.error("Error occured when converting visit date and time into timestamp object - {}.".format(error))			
@@ -210,7 +210,7 @@ class Connection():
                 ##############
                 self.preprocessed_data['HOSPITAL_TIME'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_TIME'], format='%H:%M:%S').dt.time
                 try:
-                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) else None, axis=1)
+                    self.preprocessed_data['HOSPITAL_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if not pd.isnull(x['HOSPITAL_TIME']) and not pd.isnull(x['HOSPITAL_DATE']) else None, axis=1)
                     #self.preprocessed_data['HOSPITAL_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['HOSPITAL_DATE'] + ' ' + self.preprocessed_data['HOSPITAL_TIME'])
                 except ValueError as error:
                     logging.error("Error occured when converting hospital date and time into timestamp object - {}.".format(error))
@@ -219,7 +219,7 @@ class Connection():
                 self.preprocessed_data['VISIT_TIME'] = pd.to_datetime(self.preprocessed_data['VISIT_TIME'], format='%H:%M:%S').dt.time
             
                 try:
-                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) else None, axis=1)
+                    self.preprocessed_data['VISIT_TIMESTAMP'] = self.preprocessed_data.apply(lambda x: datetime.datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if not pd.isnull(x['VISIT_TIME']) and not pd.isnull(x['VISIT_DATE']) else None, axis=1)
                     #self.preprocessed_data['VISIT_TIMESTAMP'] = pd.to_datetime(self.preprocessed_data['VISIT_DATE'] + ' ' + self.preprocessed_data['VISIT_TIME'])
                 except ValueError as error:
                     logging.error("Error occured when converting visit date and time into timestamp object - {}.".format(error))			

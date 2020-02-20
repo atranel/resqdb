@@ -277,7 +277,7 @@ class Reports:
             statistic = self.country_df.groupby(['Protocol ID', 'Site Name']).size().reset_index(name="Total Patients")			# Get Protocol IDs and Total Patients
             # Calculate IVtPa median
             ischemic_cmp = df[df['STROKE_TYPE'].isin([1])].copy()		
-            thrombolysis_df = ischemic_cmp[ischemic_cmp['IVT_DONE'].isin([1])].copy()	
+            thrombolysis_df = ischemic_cmp.loc[ischemic_cmp['IVT_DONE'].isin([1])].copy()	
 
             # print('Thrombolysis {} - {}'.format(name, len(thrombolysis_df)))
             # only patients with ischemic stroke
@@ -294,6 +294,8 @@ class Reports:
 
                 statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
 
+
+                thrombolysis_df = thrombolysis_df.loc[~thrombolysis_df['HOSPITAL_STROKE'].isin([1])].copy() 
                 # Get number of incorrectly entered times
                 thrombolysis_df['INCORRECT_TIMES'] = False
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
@@ -381,7 +383,7 @@ class Reports:
 
             df['FIRST_HOSPITAL'] = df.apply(lambda x: 2 if (x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] in first_hosp_mapping.keys() and (x['FIRST_ARRIVAL_HOSP'] != 'unknown' or x['FIRST_ARRIVAL_HOSP'] != first_hosp_mapping[x['Protocol ID']])) else x['FIRST_HOSPITAL'], axis=1)
 
-            thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['TBY_DONE'].isin([1]) & df['STROKE_TYPE'].isin([1])].copy()
+            thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & (df['TBY_DONE'].isin([1])) & (df['STROKE_TYPE'].isin([1]))].copy()
             thrombectomy_df.fillna(0, inplace=True)
             statistic = self.site_id_mapped_to_site_name.copy()
             
@@ -409,15 +411,17 @@ class Reports:
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' else x['INCORRECT_TIMES'], axis=1)
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
-                incorrect_tby_times = thrombectomy_df[thrombectomy_df['INCORRECT_TIMES'] == True]
+                incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True) & (~thrombectomy_df['HOSPITAL_STROKE'].isin([1]))].copy()
+
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
                 incorrect_tby_times_save = incorrect_tby_times.loc[incorrect_tby_times['Protocol ID'] != "CZ"].copy()
                 incorrect_tby_times_save.to_csv('incorrect_tby_times.csv', sep=',')
-
+                
                 #thrombectomy_df.to_csv('thrombectomy_{}.csv'.format(name), sep=',')
                 included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
                 included_in_median.to_csv('included_in_median.csv', sep=',')
                 thrombectomy = included_in_median[(included_in_median['TBY'] > 0) & (included_in_median['TBY'] < 700)].copy()
+                thrombectomy = thrombectomy.loc[~thrombectomy['HOSPITAL_STROKE'].isin([1])].copy()
 
                 if thrombectomy.empty:
                     statistic['# TBY'] = 0
@@ -436,6 +440,7 @@ class Reports:
                     total_patients = thrombectomy_df.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     statistic = statistic.merge(total_patients, on='Protocol ID', how='outer') # Merge with statistic dataframe
                     statistic.fillna(0, inplace=True)
+
 
                     thrombectomy_grouped = thrombectomy.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
                     statistic = statistic.merge(thrombectomy_grouped, how='outer') # Merge with statistic dataframe

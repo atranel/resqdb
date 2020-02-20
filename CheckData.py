@@ -109,8 +109,8 @@ class CheckData:
             # Fix hospital/discharge date if hospital days < 0 or > 300
             preprocessed_data['VISIT_DATE'], preprocessed_data['HOSPITAL_DATE'], preprocessed_data['DISCHARGE_DATE'], preprocessed_data['HOSPITAL_DAYS'], preprocessed_data['HOSPITAL_DAYS_FIXED'] = zip(*preprocessed_data.apply(lambda x: self._fix_dates(visit_date=x['VISIT_DATE_OLD'], hosp_date=x['HOSPITAL_DATE_OLD'], disc_date=x['DISCHARGE_DATE_OLD']) if (x['HOSPITAL_DAYS_OLD'] < 0 or x['HOSPITAL_DAYS_OLD'] > 300) else (x['VISIT_DATE_OLD'], x['HOSPITAL_DATE_OLD'], x['DISCHARGE_DATE_OLD'], x['HOSPITAL_DAYS_OLD'], False), axis=1))
 
-            preprocessed_data['VISIT_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if x['VISIT_TIME'] is not None else None, axis=1)
-            preprocessed_data['HOSPITAL_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if x['HOSPITAL_TIME'] is not None else None, axis=1)
+            preprocessed_data['VISIT_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if (x['VISIT_TIME'] is not None and x['VISIT_DATE'] is not None) else None, axis=1)
+            preprocessed_data['HOSPITAL_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if (x['HOSPITAL_TIME'] is not None and x['HOSPITAL_DATE'] is not None) else None, axis=1)
             preprocessed_data['LAST_SEEN_NORMAL'] = preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
 
             if n is not None:
@@ -142,8 +142,8 @@ class CheckData:
             # Fix hospital/discharge date if hospital days < 0 or > 300
             preprocessed_data['VISIT_DATE'], preprocessed_data['HOSPITAL_DATE'], preprocessed_data['DISCHARGE_DATE'], preprocessed_data['HOSPITAL_DAYS'], preprocessed_data['HOSPITAL_DAYS_FIXED'] = zip(*preprocessed_data.apply(lambda x: self._fix_dates(visit_date=x['VISIT_DATE_OLD'], hosp_date=x['HOSPITAL_DATE_OLD'], disc_date=x['DISCHARGE_DATE_OLD']) if (x['HOSPITAL_DAYS_OLD'] < 0 or x['HOSPITAL_DAYS_OLD'] > 300) else (x['VISIT_DATE_OLD'], x['HOSPITAL_DATE_OLD'], x['DISCHARGE_DATE_OLD'], x['HOSPITAL_DAYS_OLD'], False), axis=1))
 
-            preprocessed_data['VISIT_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if x['VISIT_TIME'] is not None else None, axis=1)
-            preprocessed_data['HOSPITAL_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if x['HOSPITAL_TIME'] is not None else None, axis=1)
+            preprocessed_data['VISIT_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['VISIT_DATE'], x['VISIT_TIME']) if (x['VISIT_TIME'] is not None and x['VISIT_DATE'] is not None) else None, axis=1)
+            preprocessed_data['HOSPITAL_TIMESTAMP'] = preprocessed_data.apply(lambda x: datetime.combine(x['HOSPITAL_DATE'], x['HOSPITAL_TIME']) if (x['HOSPITAL_TIME'] is not None and x['HOSPITAL_DATE'] is not None) else None, axis=1)
             preprocessed_data['LAST_SEEN_NORMAL'] = preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
 
 
@@ -373,7 +373,10 @@ class CheckData:
             'IVT_TBY_REFER_NEEDLE_TIME': 0
             })
         # Fill IVT only needle time into IVTPA column
-        df['IVTPA'] = df.apply(lambda x: x['IVT_ONLY_NEEDLE_TIME'] if x['IVT_ONLY'] == 1 else x['IVTPA'], axis=1)
+        df['IVTPA'] = df.apply(
+            lambda x: x['IVT_ONLY_NEEDLE_TIME'] if x['IVT_ONLY'] == 1 else x['IVTPA'], 
+            axis=1
+            )
 
         df['IVT_ONLY_NEEDLE_TIME'] = df.apply(lambda x: 0 if x['IVT_ONLY'] == 2 else x['IVT_ONLY_NEEDLE_TIME'], axis=1) # (delete values calculated by Mirek)
         # IVT needle time

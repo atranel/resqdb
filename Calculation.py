@@ -573,7 +573,8 @@ class ComputeStats:
         self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
         
         # Create temporary dataframe with the patients who has been treated with thrombolysis
-        recanalization_procedure_iv_tpa = isch[isch['IVT_DONE'].isin([1])].copy()
+        #recanalization_procedure_iv_tpa = isch.loc[(isch['IVT_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE'].isin([1]))].copy()
+        recanalization_procedure_iv_tpa = isch.loc[isch['IVT_DONE'].isin([1])].copy()
         recanalization_procedure_iv_tpa.fillna(0, inplace=True)
         # Create one column with times of door to thrombolysis 
         thrombolysis = recanalization_procedure_iv_tpa[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 400)].copy()
@@ -638,7 +639,8 @@ class ComputeStats:
         self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
         
         # Create temporary dataframe with the patients who has been treated with thrombolysis
-        recanalization_procedure_tby_dtg = isch[isch['TBY_DONE'].isin([1])].copy()
+        #recanalization_procedure_tby_dtg = isch.loc[(isch['TBY_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE'].isin([1]))].copy()
+        recanalization_procedure_tby_dtg = isch.loc[isch['TBY_DONE'].isin([1])].copy()
         recanalization_procedure_tby_dtg.fillna(0, inplace=True)
         # Create one column with times of door to thrombolysis 
         thrombectomy = recanalization_procedure_tby_dtg[(recanalization_procedure_tby_dtg['TBY'] > 0) & (recanalization_procedure_tby_dtg['TBY'] <= 700)].copy()
@@ -1118,14 +1120,14 @@ class ComputeStats:
         # CAROTID ARTERIES IMAGING #
         ############################
         if country_code == 'CZ':
-            if (self.period.startswith('Q1') and self.period.endswith('2019')):
+            if (not comparison and self.period.startswith('Q1') and self.period.endswith('2019')):
                 self.statsDf.loc[:, '# carotid arteries imaging - Not known'] = 'N/A'
                 self.statsDf.loc[:, '% carotid arteries imaging - Not known'] = 'N/A'
                 self.statsDf.loc[:, '# carotid arteries imaging - Yes'] = 'N/A'
                 self.statsDf.loc[:, '% carotid arteries imaging - Yes'] = 'N/A'
                 self.statsDf.loc[:, '# carotid arteries imaging - No'] = 'N/A'
                 self.statsDf.loc[:, '% carotid arteries imaging - No'] = 'N/A'
-            elif ((self.period.startswith('Q2') or self.period.startswith('H1')) and self.period.endswith('2019')):
+            elif (not comparison and (self.period.startswith('Q2') or self.period.startswith('H1')) and self.period.endswith('2019')):
                 date1 = date(2019, 7, 19)
                 date2 = date(2019, 8, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
@@ -1153,7 +1155,7 @@ class ComputeStats:
                 
                 self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
                 self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
-            elif (self.period == '2019'):
+            elif (not comparison and self.period == '2019'):
                 date1 = date(2019, 7, 19)
                 date2 = date(2019, 12, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
@@ -1765,22 +1767,32 @@ class ComputeStats:
 
         self.statsDf['wrong_ivtpa'] = self._count_patients(dataframe=wrong_ivtpa)
 
-        self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment']) - x['wrong_ivtpa'], axis=1)
+        # self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment']) - x['wrong_ivtpa'], axis=1)
+        self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: x['# IV tPa'] - x['wrong_ivtpa'], axis=1)
+
         self.statsDf.drop(['wrong_ivtpa'], inplace=True, axis=1)
 
         wrong_tby = recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['TBY'] <= 0]
 
         self.statsDf['wrong_tby'] = self._count_patients(dataframe=wrong_tby)
 
-        if country_code == 'CZ':
-            self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']) - x['wrong_tby'], axis=1)
-            self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
-        else:
-            self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone']) - x['wrong_tby'], axis=1)
-            self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
+        self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# TBY'] - x['wrong_tby']), axis=1)
 
-        self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+        self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
 
+        
+
+        # if country_code == 'CZ':
+        #     self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre'] + x['# recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']) - x['wrong_tby'], axis=1)
+        #     
+        # else:
+        #     self.statsDf.loc[:, '# patients eligible thrombectomy'] = self.statsDf.apply(lambda x: (x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone']) - x['wrong_tby'], axis=1)
+        #     self.statsDf.drop(['wrong_tby'], inplace=True, axis=1)
+
+        # self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
+
+        ivt_tby_mix = isch.loc[(isch['IVT_DONE'] == 1) | (isch['TBY_DONE'] == 1)].copy()
+        self.statsDf['patients_eligible_recanalization'] = self._count_patients(dataframe=ivt_tby_mix)
 
         ################
         # ANGEL AWARDS #

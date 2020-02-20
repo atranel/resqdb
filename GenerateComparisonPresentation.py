@@ -505,6 +505,7 @@ class GenerateCountriesCompPresentation:
         ############################
         # RECANALIZATION TREATMENT #
         ############################
+        """
         column_name = '% recanalization procedures - IV tPa'
         legend = ['IV tPa', 'IV tPa + endovascular treatment', 'endovascular treatment', 'IV tPa + another centre for endovascular treatment']
 
@@ -518,6 +519,45 @@ class GenerateCountriesCompPresentation:
         subtitle = "- Calculated out of number of IS -"
 
         GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name, legend=legend, number_of_series=len(legend), graph_type='stacked', subtitle=subtitle)
+        """
+        column_name = '% patients recanalized'
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = "% patients receiving recanalization procedures"
+        subtitle = "- Calculated out of number of IS -"
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        column_name = '% IV tPa'
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = "% patients receiving thrombolysis"
+        subtitle = "- Calculated out of number of IS -"
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
+
+        column_name = '% TBY'
+        # Nationally df
+        tmp_ndf = self.ndf[[main_col, column_name]]
+        tmp_ndf = tmp_ndf.sort_values([column_name], ascending = True)
+        # Site-level df
+        tmp_sldf = self.sldf[[main_col, column_name]]
+        tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
+
+        title = "% patients receiving mechanical thrombectomy"
+        subtitle = "- Calculated out of number of IS -"
+
+        GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, column_name=column_name)
 
         ################
         # % median DTN #
@@ -665,8 +705,8 @@ class GenerateCountriesCompPresentation:
         tmp_sldf = self.sldf[[main_col, column_name]]
         tmp_sldf = tmp_sldf.sort_values([column_name], ascending=True)
 
-        title = "% patients prescribed antihypertensives at discharge"
-        subtitle = "- Calculated out of number of patients discharged alive -"
+        title = "% recommended to a cerebrovascular expert"
+        subtitle = "- Calculated out of number of total patients -"
 
         GenerateCountriesCompGraphs(ndf=tmp_ndf, sldf=tmp_sldf, presentation=prs, title=title, subtitle=subtitle, column_name=column_name)
 
