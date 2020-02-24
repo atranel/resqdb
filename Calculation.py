@@ -1132,6 +1132,8 @@ class ComputeStats:
                 date2 = date(2019, 8, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
                 cz_df = obj.fdf.copy()
+                site_ids = self.statsDf['Protocol ID'].tolist()
+                cz_df = cz_df.loc[cz_df['Protocol ID'].isin(site_ids)].copy()
                 if (country):
                     country_df = cz_df.copy()
                     #self.country_name = pytz.country_names[country_code]
@@ -1160,6 +1162,9 @@ class ComputeStats:
                 date2 = date(2019, 12, 31)
                 obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
                 cz_df = obj.fdf.copy()
+                site_ids = self.statsDf['Protocol ID'].tolist()
+                cz_df = cz_df.loc[cz_df['Protocol ID'].isin(site_ids)].copy()
+                
                 if (country):
                     country_df = cz_df.copy()
                     #self.country_name = pytz.country_names[country_code]
