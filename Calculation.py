@@ -198,7 +198,6 @@ class ComputeStats:
 
         # get patietns with ischemic stroke (IS), intracerebral hemorrhage (ICH), or cerebral venous thrombosis (CVT) (1, 2, 5)
         is_ich_cvt = self.df[self.df['STROKE_TYPE'].isin([1, 2, 5])]
-        self.statsDf['is_ich_cvt_patients'] = self._count_patients(dataframe=is_ich_cvt)
 
         # Get dataframe with patients who had ischemic stroke (IS) or intracerebral hemorrhage (ICH)
         is_ich = self.df[self.df['STROKE_TYPE'].isin([1,2])]
@@ -373,6 +372,7 @@ class ComputeStats:
         self.statsDf['drowsy_all_perc'] = self.statsDf.apply(lambda x: round(((x['drowsy_all']/(x['is_ich_sah_cvt_patients'] - x['# level of consciousness - not known'])) * 100), 2) if (x['is_ich_sah_cvt_patients'] - x['# level of consciousness - not known']) > 0 else 0, axis=1)
         self.statsDf['comatose_all'] = self.statsDf['# level of consciousness - comatose'] + self.statsDf['# GCS - <8']
         self.statsDf['comatose_all_perc'] = self.statsDf.apply(lambda x: round(((x['comatose_all']/(x['is_ich_sah_cvt_patients'] - x['# level of consciousness - not known'])) * 100), 2) if (x['is_ich_sah_cvt_patients'] - x['# level of consciousness - not known']) > 0 else 0, axis=1)
+        del gcs
 
         #########
         # NIHSS #
@@ -392,20 +392,21 @@ class ComputeStats:
             factorDf = self.statsDf.merge(tmpDf, how='outer', left_on='Protocol ID', right_on='Protocol ID')
             factorDf.fillna(0, inplace=True)
             self.statsDf['NIHSS median score'] = factorDf['NIHSS median score']
+            
+            del nihss
         else:
             self.tmp = is_ich_cvt.groupby(['Protocol ID', 'NIHSS']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=1, new_column_name='# NIHSS - Not performed')
-            self.statsDf['% NIHSS - Not performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not performed']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=2, new_column_name='# NIHSS - Performed')
-            self.statsDf['% NIHSS - Performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Performed']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=3, new_column_name='# NIHSS - Not known')
-            self.statsDf['% NIHSS - Not known'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not known']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             # Create temporary dataframe with patient who had performed NIHSS (NIHSS = 2)
             nihss = is_ich_cvt[is_ich_cvt['NIHSS'].isin([2])]
             tmpDf = nihss.groupby(['Protocol ID']).NIHSS_SCORE.agg(['median']).rename(columns={'median': 'NIHSS median score'})
             factorDf = self.statsDf.merge(tmpDf, how='outer', left_on='Protocol ID', right_on='Protocol ID')
             factorDf.fillna(0, inplace=True)
             self.statsDf['NIHSS median score'] = factorDf['NIHSS median score']
+
+            del nihss
 
         ##########
         # CT/MRI #
@@ -426,6 +427,8 @@ class ComputeStats:
         self.statsDf['% CT/MRI - Performed within 1 hour after admission'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Performed within 1 hour after admission']/x['# CT/MRI - performed']) * 100), 2) if x['# CT/MRI - performed'] > 0 else 0, axis=1)
         self.statsDf = self._get_values_for_factors(column_name="CT_TIME", value=2, new_column_name='# CT/MRI - Performed later than 1 hour after admission')
         self.statsDf['% CT/MRI - Performed later than 1 hour after admission'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Performed later than 1 hour after admission']/x['# CT/MRI - performed']) * 100), 2) if x['# CT/MRI - performed'] > 0 else 0, axis=1)
+
+        del ct_mri
 
         ####################
         # VASCULAR IMAGING #
@@ -449,6 +452,7 @@ class ComputeStats:
         self.statsDf['vascular_imaging_mra_norm'] = ((norm_tmp['% vascular imaging - MRA']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['vascular_imaging_dsa_norm'] = ((norm_tmp['% vascular imaging - DSA']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['vascular_imaging_none_norm'] = ((norm_tmp['% vascular imaging - None']/norm_tmp['rowsums']) * 100).round(decimals=2)
+        del norm_tmp
         
         ##############
         # VENTILATOR #
@@ -470,11 +474,8 @@ class ComputeStats:
             # Get number of patients from the old version
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=-999, new_column_name='tmp')
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=3, new_column_name='# patients put on ventilator - Not known')
-            self.statsDf['% patients put on ventilator - Not known'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - Not known']/(x['is_ich_cvt_patients'] - x['tmp'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=1, new_column_name='# patients put on ventilator - Yes')
-            self.statsDf['% patients put on ventilator - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - Yes']/(x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=2, new_column_name='# patients put on ventilator - No')
-            self.statsDf['% patients put on ventilator - No'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - No']/(x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known']) > 0 else 0, axis=1)
             self.statsDf.drop(['tmp'], inplace=True, axis=1)
 
         #############################
@@ -509,6 +510,8 @@ class ComputeStats:
 
         self.statsDf['% patients recanalized'] = self.statsDf.apply(lambda x: round(((x['# patients recanalized']/x['denominator']) * 100), 2) if x['denominator'] > 0 else 0, axis=1)
         self.statsDf.drop(['denominator'], inplace=True, axis=1)
+        
+        del recanalized_df
         # end::recanalized_patients[]
 
         """
@@ -582,6 +585,8 @@ class ComputeStats:
         tmp = thrombolysis.groupby(['Protocol ID']).IVTPA.agg(['median']).rename(columns={'median': 'Median DTN (minutes)'}).reset_index()
         self.statsDf = self.statsDf.merge(tmp, how='outer')
         self.statsDf.fillna(0, inplace=True)
+
+        del thrombolysis
         # end::median_dtn[]
 
         """
@@ -648,6 +653,8 @@ class ComputeStats:
         tmp = thrombectomy.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
         self.statsDf = self.statsDf.merge(tmp, how='outer')
         self.statsDf.fillna(0, inplace=True)
+
+        del thrombectomy
         # end::median_dtg[]
 
         """
@@ -739,6 +746,8 @@ class ComputeStats:
         tmp = dido.groupby(['Protocol ID']).DIDO.agg(['median']).rename(columns={'median': 'Median TBY DIDO (minutes)'}).reset_index()
         self.statsDf = self.statsDf.merge(tmp, how='outer')
         self.statsDf.fillna(0, inplace=True)
+
+        del recanalization_procedure_tby_dido, dido
         # end::median_dido[]
 
         """
@@ -813,19 +822,12 @@ class ComputeStats:
         else:
             self.tmp = is_ich_cvt.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=6, new_column_name='# dysphagia screening - not known')
-            self.statsDf['% dysphagia screening - not known'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - not known']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=1, new_column_name='# dysphagia screening - Guss test')
-            self.statsDf['% dysphagia screening - Guss test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Guss test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=2, new_column_name='# dysphagia screening - Other test')
-            self.statsDf['% dysphagia screening - Other test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Other test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=3, new_column_name='# dysphagia screening - Another centre')
-            self.statsDf['% dysphagia screening - Another centre'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Another centre']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=4, new_column_name='# dysphagia screening - Not done')
-            self.statsDf['% dysphagia screening - Not done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Not done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=5, new_column_name='# dysphagia screening - Unable to test')
-            self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test'] + self.statsDf['# dysphagia screening - Another centre']
-            self.statsDf['% dysphagia screening done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
         # end::dysphagia_screening[]
 
         ############################
@@ -887,6 +889,7 @@ class ComputeStats:
             self.statsDf['% neurosurgery type - decompressive craniectomy'] = self.statsDf.apply(lambda x: round(((x['# neurosurgery type - decompressive craniectomy']/x['neurosurgery_patients']) * 100), 2) if x['neurosurgery_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="NEUROSURGERY_TYPE", value=4, new_column_name='# neurosurgery type - Referred to another centre')
             self.statsDf['% neurosurgery type - Referred to another centre'] = self.statsDf.apply(lambda x: round(((x['# neurosurgery type - Referred to another centre']/x['neurosurgery_patients']) * 100), 2) if x['neurosurgery_patients'] > 0 else 0, axis=1)
+        del neurosurgery
 
         ###################
         # BLEEDING REASON #
@@ -917,6 +920,7 @@ class ComputeStats:
         self.statsDf['bleeding_anticoagulation_therapy_perc_norm'] = ((norm_tmp['% bleeding reason - anticoagulation therapy']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['bleeding_amyloid_angiopathy_perc_norm'] = ((norm_tmp['% bleeding reason - amyloid angiopathy']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['bleeding_other_perc_norm'] = ((norm_tmp['% bleeding reason - Other']/norm_tmp['rowsums']) * 100).round(decimals=2)
+        del norm_tmp
 
         # MORE THAN ONE POSIBILITY
         self.statsDf = self._get_values_for_factors_containing(column_name="BLEEDING_REASON", value=",", new_column_name='# bleeding reason - more than one')
@@ -965,6 +969,7 @@ class ComputeStats:
         self.statsDf['intervention_other_perc_norm'] = ((norm_tmp['% intervention - Other neurosurgical treatment (decompression, drainage)']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['intervention_referred_perc_norm'] = ((norm_tmp['% intervention - Referred to another hospital for intervention']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['intervention_none_perc_norm'] = ((norm_tmp['% intervention - None / no intervention']/norm_tmp['rowsums']) * 100).round(decimals=2)
+        del norm_tmp
 
         self.statsDf = self._get_values_for_factors_containing(column_name="INTERVENTION", value=",", new_column_name='# intervention - more than one')
         self.statsDf['% intervention - more than one'] = self.statsDf.apply(lambda x: round(((x['# intervention - more than one']/(x['sah_patients'] - x['tmp'])) * 100), 2) if (x['sah_patients'] - x['tmp']) > 0 else 0, axis=1) 
@@ -996,6 +1001,7 @@ class ComputeStats:
         self.statsDf['vt_treatment_thrombectomy_perc_norm'] = ((norm_tmp['% VT treatment - thrombectomy']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['vt_treatment_local_thrombolysis_perc_norm'] = ((norm_tmp['% VT treatment - local thrombolysis']/norm_tmp['rowsums']) * 100).round(decimals=2)
         self.statsDf['vt_treatment_local_neurological_treatment_perc_norm'] = ((norm_tmp['% VT treatment - local neurological treatment']/norm_tmp['rowsums']) * 100).round(decimals=2)
+        del norm_tmp
 
         ########
         # AFIB #
@@ -1143,6 +1149,7 @@ class ComputeStats:
                     country_df['Site Name'] = country_df['Country']
                     
                     cz_df = pd.concat([cz_df, country_df])
+                    del country_df
 
                 cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
                 self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
@@ -1157,6 +1164,8 @@ class ComputeStats:
                 
                 self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
                 self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                del cz_df_is_tia, cz_df
+
             elif (not comparison and self.period == '2019'):
                 date1 = date(2019, 7, 19)
                 date2 = date(2019, 12, 31)
@@ -1174,6 +1183,7 @@ class ComputeStats:
                     country_df['Site Name'] = country_df['Country']
                     
                     cz_df = pd.concat([cz_df, country_df])
+                    del country_df
 
                 cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
                 self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
@@ -1188,6 +1198,7 @@ class ComputeStats:
                 
                 self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
                 self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                del cz_df_is_tia, cz_df
             else:
                 self.tmp = is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
         
@@ -1224,6 +1235,8 @@ class ComputeStats:
         ischemic_transient_cerebral_dead = is_tia_cvt[is_tia_cvt['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['ischemic_transient_cerebral_dead_patients'] = self._count_patients(dataframe=ischemic_transient_cerebral_dead)
         self.tmp = antithrombotics_with_cvt.groupby(['Protocol ID', 'ANTITHROMBOTICS']).size().to_frame('count').reset_index()
+
+        del antithrombotics_with_cvt, ischemic_transient_cerebral_dead
         
         self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=1, new_column_name='# patients receiving antiplatelets with CVT')
         self.statsDf['% patients receiving antiplatelets with CVT'] = self.statsDf.apply(lambda x: round(((x['# patients receiving antiplatelets with CVT']/(x['is_tia_cvt_patients'] - x['ischemic_transient_cerebral_dead_patients'])) * 100), 2) if (x['is_tia_cvt_patients'] - x['ischemic_transient_cerebral_dead_patients']) > 0 else 0, axis=1)
@@ -1287,6 +1300,8 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=1, new_column_name='# patients prescribed antiplatelets without aFib with CVT')
         self.statsDf['% patients prescribed antiplatelets without aFib with CVT'] =  self.statsDf.apply(lambda x: round(((x['# patients prescribed antiplatelets without aFib with CVT'] - x['prescribed_antiplatelets_no_afib_dead_patients_with_cvt'])/(x['afib_flutter_not_detected_or_not_known_patients_with_cvt'] - x['afib_flutter_not_detected_or_not_known_dead_patients_with_cvt'])) * 100, 2) if ((x['afib_flutter_not_detected_or_not_known_patients_with_cvt'] - x['afib_flutter_not_detected_or_not_known_dead_patients_with_cvt']) > 0) else 0, axis=1)
 
+        del afib_flutter_not_detected_or_not_known_with_cvt, afib_flutter_not_detected_or_not_known_with_cvt_dead, prescribed_antiplatelets_no_afib_with_cvt, prescribed_antiplatelets_no_afib_dead_with_cvt
+
         #########################################
         # ANTICOAGULANTS - PRESCRIBED WITH AFIB #
         #########################################       
@@ -1315,7 +1330,7 @@ class ComputeStats:
 
         self.statsDf['% patients prescribed antithrombotics with aFib with CVT'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics with aFib with CVT']/(x['afib_flutter_detected_patients_with_cvt'] - x['afib_flutter_detected_dead_patients_with_cvt'] - x['recommended_antithrombotics_with_afib_alive_patients_with_cvt'])) * 100), 2) if (x['afib_flutter_detected_dead_patients_with_cvt'] - x['afib_flutter_detected_dead_patients_with_cvt'] - x['recommended_antithrombotics_with_afib_alive_patients_with_cvt']) > 0 else 0, axis=1)
         
-        
+        del afib_flutter_detected_with_cvt, anticoagulants_prescribed_with_cvt, anticoagulants_recommended_with_cvt, afib_flutter_detected_dead_with, antithrombotics_prescribed_with_cvt, recommended_antithrombotics_with_afib_alive_with_cvt
         ###############################
         # ANTITHROMBOTICS WITHOUT CVT #
         ###############################
@@ -1324,9 +1339,11 @@ class ComputeStats:
 
         ischemic_transient_dead = is_tia[is_tia['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['ischemic_transient_dead_patients'] = self._count_patients(dataframe=ischemic_transient_dead)
+        del ischemic_transient_dead
 
         ischemic_transient_dead_prescribed = is_tia[is_tia['DISCHARGE_DESTINATION'].isin([5]) & ~is_tia['ANTITHROMBOTICS'].isin([10])].copy()
         self.statsDf['ischemic_transient_dead_patients_prescribed'] = self._count_patients(dataframe=ischemic_transient_dead_prescribed)
+        del ischemic_transient_dead_prescribed
         
         self.tmp = antithrombotics.groupby(['Protocol ID', 'ANTITHROMBOTICS']).size().to_frame('count').reset_index()
         
@@ -1397,6 +1414,8 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="ANTITHROMBOTICS", value=1, new_column_name='# patients prescribed antiplatelets without aFib')
         self.statsDf['% patients prescribed antiplatelets without aFib'] =  self.statsDf.apply(lambda x: round(((x['# patients prescribed antiplatelets without aFib'] - x['prescribed_antiplatelets_no_afib_dead_patients'])/(x['afib_flutter_not_detected_or_not_known_patients'] - x['afib_flutter_not_detected_or_not_known_dead_patients'])) * 100, 2) if ((x['afib_flutter_not_detected_or_not_known_patients'] - x['afib_flutter_not_detected_or_not_known_dead_patients']) > 0) else 0, axis=1)
 
+        del afib_flutter_not_detected_or_not_known, afib_flutter_not_detected_or_not_known_dead, prescribed_antiplatelets_no_afib, prescribed_antiplatelets_no_afib_dead
+
         #########################################
         # ANTICOAGULANTS - PRESCRIBED WITH AFIB #
         #########################################
@@ -1405,6 +1424,7 @@ class ComputeStats:
 
         afib_flutter_detected_not_dead = afib_flutter_detected[~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['afib_flutter_detected_patients_not_dead'] = self._count_patients(dataframe=afib_flutter_detected_not_dead)
+        del afib_flutter_detected_not_dead
 
         anticoagulants_prescribed = afib_flutter_detected[~afib_flutter_detected['ANTITHROMBOTICS'].isin([1, 10, 9]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['# patients prescribed anticoagulants with aFib'] = self._count_patients(dataframe=anticoagulants_prescribed)
@@ -1447,9 +1467,11 @@ class ComputeStats:
         ##########################################
         antithrombotics_prescribed = afib_flutter_detected[~afib_flutter_detected['ANTITHROMBOTICS'].isin([9, 10]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['# patients prescribed antithrombotics with aFib'] = self._count_patients(dataframe=antithrombotics_prescribed)
+        del antithrombotics_prescribed
 
         recommended_antithrombotics_with_afib_alive = afib_flutter_detected[afib_flutter_detected['ANTITHROMBOTICS'].isin([9]) & ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])].copy()
         self.statsDf['recommended_antithrombotics_with_afib_alive_patients'] = self._count_patients(dataframe=recommended_antithrombotics_with_afib_alive)
+        del recommended_antithrombotics_with_afib_alive
 
         self.statsDf['% patients prescribed antithrombotics with aFib'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed antithrombotics with aFib']/(x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients'])) * 100), 2) if (x['afib_flutter_detected_patients'] - x['afib_flutter_detected_dead_patients'] - x['recommended_antithrombotics_with_afib_alive_patients']) > 0 else 0, axis=1)
     
@@ -1463,6 +1485,7 @@ class ComputeStats:
             self.statsDf['is_tia_discharged_home_patients'] = self._count_patients(dataframe=is_tia_discharged_home)
             
             self.tmp = is_tia_discharged_home.groupby(['Protocol ID', 'STATIN']).size().to_frame('count').reset_index()
+            del is_tia_discharged_home
             
             self.statsDf = self._get_values_for_factors(column_name="STATIN", value=1, new_column_name='# patients prescribed statins - Yes')
             self.statsDf['% patients prescribed statins - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients prescribed statins - Yes']/x['is_tia_discharged_home_patients']) * 100), 2) if x['is_tia_discharged_home_patients'] > 0 else 0, axis=1)
@@ -1526,6 +1549,8 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS_FOLLOWUP", value=4, new_column_name='# carotid stenosis followup - Referred to another centre')
         self.statsDf['% carotid stenosis followup - Referred to another centre'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Referred to another centre']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
 
+        del carotid_stenosis, carotid_stenosis_followup
+
         #####################
         # ANTIHYPERTENSIVES #
         #####################
@@ -1565,7 +1590,6 @@ class ComputeStats:
         #####################
         # tag::smoking[]
         if country_code == 'CZ':
-            print('Im here')
             self.tmp = discharge_subset_alive_not_returned_back.groupby(['Protocol ID', 'SMOKING_CESSATION']).size().to_frame('count').reset_index()
 
             self.statsDf = self._get_values_for_factors(column_name="SMOKING_CESSATION", value=3, new_column_name='# recommended to a smoking cessation program - not a smoker')
@@ -1663,6 +1687,7 @@ class ComputeStats:
         self.statsDf['discharge_subset_same_centre_patients'] = self._count_patients(dataframe=discharge_subset_same_centre)
 
         self.tmp = discharge_subset_same_centre.groupby(['Protocol ID', 'DISCHARGE_SAME_FACILITY']).size().to_frame('count').reset_index()
+        del discharge_subset_same_centre
 
         self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=1, new_column_name='# transferred within the same centre - Acute rehabilitation')
         self.statsDf['% transferred within the same centre - Acute rehabilitation'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Acute rehabilitation']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
@@ -1702,6 +1727,7 @@ class ComputeStats:
         self.tmp = discharge_subset_another_centre.groupby(['Protocol ID', 'DISCHARGE_OTHER_FACILITY_O1']).size().to_frame('count').reset_index()
         tmp_o2 = discharge_subset_another_centre.groupby(['Protocol ID', 'DISCHARGE_OTHER_FACILITY_O2']).size().to_frame('count').reset_index()
         tmp_o3 = discharge_subset_another_centre.groupby(['Protocol ID', 'DISCHARGE_OTHER_FACILITY_O3']).size().to_frame('count').reset_index()
+        del discharge_subset_another_centre
 
         # Calculate number of patients entered to the old form
         self.statsDf.loc[:, 'tmp'] = 0
@@ -1725,6 +1751,7 @@ class ComputeStats:
         ############################################
         discharge_subset.fillna(0, inplace=True)
         discharge_subset_mrs = discharge_subset[~discharge_subset['DISCHARGE_MRS'].isin([0])].copy()
+        del discharge_subset
         #discharge_subset_mrs['DISCHARGE_MRS'] = discharge_subset_mrs['DISCHARGE_MRS'].astype(float)
 
         def convert_mrs_on_discharge(x):
@@ -1752,6 +1779,7 @@ class ComputeStats:
 
             self.statsDf = self.statsDf.merge(discharge_subset_mrs.groupby(['Protocol ID']).DISCHARGE_MRS_ADDED.agg(['median']).rename(columns={'median': 'Median discharge mRS'})['Median discharge mRS'].reset_index(), how='outer')
             self.statsDf.fillna(0, inplace=True)
+        del discharge_subset_mrs
 
         ########################
         # MEDIAN HOSPITAL STAY #
@@ -1759,6 +1787,7 @@ class ComputeStats:
         positive_hospital_days = self.df[self.df['HOSPITAL_DAYS'] > 0]
         self.statsDf = self.statsDf.merge(positive_hospital_days.groupby(['Protocol ID']).HOSPITAL_DAYS.agg(['median']).rename(columns={'median': 'Median hospital stay (days)'})['Median hospital stay (days)'].reset_index(), how='outer')
         self.statsDf.fillna(0, inplace=True)
+        del positive_hospital_days
 
         ###########################
         # MEDIAN LAST SEEN NORMAL #
@@ -1776,6 +1805,7 @@ class ComputeStats:
         self.statsDf.loc[:, '# patients eligible thrombolysis'] = self.statsDf.apply(lambda x: x['# IV tPa'] - x['wrong_ivtpa'], axis=1)
 
         self.statsDf.drop(['wrong_ivtpa'], inplace=True, axis=1)
+        del wrong_ivtpa
 
         wrong_tby = recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['TBY'] <= 0]
 
@@ -1796,8 +1826,11 @@ class ComputeStats:
 
         # self.statsDf.loc[:, 'patients_eligible_recanalization'] = self.statsDf.apply(lambda x: x['# recanalization procedures - Not done'] + x['# recanalization procedures - IV tPa'] + x['# recanalization procedures - IV tPa + endovascular treatment'] + x['# recanalization procedures - Endovascular treatment alone'] + x['# recanalization procedures - IV tPa + referred to another centre for endovascular treatment'], axis=1)
 
+        del wrong_tby
+
         ivt_tby_mix = isch.loc[(isch['IVT_DONE'] == 1) | (isch['TBY_DONE'] == 1)].copy()
         self.statsDf['patients_eligible_recanalization'] = self._count_patients(dataframe=ivt_tby_mix)
+        del ivt_tby_mix
 
         ################
         # ANGEL AWARDS #
@@ -1813,6 +1846,8 @@ class ComputeStats:
         # Create temporary dataframe only with rows where thrombolysis was performed under 45 minute
         recanalization_procedure_iv_tpa_under_45 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 45)]
 
+        del recanalization_procedure_iv_tpa
+
         recanalization_procedure_tby_only_dtg_under_60 = recanalization_procedure_tby_only_dtg.loc[(recanalization_procedure_tby_only_dtg['TBY'] > 0) & (recanalization_procedure_tby_only_dtg['TBY'] <= 60)]
         self.statsDf['# patients treated with door to recanalization therapy < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_60)
         self.statsDf['% patients treated with door to recanalization therapy < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 60 minutes']/x['# patients recanalized']) * 100), 2) if x['# patients recanalized'] > 0 else 0, axis=1)
@@ -1821,26 +1856,34 @@ class ComputeStats:
         self.statsDf['# patients treated with door to recanalization therapy < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45) + self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_45)
         self.statsDf['% patients treated with door to recanalization therapy < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to recanalization therapy < 45 minutes']/x['# patients recanalized']) * 100), 2) if x['# patients recanalized'] > 0 else 0, axis=1)
 
+        del recanalization_procedure_tby_only_dtg
+
 
         #### DOOR TO THROMBOLYSIS THERAPY - MINUTES ####
         # If thrombectomy done not at all, take the possible lowest award they can get
 
         self.statsDf['# patients treated with door to thrombolysis < 60 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_60)
         self.statsDf['% patients treated with door to thrombolysis < 60 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 60 minutes']/x['# patients eligible thrombolysis']) * 100), 2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
+        del recanalization_procedure_iv_tpa_under_60
 
         self.statsDf['# patients treated with door to thrombolysis < 45 minutes'] = self._count_patients(dataframe=recanalization_procedure_iv_tpa_under_45)
         self.statsDf['% patients treated with door to thrombolysis < 45 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombolysis < 45 minutes']/x['# patients eligible thrombolysis']) * 100), 2) if x['# patients eligible thrombolysis'] > 0 else 0, axis=1)
+        del recanalization_procedure_iv_tpa_under_45
 
         # Create temporary dataframe only with rows where trombectomy was performed under 90 minutes
         recanalization_procedure_tby_only_dtg_under_120 = recanalization_procedure_tby_dtg.loc[(recanalization_procedure_tby_dtg['TBY'] > 0) & (recanalization_procedure_tby_dtg['TBY'] <= 120)]
         # Create temporary dataframe only with rows where trombectomy was performed under 60 minutes
         recanalization_procedure_tby_only_dtg_under_90 = recanalization_procedure_tby_dtg.loc[(recanalization_procedure_tby_dtg['TBY'] > 0) & (recanalization_procedure_tby_dtg['TBY'] <= 90)]
+
+        del recanalization_procedure_tby_dtg
         
         self.statsDf['# patients treated with door to thrombectomy < 120 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_120)
         self.statsDf['% patients treated with door to thrombectomy < 120 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 120 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
+        del recanalization_procedure_tby_only_dtg_under_120
 
         self.statsDf['# patients treated with door to thrombectomy < 90 minutes'] = self._count_patients(dataframe=recanalization_procedure_tby_only_dtg_under_90)
         self.statsDf['% patients treated with door to thrombectomy < 90 minutes'] = self.statsDf.apply(lambda x: round(((x['# patients treated with door to thrombectomy < 90 minutes']/x['# patients eligible thrombectomy']) * 100), 2) if x['# patients eligible thrombectomy'] > 0 else 0, axis=1)
+        del recanalization_procedure_tby_only_dtg_under_90
 
         #### RECANALIZATION RATE ####
         self.statsDf['# recanalization rate out of total ischemic incidence'] = self.statsDf['# patients recanalized']
@@ -1859,6 +1902,7 @@ class ComputeStats:
         non_transferred_antiplatelets = antithrombotics[~antithrombotics['RECANALIZATION_PROCEDURES'].isin([5,6])]
         # Get temporary dataframe with patients who have prescribed antithrombotics and ischemic stroke
         antiplatelets = non_transferred_antiplatelets[non_transferred_antiplatelets['STROKE_TYPE'].isin([1])]
+        del non_transferred_antiplatelets
         # Filter temporary dataframe and get only patients who have not been detected or not known for aFib flutter. 
         antiplatelets = antiplatelets[antiplatelets['AFIB_FLUTTER'].isin([4, 5])]
         # Get patients who have prescribed antithrombotics 
@@ -1908,6 +1952,7 @@ class ComputeStats:
         # Get temporary dataframe with patients who have prescribed anticoagulats and were discharged home 
         non_trasferred_anticoagulants = anticoagulants_prescribed[~anticoagulants_prescribed['RECANALIZATION_PROCEDURES'].isin([5,6])]
         anticoagulants_prescribed_discharged_home = non_trasferred_anticoagulants[non_trasferred_anticoagulants['DISCHARGE_DESTINATION'].isin([1])]
+        del non_trasferred_anticoagulants
         # anticoagulants_prescribed_discharged_home = anticoagulants_prescribed[anticoagulants_prescribed['DISCHARGE_DESTINATION'].isin([1])]
         # Get temporary dataframe with patients who have been discharge at home with detected aFib flutter and with prescribed antithrombotics
         # afib_detected_discharged_home = afib_flutter_detected[(afib_flutter_detected['DISCHARGE_DESTINATION'].isin([1])) & (~afib_flutter_detected['ANTITHROMBOTICS'].isin([9]))]
@@ -1961,6 +2006,8 @@ class ComputeStats:
         self.statsDf.drop_duplicates(inplace=True)
         
         self.sites = self._get_sites(self.statsDf)
+
+        del isch, is_ich_tia_cvt, is_ich_cvt, is_ich, is_tia, is_ich_sah_cvt, is_tia_cvt, cvt, ich_sah, ich, sah, discharge_subset, discharge_subset_alive
 
     def _get_final_award(self, x, new_calculation=True):
         """ The function calculating the proposed award. 
