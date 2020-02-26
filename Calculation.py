@@ -198,6 +198,7 @@ class ComputeStats:
 
         # get patietns with ischemic stroke (IS), intracerebral hemorrhage (ICH), or cerebral venous thrombosis (CVT) (1, 2, 5)
         is_ich_cvt = self.df[self.df['STROKE_TYPE'].isin([1, 2, 5])]
+        self.statsDf['is_ich_cvt_patients'] = self._count_patients(dataframe=is_ich_cvt)
 
         # Get dataframe with patients who had ischemic stroke (IS) or intracerebral hemorrhage (ICH)
         is_ich = self.df[self.df['STROKE_TYPE'].isin([1,2])]
@@ -397,8 +398,11 @@ class ComputeStats:
         else:
             self.tmp = is_ich_cvt.groupby(['Protocol ID', 'NIHSS']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=1, new_column_name='# NIHSS - Not performed')
+            self.statsDf['% NIHSS - Not performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not performed']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=2, new_column_name='# NIHSS - Performed')
+            self.statsDf['% NIHSS - Performed'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Performed']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="NIHSS", value=3, new_column_name='# NIHSS - Not known')
+            self.statsDf['% NIHSS - Not known'] = self.statsDf.apply(lambda x: round(((x['# NIHSS - Not known']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             # Create temporary dataframe with patient who had performed NIHSS (NIHSS = 2)
             nihss = is_ich_cvt[is_ich_cvt['NIHSS'].isin([2])]
             tmpDf = nihss.groupby(['Protocol ID']).NIHSS_SCORE.agg(['median']).rename(columns={'median': 'NIHSS median score'})
@@ -474,8 +478,11 @@ class ComputeStats:
             # Get number of patients from the old version
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=-999, new_column_name='tmp')
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=3, new_column_name='# patients put on ventilator - Not known')
+            self.statsDf['% patients put on ventilator - Not known'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - Not known']/(x['is_ich_cvt_patients'] - x['tmp'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=1, new_column_name='# patients put on ventilator - Yes')
+            self.statsDf['% patients put on ventilator - Yes'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - Yes']/(x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="VENTILATOR", value=2, new_column_name='# patients put on ventilator - No')
+            self.statsDf['% patients put on ventilator - No'] = self.statsDf.apply(lambda x: round(((x['# patients put on ventilator - No']/(x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['tmp'] - x['# patients put on ventilator - Not known']) > 0 else 0, axis=1)
             self.statsDf.drop(['tmp'], inplace=True, axis=1)
 
         #############################
@@ -822,12 +829,19 @@ class ComputeStats:
         else:
             self.tmp = is_ich_cvt.groupby(['Protocol ID', 'DYSPHAGIA_SCREENING']).size().to_frame('count').reset_index()
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=6, new_column_name='# dysphagia screening - not known')
+            self.statsDf['% dysphagia screening - not known'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - not known']/x['is_ich_cvt_patients']) * 100), 2) if x['is_ich_cvt_patients'] > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=1, new_column_name='# dysphagia screening - Guss test')
+            self.statsDf['% dysphagia screening - Guss test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Guss test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=2, new_column_name='# dysphagia screening - Other test')
+            self.statsDf['% dysphagia screening - Other test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Other test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=3, new_column_name='# dysphagia screening - Another centre')
+            self.statsDf['% dysphagia screening - Another centre'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Another centre']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=4, new_column_name='# dysphagia screening - Not done')
+            self.statsDf['% dysphagia screening - Not done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Not done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf = self._get_values_for_factors(column_name="DYSPHAGIA_SCREENING", value=5, new_column_name='# dysphagia screening - Unable to test')
+            self.statsDf['% dysphagia screening - Unable to test'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening - Unable to test']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
             self.statsDf['# dysphagia screening done'] = self.statsDf['# dysphagia screening - Guss test'] + self.statsDf['# dysphagia screening - Other test'] + self.statsDf['# dysphagia screening - Another centre']
+            self.statsDf['% dysphagia screening done'] = self.statsDf.apply(lambda x: round(((x['# dysphagia screening done']/(x['is_ich_cvt_patients'] - x['# dysphagia screening - not known'])) * 100), 2) if (x['is_ich_cvt_patients'] - x['# dysphagia screening - not known']) > 0 else 0, axis=1)
         # end::dysphagia_screening[]
 
         ############################
