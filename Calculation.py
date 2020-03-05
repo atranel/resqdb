@@ -2021,7 +2021,7 @@ class ComputeStats:
         
         self.sites = self._get_sites(self.statsDf)
 
-        del isch, is_ich_tia_cvt, is_ich_cvt, is_ich, is_tia, is_ich_sah_cvt, is_tia_cvt, cvt, ich_sah, ich, sah, discharge_subset, discharge_subset_alive
+        del isch, is_ich_tia_cvt, is_ich_cvt, is_ich, is_tia, is_ich_sah_cvt, is_tia_cvt, cvt, ich_sah, ich, sah, discharge_subset_alive
 
     def _get_final_award(self, x, new_calculation=True):
         """ The function calculating the proposed award. 

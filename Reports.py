@@ -95,7 +95,7 @@ class Reports:
         fd_ojb = FilterDataset(df=df, country=self.country)
         df = fd_ojb.fdf.copy()
         df = df.loc[df['Protocol ID'] != 'CZ_052'].copy()
-        df.to_csv("test.csv", sep=",")
+        #df.to_csv("test.csv", sep=",")
 
         dev_form = df.loc[df['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10'].copy()
         dev_form = dev_form[['Site Name', 'crf_parent_name', 'Subject ID', 'HOSPITAL_DATE', 'DISCHARGE_DATE']]
