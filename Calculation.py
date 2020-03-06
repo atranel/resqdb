@@ -1853,7 +1853,10 @@ class ComputeStats:
         self.statsDf[self.total_patient_column] = self.statsDf['Total Patients'] >= self.patient_limit
 
         ## Calculate classic recanalization procedure       
-        recanalization_procedure_tby_only_dtg =  recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['RECANALIZATION_PROCEDURES'].isin([4])]
+        #recanalization_procedure_tby_only_dtg =  recanalization_procedure_tby_dtg[recanalization_procedure_tby_dtg['RECANALIZATION_PROCEDURES'].isin([4])]
+        recanalization_procedure_tby_only_dtg = recanalization_procedure_tby_dtg.loc[
+            recanalization_procedure_tby_dtg['IVT_DONE'] == 0
+        ]
 
         # Create temporary dataframe only with rows where thrombolysis was performed under 60 minute
         recanalization_procedure_iv_tpa_under_60 = recanalization_procedure_iv_tpa.loc[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 60)]
