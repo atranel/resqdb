@@ -295,7 +295,9 @@ class Reports:
                 statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
 
 
-                thrombolysis_df = thrombolysis_df.loc[~thrombolysis_df['HOSPITAL_STROKE'].isin([1])].copy() 
+                thrombolysis_df = thrombolysis_df.loc[
+                    ~thrombolysis_df['HOSPITAL_STROKE'].isin([1])
+                ].copy() 
                 # Get number of incorrectly entered times
                 thrombolysis_df['INCORRECT_TIMES'] = False
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
@@ -305,8 +307,10 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY_REFER'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
-                incorrect_ivtpa_times = thrombolysis_df[thrombolysis_df['INCORRECT_TIMES'] == True].copy()
-                incorrect_ivtpa_times_save = incorrect_ivtpa_times.loc[incorrect_ivtpa_times['Protocol ID'] != "CZ"].copy()
+                incorrect_ivtpa_times = thrombolysis_df[
+                    thrombolysis_df['INCORRECT_TIMES'] == True].copy()
+                incorrect_ivtpa_times_save = incorrect_ivtpa_times.loc[
+                    incorrect_ivtpa_times['Protocol ID'] != "CZ"].copy()
                 incorrect_ivtpa_times_save.to_csv('incorrect_ivtpa_times.csv', sep=',')
 
                 thrombolysis = thrombolysis_df[(thrombolysis_df['IVTPA'] > 0) & (thrombolysis_df['IVTPA'] <= 400)].copy()
@@ -399,17 +403,26 @@ class Reports:
                 # thrombectomy_df['TBY'] = thrombectomy_df['TBY_ONLY_GROIN_PUNCTURE_TIME'] + thrombectomy_df['TBY_ONLY_GROIN_TIME_MIN'] + thrombectomy_df['IVT_TBY_GROIN_TIME'] + thrombectomy_df['IVT_TBY_GROIN_TIME_MIN']  # get TBY times in one column
 
                 thrombectomy_df['INCORRECT_TIMES'] = False
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: self.get_incorrect_times(x['IVT_TBY_ADMISSION_TIME'], x['IVT_TBY_GROIN_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 3 and x['IVT_TBY'] == 2 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: self.get_incorrect_times(x['TBY_ONLY_ADMISSION_TIME'], x['TBY_ONLY_PUNCTURE_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 4 and x['TBY_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
                 # Add also if tby_refer_all and tby_refer_lim has been selected, but also version of ivt/tby form has to be checked
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_REFER_ALL_ADMISSION_TIME'], x['TBY_REFER_ALL_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 7 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: self.get_incorrect_times(x['TBY_REFER_LIM_ADMISSION_TIME'], x['TBY_REFER_LIM_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 8 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: self.get_incorrect_times(x['TBY_REFER_ALL_ADMISSION_TIME'], x['TBY_REFER_ALL_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 7 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: self.get_incorrect_times(x['TBY_REFER_LIM_ADMISSION_TIME'], x['TBY_REFER_LIM_BOLUS_TIME'], 700) if x['RECANALIZATION_PROCEDURES'] == 8 and x['TBY_REFER_ALL'] == 2 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' else x['INCORRECT_TIMES'], axis=1)
-                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['IVT_TBY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_ONLY'] == 1 else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_ALL'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' else x['INCORRECT_TIMES'], axis=1)
+                thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
+                    lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True) & (~thrombectomy_df['HOSPITAL_STROKE'].isin([1]))].copy()
 
@@ -420,7 +433,10 @@ class Reports:
                 #thrombectomy_df.to_csv('thrombectomy_{}.csv'.format(name), sep=',')
                 included_in_median = thrombectomy_df[thrombectomy_df['INCLUDE_MEDIAN'] == True].copy()
                 included_in_median.to_csv('included_in_median.csv', sep=',')
-                thrombectomy = included_in_median[(included_in_median['TBY'] > 0) & (included_in_median['TBY'] < 700)].copy()
+                thrombectomy = included_in_median[
+                    (included_in_median['TBY'] > 0) & 
+                    (included_in_median['TBY'] < 700)
+                ].copy()
                 thrombectomy = thrombectomy.loc[~thrombectomy['HOSPITAL_STROKE'].isin([1])].copy()
 
                 if thrombectomy.empty:
