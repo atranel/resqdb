@@ -1962,9 +1962,25 @@ class ComputeStats:
         self.statsDf['% ischemic stroke patients discharged (home) with antiplatelets'] = self.statsDf.apply(lambda x: x['% ischemic stroke patients discharged with antiplatelets'] if x['% ischemic stroke patients discharged with antiplatelets'] > x['% ischemic stroke patients discharged home with antiplatelets'] else x['% ischemic stroke patients discharged home with antiplatelets'], axis=1)
 
         #### ISCHEMIC STROKE + AFIB + ANTICOAGULANTS ####
-        self.statsDf['# afib patients discharged with anticoagulants'] = self._count_patients(dataframe=anticoagulants_prescribed)
+        afib_flutter_detected = is_tia.loc[
+            is_tia['AFIB_FLUTTER'].isin([1, 2, 3])
+        ].copy()
+        anticoagulants_prescribed = afib_flutter_detected[
+            ~afib_flutter_detected['ANTITHROMBOTICS'].isin([1, 10, 9]) & 
+            ~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])
+        ].copy()
+
+        not_transferred_afib_flutter_detected = afib_flutter_detected.loc[
+            ~afib_flutter_detected['RECANALIZATION_PROCEDURES'].isin([5,6])
+        ]
+        non_trasferred_anticoagulants = anticoagulants_prescribed[
+            ~anticoagulants_prescribed['RECANALIZATION_PROCEDURES'].isin([5,6])
+        ]
+        
+        self.statsDf['# afib patients discharged with anticoagulants'] = self._count_patients(dataframe=non_trasferred_anticoagulants)
+        #self.statsDf['# afib patients discharged with anticoagulants'] = self._count_patients(dataframe=anticoagulants_prescribed)
         # Get temporary dataframe with patients who are not dead with detected aFib flutter and with prescribed antithrombotics or with nothign (ANTITHROMBOTICS = 10)
-        afib_detected_discharged_home = afib_flutter_detected[
+        afib_detected_discharged_home = not_transferred_afib_flutter_detected[
             (~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])) & 
             (~afib_flutter_detected['ANTITHROMBOTICS'].isin([1, 9]))
         ]
@@ -1979,32 +1995,26 @@ class ComputeStats:
             )
         
         # Get temporary dataframe with patients who have prescribed anticoagulats and were discharged home 
-        non_trasferred_anticoagulants = anticoagulants_prescribed[
-            ~anticoagulants_prescribed['RECANALIZATION_PROCEDURES'].isin([5,6])
-        ]
         anticoagulants_prescribed_discharged_home = non_trasferred_anticoagulants[
             non_trasferred_anticoagulants['DISCHARGE_DESTINATION'].isin([1])
         ]
-        del non_trasferred_anticoagulants
+
         # anticoagulants_prescribed_discharged_home = anticoagulants_prescribed[anticoagulants_prescribed['DISCHARGE_DESTINATION'].isin([1])]
         # Get temporary dataframe with patients who have been discharge at home with detected aFib flutter and with prescribed antithrombotics
         # afib_detected_discharged_home = afib_flutter_detected[(afib_flutter_detected['DISCHARGE_DESTINATION'].isin([1])) & (~afib_flutter_detected['ANTITHROMBOTICS'].isin([9]))]
-        afib_detected_discharged_home = afib_flutter_detected[
-            (afib_flutter_detected['DISCHARGE_DESTINATION'].isin([1])) & 
-            (~afib_flutter_detected['ANTITHROMBOTICS'].isin([1,9])) & 
-            (~afib_flutter_detected['RECANALIZATION_PROCEDURES'].isin([5,6]))
+        afib_detected_discharged_home = not_transferred_afib_flutter_detected[
+            (not_transferred_afib_flutter_detected['DISCHARGE_DESTINATION'].isin([1])) & 
+            (~not_transferred_afib_flutter_detected['ANTITHROMBOTICS'].isin([1,9]))
         ]
 
         # Check if temporary dataframe is empty. If yes, the value is calculated not only for discharged home, but only dead patients are excluded
         if (anticoagulants_prescribed_discharged_home.empty):
             # afib patients discharged home with anticoagulants	
-            anticoagulants_prescribed_discharged_home = anticoagulants_prescribed[
-                ~anticoagulants_prescribed['DISCHARGE_DESTINATION'].isin([5])
-            ]
+            anticoagulants_prescribed_discharged_home = non_trasferred_anticoagulants.copy()
             # Get temporary dataframe with patients who are not dead with detected aFib flutter and with prescribed antithrombotics 
-            afib_detected_discharged_home = afib_flutter_detected[
-                (~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])) & 
-                (~afib_flutter_detected['ANTITHROMBOTICS'].isin([1,9]))
+            afib_detected_discharged_home = not_transferred_afib_flutter_detected[
+                (~not_transferred_afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])) & 
+                (~not_transferred_afib_flutter_detected['ANTITHROMBOTICS'].isin([1,9]))
             ]
             # Get # afib patients discharged home with anticoagulants
             self.statsDf['# afib patients discharged home with anticoagulants'] = self._count_patients(dataframe=anticoagulants_prescribed_discharged_home)
