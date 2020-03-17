@@ -975,15 +975,16 @@ class GenerateNationalComparisonGraphs:
         ##################################
         column_name = '% carotid arteries imaging - Yes'
 
-        tmp_df = df[[main_col, column_name]]
-        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+        if not 'N/A' in df[column_name].tolist():
+            tmp_df = df[[main_col, column_name]]
+            tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        if site_code == "CZ":
-            title = "% PROVEDENÉHO ZOBRAZOVÁNÍ KAROTID u iCMP, TIA"
-        else:
-            title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
+            if site_code == "CZ":
+                title = "% PROVEDENÉHO ZOBRAZOVÁNÍ KAROTID u iCMP, TIA"
+            else:
+                title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
 
-        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+            GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
         ##############
         # COMPARISON #

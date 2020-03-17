@@ -1140,6 +1140,7 @@ class ComputeStats:
         # CAROTID ARTERIES IMAGING #
         ############################
         if country_code == 'CZ':
+            print(period)
             if (not comparison and self.period.startswith('Q1') and self.period.endswith('2019')):
                 self.statsDf.loc[:, '# carotid arteries imaging - Not known'] = 'N/A'
                 self.statsDf.loc[:, '% carotid arteries imaging - Not known'] = 'N/A'
@@ -1147,6 +1148,39 @@ class ComputeStats:
                 self.statsDf.loc[:, '% carotid arteries imaging - Yes'] = 'N/A'
                 self.statsDf.loc[:, '# carotid arteries imaging - No'] = 'N/A'
                 self.statsDf.loc[:, '% carotid arteries imaging - No'] = 'N/A'
+            elif (not comparison and (self.period.startswith('March_Oct') and self.period.endswith('2019'))):
+                date1 = date(2019, 10, 1)
+                date2 = date(2019, 10, 31)   
+                obj = FilterDataset(df=self.raw_data, country='CZ', date1=date1, date2=date2)
+                cz_df = obj.fdf.copy()
+                site_ids = self.statsDf['Protocol ID'].tolist()
+                cz_df = cz_df.loc[cz_df['Protocol ID'].isin(site_ids)].copy()
+                if (country):
+                    country_df = cz_df.copy()
+                    #self.country_name = pytz.country_names[country_code]
+                    # country['Protocol ID'] = self.country_name
+                    #country['Site Name'] = self.country_name
+                    country_df['Protocol ID'] = country_df['Country']
+                    country_df['Site Name'] = country_df['Country']
+                    
+                    cz_df = pd.concat([cz_df, country_df])
+                    del country_df
+
+                cz_df_is_tia = cz_df.loc[cz_df['STROKE_TYPE'].isin([1,3])].copy()
+                self.statsDf['cz_df_is_tia_pts'] = self._count_patients(dataframe=cz_df_is_tia)
+
+                self.tmp = cz_df_is_tia.groupby(['Protocol ID', 'CAROTID_ARTERIES_IMAGING']).size().to_frame('count').reset_index()
+      
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=3, new_column_name='# carotid arteries imaging - Not known')
+                self.statsDf['% carotid arteries imaging - Not known'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Not known']/x['cz_df_is_tia_pts']) * 100), 2) if x['cz_df_is_tia_pts'] > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=1, new_column_name='# carotid arteries imaging - Yes')
+                self.statsDf['% carotid arteries imaging - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - Yes']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                
+                self.statsDf = self._get_values_for_factors(column_name="CAROTID_ARTERIES_IMAGING", value=2, new_column_name='# carotid arteries imaging - No')
+                self.statsDf['% carotid arteries imaging - No'] = self.statsDf.apply(lambda x: round(((x['# carotid arteries imaging - No']/(x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known'])) * 100), 2) if (x['cz_df_is_tia_pts'] - x['# carotid arteries imaging - Not known']) > 0 else 0, axis=1)
+                del cz_df_is_tia, cz_df
+
             elif (not comparison and (self.period.startswith('Q2') or self.period.startswith('H1')) and self.period.endswith('2019')):
                 date1 = date(2019, 7, 19)
                 date2 = date(2019, 8, 31)
@@ -1981,8 +2015,8 @@ class ComputeStats:
         #self.statsDf['# afib patients discharged with anticoagulants'] = self._count_patients(dataframe=anticoagulants_prescribed)
         # Get temporary dataframe with patients who are not dead with detected aFib flutter and with prescribed antithrombotics or with nothign (ANTITHROMBOTICS = 10)
         afib_detected_discharged_home = not_transferred_afib_flutter_detected[
-            (~afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])) & 
-            (~afib_flutter_detected['ANTITHROMBOTICS'].isin([1, 9]))
+            (~not_transferred_afib_flutter_detected['DISCHARGE_DESTINATION'].isin([5])) & 
+            (~not_transferred_afib_flutter_detected['ANTITHROMBOTICS'].isin([1,9]))
         ]
         # Get afib patients discharged and not dead
         self.statsDf['afib_detected_discharged_patients'] = self._count_patients(dataframe=afib_detected_discharged_home)
