@@ -1275,10 +1275,10 @@ class GenerateNationalComparisonGraphs:
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
         if site_code == "CZ":
-            title = "% ENDARTEREKTOMIÍ NEBO ANGIOPLASTIK / STENTINGŮ PROVEDENÝCH NEBO PLÁNOVANÝCH u iCMP, TIA s ICA STENÓZOU > 70%"
+            title = "% ENDARTEREKTOMIÍ NEBO ANGIOPLASTIK / STENTINGŮ PROVEDENÝCH NEBO PLÁNOVANÝCH u iCMP, TIA s ICA STENÓZOU > 50%"
             legend = ['Ano nebo plánováno', 'Odeslán/a do jiného centra']
         else:
-            title = "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 70%"
+            title = "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 50%"
             legend = ['Yes or planned', 'Referred to another centre']
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')

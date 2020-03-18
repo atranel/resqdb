@@ -764,7 +764,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, '% carotid stenosis followup - Yes, but planned', '% carotid stenosis followup - Referred to another centre']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 70%"
+        title = "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 50%"
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 

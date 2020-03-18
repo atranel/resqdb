@@ -1579,27 +1579,29 @@ class ComputeStats:
         ##############################
         # Create temporary dataframe if carotid stenosis was 50-70% or > 70%
         carotid_stenosis = is_tia[is_tia['CAROTID_STENOSIS'].isin([1, 2])] 
+        self.statsDf['carotid_stenosis_over_50_pts'] = self._count_patients(dataframe=carotid_stenosis)
 
         self.tmp = carotid_stenosis.groupby(['Protocol ID', 'CAROTID_STENOSIS_FOLLOWUP']).size().to_frame('count').reset_index()
 
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS_FOLLOWUP", value=1, new_column_name='# carotid stenosis followup - Yes')
-        self.statsDf['% carotid stenosis followup - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Yes']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+        self.statsDf['% carotid stenosis followup - Yes'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Yes']/x['carotid_stenosis_over_50_pts']) * 100), 2) if x['carotid_stenosis_over_50_pts'] > 0 else 0, axis=1)
 
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS_FOLLOWUP", value=2, new_column_name='# carotid stenosis followup - No')
-        self.statsDf['% carotid stenosis followup - No'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - No']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+        self.statsDf['% carotid stenosis followup - No'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - No']/x['carotid_stenosis_over_50_pts']) * 100), 2) if x['carotid_stenosis_over_50_pts'] > 0 else 0, axis=1)
 
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS_FOLLOWUP", value=3, new_column_name='# carotid stenosis followup - No, but planned later')
-        self.statsDf['% carotid stenosis followup - No, but planned later'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - No, but planned later']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+        self.statsDf['% carotid stenosis followup - No, but planned later'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - No, but planned later']/x['carotid_stenosis_over_50_pts']) * 100), 2) if x['carotid_stenosis_over_50_pts'] > 0 else 0, axis=1)
 
         # Create temporary dataframe if carotid stenosis was followed up or planned to follow up later
         carotid_stenosis_followup = carotid_stenosis[carotid_stenosis['CAROTID_STENOSIS_FOLLOWUP'].isin([1, 3])].copy()
 
         self.statsDf['# carotid stenosis followup - Yes, but planned'] = self._count_patients(dataframe=carotid_stenosis_followup)
-        self.statsDf['% carotid stenosis followup - Yes, but planned'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Yes, but planned']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+        self.statsDf['% carotid stenosis followup - Yes, but planned'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Yes, but planned']/x['carotid_stenosis_over_50_pts']) * 100), 2) if x['carotid_stenosis_over_50_pts'] > 0 else 0, axis=1)
 
         self.statsDf = self._get_values_for_factors(column_name="CAROTID_STENOSIS_FOLLOWUP", value=4, new_column_name='# carotid stenosis followup - Referred to another centre')
-        self.statsDf['% carotid stenosis followup - Referred to another centre'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Referred to another centre']/x['is_tia_patients']) * 100), 2) if x['is_tia_patients'] > 0 else 0, axis=1)
+        self.statsDf['% carotid stenosis followup - Referred to another centre'] = self.statsDf.apply(lambda x: round(((x['# carotid stenosis followup - Referred to another centre']/x['carotid_stenosis_over_50_pts']) * 100), 2) if x['carotid_stenosis_over_50_pts'] > 0 else 0, axis=1)
 
+        self.statsDf.drop(['carotid_stenosis_over_50_pts'], inplace=True, axis=1)
         del carotid_stenosis, carotid_stenosis_followup
 
         #####################

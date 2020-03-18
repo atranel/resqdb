@@ -59,7 +59,8 @@ class Connection():
         # Check which data should be exported
         if data == 'resq':
             # Create empty dictionary
-            self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from thailand', 'SELECT * from resq_ivttby_mix']
+            # self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from thailand', 'SELECT * from resq_ivttby_mix']
+            self.sqls = ['SELECT * from resq_mix', 'SELECT * from ivttby_mix', 'SELECT * from thailand']
             # List of dataframe names
             self.names = ['resq', 'ivttby', 'thailand']
         elif data == 'atalaia': 
@@ -76,11 +77,11 @@ class Connection():
                     df_name = self.names[i]
                     self.connect(self.sqls[i], datamix, nprocess, df_name=df_name)
                 
-                self.connect(self.sqls[2], datamix, nprocess, df_name='resq_ivttby_mix')
-                self.resq_ivttby_mix = self.dictdb_df['resq_ivttby_mix']
-                self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
-                if 'resq_ivttby_mix' in self.dictdb_df.keys():
-                    del self.dictdb_df['resq_ivttby_mix']
+                # self.connect(self.sqls[2], datamix, nprocess, df_name='resq_ivttby_mix')
+                # self.resq_ivttby_mix = self.dictdb_df['resq_ivttby_mix']
+                # self.dictdb_df['resq_ivttby_mix'].to_csv('resq_ivttby_mix.csv', sep=',', index=False)
+                # if 'resq_ivttby_mix' in self.dictdb_df.keys():
+                #     del self.dictdb_df['resq_ivttby_mix']
 
                 for k, v in self.dictdb_df.items():
                     self.prepare_df(df=v, name=k)
