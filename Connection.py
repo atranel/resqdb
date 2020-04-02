@@ -470,6 +470,12 @@ class Connection():
 
             df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
 
+            df.loc[
+                (df['STROKE_TYPE'] == 1) &
+                (df['RECANALIZATION_PROCEDURES'].isin([5,6])),
+                'DISCHARGE_DATE'
+            ] = df['HOSPITAL_DATE']
+
             # Create country column
             df['Country'] = 'Czech Republic'
 
