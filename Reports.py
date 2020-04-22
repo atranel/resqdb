@@ -294,10 +294,16 @@ class Reports:
 
                 statistic['Total patients undergone IVT'] = self.count_patients(df=thrombolysis_df, statistic=statistic)
 
-
+                # Apr 22, 2020 - exclude patients if hospital stroke and times for IVT as timestamps
                 thrombolysis_df = thrombolysis_df.loc[
-                    ~thrombolysis_df['HOSPITAL_STROKE'].isin([1])
-                ].copy() 
+                    ~(thrombolysis_df['HOSPITAL_STROKE'].isin([1])
+                    & ((thrombolysis_df['IVT_ONLY'] == 2) | 
+                    (thrombolysis_df['IVT_TBY'] == 2) | 
+                    (thrombolysis_df['IVT_TBY_REFER'] == 2)))
+                ].copy()
+                # thrombolysis_df = thrombolysis_df.loc[
+                #     ~thrombolysis_df['HOSPITAL_STROKE'].isin([1])
+                # ].copy() 
                 # Get number of incorrectly entered times
                 thrombolysis_df['INCORRECT_TIMES'] = False
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: self.get_incorrect_times(x['IVT_ONLY_ADMISSION_TIME'], x['IVT_ONLY_BOLUS_TIME'], 400) if x['RECANALIZATION_PROCEDURES'] == 2 and x['IVT_ONLY'] == 2 else x['INCORRECT_TIMES'], axis=1)
@@ -437,7 +443,17 @@ class Reports:
                     (included_in_median['TBY'] > 0) & 
                     (included_in_median['TBY'] < 700)
                 ].copy()
-                thrombectomy = thrombectomy.loc[~thrombectomy['HOSPITAL_STROKE'].isin([1])].copy()
+
+                # Apr 22, 2020 - exclude patients if hospital stroke and times for TBY as timestamps
+                thrombectomy = thrombectomy.loc[
+                    ~(thrombectomy['HOSPITAL_STROKE'].isin([1])
+                    & ((thrombectomy['TBY_ONLY'] == 2) | 
+                    (thrombectomy['TBY_REFER'] == 2) | 
+                    (thrombectomy['TBY_REFER_LIM'] == 2) |
+                    (thrombectomy['TBY_REFER_ALL'] == 2)))
+                ].copy()
+
+                # thrombectomy = thrombectomy.loc[~thrombectomy['HOSPITAL_STROKE'].isin([1])].copy()
 
                 if thrombectomy.empty:
                     statistic['# TBY'] = 0
