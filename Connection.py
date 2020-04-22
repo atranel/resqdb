@@ -120,8 +120,27 @@ class Connection():
                 # Get difference in minutes between hospitalization and last visit
                 self.preprocessed_data['LAST_SEEN_NORMAL'] = self.preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
                 self.preprocessed_data['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
-        
 
+                # Create new column to set if patient has stroke in hospital and recanalization procedures were entered in timestamps
+                self.preprocessed_data['HOSPITAL_STROKE_IVT_TIMESTAMPS'] = np.nan
+                self.preprocessed_data.loc[
+                    (self.preprocessed_data['HOSPITAL_STROKE'] == 1) &
+                    ((self.preprocessed_data['IVT_ONLY'] == 2) | 
+                    (self.preprocessed_data['IVT_TBY'] == 2) | 
+                    (self.preprocessed_data['IVT_TBY_REFER'] == 2)),
+                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'
+                    ] = 1
+                
+                self.preprocessed_data['HOSPITAL_STROKE_TBY_TIMESTAMPS'] = np.nan
+                self.preprocessed_data.loc[
+                    (self.preprocessed_data['HOSPITAL_STROKE'] == 1) &
+                    ((self.preprocessed_data['IVT_TBY'] == 2) |
+                    (self.preprocessed_data['TBY_ONLY'] == 2) | 
+                    (self.preprocessed_data['TBY_REFER_LIM'] == 2) | 
+                    (self.preprocessed_data['TBY_REFER_ALL'] == 2),
+                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'
+                    ] = 1
+        
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
                 self.atalaiadb_df = self.dictdb_df['atalaia_mix']
@@ -228,6 +247,26 @@ class Connection():
                 # Get difference in minutes between hospitalization and last visit
                 self.preprocessed_data['LAST_SEEN_NORMAL'] = self.preprocessed_data.apply(lambda x: self.time_diff(x['VISIT_TIMESTAMP'], x['HOSPITAL_TIMESTAMP']), axis=1)
                 self.preprocessed_data['LAST_SEEN_NORMAL'].fillna(0, inplace=True)
+
+                # Create new column to set if patient has stroke in hospital and recanalization procedures were entered in timestamps
+                self.preprocessed_data['HOSPITAL_STROKE_IVT_TIMESTAMPS'] = np.nan
+                self.preprocessed_data.loc[
+                    (self.preprocessed_data['HOSPITAL_STROKE'] == 1) &
+                    ((self.preprocessed_data['IVT_ONLY'] == 2) | 
+                    (self.preprocessed_data['IVT_TBY'] == 2) | 
+                    (self.preprocessed_data['IVT_TBY_REFER'] == 2)),
+                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'
+                    ] = 1
+                
+                self.preprocessed_data['HOSPITAL_STROKE_TBY_TIMESTAMPS'] = np.nan
+                self.preprocessed_data.loc[
+                    (self.preprocessed_data['HOSPITAL_STROKE'] == 1) &
+                    ((self.preprocessed_data['IVT_TBY'] == 2) |
+                    (self.preprocessed_data['TBY_ONLY'] == 2) | 
+                    (self.preprocessed_data['TBY_REFER_LIM'] == 2) | 
+                    (self.preprocessed_data['TBY_REFER_ALL'] == 2)),
+                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'
+                    ] = 1
             
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')

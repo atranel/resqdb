@@ -296,11 +296,9 @@ class Reports:
 
                 # Apr 22, 2020 - exclude patients if hospital stroke and times for IVT as timestamps
                 thrombolysis_df = thrombolysis_df.loc[
-                    ~(thrombolysis_df['HOSPITAL_STROKE'].isin([1])
-                    & ((thrombolysis_df['IVT_ONLY'] == 2) | 
-                    (thrombolysis_df['IVT_TBY'] == 2) | 
-                    (thrombolysis_df['IVT_TBY_REFER'] == 2)))
+                    ~(thrombolysis_df['HOSPITAL_STROKE_IVT_TIMESTAMPS'].isin([1]))
                 ].copy()
+
                 # thrombolysis_df = thrombolysis_df.loc[
                 #     ~thrombolysis_df['HOSPITAL_STROKE'].isin([1])
                 # ].copy() 
@@ -446,11 +444,7 @@ class Reports:
 
                 # Apr 22, 2020 - exclude patients if hospital stroke and times for TBY as timestamps
                 thrombectomy = thrombectomy.loc[
-                    ~(thrombectomy['HOSPITAL_STROKE'].isin([1])
-                    & ((thrombectomy['TBY_ONLY'] == 2) | 
-                    (thrombectomy['TBY_REFER'] == 2) | 
-                    (thrombectomy['TBY_REFER_LIM'] == 2) |
-                    (thrombectomy['TBY_REFER_ALL'] == 2)))
+                    ~(thrombectomy['HOSPITAL_STROKE_TBY_TIMESTAMPS'].isin([1]))
                 ].copy()
 
                 # thrombectomy = thrombectomy.loc[~thrombectomy['HOSPITAL_STROKE'].isin([1])].copy()

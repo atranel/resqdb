@@ -578,13 +578,13 @@ class ComputeStats:
 
         # tag::median_dtn[]
         # Calculate number of patients who underwent IVT
-        self.tmp = isch.groupby(['Protocol ID', 'IVT_DONE']).size().to_frame('count').reset_index()
+        self.tmp = isch.loc[~isch['HOSPITAL_STROKE_IVT_TIMESTAMPS'].isin([1])].groupby(['Protocol ID', 'IVT_DONE']).size().to_frame('count').reset_index()
         self.statsDf = self._get_values_for_factors(column_name="IVT_DONE", value=1, new_column_name='# IV tPa')
         self.statsDf['% IV tPa'] = self.statsDf.apply(lambda x: round(((x['# IV tPa']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
         
         # Create temporary dataframe with the patients who has been treated with thrombolysis
-        #recanalization_procedure_iv_tpa = isch.loc[(isch['IVT_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE'].isin([1]))].copy()
-        recanalization_procedure_iv_tpa = isch.loc[isch['IVT_DONE'].isin([1])].copy()
+        recanalization_procedure_iv_tpa = isch.loc[(isch['IVT_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE_IVT_TIMESTAMPS'].isin([1]))].copy()
+        # recanalization_procedure_iv_tpa = isch.loc[isch['IVT_DONE'].isin([1])].copy()
         recanalization_procedure_iv_tpa.fillna(0, inplace=True)
         # Create one column with times of door to thrombolysis 
         thrombolysis = recanalization_procedure_iv_tpa[(recanalization_procedure_iv_tpa['IVTPA'] > 0) & (recanalization_procedure_iv_tpa['IVTPA'] <= 400)].copy()
@@ -646,13 +646,13 @@ class ComputeStats:
         # MEDIAN DTG #
         ##############
         # tag::median_dtg[]
-        self.tmp = isch.groupby(['Protocol ID', 'TBY_DONE']).size().to_frame('count').reset_index()
+        self.tmp = isch.loc[~isch['HOSPITAL_STROKE_TBY_TIMESTAMPS'].isin([1])].groupby(['Protocol ID', 'TBY_DONE']).size().to_frame('count').reset_index()
         self.statsDf = self._get_values_for_factors(column_name="TBY_DONE", value=1, new_column_name='# TBY')
         self.statsDf['% TBY'] = self.statsDf.apply(lambda x: round(((x['# TBY']/x['isch_patients']) * 100), 2) if x['isch_patients'] > 0 else 0, axis=1)
         
         # Create temporary dataframe with the patients who has been treated with thrombolysis
-        #recanalization_procedure_tby_dtg = isch.loc[(isch['TBY_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE'].isin([1]))].copy()
-        recanalization_procedure_tby_dtg = isch.loc[isch['TBY_DONE'].isin([1])].copy()
+        recanalization_procedure_tby_dtg = isch.loc[(isch['TBY_DONE'].isin([1])) & (~isch['HOSPITAL_STROKE_TBY_TIMESTAMPS'].isin([1]))].copy()
+        # recanalization_procedure_tby_dtg = isch.loc[isch['TBY_DONE'].isin([1])].copy()
         recanalization_procedure_tby_dtg.fillna(0, inplace=True)
         # Create one column with times of door to thrombolysis 
         thrombectomy = recanalization_procedure_tby_dtg[(recanalization_procedure_tby_dtg['TBY'] > 0) & (recanalization_procedure_tby_dtg['TBY'] <= 700)].copy()
@@ -1850,7 +1850,7 @@ class ComputeStats:
 
         # ELIGIBLE RECANALIZATION
 
-        wrong_ivtpa = recanalization_procedure_iv_tpa[recanalization_procedure_iv_tpa['IVTPA'] <= 0]
+        wrong_ivtpa = recanalization_procedure_iv_tpa.loc[recanalization_procedure_iv_tpa['IVTPA'] <= 0]
 
         self.statsDf['wrong_ivtpa'] = self._count_patients(dataframe=wrong_ivtpa)
 
