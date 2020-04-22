@@ -183,6 +183,10 @@ class CheckData:
             #disc_date = hosp_date + relativedelta(days=+1)
             disc_date = hosp_date 
             fixed = True
+
+        if hosp_date.year == 1029:
+            hosp_date.year = 2019
+            visit_date.year = 2019
         
         # If hospital days are negative
         if hospital_days < 0:
