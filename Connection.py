@@ -128,8 +128,7 @@ class Connection():
                     ((self.preprocessed_data['IVT_ONLY'] == 2) | 
                     (self.preprocessed_data['IVT_TBY'] == 2) | 
                     (self.preprocessed_data['IVT_TBY_REFER'] == 2)),
-                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'
-                    ] = 1
+                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'] = 1
                 
                 self.preprocessed_data['HOSPITAL_STROKE_TBY_TIMESTAMPS'] = np.nan
                 self.preprocessed_data.loc[
@@ -137,9 +136,8 @@ class Connection():
                     ((self.preprocessed_data['IVT_TBY'] == 2) |
                     (self.preprocessed_data['TBY_ONLY'] == 2) | 
                     (self.preprocessed_data['TBY_REFER_LIM'] == 2) | 
-                    (self.preprocessed_data['TBY_REFER_ALL'] == 2),
-                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'
-                    ] = 1
+                    (self.preprocessed_data['TBY_REFER_ALL'] == 2)),
+                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'] = 1
         
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
@@ -255,8 +253,7 @@ class Connection():
                     ((self.preprocessed_data['IVT_ONLY'] == 2) | 
                     (self.preprocessed_data['IVT_TBY'] == 2) | 
                     (self.preprocessed_data['IVT_TBY_REFER'] == 2)),
-                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'
-                    ] = 1
+                    'HOSPITAL_STROKE_IVT_TIMESTAMPS'] = 1
                 
                 self.preprocessed_data['HOSPITAL_STROKE_TBY_TIMESTAMPS'] = np.nan
                 self.preprocessed_data.loc[
@@ -265,8 +262,7 @@ class Connection():
                     (self.preprocessed_data['TBY_ONLY'] == 2) | 
                     (self.preprocessed_data['TBY_REFER_LIM'] == 2) | 
                     (self.preprocessed_data['TBY_REFER_ALL'] == 2)),
-                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'
-                    ] = 1
+                    'HOSPITAL_STROKE_TBY_TIMESTAMPS'] = 1
             
             elif data == 'atalaia':
                 self.connect(self.sqls[0], datamix, nprocess, df_name='atalaia_mix')
