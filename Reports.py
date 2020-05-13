@@ -152,8 +152,12 @@ class Reports:
 
         # Filter dataframe per month
         for month in range(1, current_month + 1):
-            start_date = datetime(self.year, month, 1, 0, 0)
-            end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+            if current_month == 12:
+                start_date = datetime(self.year, current_month, 1, 0, 0)
+                end_date = datetime(self.year, current_month, 31, 0, 0) - timedelta(days=1)
+            else:
+                start_date = datetime(self.year, month, 1, 0, 0)
+                end_date = datetime(self.year, (month % 12 + 1), 1, 0, 0) - timedelta(days=1)
 
             # Create object FilterDataset
             fd_ojb = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
@@ -168,7 +172,10 @@ class Reports:
         # Filter dataframe for whole year
         start_date = datetime(self.year, 1, 1, 0, 0)
         # End date from current_month
-        end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
+        if current_month == 12:
+            end_date = datetime(self.year, current_month, 31, 0, 0) - timedelta(days=1)
+        else:
+            end_date = datetime(self.year, (current_month % 12 + 1), 1, 0, 0) - timedelta(days=1)
         fd_obj = FilterDataset(df=self.df, country=self.country, date1=start_date, date2=end_date)
         df = fd_obj.fdf.copy()
         df = df.loc[~df['Protocol ID'].isin(['CZ_052'])].copy()
@@ -379,8 +386,9 @@ class Reports:
             
             # Calculate IVtPa median
             # thrombectomy_df = df[(df['Protocol ID'].isin(self.hospitals_mt)) & df['RECANALIZATION_PROCEDURES'].isin([3,4]) & df['STROKE_TYPE'].isin([1])].copy()
-            
-            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ' else (x['TBY_DONE'], True), axis=1))
+            df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if (x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ') else (x['TBY_DONE'], True), axis=1))
+            #df['TBY_DONE'] = df.apply(lambda x: 1 if (x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ') else x['TBY_DONE'], axis=1)
+            #df['INCLUDE_MEDIAN'] = df.apply(lambda x: True if (x['RECANALIZATION_PROCEDURES'] in [7,8] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ') else True, axis=1)
 
             #df['TBY_DONE'], df['INCLUDE_MEDIAN'] = zip(*df.apply(lambda x: (1, True) if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else (x['TBY_DONE'], True), axis=1))
             #df['TBY'] = df.apply(lambda x: x['TBY_REFER_ALL_DIDO_TIME'] if x['RECANALIZATION_PROCEDURES'] in [7] and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_1565_DEVCZ10' and x['Protocol ID'] == 'CZ_041' else x['TBY'], axis=1)
@@ -699,7 +707,10 @@ class GeneratePresentation(Reports):
 
                 first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
                 if self.month != 1:
-                    last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                    if self.month == 12:
+                        last_month = (datetime(self.year, self.month, 31, 0, 0)).strftime("%b")
+                    else:
+                        last_month = (datetime(self.year, (self.month % 12 + 1), 1, 0, 0) - timedelta(days=1)).strftime("%b")
                 else:
                     last_month = ""
 
@@ -1037,7 +1048,10 @@ class GeneratePresentation(Reports):
 
                 main_col = 'Site Name'
                 first_month = datetime(self.year, 1, 1, 0, 0).strftime("%b")
-                last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
+                if (self.month == 12):
+                    last_month = (datetime(self.year, self.month, 31, 1, 0, 0)).strftime("%b")
+                else:
+                    last_month = (datetime(self.year, self.month + 1, 1, 0, 0) - timedelta(days=1)).strftime("%b")
 
                 # Iterate through dictionaries with statistics
                 df = self.thrombolysis_stats_df[i]
