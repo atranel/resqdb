@@ -250,6 +250,42 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="GENDER", value=1, new_column_name='# patients male')
         self.statsDf['% patients male'] = self.statsDf.apply(lambda x: round(((x['# patients male']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
+        # tag::prenotification[]
+        ####################
+        # PRE-NOTIFICATION #
+        ####################
+        pt_3_form_version = self.df.loc[self.df['crf_parent_name'] == 'F_RESQV20DEV_PT_3'].copy()
+        if not pt_3_form_version.empty:
+            if country_code == 'PT': 
+                # prenotification
+                column = 'PRENOTIFICATION'
+                if column in df.columns:
+                    self.tmp = pt_3_form_version.groupby(['Protocol ID', column]).size().to_frame('count').reset_index()
+                    self.statsDf = self._get_values_for_factors(column_name=column, value=1, new_column_name='# pre-notification - Yes')
+                    self.statsDf['% pre-notification - Yes'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Yes']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf = self._get_values_for_factors(column_name=column, value=2, new_column_name='# pre-notification - No')
+                    self.statsDf['% pre-notification - No'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - No']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf = self._get_values_for_factors(column_name=column, value=3, new_column_name='# pre-notification - Not know')
+                    self.statsDf['% pre-notification - Not know'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not know']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                del column
+            # end::prenotification[]
+
+            # tag::mrs_prior_stroke[]
+            ####################
+            # MRS PRIOR STROKE #
+            ####################
+            if country_code == 'PT':
+                # MRS prior to stroke
+                column = 'MRS_PRIOR_STROKE'
+                if column in df.columns:
+                    # modify values to represent real values of mRS eg. 1 -> 0 etc.
+                    pt_3_form_version.loc[:, 'ADJUSTED_MRS_PRIOR_STROKE'] = pt_3_form_version[column] - 1
+                    # now our unknown is 7
+                    prior_mrs_known = pt_3_form_version.loc[~pt_3_form_version[column].isin([7])].copy()
+                    self.statsDf = self.statsDf.merge(prior_mrs_known.groupby(['Protocol ID']).ADJUSTED_MRS_PRIOR_STROKE.agg(['median']).rename(columns={'median': 'Median mRS prior to stroke'})['Median mRS prior to stroke'].reset_index(), how='outer')
+                del column
+            # end::mrs_prior_stroke[]
+        del pt_3_form_version
 
         ######################
         # STROKE IN HOSPITAL #

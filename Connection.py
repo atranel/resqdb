@@ -390,6 +390,11 @@ class Connection():
             # If CRF is v1.2 replace DEPARTMENT TYPE with -999 else kepp DEPARTMENT_TYPE
             df['department_type_en'] = df.apply(lambda x: -999 if "RESQV12" in x['oc_oid'] else x['department_type_en'], axis=1)
 
+            # Rename PT column (Prenotification + Prior mRS)
+            df.rename(columns={
+                'prenotification_pt_2': 'prenotification_en',
+                'mrs_prior_stroke_pt_2': 'mrs_prior_stroke_en'
+            }, inplace=True)
             # Get only columns ending with _en
             cols = ['site_id', 'facility_name', 'oc_oid', 'label', 'facility_country']
             cols.extend([c for c in df.columns if c.endswith('_en')])
