@@ -1735,6 +1735,7 @@ class GenerateYearsCompGraphs:
             # 1st chart (left side) - nationally sample
             chart_data = ChartData()
             chart_data.categories = df[self.categories_column].tolist()
+            
             chart_data.add_series(column_names[index+1], df[column_names[index+1]].tolist())
 
             chart = self.slide.shapes.add_chart(
@@ -1742,12 +1743,16 @@ class GenerateYearsCompGraphs:
 
             # Get series of chart
             series = chart.series[0]
+            number_of_series = len(df[self.categories_column].tolist())
             series.points[0].format.fill.solid()
             series.points[0].format.fill.fore_color.rgb = self.colors['blue']
-            series.points[1].format.fill.solid()
-            series.points[1].format.fill.fore_color.rgb = self.colors['orange']
-            series.points[2].format.fill.solid()
-            series.points[2].format.fill.fore_color.rgb = self.colors['green']
+            if (number_of_series >= 2):
+                series.points[1].format.fill.solid()
+                series.points[1].format.fill.fore_color.rgb = self.colors['orange']
+            if (number_of_series >= 3):
+                series.points[2].format.fill.solid()
+                series.points[2].format.fill.fore_color.rgb = self.colors['green']
+          
             
             # Get plot 
             plot = chart.plots[0]
