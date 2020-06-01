@@ -287,6 +287,7 @@ class ComputeStats:
             # end::mrs_prior_stroke[]
         del pt_3_form_version
 
+
         ######################
         # STROKE IN HOSPITAL #
         ######################
@@ -342,7 +343,6 @@ class ComputeStats:
         self.statsDf['% patients hospitalized in stroke unit / ICU or monitored bed'] = self.statsDf.apply(lambda x: round(((x['# patients hospitalized in stroke unit / ICU or monitored bed']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
 
                 
-
         ###############################
         # ASSESSED FOR REHABILITATION #
         ###############################
