@@ -265,8 +265,8 @@ class ComputeStats:
                     self.statsDf['% pre-notification - Yes'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Yes']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
                     self.statsDf = self._get_values_for_factors(column_name=column, value=2, new_column_name='# pre-notification - No')
                     self.statsDf['% pre-notification - No'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - No']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-                    self.statsDf = self._get_values_for_factors(column_name=column, value=3, new_column_name='# pre-notification - Not know')
-                    self.statsDf['% pre-notification - Not know'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not know']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf = self._get_values_for_factors(column_name=column, value=3, new_column_name='# pre-notification - Not known')
+                    self.statsDf['% pre-notification - Not known'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not known']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
                 del column
             # end::prenotification[]
 
