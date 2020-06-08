@@ -436,7 +436,9 @@ class Reports:
                 thrombectomy_df['INCORRECT_TIMES'] = thrombectomy_df.apply(
                     lambda x: True if (x['TBY'] <= 0 or x['TBY'] > 700) and x['TBY_REFER_LIM'] == 1 and x['crf_parent_name'] == 'F_RESQ_IVT_TBY_CZ_2' else x['INCORRECT_TIMES'], axis=1)
 
-                incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True) & (~thrombectomy_df['HOSPITAL_STROKE'].isin([1]))].copy()
+
+                #incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True) & (~thrombectomy_df['HOSPITAL_STROKE'].isin([1]))].copy()
+                incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True)].copy()
 
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
                 incorrect_tby_times_save = incorrect_tby_times.loc[incorrect_tby_times['Protocol ID'] != "CZ"].copy()
@@ -473,7 +475,10 @@ class Reports:
                     # total_patients = thrombectomy.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     total_patients = thrombectomy_df.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     statistic = statistic.merge(total_patients, on='Protocol ID', how='outer') # Merge with statistic dataframe
+                    statistic.loc[statistic['Protocol ID'] == 'CZ', '# TBY'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['# TBY'].tolist()))
                     statistic.fillna(0, inplace=True)
+
+                    
 
 
                     thrombectomy_grouped = thrombectomy.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes)'}).reset_index()
@@ -486,6 +491,9 @@ class Reports:
                         statistic['# incorrect TBY times'] = self.count_patients(df=incorrect_tby_times, statistic=statistic)
                         statistic['% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['Total patients undergone TBY'])*100, 2)
 
+                        statistic.loc[statistic['Protocol ID'] == 'CZ', '# incorrect TBY times'] = statistic.loc[statistic['Protocol ID'] != 'CZ']['# incorrect TBY times'].sum(axis=0, skipna=True)
+                        statistic.loc[statistic['Protocol ID'] == 'CZ', '% incorrect TBY times'] = round((statistic['# incorrect TBY times'] / statistic['Total patients undergone TBY'])*100, 2)
+                        
                     # Median DTG for first hospital arrival
                     thrombectomy_first = thrombectomy[thrombectomy['FIRST_HOSPITAL'] == 1].copy()
                     if thrombectomy_first.empty:
@@ -504,7 +512,9 @@ class Reports:
                         thrombectomy_second_grouped = thrombectomy_second.groupby(['Protocol ID']).TBY.agg(['median']).rename(columns={'median': 'Median DTG (minutes) - second hospital'}).reset_index()
                         statistic = statistic.merge(thrombectomy_second_grouped, how='outer') # Merge with statistic dataframe
                 
+                
                 statistic.loc[statistic['Protocol ID'] == 'CZ', 'Total patients undergone TBY'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['Total patients undergone TBY'].tolist()))
+                
 
 
             statistic.fillna(0, inplace=True)
@@ -945,8 +955,9 @@ class GeneratePresentation(Reports):
                     column_name = '# TBY'
                     axis_title = 'Počet MT'
                     tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-                    tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-                    total_pts = sum(tmp_df[column_name].tolist())
+                    # tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
+                    # total_pts = sum(tmp_df[column_name].tolist())
+                    total_pts = sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name, column_name].tolist())
 
                     if name == str(self.year):
                         if last_month == "":
@@ -1189,8 +1200,9 @@ class GeneratePresentation(Reports):
                 column_name = '# TBY'
                 axis_title = 'Počet MT'
                 tmp_df = df[[main_col, column_name]].sort_values([column_name], ascending=True)
-                tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
-                total_pts = sum(tmp_df[column_name].tolist())
+                # tmp_df = tmp_df.loc[tmp_df['Site Name'] != self.country_name]
+                # total_pts = sum(tmp_df[column_name].tolist())
+                total_pts = sum(tmp_df.loc[tmp_df['Site Name'] != self.country_name, column_name].tolist())
                 
                 month_name = datetime(self.year, i, 1, 0, 0).strftime("%b")
                 title = "Počet MT na nemocnici - {} {} (n={})".format(month_name, self.year, total_pts)
