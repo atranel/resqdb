@@ -83,9 +83,15 @@ class GenerateGraphs:
 
         # Select graph which should be exported
         if (graph_type == 'stacked'):
-            self._create_stacked_barplot(dataframe=self.dataframe, title=self.title, column_name=self.column_name, legend=self.legend, number_of_series=self.number_of_series)
+            self._create_stacked_barplot(
+                dataframe=self.dataframe, 
+                title=self.title, 
+                column_name=self.column_name, 
+                legend=self.legend, 
+                number_of_series=self.number_of_series)
         else:
-            self._create_barplot(dataframe=self.dataframe, title=self.title, column_name=self.column_name)
+            self._create_barplot(
+                dataframe=self.dataframe, title=self.title, column_name=self.column_name)
 
 
     def _get_length_of_legend(self, legend):
@@ -390,6 +396,7 @@ class GenerateGraphs:
             chart.legend.font.size = Pt(11)
         else:
             chart.legend.font.size = Pt(12)
+
 
 class GenerateGraphsSites(GenerateGraphs):
 

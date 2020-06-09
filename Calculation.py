@@ -255,6 +255,7 @@ class ComputeStats:
         # PRE-NOTIFICATION #
         ####################
         pt_3_form_version = self.df.loc[self.df['crf_parent_name'] == 'F_RESQV20DEV_PT_3'].copy()
+        self.statsDf['pt_3_form_total_patients'] = self._count_patients(dataframe=pt_3_form_version)
         if not pt_3_form_version.empty:
             if country_code == 'PT': 
                 # prenotification
@@ -262,11 +263,11 @@ class ComputeStats:
                 if column in df.columns:
                     self.tmp = pt_3_form_version.groupby(['Protocol ID', column]).size().to_frame('count').reset_index()
                     self.statsDf = self._get_values_for_factors(column_name=column, value=1, new_column_name='# pre-notification - Yes')
-                    self.statsDf['% pre-notification - Yes'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Yes']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf['% pre-notification - Yes'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Yes']/x['pt_3_form_total_patients']) * 100), 2) if x['pt_3_form_total_patients'] > 0 else 0, axis=1)
                     self.statsDf = self._get_values_for_factors(column_name=column, value=2, new_column_name='# pre-notification - No')
-                    self.statsDf['% pre-notification - No'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - No']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf['% pre-notification - No'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - No']/x['pt_3_form_total_patients']) * 100), 2) if x['pt_3_form_total_patients'] > 0 else 0, axis=1)
                     self.statsDf = self._get_values_for_factors(column_name=column, value=3, new_column_name='# pre-notification - Not known')
-                    self.statsDf['% pre-notification - Not known'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not known']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
+                    self.statsDf['% pre-notification - Not known'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not known']/x['pt_3_form_total_patients']) * 100), 2) if x['pt_3_form_total_patients'] > 0 else 0, axis=1)
                 del column
             # end::prenotification[]
 
@@ -286,6 +287,7 @@ class ComputeStats:
                 del column
             # end::mrs_prior_stroke[]
         del pt_3_form_version
+        self.statsDf.drop(['pt_3_form_total_patients'], inplace=True, axis=1)
 
 
         ######################

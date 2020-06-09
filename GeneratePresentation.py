@@ -166,6 +166,21 @@ class GeneratePresentation:
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
+        ###################
+        # PRENOTIFICATION #
+        ###################
+        if self.country_code == 'PT':
+            column_name = '% pre-notification - Yes'
+            legend = ['Yes', 'No', 'Not known']
+
+            tmp_df = df[[main_col, '% pre-notification - Yes', '% pre-notification - No', '% pre-notification - Not known']]
+            tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+            title = "% PRE-NOTIFICATION out of all cases" 
+
+            GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
+
+            
         ############################################
         ### % RECURRENT STROKES OUT OF ALL CASES ###
         ############################################
@@ -206,6 +221,29 @@ class GeneratePresentation:
         title = "% HOSPITALIZATION DESTINATION out of all cases" 
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
+
+        ###########
+        # Pre mRS #
+        ###########
+        if self.country_code == 'PT':
+            column_name = 'Median mRS prior to stroke'
+
+            tmp_df = df[[main_col, column_name]]
+            tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+            title = "MEDIAN mRS PRIOR TO STROKE"
+
+            GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
+            # column_name = 'Median mRS prior to stroke'
+            # legend = ['mRS prior to stroke', 'mRS at discharge']
+
+            # tmp_df = df[[main_col, 'Median mRS prior to stroke', 'Median discharge mRS']]
+            # tmp_df = tmp_df.sort_values([column_name], ascending = True)
+
+            # title = "Median mRS prior to stroke vs Median discharge mRS" 
+
+            # GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='grouped')
 
         ###############
         # STROKE TYPE #
