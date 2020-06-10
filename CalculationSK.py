@@ -51,9 +51,11 @@ class Connection:
         # Set section
         datamix = 'datamix'
         # Create empty dictionary
-        self.sqls = ['SELECT * from slovakia', 'SELECT * from slovakia_2018']
+        # self.sqls = ['SELECT * from slovakia', 'SELECT * from slovakia_2018']
+        self.sqls = ['SELECT * from slovakia']
         # List of dataframe names
-        self.names = ['slovakia', 'slovakia_2018']
+        # self.names = ['slovakia', 'slovakia_2018']
+        self.names = ['slovakia']
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
         self.dict_df = {}
@@ -63,8 +65,8 @@ class Connection:
         self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
 
         # Export data from the database for slovakia_2018
-        df_name = self.names[1]
-        self.connect(self.sqls[1], datamix, nprocess, df_name=df_name)
+        # df_name = self.names[1]
+        # self.connect(self.sqls[1], datamix, nprocess, df_name=df_name)
         
         for k, v in self.dictdb_df.items():
             self.prepare_df(df=v, name=k)
@@ -296,8 +298,9 @@ class Connection:
         :returns: the list of countries
         """
 
-        site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
-        countries_list = list(set(site_ids[0]))
+        # site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
+        # countries_list = list(set(site_ids[0]))
+        countries_list = ['SK']
 
         logging.info("calculationSK: Data: Countries in the dataset: {0}.".format(countries_list))
         return countries_list
@@ -1072,19 +1075,19 @@ class ComputeStats:
         #######################################
         # DISCHARGE DESTINATION - SAME CENTRE #
         #######################################
-        discharge_subset_same_centre = discharge_subset[discharge_subset['DISCHARGE_DESTINATION'].isin([2])].copy()
-        self.statsDf['discharge_subset_same_centre_patients'] = self._count_patients(dataframe=discharge_subset_same_centre)
+        # discharge_subset_same_centre = discharge_subset[discharge_subset['DISCHARGE_DESTINATION'].isin([2])].copy()
+        # self.statsDf['discharge_subset_same_centre_patients'] = self._count_patients(dataframe=discharge_subset_same_centre)
 
-        self.tmp = discharge_subset_same_centre.groupby(['Protocol ID', 'DISCHARGE_SAME_FACILITY']).size().to_frame('count').reset_index()
+        # self.tmp = discharge_subset_same_centre.groupby(['Protocol ID', 'DISCHARGE_SAME_FACILITY']).size().to_frame('count').reset_index()
 
-        self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=1, new_column_name='# transferred within the same centre - Acute rehabilitation')
-        self.statsDf['% transferred within the same centre - Acute rehabilitation'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Acute rehabilitation']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
+        # self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=1, new_column_name='# transferred within the same centre - Acute rehabilitation')
+        # self.statsDf['% transferred within the same centre - Acute rehabilitation'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Acute rehabilitation']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=2, new_column_name='# transferred within the same centre - Post-care bed')
-        self.statsDf['% transferred within the same centre - Post-care bed'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Post-care bed']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
+        # self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=2, new_column_name='# transferred within the same centre - Post-care bed')
+        # self.statsDf['% transferred within the same centre - Post-care bed'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Post-care bed']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
-        self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=3, new_column_name='# transferred within the same centre - Another department')
-        self.statsDf['% transferred within the same centre - Another department'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Another department']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
+        # self.statsDf = self._get_values_for_factors(column_name="DISCHARGE_SAME_FACILITY", value=3, new_column_name='# transferred within the same centre - Another department')
+        # self.statsDf['% transferred within the same centre - Another department'] = self.statsDf.apply(lambda x: round(((x['# transferred within the same centre - Another department']/x['discharge_subset_same_centre_patients']) * 100), 2) if x['discharge_subset_same_centre_patients'] > 0 else 0, axis=1)
 
         ################
         # ANGEL AWARDS #
