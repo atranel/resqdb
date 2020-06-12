@@ -453,16 +453,19 @@ class ComputeStats:
         ##########
         # CT/MRI #
         ##########
-        self.tmp = is_ich_tia_cvt.groupby(['Protocol ID', 'CT_MRI']).size().to_frame('count').reset_index()
+        is_ich_tia_cvt_not_referred = is_ich_tia_cvt.loc[~(is_ich_tia_cvt['STROKE_TYPE'].isin([1]) & is_ich_tia_cvt['RECANALIZATION_PROCEDURES'].isin([5,6,7,8]))].copy()
+        self.statsDf['is_ich_tia_cvt_not_referred_patients'] = self._count_patients(dataframe=is_ich_tia_cvt_not_referred)
+
+        self.tmp = is_ich_tia_cvt_not_referred.groupby(['Protocol ID', 'CT_MRI']).size().to_frame('count').reset_index()
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=1, new_column_name='# CT/MRI - Not performed')
-        self.statsDf['% CT/MRI - Not performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Not performed']/x['is_ich_tia_cvt_patients']) * 100), 2) if x['is_ich_tia_cvt_patients'] > 0 else 0, axis=1)
+        self.statsDf['% CT/MRI - Not performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Not performed']/x['is_ich_tia_cvt_not_referred_patients']) * 100), 2) if x['is_ich_tia_cvt_not_referred_patients'] > 0 else 0, axis=1)
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=2, new_column_name='# CT/MRI - performed')
-        self.statsDf['% CT/MRI - performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - performed']/x['is_ich_tia_cvt_patients']) * 100), 2) if x['is_ich_tia_cvt_patients'] > 0 else 0, axis=1)
+        self.statsDf['% CT/MRI - performed'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - performed']/x['is_ich_tia_cvt_not_referred_patients']) * 100), 2) if x['is_ich_tia_cvt_not_referred_patients'] > 0 else 0, axis=1)
         self.statsDf = self._get_values_for_factors(column_name="CT_MRI", value=3, new_column_name='# CT/MRI - Not known')
-        self.statsDf['% CT/MRI - Not known'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Not known']/x['is_ich_tia_cvt_patients']) * 100), 2) if x['is_ich_tia_cvt_patients'] > 0 else 0, axis=1)
+        self.statsDf['% CT/MRI - Not known'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Not known']/x['is_ich_tia_cvt_not_referred_patients']) * 100), 2) if x['is_ich_tia_cvt_not_referred_patients'] > 0 else 0, axis=1)
 
         # Create temporary dataframe with patients who had performed CT/MRI (CT_MRI = 2)
-        ct_mri = is_ich_tia_cvt[is_ich_tia_cvt['CT_MRI'].isin([2])]
+        ct_mri = is_ich_tia_cvt_not_referred[is_ich_tia_cvt_not_referred['CT_MRI'].isin([2])]
         ct_mri['CT_TIME'] = pd.to_numeric(ct_mri['CT_TIME'])
         self.tmp = ct_mri.groupby(['Protocol ID', 'CT_TIME']).size().to_frame('count').reset_index()
         self.statsDf = self._get_values_for_factors(column_name="CT_TIME", value=1, new_column_name='# CT/MRI - Performed within 1 hour after admission')
@@ -470,7 +473,8 @@ class ComputeStats:
         self.statsDf = self._get_values_for_factors(column_name="CT_TIME", value=2, new_column_name='# CT/MRI - Performed later than 1 hour after admission')
         self.statsDf['% CT/MRI - Performed later than 1 hour after admission'] = self.statsDf.apply(lambda x: round(((x['# CT/MRI - Performed later than 1 hour after admission']/x['# CT/MRI - performed']) * 100), 2) if x['# CT/MRI - performed'] > 0 else 0, axis=1)
 
-        del ct_mri
+        self.statsDf.drop(['is_ich_tia_cvt_not_referred_patients'], inplace=True, axis=1)
+        del ct_mri, is_ich_tia_cvt_not_referred
 
         ####################
         # VASCULAR IMAGING #
