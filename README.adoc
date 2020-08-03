@@ -71,3 +71,66 @@ if not pt_3_form_version.empty:
     # end::mrs_prior_stroke[]
 del pt_3_form_version
 ----
+
+== QASC reports (Jul 29, 2020)
+Create QASC baselina reports. The reprots are based on the following reports:
+
+o:\Shared with groups\STROKE IT\QASC\
+
+=== Get data from the database (Jul 29, 2020)
+The data can be found in the `datamix` database, table called `qasc_mix`. Add the following code in the `Connection.py` to get data from the database. 
+
+[source,python]
+----
+#...
+elif data == 'qasc':
+    # Get QASC data from the database
+    df_name = 'qasc_mix'
+    self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
+    self.qascdb_df = self.dictdb_df[df_name]
+    self.qasc_preprocessed_data = self.qascdb_df.copy()
+    del self.dictdb_df[df_name]
+#...
+----
+
+Then, in the script you can get data from the database using the following command:
+
+[source,python]
+----
+from Connection import Connection
+
+con = Connection(data='qasc')
+print(con.qasc_preprocessed_data)
+----
+
+== Packages to be installed (Nina's workshop) (Jul 29, 2020)
+
+Install packages:
+
+[source,python]
+----
+pip3 install pandas, numpy, logging, xlsxwriter, pytz, scipy, psycopg2, zipfile, python-pptx, statistics
+----
+
+I'm also modifying the `python-pptx` package because if you generate the presentation at first only each second label on category axis is shown. You can use the file what I added as attachment or you can just modify that file. We will be modifying the file called `xmlwriter.py` from the `pptx\chart` folder. I prefer to modify the file because there could be changes in the functions from the previous version. 
+
+If you go to the `pptx` folder in installed packages (`site-packages` folder for me but I'm using Anaconda) and to `chart` folder you will see `xmlwriter.py` file. Here you can modify for bar plot and lineplot setting a bit. You will be adding the following code: `'<c:tickLblSkip val="1"/>\n'`
+
+Add it in both return functions in the `\_cat_ax_xml` function from class `\_BarChartXmlWriter` and `\_LineChartXmlWriter`. 
+I always put it after `<c:tickLblPos val="nextTo"/>`.
+
+== How to prepare master pptx for presentation (Jul 30, 2020)
+If you need to modify the master presentation for reports, go to `resqdb` folder in `site-packages` of your python installation. 
+
+In the folder `backgrounds` you can find already created templates. To create template, open the `pptx` file and go to `View` in the top bar. You can modify the first slide however you need and then you can modify another slides. 
+
+In the `View` is the `Master Views` section, select `Slide Master`. You will see all of the slides you can use in the presentation. If you want you can remove the old one slides or you can add new one that you modify as the last. You can then access the slide by number, eg. if you slide is in view in position 2 you can access it by this index. 
+
+
+== QASC reports (Jul 30, 2020)
+I created two templates for the QASC reports. One is for baseline report and can be found in the `backgrouns\qasc_baseline.pptx` and the second one is for the comparison between Pre and Post phase. For this one I created template called `qasc_comparison.pptx` and it is A4 landscape format. Two slides are prepared as default. And unchangable frames are already there. 
+
+There is a schema how I imagine to generate reports. I imagine that if POST phase is not in the data yet, only baseline report will be generated otherwise baseline report from PRE phase is generated and then comparison of PRE/POST phase is generated. 
+
+image::./assets/img/2020-08-03-12-43-11.png[]
+
