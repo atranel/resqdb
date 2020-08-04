@@ -128,9 +128,27 @@ In the `View` is the `Master Views` section, select `Slide Master`. You will see
 
 
 == QASC reports (Jul 30, 2020)
-I created two templates for the QASC reports. One is for baseline report and can be found in the `backgrouns\qasc_baseline.pptx` and the second one is for the comparison between Pre and Post phase. For this one I created template called `qasc_comparison.pptx` and it is A4 landscape format. Two slides are prepared as default. And unchangable frames are already there. 
+I created two templates for the QASC reports. One of them is for baseline report and can be found in the `backgrouns` folder under name `qasc_baseline.pptx`. This template is A4 size and the layout is set to portrait. The next slide can be added using template and number index is 1. 
+
+The second template is for the comparison between Pre and Post phase. For this one I created template called `qasc_comparison.pptx` and it is A4 landscape format. Two slides are prepared as default. And unchangable frames with some explanations are already included. 
 
 There is a schema how I imagine to generate reports. I imagine that if POST phase is not in the data yet, only baseline report will be generated otherwise baseline report from PRE phase is generated and then comparison of PRE/POST phase is generated. 
 
 image::./assets/img/2020-08-03-12-43-11.png[]
+
+=== Usage (Aug 04, 2020)
+Whenever you create new `Qasc` object, the connection to the database will be created and the preprocessed data will be generated. Together with preprocessed data dataframe with study information will be exported. In this dataframe you can find the `unique identifier` together with the `hospital name`. 
+
+In the `Qasc` class is one main function called `generate_reports`. This function takes one argument, concretely `site_id`. Basically, this functions does what is shown in the diagram. It checks if `site_id` exists and filters data for this site if True. If filtered dataframe is not empty, the `pre` and `post` dataframe are obtain. If `pre` dataframe is empty, the report generation is stopped because there are no data to compare. If `pre` dataframe is not empty, `baseline` report is generated. Then, we check if `post` dataframe is empty, if yes, the generation is stopped and if not, the `comparison` report is generated. 
+
+In the function `generate_reports` are used the two main functions called `generate_baseline_report()` and `generate_pre_post_report()`. If there has to be changed something in the presentation, such as position of the frames or font size, you have to change it in these two functions or in the functions that are used by these functions. 
+
+I created also script used for generation of qasc reports. The script can be found in the `scripts` repository and is called `qasc_reports.py`. You can call the script as follow:
+
+[source,bash]
+python qasc_reports.py am_001 
+# or
+python qasc_reports.py AM_001
+
+
 

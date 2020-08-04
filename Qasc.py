@@ -93,7 +93,11 @@ class Qasc():
         self.__table_font_size = value
 
     def generate_reports(self, site_id):
-        ''' Generate reports for the site ID. '''
+        ''' Generate reports for the site ID. 
+        
+        :param site_id: the site ID of the hospital for which the report should be generated
+        :type site_id: str
+        '''
         self.site_id = site_id.upper()
         if self.site_id is not None and self.site_id in self.site_ids:
             self.site_df = self._filter_by_site(self.site_id)
