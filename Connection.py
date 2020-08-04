@@ -54,8 +54,8 @@ class Connection():
             cz_names_dict = json.load(json_file)
 
         # Set section
-        #datamix = 'datamix-backup'
-        datamix = 'datamix'
+        datamix = 'datamix-backup'
+        # datamix = 'datamix'
         # Check which data should be exported
         if data == 'resq':
             # Create empty dictionary
@@ -488,7 +488,8 @@ class Connection():
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([5]), 'ASSESSED_FOR_REHAB'] = 3
 
             # Fix glucose to be consistent (they are using . or , and sometimes also unknown)
-            df['GLUCOSE'] = df.apply(lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
+            df['GLUCOSE'] = df.apply(
+                lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
 
             # Rename CT_MRI column to CT_MRI_OLD and CT_TIME to CT_TIME_OLD
             df.rename(columns={'CT_MRI': 'CT_MRI_OLD', 'CT_TIME': 'CT_TIME_OLD'}, inplace=True)
@@ -708,7 +709,9 @@ class Connection():
         :type value: str
         :returns: fixed number
         """
-        if "," in value:
+        if value is None:
+            res = np.nan
+        elif "," in value:
             res = value.replace(',', '.')
         elif value == '-99':
             res = value
