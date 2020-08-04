@@ -66,6 +66,10 @@ class Connection():
         elif data == 'atalaia': 
             self.sqls = ['SELECT * from atalaia_mix']
             self.names = []
+        elif data == 'qasc':
+            self.sqls = ['SELECT * FROM qasc_mix']
+            self.names = []
+
         # Dictionary initialization - db dataframes
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
@@ -145,6 +149,9 @@ class Connection():
                 #self.atalaia_preprocessed_data = self.prepare_atalaia_df(self.atalaiadb_df)
                 self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
                 del self.dictdb_df['atalaia_mix']
+            elif data == 'qasc':
+                self.__get_qasc_df(datamix, nprocess)
+
         else:
             if data == 'resq':
                 threads = []
@@ -271,11 +278,40 @@ class Connection():
                 self.atalaia_preprocessed_data = self.atalaiadb_df.copy()
                 del self.dictdb_df['atalaia_mix']
 
-        
+            elif data == 'qasc':
+                self.__get_qasc_df(datamix, nprocess)
         
         end = time.time()
         tdelta = (end-start)/60
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))
+
+    def __get_qasc_df(self, datamix, nprocess):
+        ''' Get QASC data from the database. '''
+        # Get QASC data from the database
+        df_name = 'qasc_mix'
+        self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
+        self.qascdb_df = self.dictdb_df[df_name]
+
+        # Make column names as uppercase
+        column_names = self.qascdb_df.columns
+        column_names = [x.upper() for x in column_names]
+        self.qascdb_df.rename(columns=dict(zip(self.qascdb_df.columns[0:], column_names)),inplace=True)
+
+        # Convert DATE_CREATED to datetime
+        dateForm = '%Y-%m-%d'
+        self.qascdb_df['DATE_CREATED'] = pd.to_datetime(self.qascdb_df['DATE_CREATED'], format=dateForm)
+
+        self.qasc_preprocessed_data = self.qascdb_df.copy()
+        del self.dictdb_df[df_name]
+
+        self.connect(
+            'SELECT DISTINCT unique_identifier, facility_name FROM study ORDER BY unique_identifier;', 
+            datamix, 
+            nprocess, 
+            df_name='study')
+        self.study_df = self.dictdb_df['study']
+        del self.dictdb_df['study']
+
 
     def config(self, section):
         """ The function reading and parsing the config of database file. 
@@ -325,7 +361,6 @@ class Connection():
             # Connect to the PostgreSQL server
             logging.info('Process{0}: Connecting to the PostgreSQL database... '.format(nprocess))
             conn = psycopg2.connect(**params)
-
             # Create dataframe for given sql query
             if df_name is not None:
                 self.dictdb_df[df_name] = pd.read_sql_query(sql, conn)
@@ -466,6 +501,7 @@ class Connection():
                     new_cols.append(c)
             
             df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
+            df.to_csv('ivttby_df.csv', sep=',')
             df.rename(columns={'ANTITHROMBOTICS': 'ANTITHROMBOTICS_TMP', 'GLUCOSE': 'GLUCOSE_OLD'}, inplace=True)
 
             # Create columns for admission time using hospital times (to keep previous calculation and setting)
@@ -487,6 +523,7 @@ class Connection():
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([4]), 'ASSESSED_FOR_REHAB'] = 2
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([5]), 'ASSESSED_FOR_REHAB'] = 3
 
+            df.to_csv('ivttby_df_2.csv', sep=',')
             # Fix glucose to be consistent (they are using . or , and sometimes also unknown)
             df['GLUCOSE'] = df.apply(lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
 
@@ -708,7 +745,9 @@ class Connection():
         :type value: str
         :returns: fixed number
         """
-        if "," in value:
+        if value is None:
+            return value
+        elif "," in value:
             res = value.replace(',', '.')
         elif value == '-99':
             res = value

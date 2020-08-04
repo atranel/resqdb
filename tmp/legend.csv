@@ -86,3 +86,4 @@ D_MRS_D_EN,"If they can perform simple personal activities do they need help wit
 D_MRS_E_EN,If they have no disability do they have any symptoms?,,single-select,"Yes, No","1,2"
 D_MRS_SCORE_EN,Discharge mRS derived score,,text,,
 DISCHARGE_DATE_EN,Date of discharge:,DD-MM-YYYY,text,date,text
+RISK_FACTORS ,Risc factors:,,checkbox,"Hypertension, Diabetes, Hyperlipidemia, Smoker at the time of onset, Previous stroke diagnosis (based on clinical symptoms), Atrial fibrilation or flutter (paroxysmal/persistent/permanent), Congestive heart failure, Unknown","1,2,3,4,5,6,7,8"

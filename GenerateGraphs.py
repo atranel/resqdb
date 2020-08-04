@@ -89,6 +89,12 @@ class GenerateGraphs:
                 column_name=self.column_name, 
                 legend=self.legend, 
                 number_of_series=self.number_of_series)
+        # elif (graph_type == "grouped"):
+        #     self._create_grouped_barplot(
+        #         dataframe=self.dataframe,
+        #         title=self.title,
+        #         column_name=self.column_name
+        #     )
         else:
             self._create_barplot(
                 dataframe=self.dataframe, title=self.title, column_name=self.column_name)
@@ -396,6 +402,146 @@ class GenerateGraphs:
             chart.legend.font.size = Pt(11)
         else:
             chart.legend.font.size = Pt(12)
+
+    def _create_grouped_barplot(self):
+        """ The function generating into the presentation the grouped barplot. """
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == "":
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(16.5),
+            'width': Cm(15.26),
+            'left': Cm(0.5),
+            'top': Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series >= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(16.5),
+            'width': Cm(15.26),
+            'left': Cm(17.5),
+            'top': Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series >= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
 
 
 class GenerateGraphsSites(GenerateGraphs):
@@ -916,6 +1062,145 @@ class GenerateGraphsSites(GenerateGraphs):
         else:
             chart.legend.font.size = Pt(12)
 
+    def _create_grouped_barplot(self):
+        """ The function generating into the presentation the grouped barplot. """
+
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.ndf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+        
+        # Add new slide into presentation
+        slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[11])
+        title_placeholders = slide.shapes.title
+        title_placeholders.text = self.title
+
+        if self.subtitle == "":
+            subtitle = slide.placeholders[1]
+            sp = subtitle.element
+            sp.getparent().remove(sp)
+        else:
+            subtitle = slide.placeholders[1]
+            subtitle.text = self.subtitle
+
+        # 1st dataframe (nationally sample)
+        chart_data = ChartData()
+        chart_data.categories = self.ndf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.ndf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.ndf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(16.5),
+            'width': Cm(15.26),
+            'left': Cm(0.5),
+            'top': Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series >= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # 2nd dataframe (nationally sample)
+        # Calculate length of legend (in case that legend is too long, make smaller font size)
+        count = self._get_length_of_legend(self.legend)
+
+        # Get column names of dataframe
+        column_names = self.sldf.columns.tolist()
+
+        index = column_names.index(self.column_name)
+
+        chart_data = ChartData()
+        chart_data.categories = self.sldf[self.categories_column].tolist()
+        # Add data in each category
+        chart_data.add_series(self.legend[0], self.sldf[column_names[index]].tolist())
+        chart_data.add_series(self.legend[1], self.sldf[column_names[index+1]].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(16.5),
+            'width': Cm(15.26),
+            'left': Cm(17.5),
+            'top': Cm(2)
+            }
+    
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart
+
+        series = chart.series[0]
+        # If graphs for whole country are generated, set for bar with country with red color
+        # else set to blue color (same color as title uses)
+        fill = series.format.fill
+        fill.solid()
+        fill.fore_color.rgb = RGBColor(43, 88, 173)   
+
+        if (self.number_of_series >= 5):
+            series = chart.series[4]
+            fill = series.format.fill
+            fill.solid()
+            fill.fore_color.rgb = RGBColor(80, 137, 188)  
+
+        # Value for x-axis (change font size, name, and other things)
+        value_axis = chart.value_axis
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+        tick_labels.font.name = self.font_name
+
+        value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
+
+        value_axis.has_major_gridlines = True
+        value_axis.major_gridlines.format.line.dash_style = MSO_LINE.DASH
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.maximum_scale = 100
+
+        category_axis = chart.category_axis
+        category_axis.major_tick_mark = XL_TICK_MARK.NONE
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = self.category_font_size
+        category_labels.font.name = self.font_name
+        category_labels.tickLblSkip = 1
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        chart.legend.include_in_layout = False
+        chart.legend.font.name = self.font_name
     
 
 

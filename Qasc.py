@@ -9,13 +9,13 @@ from pptx import Presentation
 from pptx.util import Cm, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 from pptx.chart.data import ChartData
-from pptx.enum.chart import XL_CHART_TYPE
+from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.dml.color import RGBColor
 from pptx.oxml.xmlchemy import OxmlElement
 
 class Qasc():
 
-    def __init__(self, site_id):
+    def __init__(self):
 
         # Set logging
         debug =  f'debug_{datetime.now().strftime("%d-%m-%Y")}.log' 
@@ -38,22 +38,7 @@ class Qasc():
         self.__site_ids = [x for x in site_ids if not x.endswith('_AUD')]
         del site_ids 
 
-        self.site_id = site_id.upper()
         self.table_font_size = Pt(11) # Set default font size for tables 
-
-        if self.site_id is not None and self.site_id in self.site_ids:
-            self.site_df = self._filter_by_site(self.site_id)
-            if self.site_df.empty:
-                print(f"There are no data for this {site_id} hospital. The available sites are: {self.site_ids}.")
-                exit()
-            else:
-                self._pre_post_data()
-                self.pre_stats = self.calculate_statistics(df=self.pre_df)
-                self.generate_baseline_report(df=self.pre_stats)
-
-                if not self.post_df.empty:
-                    self.post_stats = self.calculate_statistics(df=self.post_df)
-                    self.generate_pre_post_report()
 
     @property
     def site_ids(self):
@@ -106,6 +91,24 @@ class Qasc():
     @table_font_size.setter
     def table_font_size(self, value):
         self.__table_font_size = value
+
+    def generate_reports(self, site_id):
+        ''' Generate reports for the site ID. '''
+        self.site_id = site_id.upper()
+        if self.site_id is not None and self.site_id in self.site_ids:
+            self.site_df = self._filter_by_site(self.site_id)
+            if self.site_df.empty:
+                print(f"There are no data for this {site_id} hospital. The available sites are: {self.site_ids}.")
+            else:
+                self._pre_post_data()
+                self.pre_stats = self.calculate_statistics(df=self.pre_df)
+                self.generate_baseline_report(df=self.pre_stats)
+
+                if not self.post_df.empty:
+                    self.post_stats = self.calculate_statistics(df=self.post_df)
+                    self.generate_pre_post_report()
+        else:
+            print(f"There are no data for this site.")
 
     def _filter_by_site(self, site_id):
         ''' Return the filtered dataframe for site id filter on column SITE_ID. '''
@@ -180,6 +183,21 @@ class Qasc():
 
         # 1. Patients records entered
         stats = df.groupby([self.main_col]).size().to_frame('n').reset_index()
+
+        groups = df.groupby([self.main_col, 'STROKE_TYPE']).size().unstack().reset_index().fillna(0)
+        column_name = '# acute stroke'
+        column_names = {
+            1.0: '# subarrachnoid hemorrhage', 
+            2.0: '# ischemic stroke', 
+            3.0: '# intracerrebral hemorrhage'
+        }
+        # Check if all columns are in the grouped dataframe
+        for key in column_names.keys():
+            if key not in groups.columns:
+                groups[key] = 0
+        groups.rename(columns=column_names, inplace=True)
+        groups[column_name] = groups[column_names.values()].sum(axis=1)
+        stats = self._get_patients(stats=stats, column_name=column_name, groups=groups, out_of='n')
 
         ''' 
         2. Temperature monitring and treatment
@@ -597,6 +615,12 @@ class Qasc():
         :type slide: slide shape
         :param text: textbox's text
         :type text: str
+        :param bold: make text bold
+        :type bold: boolean (default: False)
+        :param italic: make text italic
+        :type italic: boolean (default: False)
+        :param underline: make text underlined
+        :type underline: boolean (default: False)
         '''
         txBox = slide.shapes.add_textbox(specs['left'], specs['top'], specs['width'], specs['height'])
         txBox.text_frame.clear()
@@ -626,7 +650,7 @@ class Qasc():
         elm.srgbClr.append(alpha)
 
 
-    def _add_run(self, txtBox, text, bold=False):
+    def _add_run(self, txtBox, text, bold=False, italic=False):
         ''' Add paragraph to the textbox. 
         
         :param txtBox: textbox to which add teh paragraph
@@ -641,6 +665,7 @@ class Qasc():
         run.text = text
         run.font.size = Pt(11)
         run.font.bold = bold
+        run.font.italic = italic
 
     def _get_column_values(self, column_name, baseline):
         ''' Return list of columns to be geenrated in the table based on the report type. '''
@@ -655,7 +680,7 @@ class Qasc():
             ]
         return columns
 
-    def _create_table(self, slide, table_specs, title, trow, tcol, baseline=True):
+    def _create_table(self, slide, table_specs, title, trow, tcol, baseline=False):
         ''' Generate table in the report. '''
         # Add table to the slide, we need table with 21 rows and 3 columns
         shape = slide.shapes.add_table(
@@ -674,12 +699,20 @@ class Qasc():
         table = shape.table
 
         # Set column width
-        widths = [
-            int(table_specs['width'] * 0.5), 
-            int(table_specs['width'] * 0.2), 
-            int(table_specs['width'] * 0.15), 
-            int(table_specs['width'] * 0.15)
-            ]
+        if baseline:
+            widths = [
+                int(table_specs['width'] * 0.5), 
+                int(table_specs['width'] * 0.2), 
+                int(table_specs['width'] * 0.15), 
+                int(table_specs['width'] * 0.15)
+                ]
+        else:
+            widths = [
+                int(table_specs['width'] * 0.58), 
+                int(table_specs['width'] * 0.2), 
+                int(table_specs['width'] * 0.11), 
+                int(table_specs['width'] * 0.11)
+                ]
         for i in range(0, len(table.columns)):
             table.columns[i].width = widths[i]
 
@@ -889,6 +922,7 @@ class Qasc():
     def generate_baseline_report(self, df=None):
         ''' Generate baseline data summary feedback. '''
 
+        self.table_font_size = Pt(11) # Set default font size for table in baseline report
         # Define master 
         master = os.path.normpath(os.path.join(os.path.dirname(__file__), 'backgrounds', 'qasc_baseline.pptx'))
 
@@ -920,7 +954,8 @@ class Qasc():
             table_specs=table_specs, 
             title=f'Table 1: FeSS Management for {hospital_name}', 
             trow=21, 
-            tcol=4,)
+            tcol=4,
+            baseline=True)
 
         # Add the rest of explaining texts
         specs = {
@@ -1014,7 +1049,7 @@ class Qasc():
     def generate_pre_post_report(self):
         ''' Generate report with pre/post comparison. '''
 
-        self.table_font_size = Pt(10)
+        self.table_font_size = Pt(9.5)
         
         # Define master 
         master = os.path.normpath(os.path.join(os.path.dirname(__file__), 'backgrounds', 'qasc_comparison.pptx'))
@@ -1033,15 +1068,15 @@ class Qasc():
         specs = {
             'height': Cm(1),
             'width': Cm(18),
-            'left': Cm(1.2),
+            'left': Cm(0.6),
             'top': Cm(1.5),
         }
         self._add_textbox(specs, first_slide, title_text, bold=True, underline=True)
 
         specs = {
-            'height': Cm(2.5),
-            'width': Cm(18),
-            'left': Cm(1.2),
+            'height': Cm(2),
+            'width': Cm(19.5),
+            'left': Cm(0.6),
             'top': Cm(2),
         }
         txBox = first_slide.shapes.add_textbox(specs['left'], specs['top'], specs['width'], specs['height'])
@@ -1062,9 +1097,9 @@ class Qasc():
 
         table_specs = {
             'height': Cm(16),
-            'width': Cm(18),
-            'left': Cm(1.2),
-            'top': Cm(4.5)
+            'width': Cm(19),
+            'left': Cm(0.8),
+            'top': Cm(4.0)
         }
 
         self._create_table(
@@ -1075,11 +1110,259 @@ class Qasc():
             tcol=4, 
             baseline=False)
 
+        # Add title 
+        text = "# Variables shown in bold above are the key recommendations to be followed in the QASC Europe project"
+        specs = {
+            'height': Cm(0.5),
+            'width': Cm(18),
+            'left': Cm(0.6),
+            'top': Cm(20),
+        }
+        self._add_textbox(specs, first_slide, text)
+
+        # Second slide
+        second_slide = prs.slides[1]
+
+        # Add temperature blok
+        column_name = '# Temperature monitoring and treatment'
+        pre_temp = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_temp = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        difference = "no difference" if post_temp <= pre_temp else "an increase"
+
+        column_name = '# Temperature monitored at least four times per day - Day of admission'
+        pre_temp_first = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_temp_first = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+
+        column_name = '# Temperature monitored at least four times per day - Day two of admission'
+        pre_temp_second = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_temp_second = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+
+        column_name = '# Temperature monitored at least four times per day - Day three of admission'
+        pre_temp_third = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_temp_third = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+
+        column_name = '# Temperature > 37.5°c recorded within 72 hours of admission'
+        post_temp_rec_total = self.post_stats[column_name].iloc[0]
+
+        column_name = '# Paracetamol (or other anti-pyretic) given with one hour from first temperature > 37.5°C'
+        post_paracetamol = self.post_stats[column_name].iloc[0]
+        post_paracetamol_perc = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]      
+
+        text = "1. Temperature"
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(28.5),
+            'left': Cm(0.6),
+            'top': Cm(1.5),
+        }
+        self._add_textbox(specs, second_slide, text, bold=True)
+
+        proportion_text = f"i) From pre to post implementation there was {difference} in the proportion of patients who: were monitored four times a day for fever on Day 1 ({pre_temp_first}% vs {post_temp_first}% respectively), Day 2 ({pre_temp_second}% vs {post_temp_second}%) and Day 3 ({pre_temp_third}% vs {post_temp_third}%)."
+        specs = {
+            'height': Cm(1.2),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(2),
+        }
+        self._add_textbox(specs, second_slide, proportion_text)
+
+        paracetamol_text = f"ii) {post_paracetamol} out of {post_temp_rec_total} ({post_paracetamol_perc}%) patients with a temperature > 37.5°C received Paracetamol (or alternatively antipyretic) within one hour."
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(3),
+        }
+        self._add_textbox(specs, second_slide, paracetamol_text)
+
+        # Add blood glucose monitoring
+        column_name = '# Blood glucose monitoring and treatment'
+        pre_blood = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_blood = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        difference = "no difference" if post_blood <= pre_blood else "an increase"
+
+        column_name = '# Blood Glucose Level (BGL) monitored > four times per day - Day of admission'
+        pre_blood_first = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_blood_first = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+
+        column_name = '# Blood Glucose Level (BGL) monitored > four times per day - Day two of admission'
+        pre_blood_second = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_blood_second = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+
+        column_name = '# Insulin given for first BGL ≥ 10mmol/L'
+        post_insulin_total = self.post_stats[column_name].iloc[0]
+
+        column_name = '# Insulin given within one hour from first BGL ≥ 10mmol/L'
+        post_insulin = self.post_stats[column_name].iloc[0]
+        post_insulin_perc = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]      
+
+        text = "2. Blood glucose monitoring"
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(28.5),
+            'left': Cm(0.6),
+            'top': Cm(4.0),
+        }
+        self._add_textbox(specs, second_slide, text, bold=True)
+
+        proportion_text = f"iii) {difference.capitalize()} in the proportion of patients observed four times daily for hyperglycaemia on Day 1 ({pre_blood_first}% vs {post_blood_first}% respectively) and Day 2 ({pre_blood_second}% vs {post_blood_second}%)."
+        specs = {
+            'height': Cm(1.2),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(4.5),
+        }
+        self._add_textbox(specs, second_slide, proportion_text)
+
+        paracetamol_text = f"iv) {post_insulin} out of {post_insulin_total} ({post_insulin_perc}%) patients with BGL's > 10mmol/L were treated with insulin."
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(5.0),
+        }
+        self._add_textbox(specs, second_slide, paracetamol_text)
+
+        # Add swallow screening
+        column_name = '# Swallow screen performed within 24 hours'
+        pre_swallow = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        post_swallow = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
+        difference = "no difference" if post_swallow <= pre_swallow else "an increase"
+
+        column_name = '# Swallow screen or swallow assessment performed before being given oral medications'
+        post_oral_med = self.post_stats[column_name].iloc[0]
+        post_oral_med_perc = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]      
+
+        column_name = '# Swallow screen or swallow assessment performed before being given oral food or fluids'
+        post_food = self.post_stats[column_name].iloc[0]
+        post_food_perc = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]      
+
+        text = "3. Swallow screening"
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(28.5),
+            'left': Cm(0.6),
+            'top': Cm(6.0),
+        }
+        self._add_textbox(specs, second_slide, text, bold=True)
+
+        swallow_text = f"v) {difference.capitalize()} in the proportion of patients who received a swallow screen within 24hrs ({pre_swallow}% vs {post_swallow}%)."
+        specs = {
+            'height': Cm(0.7),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(6.5),
+        }
+        self._add_textbox(specs, second_slide, swallow_text)
+
+        medication_text = f"vi) {post_oral_med} ({post_oral_med_perc}%) patients received oral medications before having their swallow screened and {post_food} ({post_food_perc}%) patients received oral food or fluid before having their swallow screened."
+        specs = {
+            'height': Cm(1.2),
+            'width': Cm(27.3),
+            'left': Cm(1.8),
+            'top': Cm(7),
+        }
+        self._add_textbox(specs, second_slide, medication_text)
+
+        # Summary box
+        specs = {
+            'height': Cm(2),
+            'width': Cm(27.3),
+            'left': Cm(0.6),
+            'top': Cm(8.5),
+        }
+        txBox = second_slide.shapes.add_textbox(specs['left'], specs['top'], specs['width'], specs['height'])
+        txBox.text_frame.clear()
+        txBox.text_frame.word_wrap = True
+        self._add_run(
+            txBox, 
+            'SUMMARY: ',
+            bold=True
+        )
+
+        temp_monitoring = post_temp + post_blood
+        acute_stroke_pts = self.post_stats['# acute stroke'].iloc[0]
+        self._add_run(txBox, f"Monitoring for fever and/or hyperglycaemia four times a day for the first 48 - 72 hours of admission was recorded for {temp_monitoring} patient of the {acute_stroke_pts} acute stroke patients audited. A swallow screen or assessment was performed for {post_swallow} patient. Most of those patients who required treatment for fever and hyperglycaemia had Paracetamol (or other anti-pyretic) or Insulin administered within the recommended one-hour time period.", italic=True)
+
+        # Add comparison graph
+        data = {
+            'Criterium': ["Temp (Day 1)", "BGL's (Day 1)", "Swallow screen first (24hrs)"], 
+            'Pre': [pre_temp_first, pre_blood_first, pre_swallow],
+            'Post': [post_temp_first, post_blood_first, post_swallow]}
+        graph_data = pd.DataFrame(data=data)
+        column_names = ["Pre", "Post"]
+
+        chart_data = ChartData()
+        chart_data.categories = graph_data['Criterium'].tolist()
+
+        for val in column_names:
+            chart_data.add_series(val, graph_data[val].tolist())
+
+        # Add chart on slide
+        specs = {
+            'height': Cm(9.5),
+            'width': Cm(15),
+            'left': Cm(0.6),
+            'top': Cm(10)
+            }
+        chart = second_slide.shapes.add_chart(
+            XL_CHART_TYPE.COLUMN_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart         
+
+        plot = chart.plots[0]
+        # All bars with the same color
+        plot.vary_by_categories = False
+
+        colors = [
+            RGBColor(192, 80, 77), 
+            RGBColor(79, 129, 189)
+            ]    
+
+        for i in range(0, len(column_names)):
+            series = chart.series[i]
+            fill = series.format.fill
+
+            # Set colors of series 
+            fill.solid()
+            fill.fore_color.rgb = colors[i]
+
+            # Show data labels and set font
+            plot.has_data_labels = True
+            # Set layout of labels
+            data_labels = plot.data_labels
+            data_labels.font.size = Pt(9)
+
+        # Set maximum to 100
+        value_axis = chart.value_axis
+        value_axis.maximum_scale = 100
+
+        value_axis.major_gridlines.format.line.width = Pt(0.5)
+        value_axis.major_gridlines.format.line.color.rgb = RGBColor(206, 206, 206) # Set color to gray (A6A6A6)
+
+        value_axis.format.line.color.rgb = RGBColor(0, 0, 0)
+        solidFill = value_axis.format.line.color._xFill
+        self._set_transparency(100, solidFill)
+
+        # Value for y-axis (change font size, name, and other things)
+        category_axis = chart.category_axis
+        # Set 100% transparency to category axis
+        category_axis.format.line.color.rgb = RGBColor(206, 206, 206)
+        solidFill = category_axis.format.line.color._xFill
+        self._set_transparency(100, solidFill)
+
+        # Set graph of title
+        graph_title = f'Figure 1: Hospital {hospital_name} Pre/Post FeSS intervention'
+        chart_text = chart.chart_title.text_frame
+        chart_text.text = graph_title
+        chart_text.paragraphs[0].font.size = Pt(12)
+        chart_text.paragraphs[0].font.color.rgb = RGBColor(89, 89, 89)
+
+        # Set legend 
+        chart.has_legend = True
+        chart.legend.position = XL_LEGEND_POSITION.TOP
+        chart.legend.include_in_layout = False
+        chart.legend.font.size = Pt(9)
+
         # Save presentation
         path = os.path.join(os.getcwd(), output_file)
         save_file(output_file)
         prs.save(path)
-
-
-
-
