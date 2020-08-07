@@ -517,6 +517,12 @@ class Connection():
                 'DISCHARGE_DATE'
             ] = df['HOSPITAL_DATE']
 
+            df.loc[
+                (df['STROKE_TYPE'] == 1) & 
+                (df['HEMICRANIECTOMY'] == 3), 
+                'DISCHARGE_DATE'
+            ] = df['HOSPITAL_DATE']
+
             # Create country column
             df['Country'] = 'Czech Republic'
 
