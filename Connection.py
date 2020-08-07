@@ -511,12 +511,14 @@ class Connection():
 
             df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
 
+            # Set discharge date to hospital date if recanalization is set to referred to another hospital and discharge date has been hidden in this case
             df.loc[
                 (df['STROKE_TYPE'] == 1) &
                 (df['RECANALIZATION_PROCEDURES'].isin([5,6])),
                 'DISCHARGE_DATE'
             ] = df['HOSPITAL_DATE']
 
+            # Set discharge date to hospital date if hemicraniectomy is set to referred to another hospital and discharge date has been hidden in this case
             df.loc[
                 (df['STROKE_TYPE'] == 1) & 
                 (df['HEMICRANIECTOMY'] == 3), 
