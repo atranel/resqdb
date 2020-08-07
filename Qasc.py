@@ -331,6 +331,9 @@ class Qasc():
                     4. none of the above
         calculation: 1-3 is selected
         '''
+        groups = df.groupby([self.main_col, 'TEMP_MEASUREMENT', 'GLUCOSE_MONITOR']).size().unstack().reset_index().fillna(0)
+        print(groups)
+
         groups = df.groupby([self.main_col, 'GLUCOSE_MONITOR']).size().unstack().reset_index().fillna(0)
         # remove column with default values from the groups
         default = '1,2,3,4'
@@ -345,6 +348,11 @@ class Qasc():
 
         include_columns = [x for x in column_names if '2' in x and '4' not in x]
         column_name = '# Blood Glucose Level (BGL) monitored > four times per day - Day two of admission'
+        groups[column_name] = groups[include_columns].sum(axis=1)
+        stats = self._get_patients(stats=stats, column_name=column_name, groups=groups, out_of='n')
+
+        include_columns = [x for x in column_names if '3' in x and '4' not in x]
+        column_name = '# Blood Glucose Level (BGL) monitored > four times per day - Day three of admission'
         groups[column_name] = groups[include_columns].sum(axis=1)
         stats = self._get_patients(stats=stats, column_name=column_name, groups=groups, out_of='n')
 
