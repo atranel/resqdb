@@ -12,7 +12,6 @@ import os
 import sys
 from datetime import datetime, date
 import zipfile
-import sqlite3
 import csv
 import pandas as pd
 import numpy as np
@@ -158,8 +157,8 @@ class GeneratePreprocessedData:
             # if df['TBY_REFER_LIM_ADMISSION_TIME'].dtype != np.object:
             df['TBY_REFER_LIM_ADMISSION_TIME'] = df.apply(lambda x: convert_to_string(x['TBY_REFER_LIM_ADMISSION_TIME'], timeformat), axis=1)
             #df['CT_TIME'] = df.apply(lambda x: convert_to_string(x['CT_TIME'], timeformat), axis=1)
-        else:
-            df['HOSPITAL_DATE'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE'], dateformat), axis=1)
+        # else:
+        #     df['HOSPITAL_DATE'] = df.apply(lambda x: convert_to_string(x['HOSPITAL_DATE'], dateformat), axis=1)
             #df['DISCHARGE_DATE'] = df.apply(lambda x: convert_to_string(x['DISCHARGE_DATE'], dateformat), axis=1)
         
         #df.fillna(value="", inplace=True)

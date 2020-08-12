@@ -13,3 +13,4 @@ from resqdb import XmlSplitter
 from resqdb import CalculationSK
 from resqdb import Reports
 from resqdb import Atalaia
+from resqdb import Qasc

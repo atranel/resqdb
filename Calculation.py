@@ -8,7 +8,6 @@ Created on Thu Jul 09 13:28:05 2017
 import sys
 import os
 from datetime import datetime, time, date
-import sqlite3
 import pandas as pd
 import numpy as np
 from numpy import inf

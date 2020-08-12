@@ -153,6 +153,7 @@ class GeneratePresentation:
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
+
         ###########################
         ### GENDER DISTRIBUTION ###
         ###########################
