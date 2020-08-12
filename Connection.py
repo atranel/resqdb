@@ -501,7 +501,6 @@ class Connection():
                     new_cols.append(c)
             
             df.rename(columns=dict(zip(df.columns[0:], new_cols)),inplace=True)
-            df.to_csv('ivttby_df.csv', sep=',')
             df.rename(columns={'ANTITHROMBOTICS': 'ANTITHROMBOTICS_TMP', 'GLUCOSE': 'GLUCOSE_OLD'}, inplace=True)
 
             # Create columns for admission time using hospital times (to keep previous calculation and setting)
@@ -523,7 +522,6 @@ class Connection():
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([4]), 'ASSESSED_FOR_REHAB'] = 2
             df.loc[df['PHYSIOTHERAPIST_EVALUATION'].isin([5]), 'ASSESSED_FOR_REHAB'] = 3
 
-            df.to_csv('ivttby_df_2.csv', sep=',')
             # Fix glucose to be consistent (they are using . or , and sometimes also unknown)
             df['GLUCOSE'] = df.apply(
                 lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
