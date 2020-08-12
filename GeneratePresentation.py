@@ -145,13 +145,14 @@ class GeneratePresentation:
         ### MEDIAN PATIENT AGE ###
         ##########################
         column_name = 'Median patient age'
-        legend = ['Median age', '# of patients']
-        tmp_df = df[[main_col, column_name, 'Total Patients']]
+
+        tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
         title = "MEDIAN PATIENT AGE"
 
-        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, graph_type="grouped")
+        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
+
 
         ###########################
         ### GENDER DISTRIBUTION ###
