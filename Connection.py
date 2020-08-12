@@ -54,8 +54,8 @@ class Connection():
             cz_names_dict = json.load(json_file)
 
         # Set section
-        #datamix = 'datamix-backup'
-        datamix = 'datamix'
+        datamix = 'datamix-backup'
+        # datamix = 'datamix'
         # Check which data should be exported
         if data == 'resq':
             # Create empty dictionary
@@ -525,7 +525,8 @@ class Connection():
 
             df.to_csv('ivttby_df_2.csv', sep=',')
             # Fix glucose to be consistent (they are using . or , and sometimes also unknown)
-            df['GLUCOSE'] = df.apply(lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
+            df['GLUCOSE'] = df.apply(
+                lambda x: self.fix_glucose(x['GLUCOSE_OLD']) if x['STROKE_TYPE'] == 1 else np.nan, axis=1)
 
             # Rename CT_MRI column to CT_MRI_OLD and CT_TIME to CT_TIME_OLD
             df.rename(columns={'CT_MRI': 'CT_MRI_OLD', 'CT_TIME': 'CT_TIME_OLD'}, inplace=True)
@@ -547,9 +548,17 @@ class Connection():
 
             df = ischemic_pts.append(other_pts, ignore_index=False, sort=False)
 
+            # Set discharge date to hospital date if recanalization is set to referred to another hospital and discharge date has been hidden in this case
             df.loc[
                 (df['STROKE_TYPE'] == 1) &
                 (df['RECANALIZATION_PROCEDURES'].isin([5,6])),
+                'DISCHARGE_DATE'
+            ] = df['HOSPITAL_DATE']
+
+            # Set discharge date to hospital date if hemicraniectomy is set to referred to another hospital and discharge date has been hidden in this case
+            df.loc[
+                (df['STROKE_TYPE'] == 1) & 
+                (df['HEMICRANIECTOMY'] == 3), 
                 'DISCHARGE_DATE'
             ] = df['HOSPITAL_DATE']
 

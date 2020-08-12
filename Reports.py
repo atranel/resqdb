@@ -319,7 +319,9 @@ class Reports:
                 thrombolysis_df['INCORRECT_TIMES'] = thrombolysis_df.apply(lambda x: True if (x['IVTPA'] <= 0 or x['IVTPA'] > 400) and x['IVT_TBY_REFER'] == 1 else x['INCORRECT_TIMES'], axis=1)
 
                 incorrect_ivtpa_times = thrombolysis_df[
-                    thrombolysis_df['INCORRECT_TIMES'] == True].copy()
+                    (thrombolysis_df['INCORRECT_TIMES'] == True) & 
+                    (thrombolysis_df['HOSPITAL_STROKE_TBY_TIMESTAMPS'] != 1)
+                    ].copy()
                 incorrect_ivtpa_times_save = incorrect_ivtpa_times.loc[
                     incorrect_ivtpa_times['Protocol ID'] != "CZ"].copy()
                 incorrect_ivtpa_times_save.to_csv('incorrect_ivtpa_times.csv', sep=',')
@@ -438,7 +440,10 @@ class Reports:
 
 
                 #incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True) & (~thrombectomy_df['HOSPITAL_STROKE'].isin([1]))].copy()
-                incorrect_tby_times = thrombectomy_df.loc[(thrombectomy_df['INCORRECT_TIMES'] == True)].copy()
+                # Aug 04, 2020
+                incorrect_tby_times = thrombectomy_df.loc[
+                    (thrombectomy_df['INCORRECT_TIMES'] == True) & 
+                    (thrombectomy_df['HOSPITAL_STROKE_TBY_TIMESTAMPS'] != 1)].copy()
 
                 statistic['Total patients undergone TBY'] = self.count_patients(df=thrombectomy_df, statistic=statistic)
                 incorrect_tby_times_save = incorrect_tby_times.loc[incorrect_tby_times['Protocol ID'] != "CZ"].copy()
@@ -475,6 +480,7 @@ class Reports:
                     # total_patients = thrombectomy.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     total_patients = thrombectomy_df.groupby(['Protocol ID']).size().reset_index(name="# TBY")
                     statistic = statistic.merge(total_patients, on='Protocol ID', how='outer') # Merge with statistic dataframe
+                    statistic.fillna(0, inplace=True)
                     statistic.loc[statistic['Protocol ID'] == 'CZ', '# TBY'] = int(statistics.mean(statistic.loc[statistic['Protocol ID'] != 'CZ']['# TBY'].tolist()))
                     statistic.fillna(0, inplace=True)
 
