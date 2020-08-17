@@ -29,8 +29,10 @@ class Qasc():
             )
         logging.info('Start to generate QASC reports.')
 
+        # Connect to database and get QASC data
         con = Connection(data='qasc')
         self.preprocessed_data = con.qasc_preprocessed_data
+        # Get also data with studies 
         self.study_df = con.study_df
 
         # Get list of Site IDs from the preprocessed data
@@ -98,16 +100,20 @@ class Qasc():
         :param site_id: the site ID of the hospital for which the report should be generated
         :type site_id: str
         '''
-        self.site_id = site_id.upper()
+        self.site_id = site_id.upper() # Make provided site ID uppercased
+        # check if provided site ID is in preprocessed data
         if self.site_id is not None and self.site_id in self.site_ids:
+            # Filter dataframe for provided site ID
             self.site_df = self._filter_by_site(self.site_id)
             if self.site_df.empty:
                 print(f"There are no data for this {site_id} hospital. The available sites are: {self.site_ids}.")
             else:
+                # Obtain data for pre/post period
                 self._pre_post_data()
+                # Calculate pre stats and generate baselina reports that are made from pre dataset
                 self.pre_stats = self.calculate_statistics(df=self.pre_df)
                 self.generate_baseline_report(df=self.pre_stats)
-
+                # If post dataset is not empty, generate also comparison reports otherwise stop the program
                 if not self.post_df.empty:
                     self.post_stats = self.calculate_statistics(df=self.post_df)
                     self.generate_pre_post_report()
@@ -115,7 +121,12 @@ class Qasc():
             print(f"There are no data for this site.")
 
     def _filter_by_site(self, site_id):
-        ''' Return the filtered dataframe for site id filter on column SITE_ID. '''
+        ''' Return the filtered dataframe for site id filter on column SITE_ID. 
+        
+        :param site_id: site ID for which the report should be generated
+        :type site_id: str
+        :returns: filtered data
+        '''
         return self.preprocessed_data.loc[self.preprocessed_data['SITE_ID'] == site_id].copy()
 
     def _filter_data(self, first_date, second_date):
@@ -138,6 +149,7 @@ class Qasc():
 
     def _pre_post_data(self):
         ''' Set pre/post dataframe data. '''        
+        # NOTE: for now the pre dataset is set to year 2019 and post dataset to 2020
         pre_date1 = datetime(2019, 1, 1)
         pre_date2 = datetime(2019, 12, 31)
         self.pre_df = self._filter_data(pre_date1, pre_date2)
@@ -204,6 +216,7 @@ class Qasc():
         # 1. Patients records entered
         stats = df.groupby([self.main_col]).size().to_frame('n').reset_index()
 
+        # Calculate # of patients per stroke type
         groups = df.groupby([self.main_col, 'STROKE_TYPE']).size().unstack().reset_index().fillna(0)
         column_name = '# acute stroke'
         column_names = {
@@ -618,6 +631,7 @@ class Qasc():
         :param aligment: how the text should be aligned (Default: left)
         :type alignment: str
         '''
+        # Set alignment
         if alignment == 'left':
             alignment = PP_ALIGN.LEFT
         elif alignment == 'right':
@@ -629,6 +643,7 @@ class Qasc():
         cell.vertical_anchor = MSO_ANCHOR.MIDDLE
         for paragraph in cell.text_frame.paragraphs:
             paragraph.alignment = alignment
+            # This will make text indented
             if level:
                 paragraph.level = 1
             for run in paragraph.runs:
@@ -681,7 +696,7 @@ class Qasc():
 
 
     def _add_run(self, txtBox, text, bold=False, italic=False):
-        ''' Add paragraph to the textbox. 
+        ''' Add paragraph to the textbox. Each paragraph can have multiple runs. 
         
         :param txtBox: textbox to which add teh paragraph
         :type txtBox: textBox shape
@@ -698,7 +713,14 @@ class Qasc():
         run.font.italic = italic
 
     def _get_column_values(self, column_name, baseline):
-        ''' Return list of columns to be geenrated in the table based on the report type. '''
+        ''' Return list of columns to be geenrated in the table based on the report type. 
+        
+        :param column_name: name of column to be included in the results
+        :type column_name: str
+        :param baseline: True if baseline report is generate
+        :type baseline: boolean
+        :returns: list of values
+        '''
         if baseline:
             columns = [
                 str(self.pre_stats[column_name].iloc[0]), 
@@ -711,7 +733,21 @@ class Qasc():
         return columns
 
     def _create_table(self, slide, table_specs, title, trow, tcol, baseline=False):
-        ''' Generate table in the report. '''
+        ''' Generate table in the report. 
+        
+        :param slide: the slide to which the table should be added
+        :type slide: slide
+        :param table_specs: specify a position of thetable
+        :type table_specs: dict
+        :param title: the name of the table
+        :type title: str
+        :param trow: number of rows of the table
+        :type trow: int
+        :param tcol: number of columns of the table
+        :type tcol: int
+        :param baseline: True if baseline report should be generated
+        :type baseline: boolean
+        '''
         # Add table to the slide, we need table with 21 rows and 3 columns
         shape = slide.shapes.add_table(
             trow, #rows 
@@ -723,12 +759,13 @@ class Qasc():
 
         # Set look of the table
         # Change table style (https://github.com/scanny/python-pptx/issues/27)
+        # This is a bit complicated how to change table style, I always do it that I select table style in powerpoint, save powerpoint and open xml file. There you can find style ID.
         style_id = '{5940675A-B579-460E-94D1-54222C63F5DA}'
         tbl = shape._element.graphic.graphicData.tbl
         tbl[0][-1].text = style_id
         table = shape.table
 
-        # Set column width
+        # Set column width based on the report type
         if baseline:
             widths = [
                 int(table_specs['width'] * 0.5), 
@@ -748,14 +785,13 @@ class Qasc():
 
         # Merge header row
         cell = self._merge_cells(table, 0, 0, 0, len(table.columns) - 1)
-        table_title = title
-        self._add_column_name(cell, table_title, alignment='center', bold=True)
+        self._add_column_name(cell, title, alignment='center', bold=True)
 
         # 2nd row
         nrow = 1
         cell = self._merge_cells(table, nrow, 0, nrow, 1)
         self._add_column_name(cell, "")
-
+        # Set the header of table based on report type
         columns = ['n', '%'] if baseline else ['Pre n (%)', 'Post n (%)']
         self._insert_values(table=table, row=nrow, values=columns, bold=True)
 
@@ -939,21 +975,27 @@ class Qasc():
         columns = self._get_column_values(name, baseline)
         self._insert_values(table=table, row=nrow, values=columns)
 
+        # Create iterator through cells in the table
         def iter_cells(table):
             for row in table.rows:
                 for cell in row.cells:
                     yield cell
 
+        # Set font size of all cells in the table based on the report type
         for cell in iter_cells(table):
             cell.text_frame.autosize = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
             for paragraph in cell.text_frame.paragraphs:
                 paragraph.font.size = self.table_font_size
 
     def generate_baseline_report(self, df=None):
-        ''' Generate baseline data summary feedback. '''
+        ''' Generate baseline data summary feedback. 
+        
+        :param df: dataframe to be used for values (default: None)
+        :type df: dataframe
+        '''
 
-        self.table_font_size = Pt(11) # Set default font size for table in baseline report
-        # Define master 
+        self.table_font_size = Pt(11) # Set default font size of the table in baseline report
+        # Define template for the presentation
         master = os.path.normpath(os.path.join(os.path.dirname(__file__), 'backgrounds', 'qasc_baseline.pptx'))
 
         # Filter dataframe for site       
@@ -962,16 +1004,20 @@ class Qasc():
         # Create output filename containing qasc, current date and site ID
         output_file = f'qasc_{self.site_id}_{datetime.now().strftime("%Y-%m-%d")}.pptx'
 
+        # set main text to be added into reports
         main_texts = [
             'Congratulations on completing your baseline audit. We have summarized the results for you in the table below. Please share these results with your team. These data can assist you when discussing the barriers and enablers to implementation of the FeSS clinical protocols at your hospital.', 
             'It is important to please let us know if there are problems with the data that can be explained further (eg. was there a question the people entering data may not have understood properly?)',
             'Please don’t hesitate to contact the NRI if you require clarification on any of the items above.'
         ]
         
+        # Create new Presentaiton object
         prs = Presentation(master)
 
+        # Get first slide
         first_slide = prs.slides[0]
 
+        # Set specification of the table
         table_specs = {
             'height': Cm(18),
             'width': Cm(19),
@@ -979,6 +1025,7 @@ class Qasc():
             'top': Cm(5)
         }
 
+        # Create table
         self._create_table(
             slide=first_slide, 
             table_specs=table_specs, 
@@ -1027,6 +1074,7 @@ class Qasc():
         column_name = 'Baseline audit'
         graph_df = graph_df.T.rename(columns={0: column_name})
 
+        # Create chart data
         chart_data = ChartData()
         chart_data.categories = new_column_names
         chart_data.add_series(column_name, graph_df[column_name].tolist())     
@@ -1040,6 +1088,7 @@ class Qasc():
             }
         chart = second_slide.shapes.add_chart(
             XL_CHART_TYPE.COLUMN_CLUSTERED, specs['left'],specs['top'], specs['width'],specs['height'], chart_data).chart         
+
 
         plot = chart.plots[0]
         # All bars with the same color
@@ -1079,9 +1128,10 @@ class Qasc():
     def generate_pre_post_report(self):
         ''' Generate report with pre/post comparison. '''
 
+        # Set smaller font size of the table
         self.table_font_size = Pt(9.5)
         
-        # Define master 
+        # Define template
         master = os.path.normpath(os.path.join(os.path.dirname(__file__), 'backgrounds', 'qasc_comparison.pptx'))
    
         # Get hospital name based on study ID
@@ -1090,7 +1140,9 @@ class Qasc():
         # Create output filename containing qasc, current date and site ID
         output_file = f'qasc_comp_{self.site_id}_{datetime.now().strftime("%Y-%m-%d")}.pptx'
 
+        # Create Presentation object
         prs = Presentation(master)
+        # Get first slide
         first_slide = prs.slides[0]
 
         # Add title 
@@ -1103,6 +1155,8 @@ class Qasc():
         }
         self._add_textbox(specs, first_slide, title_text, bold=True, underline=True)
 
+        # Add first paragraph with explanation and congratulations
+        # A bit longer code because only some letters was made bold, so I had to created more runs in paragraph. 
         specs = {
             'height': Cm(2),
             'width': Cm(19.5),
@@ -1125,13 +1179,14 @@ class Qasc():
         self._add_run(txBox, f"your hospital’s performance for the {self.pre_stats['n'].iloc[0]} stroke patients you reviewed for the baseline audit XX/XX/XXXX and the {self.post_stats['n'].iloc[0]} patients you reviewed during the post intervention period XX/XX/XXXX. ", bold=True)
         self._add_run(txBox, ' We present the number of patients audited (n) and the proportion of patients who met criteria (%).')
 
+        # Specification of the table position
         table_specs = {
             'height': Cm(16),
             'width': Cm(19),
             'left': Cm(0.8),
             'top': Cm(4.0)
         }
-
+        # Create table
         self._create_table(
             slide=first_slide, 
             table_specs=table_specs, 
@@ -1140,7 +1195,7 @@ class Qasc():
             tcol=4, 
             baseline=False)
 
-        # Add title 
+        # Add explanation text below table 
         text = "# Variables shown in bold above are the key recommendations to be followed in the QASC Europe project"
         specs = {
             'height': Cm(0.5),
@@ -1153,7 +1208,7 @@ class Qasc():
         # Second slide
         second_slide = prs.slides[1]
 
-        # Add temperature blok
+        # Add temperature block
         column_name = '# Temperature monitoring and treatment'
         pre_temp = self.pre_stats[self._get_percentage_column_name(column_name)].iloc[0]
         post_temp = self.post_stats[self._get_percentage_column_name(column_name)].iloc[0]
@@ -1342,11 +1397,13 @@ class Qasc():
         # All bars with the same color
         plot.vary_by_categories = False
 
+        # Set colors of each serie
         colors = [
             RGBColor(192, 80, 77), 
             RGBColor(79, 129, 189)
             ]    
 
+        # Iterate over column names and set color of the series and add labels
         for i in range(0, len(column_names)):
             series = chart.series[i]
             fill = series.format.fill
@@ -1365,6 +1422,7 @@ class Qasc():
         value_axis = chart.value_axis
         value_axis.maximum_scale = 100
 
+        # Show major gridlines
         value_axis.major_gridlines.format.line.width = Pt(0.5)
         value_axis.major_gridlines.format.line.color.rgb = RGBColor(206, 206, 206) # Set color to gray (A6A6A6)
 
