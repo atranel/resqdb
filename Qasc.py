@@ -175,7 +175,23 @@ class Qasc():
         # get percentages out of # n
         stats[self._get_percentage_column_name(column_name)] = stats.apply(
             lambda x: round(((x[column_name]/x[out_of]) * 100), 2) if x[out_of] > 0 else 0, axis=1)
+        stats.fillna(0, inplace=True)
         return stats
+
+    def _rename_column(self, df, prev_name, curr_name):
+        ''' Rename the column in dataframe. If column not exists, create column. 
+        
+        :param df: the grouped dataframe
+        :type df: dataframe
+        :param prev_name: the name of column to be changed
+        :type prev_name: str/int
+        :param curr_name: new name of the column
+        :type curr_name: str
+        :returns: modified dataframe
+        '''
+        if not prev_name in df.columns:
+            df[prev_name] = 0
+        return df.rename(columns={prev_name: curr_name})    
 
     def calculate_statistics(self, df=None):
         ''' Calculate the statistics for the temperature, blood glucose and swallow screening. '''
@@ -253,7 +269,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'FEVER']).size().unstack().reset_index().fillna(0)
         column_name = '# Temperature > 37.5°c recorded within 72 hours of admission'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(stats=stats, column_name=column_name, groups=groups, out_of='n')
 
         ''' 
@@ -270,7 +286,7 @@ class Qasc():
         fever_df = df.loc[df['FEVER'] == 1].copy()
         groups = fever_df.groupby([self.main_col, 'PARACETAMOL']).size().unstack().reset_index().fillna(0)
         column_name = '# Paracetamol (or other anti-pyretic) given for first temperature > 37.5°C'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -292,7 +308,7 @@ class Qasc():
         first_temperature_df = df.loc[df['PARACETAMOL'] == 1].copy()
         groups = first_temperature_df.groupby([self.main_col, 'PARACETAMOL_1H']).size().unstack().reset_index().fillna(0)
         column_name = '# Paracetamol (or other anti-pyretic) given with one hour from first temperature > 37.5°C'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -312,7 +328,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'GLUCOSE_LAB']).size().unstack().reset_index().fillna(0)
         column_name = '# Blood glucose monitoring and treatment'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -331,8 +347,10 @@ class Qasc():
                     4. none of the above
         calculation: 1-3 is selected
         '''
-        groups = df.groupby([self.main_col, 'TEMP_MEASUREMENT', 'GLUCOSE_MONITOR']).size().unstack().reset_index().fillna(0)
-        print(groups)
+        monitoring_fever_hyperglycemia_df = df.loc[(df['TEMP_MEASUREMENT'].str.contains('1|2|3') & ~df['TEMP_MEASUREMENT'].str.contains('4')) | (df['GLUCOSE_MONITOR'].str.contains('1|2|3') & ~df['GLUCOSE_MONITOR'].str.contains('4'))]
+        monitoring_fever_hyperglycemia_stats = monitoring_fever_hyperglycemia_df.groupby([self.main_col]).size().to_frame('# monitored for fever and/or hyperglycaemia four times a day').reset_index()
+        stats = stats.merge(monitoring_fever_hyperglycemia_stats, how='outer')
+        del monitoring_fever_hyperglycemia_df, monitoring_fever_hyperglycemia_stats
 
         groups = df.groupby([self.main_col, 'GLUCOSE_MONITOR']).size().unstack().reset_index().fillna(0)
         # remove column with default values from the groups
@@ -368,7 +386,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'GLUCOSE_LEVEL']).size().unstack().reset_index().fillna(0)
         column_name = '# BGL ≥ 10mmol/L within 48 hours of admission'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -389,7 +407,7 @@ class Qasc():
         bgl_followed_df = df.loc[df['GLUCOSE_LEVEL'] == 1].copy()
         groups = bgl_followed_df.groupby([self.main_col, 'INSULIN_ADMINISTRATION']).size().unstack().reset_index().fillna(0)
         column_name = '# Insulin given for first BGL ≥ 10mmol/L'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -411,7 +429,7 @@ class Qasc():
         insulin_administration_df = df.loc[df['INSULIN_ADMINISTRATION'] == 1].copy()
         groups = insulin_administration_df.groupby([self.main_col, 'INSULIN_ADMINISTRATION_1H']).size().unstack().reset_index().fillna(0)
         column_name = '# Insulin given within one hour from first BGL ≥ 10mmol/L'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -442,7 +460,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'DYSPHAGIA']).size().unstack().reset_index().fillna(0)
         column_name = '# Formal swallow screen performed'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -464,7 +482,7 @@ class Qasc():
         groups = insulin_administration_df.groupby(
             [self.main_col, 'DYSPHAGIA_24H']).size().unstack().reset_index().fillna(0)
         column_name = '# Swallow screen performed within 24 hours'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -484,7 +502,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'DYSPH_BEFORE_MED']).size().unstack().reset_index().fillna(0)
         column_name = '# Swallow screen or swallow assessment performed before being given oral medications'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -504,7 +522,7 @@ class Qasc():
         '''
         groups = df.groupby([self.main_col, 'DYSPH_BEFORE_FOOD']).size().unstack().reset_index().fillna(0)
         column_name = '# Swallow screen or swallow assessment performed before being given oral food or fluids'
-        groups.rename(columns={1.0: column_name}, inplace=True)
+        groups = self._rename_column(df=groups, prev_name=1.0, curr_name=column_name)
         stats = self._get_patients(
             stats=stats, 
             column_name=column_name, 
@@ -1292,7 +1310,7 @@ class Qasc():
             bold=True
         )
 
-        temp_monitoring = post_temp + post_blood
+        temp_monitoring = self.post_stats['# monitored for fever and/or hyperglycaemia four times a day'].iloc[0]
         acute_stroke_pts = self.post_stats['# acute stroke'].iloc[0]
         self._add_run(txBox, f"Monitoring for fever and/or hyperglycaemia four times a day for the first 48 - 72 hours of admission was recorded for {temp_monitoring} patient of the {acute_stroke_pts} acute stroke patients audited. A swallow screen or assessment was performed for {post_swallow} patient. Most of those patients who required treatment for fever and hyperglycaemia had Paracetamol (or other anti-pyretic) or Insulin administered within the recommended one-hour time period.", italic=True)
 

@@ -607,7 +607,10 @@ I always put it after <code>&lt;c:tickLblPos val="nextTo"/&gt;</code>.</p>
 <h2 id="_qasc_reports_jul_30_2020">QASC reports (Jul 30, 2020)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>I created two templates for the QASC reports. One is for baseline report and can be found in the <code>backgrouns\qasc_baseline.pptx</code> and the second one is for the comparison between Pre and Post phase. For this one I created template called <code>qasc_comparison.pptx</code> and it is A4 landscape format. Two slides are prepared as default. And unchangable frames are already there.</p>
+<p>I created two templates for the QASC reports. One of them is for baseline report and can be found in the <code>backgrouns</code> folder under name <code>qasc_baseline.pptx</code>. This template is A4 size and the layout is set to portrait. The next slide can be added using template and number index is 1.</p>
+</div>
+<div class="paragraph">
+<p>The second template is for the comparison between Pre and Post phase. For this one I created template called <code>qasc_comparison.pptx</code> and it is A4 landscape format. Two slides are prepared as default. And unchangable frames with some explanations are already included.</p>
 </div>
 <div class="paragraph">
 <p>There is a schema how I imagine to generate reports. I imagine that if POST phase is not in the data yet, only baseline report will be generated otherwise baseline report from PRE phase is generated and then comparison of PRE/POST phase is generated.</p>
@@ -617,13 +620,35 @@ I always put it after <code>&lt;c:tickLblPos val="nextTo"/&gt;</code>.</p>
 <img src="./assets/img/2020-08-03-12-43-11.png" alt="2020 08 03 12 43 11">
 </div>
 </div>
+<div class="sect2">
+<h3 id="_usage_aug_04_2020">Usage (Aug 04, 2020)</h3>
+<div class="paragraph">
+<p>Whenever you create new <code>Qasc</code> object, the connection to the database will be created and the preprocessed data will be generated. Together with preprocessed data dataframe with study information will be exported. In this dataframe you can find the <code>unique identifier</code> together with the <code>hospital name</code>.</p>
+</div>
+<div class="paragraph">
+<p>In the <code>Qasc</code> class is one main function called <code>generate_reports</code>. This function takes one argument, concretely <code>site_id</code>. Basically, this functions does what is shown in the diagram. It checks if <code>site_id</code> exists and filters data for this site if True. If filtered dataframe is not empty, the <code>pre</code> and <code>post</code> dataframe are obtain. If <code>pre</code> dataframe is empty, the report generation is stopped because there are no data to compare. If <code>pre</code> dataframe is not empty, <code>baseline</code> report is generated. Then, we check if <code>post</code> dataframe is empty, if yes, the generation is stopped and if not, the <code>comparison</code> report is generated.</p>
+</div>
+<div class="paragraph">
+<p>In the function <code>generate_reports</code> are used the two main functions called <code>generate_baseline_report()</code> and <code>generate_pre_post_report()</code>. If there has to be changed something in the presentation, such as position of the frames or font size, you have to change it in these two functions or in the functions that are used by these functions.</p>
+</div>
+<div class="paragraph">
+<p>I created also script used for generation of qasc reports. The script can be found in the <code>scripts</code> repository and is called <code>qasc_reports.py</code>. You can call the script as follow:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">python qasc_reports.py am_001
+<span class="c"># or</span>
+python qasc_reports.py AM_001</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2020-08-03 12:44:12 +0200
+Last updated 2020-08-12 09:56:47 +0200
 </div>
 </div>
 <style>
