@@ -30,3 +30,20 @@ def save_file(name, data=None, index=False):
     else:
         if data is not None:
             data.to_csv(path, sep=",", encoding='utf-8', index=index)
+
+
+def repeat_answer():
+    """ Return True if the user would like to continue but with diferrent setting otherwise return False."""
+    while True:
+        repeat = input("Would you like to continue with different setting? (y/n)\n").lower()
+        if repeat != "y" and repeat != "n":
+            print("Wrong option!")
+            continue
+        elif repeat == "y":
+            repeat_calculation = True
+            break
+        else:
+            repeat_calculation = False
+            break
+
+    return repeat_calculation

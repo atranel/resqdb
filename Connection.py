@@ -560,6 +560,15 @@ class Connection():
                 'DISCHARGE_DATE'
             ] = df['HOSPITAL_DATE']
 
+            # Fix issue with carotid stenosis in the calculation -> we haven't mapped the values from IVT/TBY to 2.0 version but we were calculating values as we did convert
+            # Solution: Map values from IVT/TBY to version 2.0
+            # Mapping: 1, 2 => 1; 3 => 2, 4 => 3, 5 => 4
+            # Rename column to keep the old values as well in the dataframe
+            df['CAROTID_STENOSIS_FOLLOWUP_OLD'] = df['CAROTID_STENOSIS_FOLLOWUP']
+            df['CAROTID_STENOSIS_FOLLOWUP'] = df['CAROTID_STENOSIS_FOLLOWUP'].replace({2: 1, 3: 2, 4: 3, 5: 4})
+                   
+
+
             # Create country column
             df['Country'] = 'Czech Republic'
 

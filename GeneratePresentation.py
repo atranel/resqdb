@@ -784,12 +784,13 @@ class GeneratePresentation:
         #############################
         # CAROTID STENOSIS DETECTED #
         #############################
-        column_name = '% carotid stenosis - >70%'
-
+        column_name = '% carotid stenosis - >50%'
+              
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% CAROTID STENOSIS OF OVER 70 PERCENT for IS, TIA"
+        #title = "% CAROTID STENOSIS OF OVER 70 PERCENT for IS, TIA"
+        title = "% CAROTID STENOSIS OF OVER 50 PERCENT for IS, TIA"
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
