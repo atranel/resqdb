@@ -80,6 +80,26 @@ class Connection:
         # Get preprocessed data
         # self.preprocessed_data = self.check_data(df=self.df)
 
+        # Read temporary csv file with CZ report names and Angels Awards report names
+        path = os.path.join(os.path.dirname(__file__), 'tmp', 'sk_mapping.csv')
+        with open(path, 'r') as csv_file:
+            sk_names_dict = pd.read_csv(csv_file)
+
+        def change_name(name):
+            changed_name = sk_names_dict.loc[
+                sk_names_dict['Hospital name'].str.contains(name), 'Angels Awards name'].iloc[0]
+            return changed_name
+
+        dateForm = '%Y-%m-%d'
+        self.df['HOSPITAL_DATE'] = pd.to_datetime(self.df['HOSPITAL_DATE'], format=dateForm, errors="coerce")
+        self.df['DISCHARGE_DATE'] = pd.to_datetime(self.df['DISCHARGE_DATE'], format=dateForm, errors="coerce")	
+        self.df['CT_DATE'] = pd.to_datetime(self.df['CT_DATE'], format=dateForm, errors="ignore")	
+        # raw_df = raw_df.loc[raw_df['ROK_SPRAC'] == 2019].copy()
+        self.df['Protocol ID'] = self.df['HOSPITAL_NAME']
+        self.df['Protocol ID'] = self.df.apply(
+            lambda x: change_name(x['HOSPITAL_NAME']), axis=1)
+        self.df['Site Name'] = self.df['Protocol ID']
+
         end = time.time()
         tdelta = (end-start)/60
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))
