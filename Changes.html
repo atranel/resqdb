@@ -452,29 +452,125 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_description">Description</a></li>
-<li><a href="#_installation">Installation</a></li>
-<li><a href="#_usage">Usage</a></li>
+<li><a href="#_add_calculation_for_pt_values">Add calculation for PT values</a></li>
+<li><a href="#_qasc_reports_jul_29_2020">QASC reports (Jul 29, 2020)</a></li>
+<li><a href="#_packages_to_be_installed_ninas_workshop_jul_29_2020">Packages to be installed (Nina&#8217;s workshop) (Jul 29, 2020)</a></li>
+<li><a href="#_how_to_prepare_master_pptx_for_presentation_jul_30_2020">How to prepare master pptx for presentation (Jul 30, 2020)</a></li>
+<li><a href="#_qasc_reports_jul_30_2020">QASC reports (Jul 30, 2020)</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_description">Description</h2>
+<h2 id="_add_calculation_for_pt_values">Add calculation for PT values</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the package that has been created for the RES-Q project. After the project started to grow up, we needed to generate feedbacks for the users. This packaged is used as one feedback in the form of presentations and tables with calculated statistics.</p>
+<p>In our calculation we are missing calculation for variables added this year. We are missing <code>PRENOTIFICATION</code> and <code>MRS_PRIOR</code> variables.</p>
+</div>
+<div class="paragraph">
+<p>At first, these two columns has to be kept in preprocessed data. Because these columns ends with <code>PT_2</code> and not with <code>EN</code>, they are excluded from the preprocessed data in preprocessing. Open <code>Connection.py</code> and add the following lines in the <code>prepare_df()</code> function.</p>
+</div>
+<div class="listingblock">
+<div class="title">Connection.py</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'prenotification_pt_2'</span><span class="p">:</span> <span class="s">'prenotification_en'</span><span class="p">,</span>
+    <span class="s">'mrs_prior_stroke_pt_2'</span><span class="p">:</span> <span class="s">'mrs_prior_stroke_en'</span>
+<span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, we can add calculation into <code>Calculation.py</code>. Two code will be added. One for prenotifiaction with options Yes, No and Unknown. And second is mRS prior to stroke, where we have values 0-6 and unknown. The cases with unknown are excluded from the calculation and median has been calculated. Also, we</p>
+</div>
+<div class="listingblock">
+<div class="title">Calculation.py</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="c1"># tag::prenotification[]
+####################
+# PRE-NOTIFICATION #
+####################
+</span><span class="n">pt_3_form_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s">'crf_parent_name'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'F_RESQV20DEV_PT_3'</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">pt_3_form_version</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">country_code</span> <span class="o">==</span> <span class="s">'PT'</span><span class="p">:</span>
+        <span class="c1"># prenotification
+</span>        <span class="n">column</span> <span class="o">=</span> <span class="s">'PRENOTIFICATION'</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">pt_3_form_version</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'Protocol ID'</span><span class="p">,</span> <span class="n">column</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s">'count'</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_for_factors</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">new_column_name</span><span class="o">=</span><span class="s">'# pre-notification - Yes'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="p">[</span><span class="s">'</span><span class="si">% </span><span class="s">pre-notification - Yes'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">round</span><span class="p">(((</span><span class="n">x</span><span class="p">[</span><span class="s">'# pre-notification - Yes'</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_for_factors</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">new_column_name</span><span class="o">=</span><span class="s">'# pre-notification - No'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="p">[</span><span class="s">'</span><span class="si">% </span><span class="s">pre-notification - No'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">round</span><span class="p">(((</span><span class="n">x</span><span class="p">[</span><span class="s">'# pre-notification - No'</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_for_factors</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">new_column_name</span><span class="o">=</span><span class="s">'# pre-notification - Not know'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="p">[</span><span class="s">'</span><span class="si">% </span><span class="s">pre-notification - Not know'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">round</span><span class="p">(((</span><span class="n">x</span><span class="p">[</span><span class="s">'# pre-notification - Not know'</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s">'Total Patients'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">column</span>
+    <span class="c1"># end::prenotification[]
+</span>
+    <span class="c1"># tag::mrs_prior_stroke[]
+</span>    <span class="c1">####################
+</span>    <span class="c1"># MRS PRIOR STROKE #
+</span>    <span class="c1">####################
+</span>    <span class="k">if</span> <span class="n">country_code</span> <span class="o">==</span> <span class="s">'PT'</span><span class="p">:</span>
+        <span class="c1"># MRS prior to stroke
+</span>        <span class="n">column</span> <span class="o">=</span> <span class="s">'MRS_PRIOR_STROKE'</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># modify values to represent real values of mRS eg. 1 -&gt; 0 etc.
+</span>            <span class="n">pt_3_form_version</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s">'ADJUSTED_MRS_PRIOR_STROKE'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt_3_form_version</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="c1"># now our unknown is 7
+</span>            <span class="n">prior_mrs_known</span> <span class="o">=</span> <span class="n">pt_3_form_version</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">pt_3_form_version</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">7</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statsDf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">prior_mrs_known</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'Protocol ID'</span><span class="p">])</span><span class="o">.</span><span class="n">ADJUSTED_MRS_PRIOR_STROKE</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s">'median'</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">'median'</span><span class="p">:</span> <span class="s">'Median mRS prior to stroke'</span><span class="p">})[</span><span class="s">'Median mRS prior to stroke'</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">how</span><span class="o">=</span><span class="s">'outer'</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">column</span>
+    <span class="c1"># end::mrs_prior_stroke[]
+</span><span class="k">del</span> <span class="n">pt_3_form_version</span></code></pre>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_installation">Installation</h2>
+<h2 id="_qasc_reports_jul_29_2020">QASC reports (Jul 29, 2020)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We haven&#8217;t used <code>pip</code> so far therefore copy the folder <code>resqdb</code> into <code>site-packages</code> of your python installation.</p>
+<p>Create QASC baselina reports. The reprots are based on the following reports:</p>
 </div>
 <div class="paragraph">
-<p>Install the following packages as well:</p>
+<p>o:\Shared with groups\STROKE IT\QASC\</p>
+</div>
+<div class="sect2">
+<h3 id="_get_data_from_the_database_jul_29_2020">Get data from the database (Jul 29, 2020)</h3>
+<div class="paragraph">
+<p>The data can be found in the <code>datamix</code> database, table called <code>qasc_mix</code>. Add the following code in the <code>Connection.py</code> to get data from the database.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="c1">#...
+</span><span class="k">elif</span> <span class="n">data</span> <span class="o">==</span> <span class="s">'qasc'</span><span class="p">:</span>
+    <span class="c1"># Get QASC data from the database
+</span>    <span class="n">df_name</span> <span class="o">=</span> <span class="s">'qasc_mix'</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datamix</span><span class="p">,</span> <span class="n">nprocess</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="n">df_name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">qascdb_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictdb_df</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">qasc_preprocessed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qascdb_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictdb_df</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span>
+<span class="c1">#...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, in the script you can get data from the database using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+
+<span class="n">con</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s">'qasc'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">con</span><span class="o">.</span><span class="n">qasc_preprocessed_data</span><span class="p">)</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_packages_to_be_installed_ninas_workshop_jul_29_2020">Packages to be installed (Nina&#8217;s workshop) (Jul 29, 2020)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Install packages:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -482,155 +578,67 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;ve made also one modification of the <code>python-pptx</code> script. This modification will set that each label is shown on category axis, the default is that label is shown only for each second label. There are two options how to fix this:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Copy the <code>resqdb\tmp\xmlwriter.py</code> into <code>python-pptx\chart</code> folder.</p>
-</li>
-<li>
-<p>Modify the file <code>python-pptx\chart\xmlwriter.py</code>. We will modify the setting for the classes <code>BarChartXmlWriter</code> and <code>LineChartXmlWriter</code>. Into the function <code>cat_ax_xml</code> add the line <code>'&lt;c:tickLblSkip val="1"/&gt;\n'</code> into <code>return</code> function. I always put it after the line <code>&lt;c:tickLblPos val="nextTo"/&gt;</code>.</p>
-</li>
-</ol>
+<p>I&#8217;m also modifying the <code>python-pptx</code> package because if you generate the presentation at first only each second label on category axis is shown. You can use the file what I added as attachment or you can just modify that file. We will be modifying the file called <code>xmlwriter.py</code> from the <code>pptx\chart</code> folder. I prefer to modify the file because there could be changes in the functions from the previous version.</p>
 </div>
 <div class="paragraph">
-<p>I prefer the last option because there can be during months/years the updated in the python-pptx package and if we copy the old file we can break something or loose updates.</p>
+<p>If you go to the <code>pptx</code> folder in installed packages (<code>site-packages</code> folder for me but I&#8217;m using Anaconda) and to <code>chart</code> folder you will see <code>xmlwriter.py</code> file. Here you can modify for bar plot and lineplot setting a bit. You will be adding the following code: <code>'&lt;c:tickLblSkip val="1"/&gt;\n'</code></p>
+</div>
+<div class="paragraph">
+<p>Add it in both return functions in the <code>\_cat_ax_xml</code> function from class <code>\_BarChartXmlWriter</code> and <code>\_LineChartXmlWriter</code>.
+I always put it after <code>&lt;c:tickLblPos val="nextTo"/&gt;</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_usage">Usage</h2>
+<h2 id="_how_to_prepare_master_pptx_for_presentation_jul_30_2020">How to prepare master pptx for presentation (Jul 30, 2020)</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_get_data">Get data</h3>
-<div class="listingblock">
+<div class="paragraph">
+<p>If you need to modify the master presentation for reports, go to <code>resqdb</code> folder in <code>site-packages</code> of your python installation.</p>
+</div>
+<div class="paragraph">
+<p>In the folder <code>backgrounds</code> you can find already created templates. To create template, open the <code>pptx</code> file and go to <code>View</code> in the top bar. You can modify the first slide however you need and then you can modify another slides.</p>
+</div>
+<div class="paragraph">
+<p>In the <code>View</code> is the <code>Master Views</code> section, select <code>Slide Master</code>. You will see all of the slides you can use in the presentation. If you want you can remove the old one slides or you can add new one that you modify as the last. You can then access the slide by number, eg. if you slide is in view in position 2 you can access it by this index.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_qasc_reports_jul_30_2020">QASC reports (Jul 30, 2020)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I created two templates for the QASC reports. One of them is for baseline report and can be found in the <code>backgrouns</code> folder under name <code>qasc_baseline.pptx</code>. This template is A4 size and the layout is set to portrait. The next slide can be added using template and number index is 1.</p>
+</div>
+<div class="paragraph">
+<p>The second template is for the comparison between Pre and Post phase. For this one I created template called <code>qasc_comparison.pptx</code> and it is A4 landscape format. Two slides are prepared as default. And unchangable frames with some explanations are already included.</p>
+</div>
+<div class="paragraph">
+<p>There is a schema how I imagine to generate reports. I imagine that if POST phase is not in the data yet, only baseline report will be generated otherwise baseline report from PRE phase is generated and then comparison of PRE/POST phase is generated.</p>
+</div>
+<div class="imageblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span> <i class="conum" data-value="1"></i><b>(1)</b>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
-
-<span class="n">dictdb_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">df</span> <i class="conum" data-value="3"></i><b>(3)</b>
-
-<span class="n">preprocessed_data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Import Connection from the Connection module.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Create Connection object. You can provide number of processed (<code>nprocess</code>) as argument but to be honest it doesn&#8217;t work well. Or you can run it without argument and run it with 1 process.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>The raw data can be accessed with property <code>df</code>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>The preprocessed data can be accessed with property <code>preprocessed_data</code>. I strongly recommend save this data as <code>csv</code> with <code>,</code> (comma) as a seperator.</td>
-</tr>
-</table>
+<img src="./assets/img/2020-08-03-12-43-11.png" alt="2020 08 03 12 43 11">
 </div>
 </div>
 <div class="sect2">
-<h3 id="_filter_data">Filter data</h3>
+<h3 id="_usage_aug_04_2020">Usage (Aug 04, 2020)</h3>
 <div class="paragraph">
-<p>This script uses the preprocessed data obtained from the Connection object or provided as argument. I provided examples of how to filter data by dates (<a href="#filter_by_dates">Filter data by date</a>) or country (<a href="#filter_by_country">Filter data by country</a>), but you can combine it and filter by country and dates in one run. Create object without any other arguments will filter data by DISCHARGE_DATE column. There are cases when the data has to be filtered by HOSPITAL_DATE or include all patients who have HOSPITAL_DATE or DISCHARGE_DATE in the date range. Both these options are mentioned in the following code (<a href="#filter_by_dates">Filter data by date</a>).</p>
+<p>Whenever you create new <code>Qasc</code> object, the connection to the database will be created and the preprocessed data will be generated. Together with preprocessed data dataframe with study information will be exported. In this dataframe you can find the <code>unique identifier</code> together with the <code>hospital name</code>.</p>
 </div>
-<div class="sect3">
-<h4 id="filter_by_dates">Filter data by date</h4>
 <div class="paragraph">
-<p>The following code is example how to filter data for the date range. The date is filtered based on discharge dates.</p>
+<p>In the <code>Qasc</code> class is one main function called <code>generate_reports</code>. This function takes one argument, concretely <code>site_id</code>. Basically, this functions does what is shown in the diagram. It checks if <code>site_id</code> exists and filters data for this site if True. If filtered dataframe is not empty, the <code>pre</code> and <code>post</code> dataframe are obtain. If <code>pre</code> dataframe is empty, the report generation is stopped because there are no data to compare. If <code>pre</code> dataframe is not empty, <code>baseline</code> report is generated. Then, we check if <code>post</code> dataframe is empty, if yes, the generation is stopped and if not, the <code>comparison</code> report is generated.</p>
+</div>
+<div class="paragraph">
+<p>In the function <code>generate_reports</code> are used the two main functions called <code>generate_baseline_report()</code> and <code>generate_pre_post_report()</code>. If there has to be changed something in the presentation, such as position of the frames or font size, you have to change it in these two functions or in the functions that are used by these functions.</p>
+</div>
+<div class="paragraph">
+<p>I created also script used for generation of qasc reports. The script can be found in the <code>scripts</code> repository and is called <code>qasc_reports.py</code>. You can call the script as follow:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">FilterDataset</span> <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <i class="conum" data-value="2"></i><b>(2)</b>
-
-<span class="n">date1</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
-<span class="n">date2</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b>
-
-<span class="n">fobj</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">preprocessed_data</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date2</span><span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b>
-<span class="n">fobj</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">preprocessed_data</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s">"HOSPITAL_DATE"</span><span class="p">)</span> <i class="conum" data-value="6"></i><b>(6)</b>
-<span class="n">fobj</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">preprocessed_data</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date2</span><span class="p">,</span> <span class="n">by_columns</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="7"></i><b>(7)</b>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">fdf</span> <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Import FilterDataset from the Calculation module.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Import datetime object from datetime module.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Set first date that should be included in the dataset.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Set last date that should be included in the dataset.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Create new FilterDataset object where <code>df</code> are preprocessed data, <code>date1</code> and <code>date2</code> are ranges of the dates.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>Create new FilterDataset object where the data will be filtered by hospital date.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="7"></i><b>7</b></td>
-<td>Create new FilterDataset object where the data will be filtered by both columns, hospital date and discharge date.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="8"></i><b>8</b></td>
-<td>The filtered result is stored in property called <code>fdf</code>.</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect3">
-<h4 id="filter_by_country">Filter data by country</h4>
-<div class="paragraph">
-<p>The following code is example how to filter data by country.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">FilterDataset</span> <i class="conum" data-value="1"></i><b>(1)</b>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <i class="conum" data-value="2"></i><b>(2)</b>
-
-<span class="n">fobj</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">preprocessed_data</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
-<span class="n">df</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">fdf</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Import FilterDataset from the Calculation module.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Import datetime object from datetime module.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Create a new object FilterDataset with preprocessed data and country code as argument.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>The filtered result is stored in property called <code>fdf</code>.</td>
-</tr>
-</table>
+<pre class="rouge highlight"><code data-lang="bash">python qasc_reports.py am_001
+<span class="c"># or</span>
+python qasc_reports.py AM_001</code></pre>
 </div>
 </div>
 </div>
@@ -640,7 +648,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2020-09-03 11:48:22 +0200
+Last updated 2020-09-03 10:56:21 +0200
 </div>
 </div>
 <style>

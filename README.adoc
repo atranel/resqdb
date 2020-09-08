@@ -15,140 +15,113 @@ Marie Jankujova <jankujova.marie@fnusa.cz>
 :setlinks: 
 //:pdf-them
 
-== Add calculation for PT values
-In our calculation we are missing calculation for variables added this year. We are missing `PRENOTIFICATION` and `MRS_PRIOR` variables.
+== Description
+This is the package that has been created for the RES-Q project. After the project started to grow up, we needed to generate feedbacks for the users. This packaged is used as one feedback in the form of presentations and tables with calculated statistics. 
 
-At first, these two columns has to be kept in preprocessed data. Because these columns ends with `PT_2` and not with `EN`, they are excluded from the preprocessed data in preprocessing. Open `Connection.py` and add the following lines in the `prepare_df()` function. 
+== Installation
+We haven't used `pip` so far therefore copy the folder `resqdb` into `site-packages` of your python installation.
 
-.Connection.py
-[source,python]
-----
-df.rename(columns={
-    'prenotification_pt_2': 'prenotification_en',
-    'mrs_prior_stroke_pt_2': 'mrs_prior_stroke_en'
-}, inplace=True)
-----
-
-Now, we can add calculation into `Calculation.py`. Two code will be added. One for prenotifiaction with options Yes, No and Unknown. And second is mRS prior to stroke, where we have values 0-6 and unknown. The cases with unknown are excluded from the calculation and median has been calculated. Also, we 
-
-.Calculation.py
-[source,python]
-----
-# tag::prenotification[]
-####################
-# PRE-NOTIFICATION #
-####################
-pt_3_form_version = self.df.loc[self.df['crf_parent_name'] == 'F_RESQV20DEV_PT_3'].copy()
-if not pt_3_form_version.empty:
-    if country_code == 'PT': 
-        # prenotification
-        column = 'PRENOTIFICATION'
-        if column in df.columns:
-            self.tmp = pt_3_form_version.groupby(['Protocol ID', column]).size().to_frame('count').reset_index()
-            self.statsDf = self._get_values_for_factors(column_name=column, value=1, new_column_name='# pre-notification - Yes')
-            self.statsDf['% pre-notification - Yes'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Yes']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-            self.statsDf = self._get_values_for_factors(column_name=column, value=2, new_column_name='# pre-notification - No')
-            self.statsDf['% pre-notification - No'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - No']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-            self.statsDf = self._get_values_for_factors(column_name=column, value=3, new_column_name='# pre-notification - Not know')
-            self.statsDf['% pre-notification - Not know'] = self.statsDf.apply(lambda x: round(((x['# pre-notification - Not know']/x['Total Patients']) * 100), 2) if x['Total Patients'] > 0 else 0, axis=1)
-        del column
-    # end::prenotification[]
-
-    # tag::mrs_prior_stroke[]
-    ####################
-    # MRS PRIOR STROKE #
-    ####################
-    if country_code == 'PT':
-        # MRS prior to stroke
-        column = 'MRS_PRIOR_STROKE'
-        if column in df.columns:
-            # modify values to represent real values of mRS eg. 1 -> 0 etc.
-            pt_3_form_version.loc[:, 'ADJUSTED_MRS_PRIOR_STROKE'] = pt_3_form_version[column] - 1
-            # now our unknown is 7
-            prior_mrs_known = pt_3_form_version.loc[~pt_3_form_version[column].isin([7])].copy()
-            self.statsDf = self.statsDf.merge(prior_mrs_known.groupby(['Protocol ID']).ADJUSTED_MRS_PRIOR_STROKE.agg(['median']).rename(columns={'median': 'Median mRS prior to stroke'})['Median mRS prior to stroke'].reset_index(), how='outer')
-        del column
-    # end::mrs_prior_stroke[]
-del pt_3_form_version
-----
-
-== QASC reports (Jul 29, 2020)
-Create QASC baselina reports. The reprots are based on the following reports:
-
-o:\Shared with groups\STROKE IT\QASC\
-
-=== Get data from the database (Jul 29, 2020)
-The data can be found in the `datamix` database, table called `qasc_mix`. Add the following code in the `Connection.py` to get data from the database. 
-
-[source,python]
-----
-#...
-elif data == 'qasc':
-    # Get QASC data from the database
-    df_name = 'qasc_mix'
-    self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
-    self.qascdb_df = self.dictdb_df[df_name]
-    self.qasc_preprocessed_data = self.qascdb_df.copy()
-    del self.dictdb_df[df_name]
-#...
-----
-
-Then, in the script you can get data from the database using the following command:
-
-[source,python]
-----
-from Connection import Connection
-
-con = Connection(data='qasc')
-print(con.qasc_preprocessed_data)
-----
-
-== Packages to be installed (Nina's workshop) (Jul 29, 2020)
-
-Install packages:
+Install the following packages as well:
 
 [source,python]
 ----
 pip3 install pandas, numpy, logging, xlsxwriter, pytz, scipy, psycopg2, zipfile, python-pptx, statistics
 ----
 
-I'm also modifying the `python-pptx` package because if you generate the presentation at first only each second label on category axis is shown. You can use the file what I added as attachment or you can just modify that file. We will be modifying the file called `xmlwriter.py` from the `pptx\chart` folder. I prefer to modify the file because there could be changes in the functions from the previous version. 
+We've made also one modification of the `python-pptx` script. This modification will set that each label is shown on category axis, the default is that label is shown only for each second label. There are two options how to fix this:
 
-If you go to the `pptx` folder in installed packages (`site-packages` folder for me but I'm using Anaconda) and to `chart` folder you will see `xmlwriter.py` file. Here you can modify for bar plot and lineplot setting a bit. You will be adding the following code: `'<c:tickLblSkip val="1"/>\n'`
+. Copy the `resqdb\tmp\xmlwriter.py` into `python-pptx\chart` folder.
 
-Add it in both return functions in the `\_cat_ax_xml` function from class `\_BarChartXmlWriter` and `\_LineChartXmlWriter`. 
-I always put it after `<c:tickLblPos val="nextTo"/>`.
+. Modify the file `python-pptx\chart\xmlwriter.py`. We will modify the setting for the classes `BarChartXmlWriter` and `LineChartXmlWriter`. Into the function `cat_ax_xml` add the line `'<c:tickLblSkip val="1"/>\n'` into `return` function. I always put it after the line `<c:tickLblPos val="nextTo"/>`.
 
-== How to prepare master pptx for presentation (Jul 30, 2020)
-If you need to modify the master presentation for reports, go to `resqdb` folder in `site-packages` of your python installation. 
+I prefer the last option because there can be during months/years the updated in the python-pptx package and if we copy the old file we can break something or loose updates. 
 
-In the folder `backgrounds` you can find already created templates. To create template, open the `pptx` file and go to `View` in the top bar. You can modify the first slide however you need and then you can modify another slides. 
+== Usage
+=== Get data 
+[source,python]
+----
+from resqdb.Connection import Connection # <1>
 
-In the `View` is the `Master Views` section, select `Slide Master`. You will see all of the slides you can use in the presentation. If you want you can remove the old one slides or you can add new one that you modify as the last. You can then access the slide by number, eg. if you slide is in view in position 2 you can access it by this index. 
+c = Connection(nprocess=2) # <2>
+c = Connection(nprocess=2, data='qasc') # <3>
 
+dictdb_df = c.df # <4>
 
-== QASC reports (Jul 30, 2020)
-I created two templates for the QASC reports. One of them is for baseline report and can be found in the `backgrouns` folder under name `qasc_baseline.pptx`. This template is A4 size and the layout is set to portrait. The next slide can be added using template and number index is 1. 
+preprocessed_data = c.preprocessed_data # <5>
+----
+<1> Import Connection from the Connection module.
+<2> Create Connection object. You can provide number of processed (`nprocess`) as argument but to be honest it doesn't work well. Or you can run it without argument and run it with 1 process. If create connection object without `data` argument the data from `resq_mix`, `ivttby_mix` and `thailand` are preprocessed. 
+<3> This is example of the way how to provide argument to say which data you would like to obtain from the database. Another options is `atalaia` and `africa`. 
+<4> The raw data can be accessed with property `df`. 
+<5> The preprocessed data can be accessed with property `preprocessed_data`. I strongly recommend save this data as `csv` with `,` (comma) as a seperator.
 
-The second template is for the comparison between Pre and Post phase. For this one I created template called `qasc_comparison.pptx` and it is A4 landscape format. Two slides are prepared as default. And unchangable frames with some explanations are already included. 
+=== Filter data
+This script uses the preprocessed data obtained from the Connection object or provided as argument. I provided examples of how to filter data by dates (<<filter_by_dates>>) or country (<<filter_by_country>>), but you can combine it and filter by country and dates in one run. Create object without any other arguments will filter data by DISCHARGE_DATE column. There are cases when the data has to be filtered by HOSPITAL_DATE or include all patients who have HOSPITAL_DATE or DISCHARGE_DATE in the date range. Both these options are mentioned in the following code (<<filter_by_dates>>).
 
-There is a schema how I imagine to generate reports. I imagine that if POST phase is not in the data yet, only baseline report will be generated otherwise baseline report from PRE phase is generated and then comparison of PRE/POST phase is generated. 
+[#filter_by_dates]
+==== Filter data by date
+The following code is example how to filter data for the date range. The date is filtered based on discharge dates. 
 
-image::./assets/img/2020-08-03-12-43-11.png[]
+[source,python]
+----
+from resqdb.Calculation import FilterDataset # <1>
+from datetime import datetime # <2>
 
-=== Usage (Aug 04, 2020)
-Whenever you create new `Qasc` object, the connection to the database will be created and the preprocessed data will be generated. Together with preprocessed data dataframe with study information will be exported. In this dataframe you can find the `unique identifier` together with the `hospital name`. 
+date1 = datetime(2019, 3, 1) # <3>
+date2 = datetime(2019, 3, 31) # <4>
 
-In the `Qasc` class is one main function called `generate_reports`. This function takes one argument, concretely `site_id`. Basically, this functions does what is shown in the diagram. It checks if `site_id` exists and filters data for this site if True. If filtered dataframe is not empty, the `pre` and `post` dataframe are obtain. If `pre` dataframe is empty, the report generation is stopped because there are no data to compare. If `pre` dataframe is not empty, `baseline` report is generated. Then, we check if `post` dataframe is empty, if yes, the generation is stopped and if not, the `comparison` report is generated. 
+fobj = FilterDataset(df=preprocessed_data, date1=date1, date2=date2) # <5>
+fobj = FilterDataset(df=preprocessed_data, date1=date1, date2=date2, column="HOSPITAL_DATE") # <6>
+fobj = FilterDataset(df=preprocessed_data, date1=date1, date2=date2, by_columns=True) # <7>
 
-In the function `generate_reports` are used the two main functions called `generate_baseline_report()` and `generate_pre_post_report()`. If there has to be changed something in the presentation, such as position of the frames or font size, you have to change it in these two functions or in the functions that are used by these functions. 
+df = fobj.fdf # <8>
+----
+<1> Import FilterDataset from the Calculation module.
+<2> Import datetime object from datetime module.
+<3> Set first date that should be included in the dataset. 
+<4> Set last date that should be included in the dataset. 
+<5> Create new FilterDataset object where `df` are preprocessed data, `date1` and `date2` are ranges of the dates. 
+<6> Create new FilterDataset object where the data will be filtered by hospital date. 
+<7> Create new FilterDataset object where the data will be filtered by both columns, hospital date and discharge date. 
+<8> The filtered result is stored in property called `fdf`. 
 
-I created also script used for generation of qasc reports. The script can be found in the `scripts` repository and is called `qasc_reports.py`. You can call the script as follow:
+[#filter_by_country]
+==== Filter data by country
+The following code is example how to filter data by country. 
 
-[source,bash]
-python qasc_reports.py am_001 
-# or
-python qasc_reports.py AM_001
+[source,python]
+----
+from resqdb.Calculation import FilterDataset # <1>
+from datetime import datetime # <2>
 
+fobj = FilterDataset(df=preprocessed_data, country='CZ') # <3>
+df = fobj.fdf # <4>
 
+----
+<1> Import FilterDataset from the Calculation module.
+<2> Import datetime object from datetime module.
+<3> Create a new object FilterDataset with preprocessed data and country code as argument. 
+<4> The filtered result is stored in property called `fdf`. 
 
+=== Generate preprocessed data
+[source,python]
+----
+from resqdb.FormatData import GeneratePreprocessedData # <1>
+
+GeneratePreprocessedData(df=df, report=report_type, quarter=quarter_name) # <2>
+----
+<1> Import `GeneratePreprocessedData` from the resqdb package. 
+<2> Create new object that will generate prerpocessed data. Provide preprocessed data as argument `df` and other additional names that will be used in the name of the file, such as `report` and `quarter`. 
+
+=== Compute statistics
+[source,python]
+---- 
+from resqdb.Calculation import ComputeStats # <1>
+
+comp_df = ComputeStats(df=df, comparison=False, patient_limit=min_tpts, period=quarter_name, raw_data=raw_df) # <2>
+
+stats_df = comp_df._return_stats() # <3>
+----
+<1> Import `ComputeStats` from the resqdb package. 
+<2> Create new object `ComputeStats`. Provide preprocessed data (`df`), raw dataframe by which I mean the preprocessed data with all data that were not filtered yet (`raw_df`). 
+<3> Obtainer calculated statistics from the object. 

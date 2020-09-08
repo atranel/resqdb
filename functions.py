@@ -519,3 +519,119 @@ def get_month():
     
     return month
 
+def get_values_for_factors(tmp, default, column_name, value, new_column_name, column):
+    """ Return number of patients for selected value.
+
+    :param tmp: temporary dataframe with all possible options and number of patients for that option grouped by site
+    :type tmp: DataFrame
+    :param default: dataframe grouped by stroke type
+    :type default: DataFrame
+    :param column_name: name of the column for which we want to calculate number of patients
+    :type column_name: str
+    :param value: option for which you would like to get numbers
+    :type value: str/int
+    :param new_column_name: the new name of the resulted column
+    :type new_column_name: str
+    :param column: column included in the results
+    :type column: str
+    :returns: new dataframe with number of patients
+    """
+    import numpy as np
+    if (tmp[column_name].dtype != np.float64):
+        value = str(value)
+    else:
+        value = value 
+    
+    tmpDf = tmp[tmp[column_name] == value].reset_index()[[column, 'count']]
+    factorDf = default.merge(tmpDf, how='outer')
+    factorDf.rename(columns={'count': new_column_name}, inplace=True)
+    factorDf.fillna(0, inplace=True)
+
+    return factorDf
+
+def mrs_function(x):
+    """ Return mapped mRS value. 
+    
+    :param x: the index of answer from the form, eg. first option of select has index 1 etc. 
+    :type x: int
+    :returns: mRS score
+    """
+    x = float(x)
+    if (x == 1):
+        x = x - 1
+    else: 
+        x = x - 2 
+    return x
+
+
+def calculate_outcome(df):
+    """ Calculate ouctome per group of patients for the latest year! 
+    
+    :param df: the dataframe with preprocessed and filtered data
+    :type df: DataFrame
+    :returns: dataframe with calculated outcome
+    """
+    import numpy as np
+    stroke_df = df[df['STROKE_TYPE'].isin([1,2,4])].copy() # Filter dataframe by stroke type - IS, ICH and SAH
+    stroke_df.fillna(0, inplace=True) # Replace NA value by 0
+    outcome_stroke_df = stroke_df.groupby(['STROKE_TYPE']).size().reset_index(name="n") # Calculate total patients per stroke type
+    tmp = stroke_df.groupby(['STROKE_TYPE', 'DISCHARGE_DESTINATION']).size().to_frame('count').reset_index() # Create temporary dataframe grouped by stroke type and discharge destination
+    outcome_stroke_df = get_values_for_factors(tmp=tmp, default=outcome_stroke_df, column_name="DISCHARGE_DESTINATION", value=1, new_column_name='# home', column='STROKE_TYPE') # Caculated # of patients discharged home
+    outcome_stroke_df['% home'] = outcome_stroke_df.apply(lambda x: round(((x['# home']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patients discharged home
+    outcome_stroke_df = get_values_for_factors(tmp=tmp, default=outcome_stroke_df, column_name="DISCHARGE_DESTINATION", value=2, new_column_name='# transferred within the same centre', column='STROKE_TYPE') # Calculate # of patients transferred within the same center
+    outcome_stroke_df['% transferred within the same centre'] = outcome_stroke_df.apply(lambda x: round(((x['# transferred within the same centre']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patients transferred within the same center
+    outcome_stroke_df = get_values_for_factors(tmp=tmp, default=outcome_stroke_df, column_name="DISCHARGE_DESTINATION", value=3, new_column_name='# transferred to another centre', column='STROKE_TYPE') # Calculate # of patents transferred to another center
+    outcome_stroke_df['% transferred to another centre'] = outcome_stroke_df.apply(lambda x: round(((x['# transferred to another centre']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patents transferred to another center
+    outcome_stroke_df = get_values_for_factors(tmp=tmp, default=outcome_stroke_df, column_name="DISCHARGE_DESTINATION", value=4, new_column_name='# social care facility', column='STROKE_TYPE') # Calculate # of patients discharge to social care facility
+    outcome_stroke_df['% social care facility'] = outcome_stroke_df.apply(lambda x: round(((x['# social care facility']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patients discharge to social care facility
+    outcome_stroke_df = get_values_for_factors(tmp=tmp, default=outcome_stroke_df, column_name="DISCHARGE_DESTINATION", value=5, new_column_name='# dead', column='STROKE_TYPE') # Calculate # of dead patients
+    outcome_stroke_df['% dead'] = outcome_stroke_df.apply(lambda x: round(((x['# dead']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of dead patients
+    mrs_subset = stroke_df[~stroke_df['DISCHARGE_MRS'].isin([0])].copy() # Get subset of patients who don't have Discharge MRS = 0
+    mrs_subset.fillna(0, inplace=True) # Replace NA by 0
+    if mrs_subset.empty: # If mrs_subset is empty, set Median discharge mRS to 0
+        outcome_stroke_df['Median discharge mRS'] = 0
+    else:
+        mrs_subset['DISCHARGE_MRS_ADJUSTED'] = mrs_subset.apply(lambda row: mrs_function(row['DISCHARGE_MRS']), axis=1) # Calculate score for Discharge MRS (from the dropdown) -> 1 - unknown/calculate, 2 - 0, 3 - 1, 4 - 2 etc. 
+        mrs_subset['DISCHARGE_MRS_ADDED'] = mrs_subset['DISCHARGE_MRS_ADJUSTED'] + mrs_subset['D_MRS_SCORE'] # Merge calculated MRS column with adjusted MRS column
+        mrs_subset.fillna(0, inplace=True)
+        outcome_stroke_df = outcome_stroke_df.merge(mrs_subset.groupby(['STROKE_TYPE']).DISCHARGE_MRS_ADDED.agg(['median']).rename(columns={'median': 'Median discharge mRS'})['Median discharge mRS'].reset_index(), how='outer') # calculate median value from DISCHARGE_MRS_ADDED column
+        outcome_stroke_df['Median discharge mRS'] = outcome_stroke_df['Median discharge mRS'].round() 
+    outcome_stroke_df['STROKE_TYPE'] = outcome_stroke_df['STROKE_TYPE'].replace({1: "iCMP", 2: "ICH", 4: "SAK"}) # Replace number defining stroke types by stroke shortcut
+
+    recan_df = df[df['STROKE_TYPE'].isin([1]) & df['RECANALIZATION_PROCEDURES'].isin([2,3,4])].copy() # Get patients who have undergone recanalization procedure
+    recan_df.fillna(0, inplace=True) # replace NA values by 0
+    outcome_recan_df = recan_df.groupby(['RECANALIZATION_PROCEDURES']).size().reset_index(name="n") # Total patients per type of recanalization
+    tmp = recan_df.groupby(['RECANALIZATION_PROCEDURES', 'DISCHARGE_DESTINATION']).size().to_frame('count').reset_index() # Create temporary dataframe grouped by recanalization procedure and by discharge destination
+    outcome_recan_df = get_values_for_factors(tmp=tmp, default=outcome_recan_df, column_name="DISCHARGE_DESTINATION", value=1, new_column_name='# home', column='RECANALIZATION_PROCEDURES') # Caculated # of patients discharged home 
+    outcome_recan_df['% home'] = outcome_recan_df.apply(lambda x: round(((x['# home']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Caculated % of patients discharged home
+    outcome_recan_df = get_values_for_factors(tmp=tmp, default=outcome_recan_df, column_name="DISCHARGE_DESTINATION", value=2, new_column_name='# transferred within the same centre', column='RECANALIZATION_PROCEDURES') # Calculate # of patients transferred within the same center
+    outcome_recan_df['% transferred within the same centre'] = outcome_recan_df.apply(lambda x: round(((x['# transferred within the same centre']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patients transferred within the same center
+    outcome_recan_df = get_values_for_factors(tmp=tmp, default=outcome_recan_df, column_name="DISCHARGE_DESTINATION", value=3, new_column_name='# transferred to another centre', column='RECANALIZATION_PROCEDURES') # Calculate # of patents transferred to another center
+    outcome_recan_df['% transferred to another centre'] = outcome_recan_df.apply(lambda x: round(((x['# transferred to another centre']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patents transferred to another center
+    outcome_recan_df = get_values_for_factors(tmp=tmp, default=outcome_recan_df, column_name="DISCHARGE_DESTINATION", value=4, new_column_name='# social care facility', column='RECANALIZATION_PROCEDURES') # Calculate # of patients discharge to social care facility
+    outcome_recan_df['% social care facility'] = outcome_recan_df.apply(lambda x: round(((x['# social care facility']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of patients discharge to social care facility
+    outcome_recan_df = get_values_for_factors(tmp=tmp, default=outcome_recan_df, column_name="DISCHARGE_DESTINATION", value=5, new_column_name='# dead', column='RECANALIZATION_PROCEDURES') # Calculate # of dead patients
+    outcome_recan_df['% dead'] = outcome_recan_df.apply(lambda x: round(((x['# dead']/x['n']) * 100), 2) if x['n'] > 0 else 0, axis=1) # Calculate % of dead patients
+    mrs_subset = recan_df[~recan_df['DISCHARGE_MRS'].isin([0])].copy(0) # Filter out DISCHARGE_MRS = 0
+    mrs_subset.fillna(0, inplace=True)  # Replace NA by 0
+    if mrs_subset.empty:  # If mrs_subset is empty, set Median discharge mRS to 0
+        outcome_recan_df['Median discharge mRS'] = 0
+    else:
+        mrs_subset['DISCHARGE_MRS_ADJUSTED'] = mrs_subset.apply(lambda row: mrs_function(row['DISCHARGE_MRS']), axis=1) # Calculate score for Discharge MRS (from the dropdown) -> 1 - unknown/calculate, 2 - 0, 3 - 1, 4 - 2 etc. 
+        mrs_subset['DISCHARGE_MRS_ADDED'] = mrs_subset['DISCHARGE_MRS_ADJUSTED'] + mrs_subset['D_MRS_SCORE'] # Merge calculated MRS column with adjusted MRS column
+        mrs_subset.fillna(0, inplace=True)
+        outcome_recan_df = outcome_recan_df.merge(mrs_subset.groupby(['RECANALIZATION_PROCEDURES']).DISCHARGE_MRS_ADDED.agg(['median']).rename(columns={'median': 'Median discharge mRS'})['Median discharge mRS'].reset_index(), how='outer') # calculate median value  from DISCHARGE_MRS_ADDED column
+        outcome_recan_df['Median discharge mRS'] = outcome_recan_df['Median discharge mRS'].round() # Replace number defining stroke types by stroke shortcut
+    
+    outcome_recan_df['RECANALIZATION_PROCEDURES'] = outcome_recan_df['RECANALIZATION_PROCEDURES'].replace({2: "IV tPA", 3: "IV tPA + TBY", 4: "TBY"}) # Replace number defining recanalization procedure by recanalization type
+
+    outcome_df = outcome_recan_df.append(outcome_stroke_df, ignore_index=True) # Merge these two temproary dataframes
+    
+    outcome_df['Patient Group'] = outcome_df['STROKE_TYPE'].fillna('') + outcome_df['RECANALIZATION_PROCEDURES'].fillna('') # Create Patient Group column
+    #outcome_df['Type'] = outcome_df[['STROKE_TYPE', 'RECANALIZATION_PROCEDURES']].apply(lambda x: ''.join(str(x)), axis=1)
+    cols = ['Patient Group', 'n', 'Median discharge mRS', '# home', '% home', '# transferred within the same centre', '% transferred within the same centre', '# transferred to another centre', '% transferred to another centre', '# social care facility', '% social care facility', '# dead', '% dead'] # Filter columns
+    outcome_df = outcome_df[cols]
+    outcome_df.to_csv("outcome.csv", sep=",", index=False) # Save to csv
+
+    return outcome_df
+
