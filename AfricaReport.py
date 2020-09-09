@@ -16,6 +16,9 @@ from pptx.enum.chart import XL_CHART_TYPE, XL_TICK_MARK, XL_TICK_LABEL_POSITION,
 from pptx.enum.dml import MSO_LINE
 from pptx.oxml.xmlchemy import OxmlElement
 
+import xlsxwriter
+from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
+
 class AfricaReport():
     ''' Generate reports for South Africa. 
     
@@ -33,7 +36,7 @@ class AfricaReport():
     :type split: boolean
     '''
 
-    def __init__(self, df=None, start_date=None, end_date=None, period_name=None, report_type=None, split=False):
+    def __init__(self, df=None, start_date=None, end_date=None, period_name=None, report_type=None, site_reports=False, region_reports=False):
         
         # Set logging
         debug =  f'debug_{datetime.now().strftime("%d-%m-%Y")}.log' 
@@ -52,14 +55,18 @@ class AfricaReport():
         self.country_name = 'South Africa'
         self.period_name = period_name
         self.report_type = report_type
-        print(self.period_name, self.report_type)
+        self.site_reports = site_reports
+        self.region_reports = region_reports
+        self.region_name = None
 
-        # Connect to database and get QASC data
+        # Connect to database and get Africa data
         if df is None:
             con = Connection(data='africa')
             self.raw_data = con.preprocessed_data.copy()
             self.raw_data = self._preprocess_data(df=self.raw_data)
+            logging.info('The preprocessed data were generated.')
         else:
+            # Convert hospital date into datetime if data were read from csv
             date = df['HOSPITAL_DATE'].iloc[0]
             if '/' in date:
                 dateForm = '%d/%m/%Y'
@@ -71,32 +78,94 @@ class AfricaReport():
             for column in columns:
                 self.raw_data[column] = pd.to_datetime(self.raw_data[column], format=dateForm, errors='ignore')
 
+
+        # If start date and end date are defined, filter data by hospital date otherwise keep all data
         if start_date is None and end_date is None:
             self.preprocessed_data = self.raw_data
         else:
             self.preprocessed_data = self._filter_by_date(self.raw_data, start_date, end_date)
+            logging.info('The data has been filter by date.')
 
         self._columns_to_be_deleted = []
 
+        # Read regions mapping from the json file 
         path = os.path.join(os.path.dirname(__file__), 'tmp', 'south_africa_mapping.json')
         with open(path, 'r', encoding='utf-8') as json_file:
             self.regions = json.load(json_file)
 
+        # Create REGION column in the dataframe based on the region in the SITE ID
         self.raw_data['REGION'] = self.raw_data.apply(
             lambda x: self._get_region(x['SITE_ID']), axis=1
         )
 
-        # Calculate total data for whole country
+        # Add all data into dataframe again, this data will be set as country results, therefore we have to modify beofre appending SITE_ID, FACILITY_NAME and REGION
         country_df = self.preprocessed_data.copy()
         country_df['SITE_ID'] = self.country_name
         country_df['FACILITY_NAME'] = self.country_name
         country_df['REGION'] = self.country_name
-        
         self.preprocessed_data = self.preprocessed_data.append(country_df, ignore_index=True)
 
-        self.calculate_statistcs(self.preprocessed_data)
-        self._generate_formatted_stats(self.stats)
-        self._generate_presentation(self.stats)
+        ###########################
+        # Generate country report #
+        # Calculate statistic
+        self.calculate_statistics(self.preprocessed_data)
+        # generate formatted statistic
+        if self.report_type == 'all' and self.period_name == 'all':
+            filename = self.country_code
+        else:
+            filename = f'{self.report_type}_{self.country_code}_{self.period_name}'
+        self._generate_formatted_preprocessed_data(self.preprocessed_data, filename)
+        self._generate_formatted_stats(self.stats, filename)
+        # Generate presetation
+        self._generate_presentation(self.stats, filename)
+        logging.info('The country report has been generated.')
+
+        if region_reports:
+            region_preprocessed_data = self.preprocessed_data.copy()
+            region_preprocessed_data['SITE_ID'] = region_preprocessed_data['REGION']
+            region_preprocessed_data['FACILITY_NAME'] = region_preprocessed_data['REGION']
+
+            self.calculate_statistics(region_preprocessed_data)
+            if self.report_type == 'all' and self.period_name == 'all':
+                filename = f'{self.country_code}_regions'
+            else:
+                filename = f'{self.report_type}_{self.country_code}_{self.period_name}_regions'
+            self._generate_formatted_preprocessed_data(region_preprocessed_data, filename)
+            self._generate_formatted_stats(self.stats, filename)
+            # Generate presetation
+            self._generate_presentation(self.stats, filename)
+            logging.info('The country vs regions report has been generated.')
+
+        if site_reports:
+            site_ids = [x for x in set(self.preprocessed_data['SITE_ID'].tolist()) if x != self.country_name]
+            for site_id in site_ids:
+                self.region_name = self._get_region(site_id)
+                # Filter data for site and country
+                site_preprocessed_data = self.preprocessed_data.loc[
+                    (self.preprocessed_data['SITE_ID'] == site_id) |
+                    (self.preprocessed_data['SITE_ID'] == self.country_name)
+                ].copy()
+                site_name = site_preprocessed_data.loc[site_preprocessed_data['SITE_ID'] == site_id]['FACILITY_NAME'].iloc[0]
+                # Append data for region to the site preprocessed data
+                region_preprocessed_data = self.preprocessed_data.loc[
+                    self.preprocessed_data['REGION'] == self.region_name
+                ].copy()
+                region_preprocessed_data['SITE_ID'] = self.region_name
+                region_preprocessed_data['FACILITY_NAME'] = self.region_name
+                site_preprocessed_data = site_preprocessed_data.append(
+                    region_preprocessed_data, ignore_index=True
+                )
+
+                self.calculate_statistics(site_preprocessed_data)
+                if self.report_type == 'all' and self.period_name == 'all':
+                    filename = site_id
+                else:
+                    filename = f'{self.report_type}_{site_id}_{self.period_name}'
+                self._generate_formatted_preprocessed_data(site_preprocessed_data, filename, exclude_country=True)
+                self._generate_formatted_stats(self.stats, filename)
+                # Generate presetation
+                self._generate_presentation(self.stats, filename, site_name)
+                logging.info(f'The site report for {site_id} has been generated.')
 
     @property
     def stats(self):
@@ -129,6 +198,14 @@ class AfricaReport():
     @country_name.setter
     def country_name(self, value):
         self._country_name = value
+
+    @property
+    def region_name(self):
+        return self._region_name
+
+    @region_name.setter
+    def region_name(self, value):
+        self._region_name = value
 
     def _get_region(self, site_id):
         ''' Get region name based on code in Site ID. 
@@ -241,7 +318,7 @@ class AfricaReport():
         tmp_df = df.groupby(['SITE_ID']).size().reset_index(name=column_name)
         self._merge_stats(tmp_df)
 
-    def calculate_statistcs(self, df=None):
+    def calculate_statistics(self, df=None):
         ''' Calculate statistics for the South Africa. 
         
         :param df: the preprocessed data that can be filtered (default: None)
@@ -680,7 +757,6 @@ class AfricaReport():
         anticoagulants_prescribed = all_not_referred.loc[
             all_not_referred['ANTICOAGULANTS'] == 1
         ].copy()
-        print(anticoagulants_prescribed)
         self._get_numbers(anticoagulants_prescribed, '# of patients who received anticoagulation', 'all_not_referred_pts')
         
         ## Surgical treatment
@@ -954,26 +1030,74 @@ class AfricaReport():
         end_cell = xl_rowcol_to_cell(0, end_index)
         worksheet.merge_range(f'{start_cell}:{end_cell}', group_name, formatting)
 
-    def _generate_formatted_stats(self, df):
+    
+
+    def __get_header(self, x):
+        ''' Get the header as dictionary. 
+        
+        :param x: the name of column
+        :type x: str
+        '''
+        tmp = {}
+        tmp['header'] = x
+        return tmp
+
+    def _generate_formatted_preprocessed_data(self, df, filename, exclude_country=False):
+        ''' Generate formatted preprocessed data. 
+
+        :param df: the preprocessed data (filtered)
+        :type df: DataFrame
+        :param filename: the name of file without suffix
+        :type filename: str
+        :param exclude_country: if True the data for country that are appended in the beginning will be excluded, applies for site preprocessed data
+        :type exclude_country: bool
+        '''
+        if exclude_country:
+            df = df.loc[df['SITE_ID'] != self.country_name]
+
+        workbook = xlsxwriter.Workbook(f'{filename}_preprocessed_data.xlsx')
+        worksheet = workbook.add_worksheet('Preprocessed data')
+
+        # Get number of columns and rows
+        ncol = len(df.columns)
+        nrow = len(df) + 1
+        worksheet.set_column(0, ncol, 30)
+
+        columns = df.columns.tolist()
+        values = df.values.tolist()
+
+        headers = [self.__get_header(name) for name in columns]
+
+        options = {
+            'data': values,
+            'header_row': True,
+            'columns': headers,
+            'style': 'Table Style Light 8'
+        }
+
+        worksheet.add_table(1, 0, nrow, ncol - 1, options)
+        workbook.close()
+
+    
+    def _generate_formatted_stats(self, df, filename):
         ''' Generate formatted statisics. 
 
         :param df: the calculated statisitcs
         :type df: DataFrame
+        :param filename: the name of file without suffix
+        :type filename: str
         '''
-        import xlsxwriter
-        from xlsxwriter.utility import xl_rowcol_to_cell, xl_col_to_name
-
-        name = f'{self.country_code}.csv'
-
         # Save data into csv
         df.rename(columns={'SITE_ID': 'Site ID'}, inplace=True)
-        save_file(name, data=df, index=False)
+        save_file(f'{filename}.csv', data=df, index=False)
+
+        # Remove temporary columns from csv before the data are saved into excel file
         for column in self.columns_to_be_deleted:
             if column in df.columns:
                 del df[column]
 
         # Create new workbook
-        workbook = xlsxwriter.Workbook(f'{self.country_code}.xlsx', {'strings_to_numbers': True})
+        workbook = xlsxwriter.Workbook(f'{filename}.xlsx', {'strings_to_numbers': True})
         worksheet = workbook.add_worksheet('Statistics')
 
         # Get number of columns and rows
@@ -986,12 +1110,7 @@ class AfricaReport():
         columns = df.columns.tolist()
         values = df.values.tolist()
 
-        # Create dictionary with headers
-        def get_header(x):
-            tmp = {}
-            tmp['header'] = x
-            return tmp
-        headers = [get_header(name) for name in columns]
+        headers = [self.__get_header(name) for name in columns]
 
         options = {
             'data': values,
@@ -1165,7 +1284,7 @@ class AfricaReport():
 
         workbook.close()
  
-    def _generate_presentation(self, df):
+    def _generate_presentation(self, df, filename, site_name=None):
         ''' Generate formatted statisics. 
 
         :param df: the calculated statisitcs
@@ -1182,7 +1301,11 @@ class AfricaReport():
         text_frame = shape.text_frame
         p = text_frame.paragraphs[0]
         run = p.add_run()
-        run.text = f'{self.country_name}\nData Summary'
+        # Set title of first slide, if site report the title contains the site name
+        if site_name is None:
+            run.text = f'{self.country_name}\nData Summary'
+        else:
+            run.text = f'{site_name}\nData Summary'
         font = run.font
         font.name = 'Centruy Gothic'
         font.size = Pt(24)
@@ -1474,7 +1597,7 @@ class AfricaReport():
         self._create_graph(prs, graph_df, title=title, show_value_axis=False)
 
         working_dir = os.getcwd()
-        pptx = f'{self.country_code}.pptx'
+        pptx = f'{filename}.pptx'
         prs.save(os.path.normpath(os.path.join(working_dir, pptx)))
 
     def _create_graph(self, presentation, df, title, graph_type='barplot', show_value_axis=True, legend=None):
@@ -1491,6 +1614,7 @@ class AfricaReport():
         :param legend: list of legend
         :type legend: list
         '''
+        # create dictioanry of columns with index 
         colors = {
             0: RGBColor(43, 88, 173), # dark blue
             1: RGBColor(237, 125, 49), # orange
@@ -1513,14 +1637,18 @@ class AfricaReport():
         # Set title
         title_placeholders.text = title
 
+        # Get list of column names
         column_names = df.columns.tolist()
+        # Get rest of columns without category column
         index = column_names.index(category_column) + 1
         series_columns = column_names[index:]
 
+        # Create ChartData object and set categories
         chart_data = ChartData()
         categories = df[category_column].tolist()
         chart_data.categories = categories
 
+        # Define specification where the chart will be placed
         specs = {
             'height': Cm(16.5),
             'width': Cm(32),
@@ -1529,6 +1657,7 @@ class AfricaReport():
         }
 
         if graph_type == 'barplot':
+            # Add series to the graph
             chart_data.add_series(series_columns[0], df[series_columns[0]].tolist())
             chart = slide.shapes.add_chart(
                 XL_CHART_TYPE.BAR_CLUSTERED, 
@@ -1549,12 +1678,19 @@ class AfricaReport():
             plot.gap_width = 100
 
             series = chart.series[0]
+            # If there is more then 2 categories in the dataframe, the country bar and the region bar will be colored with different color to be distinguished, else the color will be blue
             if (len(df) > 2):
                 for idx, point in enumerate(series.points):
                     fill = point.format.fill
                     fill.solid()
                     if (categories[idx] == self.country_name):
                         fill.fore_color.rgb = RGBColor(128,0,0)
+                    elif (
+                        self.site_reports and 
+                        categories[idx] == self.region_name and 
+                        self.region_name is not None
+                    ):
+                        fill.fore_color.rgb = RGBColor(124,124,124)
                     else:
                         fill.fore_color.rgb = RGBColor(43, 88, 173)
             else:
@@ -1562,13 +1698,14 @@ class AfricaReport():
                 fill.solid()
                 fill.fore_color.rgb = RGBColor(43, 88, 173) 
 
+            # Show values at bar
             value_axis = chart.value_axis
             value_axis.visible = show_value_axis
             value_axis.has_major_gridlines = False
 
             if show_value_axis:
                 tick_labels = value_axis.tick_labels
-                tick_labels.font.size = Pt(9)
+                tick_labels.font.size = Pt(10)
                 tick_labels.font.name = font_name
 
                 value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
@@ -1589,15 +1726,13 @@ class AfricaReport():
             category_axis.major_tick_mark = XL_TICK_MARK.NONE
             category_axis.major_unit = 1
             category_labels = category_axis.tick_labels
-            category_labels.font.size = Pt(9)
+            category_labels.font.size = Pt(10)
             category_labels.font.name = font_name
 
         else:
+            # If more series should be shown, add them together with coressponding legend label
             for idx, col in enumerate(series_columns):
-                if idx is None:
-                    chart_data.add_series('', df[col].tolist())      
-                else:
-                    chart_data.add_series(legend[idx], df[col].tolist())      
+                chart_data.add_series(legend[idx], df[col].tolist())      
 
             chart = slide.shapes.add_chart(
                 XL_CHART_TYPE.BAR_STACKED, 
@@ -1619,30 +1754,31 @@ class AfricaReport():
                 fill.solid()
                 fill.fore_color.rgb = colors[s_idx]
 
-            if (len(df) > 2):
-                # ---add an `a:alpha` child element---
-                solidFill = fill.fore_color._xFill
-                self.__set_transparency(30, solidFill)
+                if (len(df) > 2):
+                    # ---add an `a:alpha` child element---
+                    solidFill = fill.fore_color._xFill
+                    self.__set_transparency(30, solidFill)
 
-                # Change color of borders of series and transparency
-                serie.format.line.color.rgb = colors[s_idx]
-                solidFill = serie.format.line.color._xFill
-                self.__set_transparency(70, solidFill)
+                    # Change color of borders of series and transparency
+                    serie.format.line.color.rgb = colors[s_idx]
+                    solidFill = serie.format.line.color._xFill
+                    self.__set_transparency(70, solidFill)
 
-                # Remove transparency from country point
-                for idx, point in enumerate(serie.points):
-                    if (categories[idx] == self.country_name):
-                        point.format.line.color.rgb = colors[s_idx]
-                        # Get fill of point for country
-                        fill = point.format.fill
-                        fill.solid()
-                        fill.fore_color.rgb = colors[s_idx]
+                    # Remove transparency from country point 
+                    for idx, point in enumerate(serie.points):
+                        if (categories[idx] == self.country_name):
+                            point.format.line.color.rgb = colors[s_idx]
+                            # Get fill of point for country
+                            fill = point.format.fill
+                            fill.solid()
+                            fill.fore_color.rgb = colors[s_idx]
+                       
 
             value_axis = chart.value_axis
             value_axis.has_major_gridlines = False
             value_axis.major_tick_mark = XL_TICK_MARK.OUTSIDE
             tick_labels = value_axis.tick_labels
-            tick_labels.font.size = Pt(11)
+            tick_labels.font.size = Pt(10)
             tick_labels.font.name = font_name
            
             if (len(df) > 2):

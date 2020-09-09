@@ -31,7 +31,7 @@ class Qasc():
 
         # Connect to database and get QASC data
         con = Connection(data='qasc')
-        self.preprocessed_data = con.qasc_preprocessed_data
+        self.preprocessed_data = con.preprocessed_data.copy()
         # Get also data with studies 
         self.study_df = con.study_df
 
@@ -1397,11 +1397,17 @@ class Qasc():
         # All bars with the same color
         plot.vary_by_categories = False
 
+        # Show data labels and set font
+        plot.has_data_labels = True
+        # Set layout of labels
+        data_labels = plot.data_labels
+        data_labels.font.size = Pt(9)
+
         # Set colors of each serie
         colors = [
             RGBColor(192, 80, 77), 
             RGBColor(79, 129, 189)
-            ]    
+            ]            
 
         # Iterate over column names and set color of the series and add labels
         for i in range(0, len(column_names)):
@@ -1410,13 +1416,8 @@ class Qasc():
 
             # Set colors of series 
             fill.solid()
-            fill.fore_color.rgb = colors[i]
-
-            # Show data labels and set font
-            plot.has_data_labels = True
-            # Set layout of labels
-            data_labels = plot.data_labels
-            data_labels.font.size = Pt(9)
+            fill.fore_color.rgb = colors[i]        
+    
 
         # Set maximum to 100
         value_axis = chart.value_axis

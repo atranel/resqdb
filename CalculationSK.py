@@ -49,13 +49,13 @@ class Connection:
 
 
         # Set section
-        datamix = 'datamix'
+        datamix = 'datamix-backup'
         # Create empty dictionary
-        # self.sqls = ['SELECT * from slovakia', 'SELECT * from slovakia_2018']
-        self.sqls = ['SELECT * from slovakia']
+        self.sqls = ['SELECT * from slovakia', 'SELECT * from slovakia_2018']
+        #self.sqls = ['SELECT * from slovakia']
         # List of dataframe names
-        # self.names = ['slovakia', 'slovakia_2018']
-        self.names = ['slovakia']
+        self.names = ['slovakia', 'slovakia_2018']
+        #self.names = ['slovakia']
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
         self.dict_df = {}
@@ -65,13 +65,14 @@ class Connection:
         self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
 
         # Export data from the database for slovakia_2018
-        # df_name = self.names[1]
-        # self.connect(self.sqls[1], datamix, nprocess, df_name=df_name)
+        df_name = self.names[1]
+        self.connect(self.sqls[1], datamix, nprocess, df_name=df_name)
         
         for k, v in self.dictdb_df.items():
             self.prepare_df(df=v, name=k)
 
         self.df = pd.DataFrame()
+        print(self.dict_df)
         for i in range(0, len(self.names)):
             self.df = self.df.append(self.dict_df[self.names[i]], sort=False)
             logging.info("Connection: {0} dataframe has been appended to the resulting dataframe!".format(self.names[i]))
@@ -86,9 +87,12 @@ class Connection:
             sk_names_dict = pd.read_csv(csv_file)
 
         def change_name(name):
-            changed_name = sk_names_dict.loc[
-                sk_names_dict['Hospital name'].str.contains(name), 'Angels Awards name'].iloc[0]
-            return changed_name
+            if pd.isna(name):
+                return ''
+            else:
+                changed_name = sk_names_dict.loc[
+                    sk_names_dict['Hospital name'].str.contains(name), 'Angels Awards name'].iloc[0]
+                return changed_name
 
         dateForm = '%Y-%m-%d'
         self.df['HOSPITAL_DATE'] = pd.to_datetime(self.df['HOSPITAL_DATE'], format=dateForm, errors="coerce")

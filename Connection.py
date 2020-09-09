@@ -69,7 +69,10 @@ class Connection():
         elif data == 'qasc':
             self.sqls = ['SELECT * FROM qasc_mix']
             self.names = []
-
+        elif data == 'africa': 
+            self.sqls = ['SELECT * FROM africa_mix']
+            self.names = []
+        
         # Dictionary initialization - db dataframes
         self.dictdb_df = {}
         # Dictioanry initialization - prepared dataframes
@@ -151,6 +154,8 @@ class Connection():
                 del self.dictdb_df['atalaia_mix']
             elif data == 'qasc':
                 self.__get_qasc_df(datamix, nprocess)
+            elif data == 'africa':
+                self.__get_africa_df(datamix, nprocess)
 
         else:
             if data == 'resq':
@@ -280,10 +285,34 @@ class Connection():
 
             elif data == 'qasc':
                 self.__get_qasc_df(datamix, nprocess)
+
+            elif data == 'africa':
+                self.__get_africa_df(datamix, nprocess)
         
         end = time.time()
         tdelta = (end-start)/60
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))
+
+    def __get_africa_df(self, datamix, nprocess):
+        ''' Get africa_mix data from the datamix database. '''
+        df_name = 'africa_mix'
+        self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
+        self.africa_df = self.dictdb_df[df_name]
+
+        # Make column names uppercassed
+        column_names = [x.upper() for x in self.africa_df.columns]
+        
+        # Remove _EN from the column name
+        import re
+        column_names = [re.sub(r"_EN.*", "", name) for name in column_names]
+            
+        # Rename columns
+        self.africa_df.rename(columns=dict(zip(self.africa_df.columns[0:], column_names)), inplace=True)
+            
+        self.preprocessed_data = self.africa_df.copy()
+        print(self.preprocessed_data)
+        del self.dictdb_df[df_name]
+
 
     def __get_qasc_df(self, datamix, nprocess):
         ''' Get QASC data from the database. '''
@@ -301,7 +330,7 @@ class Connection():
         dateForm = '%Y-%m-%d'
         self.qascdb_df['DATE_CREATED'] = pd.to_datetime(self.qascdb_df['DATE_CREATED'], format=dateForm)
 
-        self.qasc_preprocessed_data = self.qascdb_df.copy()
+        self.preprocessed_data = self.qascdb_df.copy()
         del self.dictdb_df[df_name]
 
         self.connect(
