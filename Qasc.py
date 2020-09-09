@@ -1105,12 +1105,20 @@ class Qasc():
         solidFill = value_axis.format.line.color._xFill
         self._set_transparency(100, solidFill)
 
+        # change font size of values
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(11)
+
         # Value for y-axis (change font size, name, and other things)
         category_axis = chart.category_axis
         # Set 100% transparency to category axis
         category_axis.format.line.color.rgb = RGBColor(206, 206, 206)
         solidFill = category_axis.format.line.color._xFill
         self._set_transparency(100, solidFill)
+
+        # Change font size of category labels
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = Pt(11)
 
         # Set graph of title
         graph_title = f'Figure 1: FeSS Management {hospital_name} Hospital'
@@ -1417,11 +1425,14 @@ class Qasc():
             # Set colors of series 
             fill.solid()
             fill.fore_color.rgb = colors[i]        
-    
 
         # Set maximum to 100
         value_axis = chart.value_axis
         value_axis.maximum_scale = 100
+
+        # change font size of values
+        tick_labels = value_axis.tick_labels
+        tick_labels.font.size = Pt(10)
 
         # Show major gridlines
         value_axis.major_gridlines.format.line.width = Pt(0.5)
@@ -1437,6 +1448,10 @@ class Qasc():
         category_axis.format.line.color.rgb = RGBColor(206, 206, 206)
         solidFill = category_axis.format.line.color._xFill
         self._set_transparency(100, solidFill)
+
+        # change font size of category axis
+        category_labels = category_axis.tick_labels
+        category_labels.font.size = Pt(10)
 
         # Set graph of title
         graph_title = f'Figure 1: Hospital {hospital_name} Pre/Post FeSS intervention'
