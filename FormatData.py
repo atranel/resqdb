@@ -707,6 +707,12 @@ class GenerateFormattedStats:
         self.thrombectomy_patients = self.df['# patients eligible thrombectomy'].values
         self.df.drop(['# patients eligible thrombectomy'], inplace=True, axis=1)
 
+        import json
+        # Read file with colors
+        path = os.path.join(os.path.dirname(__file__), 'tmp', 'colors.json')
+        with open(path, 'r', encoding='utf-8') as json_file:
+            self.colors = json.load(json_file)
+
         def delete_columns(columns):
             """ The function deleting all temporary columns used for presentation. 
             
@@ -749,6 +755,57 @@ class GenerateFormattedStats:
         # Produce formatted statistics for all sites + country as site
         if site is None:
             self._generate_formatted_statistics(df=self.df, df_tmp=self.df_unformatted)
+
+    def _add_group_text(
+        self, workbook, worksheet, color, start_column, end_column, column_names, out_of=None, group_name=None):
+        ''' Function that will add the group text with provided formatting. 
+        
+        :param workbook: the active workbook object
+        :type workbook: Workbook
+        :param worksheet: Worksheet to which the group text should be added
+        :type worksheet: WorkSheet
+        :param color: the name of color from the colors.json
+        :type color: str
+        :param group_name: the name of group
+        :type group_name: str
+        :param start_column: the name of the start column
+        :type start_column: str
+        :param end_column: the name of the end column
+        :type end_columns: str
+        :param column_names: the list of columns names
+        :type columns_names: list
+        :param out_of: the text containing from out of
+        :type out_of: str
+        '''
+        from xlsxwriter.utility import xl_rowcol_to_cell
+
+        formatting = workbook.add_format({
+            'bold': 2,
+            'border': 0,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': self.colors.get(color)
+        })
+
+        formatting_color = workbook.add_format({
+            'fg_color': self.colors.get(color),
+            'text_wrap': True
+        })
+
+        start_index = column_names.index(start_column)
+        end_index = column_names.index(end_column)
+
+        if group_name is not None:
+            start_cell = xl_rowcol_to_cell(0, start_index)
+            end_cell = xl_rowcol_to_cell(0, end_index)
+            worksheet.merge_range(f'{start_cell}:{end_cell}', group_name, formatting)
+
+        if out_of is not None:
+            for i in range(start_index, end_index+1):
+                if column_names[i].startswith('%'):
+                    worksheet.write(xl_rowcol_to_cell(1, i), out_of, formatting_color)
+                else:
+                    worksheet.write(xl_rowcol_to_cell(1, i), '', formatting_color)
 
     def _generate_formatted_statistics(self, df, df_tmp, site_code=None):
         """ The function creating the new excel workbook and filling the statistics into it. 
@@ -795,1093 +852,577 @@ class GenerateFormattedStats:
 
         statistics = df.values.tolist()
 
-        ########################
-        # DICTIONARY OF COLORS #
-        ########################
-        colors = {
-            "gender": "#477187",
-            "stroke_hosp": "#535993",
-            "recurrent_stroke": "#D4B86A",
-            "department_type": "#D4A46A",
-            "hospitalization": "#D4916A",
-            "rehab": "#D4BA6A",
-            "stroke": "#565595",
-            "consciousness": "#468B78",
-            "gcs": "#B9D6C1",
-            "nihss": "#C5D068",
-            "ct_mri": "#AA8739",
-            "vasc_img": "#277650",
-            "ventilator": "#AA5039",
-            "recanalization_procedure": "#7F4C91",
-            "median_times": "#BEBCBC",
-            "dysphagia": "#F49B5B",
-            "hemicraniectomy": "#A3E4D7",
-            "neurosurgery": "#F8C471",
-            "neurosurgery_type": "#CACFD2",
-            "bleeding_reason": "#CB4335",
-            "bleeding_source": "#9B59B6",
-            "intervention": "#5DADE2",
-            "vt_treatment": "#F5CBA7",
-            "afib": "#A2C3F3",
-            "carot": "#F1C40F",
-            "antithrombotics": "#B5E59F",
-            "statin": "#28B463",
-            "carotid_stenosis": "#B9D6C1",
-            "carot_foll": "#BFC9CA",
-            "antihypertensive": "#7C7768",
-            "smoking": "#F9C991",
-            "cerebrovascular": "#91C09E",
-            "discharge_destination": "#C0EFF5",
-            "discharge_destination_same_centre": "#56A3A6",
-            "discharge_destination_another_centre": "#E8DF9C",
-            "discharge_destination_within_another_centre": "#538083",
-            "angel_awards": "#B87333",
-            "angel_resq_awards": "#341885",
-            "columns": "#3378B8",
-            "green": "#A1CCA1",
-            "orange": "#DF7401",
-            "gold": "#FFDF00",
-            "platinum": "#c0c0c0",
-            "black": "#ffffff",
-            "red": "#F45D5D"
-        }
-
-        #statistics = statistics[1:nrow]
-
         ##########
         # GENDER #
         ##########
         # set formatting for gender
-        gender = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("gender")})
-
-        gender_color = workbook1.add_format({
-            'fg_color': colors.get("gender"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients female')
-        last_index = column_names.index('% patients male')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        #worksheet.merge_range('E1:H1', 'GENDER', gender)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'GENDER', gender)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', gender_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', gender_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color="gender",
+            start_column='# patients female', 
+            end_column='% patients male',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='GENDER', 
+        )
 
         ##########################
         # STROKE IN THE HOSPITAL #
         ##########################
-        stroke_hosp = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("stroke_hosp")})
-
-        stroke_hosp_color = workbook1.add_format({
-            'fg_color': colors.get("stroke_hosp"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients having stroke in the hospital - Yes')
-        last_index = column_names.index('% patients having stroke in the hospital - Yes')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'STROKE IN THE HOSPITAL', stroke_hosp)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', stroke_hosp_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', stroke_hosp_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='stroke_hosp', 
+            start_column='# patients having stroke in the hospital - Yes', 
+            end_column='% patients having stroke in the hospital - Yes',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='STROKE IN THE HOSPITAL',  
+        )
 
         ####################
         # RECURRENT STROKE #
         ####################
         # set formatting for recurrent stroke
-        recurrent_stroke = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("recurrent_stroke")})
-
-        recurrent_stroke_color = workbook1.add_format({
-            'fg_color': colors.get("recurrent_stroke"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# recurrent stroke - Yes')
-        last_index = column_names.index('% recurrent stroke - Yes')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'RECURRENT STROKE', recurrent_stroke)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', recurrent_stroke_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', recurrent_stroke_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet,
+            color='recurrent_stroke', 
+            start_column='# recurrent stroke - Yes', 
+            end_column='% recurrent stroke - Yes',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='RECURRENT STROKE', 
+        )
 
         ###################
         # DEPARTMENT TYPE #
         ###################
-
-        department_type = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("department_type")})
-
-        department_type_color = workbook1.add_format({
-            'fg_color': colors.get("department_type"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# department type - neurology')
-        last_index = column_names.index('% department type - Other')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DEPARTMENT TYPE', department_type)
-        
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', department_type_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', department_type_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='department_type', 
+            start_column='# department type - neurology',
+            end_column='% department type - Other',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='DEPARTMENT TYPE', 
+        )
         
         ###################
         # HOSPITALIZATION #
         ###################
-
-        hospitalization = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("hospitalization")})
-
-        hospitalization_color = workbook1.add_format({
-            'fg_color': colors.get("hospitalization"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients hospitalized in stroke unit / ICU')
-        last_index = column_names.index('% patients hospitalized in standard bed')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'HOSPITALIZATION', hospitalization)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', hospitalization_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', hospitalization_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='hospitalization', 
+            start_column='# patients hospitalized in stroke unit / ICU',
+            end_column='% patients hospitalized in standard bed',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='HOSPITALIZATION', 
+        )
 
         #############################
         # REHABILITATION ASSESSMENT #
         #############################
-
-        rehab_assess = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("rehab")})
-
-        rehab_assess_color = workbook1.add_format({
-            'fg_color': colors.get("rehab"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients assessed for rehabilitation - Yes')
-        last_index = column_names.index('% patients assessed for rehabilitation - No')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'REHABILITATION ASSESSMENT', rehab_assess)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS, ICH, SAH and CVT', rehab_assess_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', rehab_assess_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='rehab', 
+            start_column='# patients assessed for rehabilitation - Yes',
+            end_column='% patients assessed for rehabilitation - No',
+            column_names=column_names,
+            out_of='out of # IS, ICH, SAH and CVT',
+            group_name='REHABILITATION ASSESSMENT', 
+        )
 
         ###############
         # STROKE TYPE #
         ###############
-        stroke_type = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("stroke")})
-
-        stroke_color = workbook1.add_format({
-            'fg_color': colors.get("stroke"),
-            'text_wrap': True})
-
-
-        first_index = column_names.index('# stroke type - ischemic stroke')
-        last_index = column_names.index('% stroke type - undetermined stroke')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'STROKE TYPE', stroke_type)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients', stroke_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', stroke_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='stroke', 
+            start_column='# stroke type - ischemic stroke',
+            end_column='% stroke type - undetermined stroke',
+            column_names=column_names,
+            out_of='out of # total patients',
+            group_name='STROKE TYPE', 
+        )
 
         #######################
         # CONSCIOUSNESS LEVEL #
         #######################
-
-        consciousness_level = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("consciousness")})
-
-        consciousness_level_color = workbook1.add_format({
-            'fg_color': colors.get("consciousness"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# level of consciousness - alert')
-        last_index = column_names.index('% level of consciousness - GCS')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CONSCIOUSNESS LEVEL', consciousness_level)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ischemic + ICH', consciousness_level_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', consciousness_level_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='consciousness', 
+            start_column='# level of consciousness - alert',
+            end_column='% level of consciousness - GCS',
+            column_names=column_names,
+            out_of='out of # ischemic + ICH',
+            group_name='CONSCIOUSNESS LEVEL', 
+        )
 
         #######
         # GCS #
         #######
-
-        gcs = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("gcs")})
-
-        gcs_color = workbook1.add_format({
-            'fg_color': colors.get("gcs"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# GCS - 15-13')
-        last_index = column_names.index('% GCS - <8')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'GLASGOW COMA SCALE', gcs)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ischemic + ICH', gcs_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', gcs_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='gcs', 
+            start_column='# GCS - 15-13',
+            end_column='% GCS - <8',
+            column_names=column_names,
+            out_of='out of # ischemic + ICH',
+            group_name='GLASGOW COMA SCALE', 
+        )
 
         #########
         # NIHSS #
         #########
-        nihss = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("nihss")})
-
-        nihss_color = workbook1.add_format({
-            'fg_color': colors.get("nihss"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# NIHSS - Not performed')
-        last_index = column_names.index('NIHSS median score')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'NIHSS', nihss)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ischemic + ICH + CVT', nihss_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', nihss_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='nihss', 
+            start_column='# NIHSS - Not performed',
+            end_column='NIHSS median score',
+            column_names=column_names,
+            out_of='out of # ischemic + ICH + CVT',
+            group_name='NIHSS', 
+        )
 
         ##########
         # CT/MRI #
         ##########
-        ct_mri = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("ct_mri")})
-
-        ct_mri_color = workbook1.add_format({
-            'fg_color': colors.get("ct_mri"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# CT/MRI - Not performed')
-        last_index = column_names.index('% CT/MRI - Performed within 1 hour after admission')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CT/MRI', ct_mri)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # CT/MRI performed', ct_mri_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', ct_mri_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='ct_mri', 
+            start_column='# CT/MRI - Not performed',
+            end_column='% CT/MRI - Performed within 1 hour after admission',
+            column_names=column_names,
+            out_of='out of # CT/MRI performed',
+            group_name='CT/MRI', 
+        )
 
         ####################
         # VASCULAR IMAGING #
         ####################
-        vascular_imaging = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("vasc_img")})
-
-        vascular_imaging_color = workbook1.add_format({
-            'fg_color': colors.get("vasc_img"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# vascular imaging - CTA')
-        last_index = column_names.index('% vascular imaging - two modalities')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-        worksheet.merge_range(first_cell + ":" + last_cell, 'VASCULAR IMAGING', vascular_imaging)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ICH + SAH', vascular_imaging_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', vascular_imaging_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='vasc_img', 
+            start_column='# vascular imaging - CTA',
+            end_column='% vascular imaging - two modalities',
+            column_names=column_names,
+            out_of='out of # ICH + SAH',
+            group_name='VASCULAR IMAGING', 
+        )
 
         ##############
         # VENTILATOR #
         ##############
-        ventilator = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("ventilator")})
-
-        ventilator_color = workbook1.add_format({
-            'fg_color': colors.get("ventilator"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients put on ventilator - Yes')
-        last_index = column_names.index('% patients put on ventilator - Yes')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'VENTILATOR', ventilator)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS + ICH + CVT', ventilator_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', ventilator_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='ventilator', 
+            start_column='# patients put on ventilator - Yes',
+            end_column='% patients put on ventilator - Yes',
+            column_names=column_names,
+            out_of='out of # IS + ICH + CVT',
+            group_name='VENTILATOR', 
+        )
 
         #############################
         # RECANALIZATION PROCEDURES #
         #############################
-        recanalization_procedures = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("recanalization_procedure")})
-
-        recanalization_color = workbook1.add_format({
-            'fg_color': colors.get("recanalization_procedure"),
-            'text_wrap': True})
-
-
-        first_index = column_names.index('# recanalization procedures - Not done')
-        last_index = column_names.index('% recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'RECANALIZATION PROCEDURES', recanalization_procedures)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ischemic stroke', recanalization_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', recanalization_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='recanalization_procedure', 
+            start_column='# recanalization procedures - Not done',
+            end_column='% recanalization procedures - Returned to the initial centre after recanalization procedures were performed at another centre',
+            column_names=column_names,
+            out_of='out of # ischemic stroke',
+            group_name='RECANALIZATION PROCEDURES', 
+        )
 
         ################
         # MEDIAN TIMES #
         ################
-        median_times = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("median_times")})
-
-        median_times_color = workbook1.add_format({
-            'fg_color': colors.get("median_times"),
-            'text_wrap': True})
-
-        first_index = column_names.index('Median DTN (minutes)')
-        last_index = column_names.index('Median TBY DIDO (minutes)')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'MEDIAN TIMES (minutes)', median_times)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), '', median_times_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', median_times_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='median_times', 
+            start_column='Median DTN (minutes)',
+            end_column='Median TBY DIDO (minutes)',
+            column_names=column_names,
+            out_of='',
+            group_name='MEDIAN TIMES (minutes)', 
+        )
 
         #############
         # DYSPHAGIA #
         #############
-        dysphagia = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("dysphagia")})
-
-        dysphagia_color = workbook1.add_format({
-            'fg_color': colors.get("dysphagia"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# dysphagia screening - Guss test')
-        last_index = column_names.index('% dysphagia screening - Unable to test')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DYSPHAGIA SCREENING', dysphagia)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS + ICH + CVT', dysphagia_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', dysphagia_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='dysphagia', 
+            start_column='# dysphagia screening - Guss test',
+            end_column='% dysphagia screening - Unable to test',
+            column_names=column_names,
+            out_of='out of # IS + ICH + CVT',
+            group_name='DYSPHAGIA SCREENING', 
+        )
 
         #############
         # DYSPHAGIA #
         #############
-        dysphagia = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("dysphagia")})
-
-        dysphagia_color = workbook1.add_format({
-            'fg_color': colors.get("dysphagia"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# dysphagia screening time - Within first 24 hours')
-        last_index = column_names.index('% dysphagia screening time - Within first 24 hours')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DYSPHAGIA TIMES', dysphagia)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # Guss test + other test', dysphagia_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', dysphagia_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='dysphagia', 
+            start_column='# dysphagia screening time - Within first 24 hours',
+            end_column='% dysphagia screening time - Within first 24 hours',
+            column_names=column_names,
+            out_of='out of # Guss test + other test',
+            group_name='DYSPHAGIA TIMES', 
+        )
 
         ###################
         # HEMICRANIECTOMY #
         ###################
-        hemicraniectomy = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("hemicraniectomy")})
-
-        hemicraniectomy_color = workbook1.add_format({
-            'fg_color': colors.get("hemicraniectomy"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# hemicraniectomy - Yes')
-        last_index = column_names.index('% hemicraniectomy - Referred to another centre')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'HEMICRANIECTOMY', hemicraniectomy)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS', hemicraniectomy_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', hemicraniectomy_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='hemicraniectomy', 
+            start_column='# hemicraniectomy - Yes',
+            end_column='% hemicraniectomy - Referred to another centre',
+            column_names=column_names,
+            out_of='out of # IS',
+            group_name='HEMICRANIECTOMY', 
+        )
 
         ################
         # NEUROSURGERY #
         ################
-        neurosurgery = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("neurosurgery")})
-
-        neurosurgery_color = workbook1.add_format({
-            'fg_color': colors.get("neurosurgery"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# neurosurgery - Not known')
-        last_index = column_names.index('% neurosurgery - No')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'NEUROSURGERY', neurosurgery)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ICH', neurosurgery_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', neurosurgery_color)
-
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='neurosurgery', 
+            start_column='# neurosurgery - Not known',
+            end_column='% neurosurgery - No',
+            column_names=column_names,
+            out_of='out of # ICH',
+            group_name='NEUROSURGERY', 
+        )
 
         #####################
         # NEUROSURGERY TYPE #
         #####################
-        neurosurgery_type = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("neurosurgery_type")})
-
-        neurosurgery_type_color = workbook1.add_format({
-            'fg_color': colors.get("neurosurgery_type"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# neurosurgery type - intracranial hematoma evacuation')
-        last_index = column_names.index('% neurosurgery type - Referred to another centre')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'NEUROSURGERY TYPE', neurosurgery_type)
-
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ICH', neurosurgery_type_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', neurosurgery_type_color)
-
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='neurosurgery_type', 
+            start_column='# neurosurgery type - intracranial hematoma evacuation',
+            end_column='% neurosurgery type - Referred to another centre',
+            column_names=column_names,
+            out_of='out of # ICH',
+            group_name='NEUROSURGERY TYPE', 
+        )
 
         ###################
         # BLEEDING REASON #
         ###################
-        bleeding_reason = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("bleeding_reason")})
-
-        bleeding_reason_color = workbook1.add_format({
-            'fg_color': colors.get("bleeding_reason"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# bleeding reason - arterial hypertension')
-        last_index = column_names.index('% bleeding reason - more than one')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'BLEEDING REASON', bleeding_reason)
-
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ICH', bleeding_reason_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', bleeding_reason_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='bleeding_reason', 
+            start_column='# bleeding reason - arterial hypertension',
+            end_column='% bleeding reason - more than one',
+            column_names=column_names,
+            out_of='out of # ICH',
+            group_name='BLEEDING REASON', 
+        )
 
         ###################
         # BLEEDING SOURCE #
         ###################
-        bleeding_source = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("bleeding_source")})
-
-        bleeding_source_color = workbook1.add_format({
-            'fg_color': colors.get("bleeding_source"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# bleeding source - Known')
-        last_index = column_names.index('% bleeding source - Not known')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'BLEEDING SOURCE', bleeding_source)
-
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ICH', bleeding_source_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', bleeding_source_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='bleeding_source', 
+            start_column='# bleeding source - Known',
+            end_column='% bleeding source - Not known',
+            column_names=column_names,
+            out_of='out of # ICH',
+            group_name='BLEEDING SOURCE', 
+        )
 
         ################
         # INTERVENTION #
         ################
-        intervention = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("intervention")})
-
-        intervention_color = workbook1.add_format({
-            'fg_color': colors.get("intervention"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# intervention - endovascular (coiling)')
-        last_index = column_names.index('% intervention - more than one')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'INTERVENTION', intervention)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # SAH', intervention_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', intervention_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='intervention', 
+            start_column='# intervention - endovascular (coiling)',
+            end_column='% intervention - more than one',
+            column_names=column_names,
+            out_of='out of # SAH',
+            group_name='INTERVENTION', 
+        )
 
         ################
         # VT TREATMENT #
         ################
-        vt_treatment = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("vt_treatment")})
-
-        vt_treatment_color = workbook1.add_format({
-            'fg_color': colors.get("vt_treatment"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# VT treatment - anticoagulation')
-        last_index = column_names.index('% VT treatment - more than one treatment')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'VENOUS THROMBOSIS TREATMENT', vt_treatment)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # CVT', vt_treatment_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', vt_treatment_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='vt_treatment', 
+            start_column='# VT treatment - anticoagulation',
+            end_column='% VT treatment - more than one treatment',
+            column_names=column_names,
+            out_of='out of # CVT',
+            group_name='VENOUS THROMBOSIS TREATMENT', 
+        )
 
         #######################
         # ATRIAL FIBRILLATION #
         #######################
-        atrial_fibrillation = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("afib")})
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='afib', 
+            start_column='# afib/flutter - Known',
+            end_column='% other afib detection method - Yes',
+            column_names=column_names,
+            out_of=None,
+            group_name='ATRIAL FIBRILLATION', 
+        )
 
-        afib_color = workbook1.add_format({
-            'fg_color': colors.get("afib"),
-            'text_wrap': True})
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='afib', 
+            start_column='# afib/flutter - Known',
+            end_column='% afib/flutter - Not known',
+            column_names=column_names,
+            out_of='out of # ischemic + TIA',
+        )
 
-        first_index = column_names.index('# afib/flutter - Known')
-        last_index = column_names.index('% other afib detection method - Yes')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='afib', 
+            start_column='# afib detection method - Telemetry with monitor allowing automatic detection of aFib',
+            end_column='# other afib detection method - Yes',
+            column_names=column_names,
+            out_of='out of # detected during hospitalization',
+        )
 
-        worksheet.merge_range(first_cell + ":" + last_cell, 'ATRIAL FIBRILLATION', atrial_fibrillation)
-
-        first_index = column_names.index('# afib/flutter - Known')
-        last_index = column_names.index('% afib/flutter - Not known')
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # ischemic + TIA', afib_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', afib_color)
-
-        first_index = column_names.index('# afib detection method - Telemetry with monitor allowing automatic detection of aFib')
-        last_index = column_names.index('# other afib detection method - Yes')
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # detected during hospitalization', afib_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', afib_color)
-
-        worksheet.write(xl_rowcol_to_cell(1, column_names.index('% other afib detection method - Yes')), 'out of # not detected + not known', afib_color)
-
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='afib', 
+            start_column='% other afib detection method - Yes',
+            end_column='% other afib detection method - Yes',
+            column_names=column_names,
+            out_of='out of # not detected + not known',
+        )
 
         ####################
         # CAROTID ARTERIES #
         ####################
-        carot = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("carot")})
-
-        carot_color = workbook1.add_format({
-            'fg_color': colors.get("carot"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# carotid arteries imaging - Yes')
-        last_index = column_names.index('% carotid arteries imaging - Yes')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CAROTID ARTERIES IMAGING', carot)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # alive ischemic + TIA', carot_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', carot_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='carot', 
+            start_column='# carotid arteries imaging - Yes',
+            end_column='% carotid arteries imaging - Yes',
+            column_names=column_names,
+            out_of='out of # alive ischemic + TIA',
+            group_name='CAROTID ARTERIES IMAGING', 
+        )
 
 
         ###################
         # ANTITHROMBOTICS #
         ###################
-        antithrombotics = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("antithrombotics")})
 
-        antithrombotics_colors = workbook1.add_format({
-            'fg_color': colors.get("antithrombotics"),
-            'text_wrap': True})
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='antithrombotics', 
+            start_column='# patients receiving antiplatelets',
+            end_column='% patients prescribed antithrombotics with aFib',
+            column_names=column_names,
+            group_name='ANTITHROMBOTICS', 
+        )
 
-        first_index = column_names.index('# patients receiving antiplatelets')
-        last_index = column_names.index('% patients prescribed antithrombotics with aFib')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='antithrombotics', 
+            start_column='# patients receiving antiplatelets',
+            end_column='% patients receiving LMWH or heparin in full anticoagulant dose',
+            column_names=column_names,
+            out_of='out of # alive ischemic + TIA + CVT'
+        )
 
-        worksheet.merge_range(first_cell + ":" + last_cell, 'ANTITHROMBOTICS', antithrombotics)
-
-        first_index = column_names.index('# patients receiving antiplatelets')
-        last_index = column_names.index('% patients receiving LMWH or heparin in full anticoagulant dose')
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # alive ischemic + TIA + CVT', antithrombotics_colors)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', antithrombotics_colors)
-
-        first_index = column_names.index('% patients prescribed anticoagulants with aFib')
-        last_index = column_names.index('% patients prescribed antithrombotics with aFib')
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # alive with AF+', antithrombotics_colors)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', antithrombotics_colors)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='antithrombotics', 
+            start_column='% patients prescribed anticoagulants with aFib',
+            end_column='% patients prescribed anticoagulants with aFib',
+            column_names=column_names,
+            out_of='out of # alive with AF+'
+        )
 
         ##########
         # STATIN #
         ##########
-        statin = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("statin")})
-
-        statin_color = workbook1.add_format({
-            'fg_color': colors.get("statin"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# patients prescribed statins - Yes')
-        last_index = column_names.index('% patients prescribed statins - Not known')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'STATINS', statin)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS + TIA', statin_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', statin_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='statin', 
+            start_column='# patients prescribed statins - Yes',
+            end_column='% patients prescribed statins - Not known',
+            column_names=column_names,
+            group_name='STATINS', 
+            out_of='out of # IS + TIA'
+        )
 
 
         ####################
         # CAROTID STENOSIS #
         ####################
-        carotid_stenosis = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("carotid_stenosis")})
-
-        carotid_stenosis_color = workbook1.add_format({
-            'fg_color': colors.get("carotid_stenosis"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# carotid stenosis - 50%-70%')
-        last_index = column_names.index('% carotid stenosis - Not known')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CAROTID STENOSIS', carotid_stenosis)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS + TIA', carotid_stenosis_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', carotid_stenosis_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='carotid_stenosis', 
+            start_column='# carotid stenosis - 50%-70%',
+            end_column='% carotid stenosis - Not known',
+            column_names=column_names,
+            group_name='CAROTID STENOSIS', 
+            out_of='out of # IS + TIA'
+        )
 
         ##############################
         # CAROTID STENOSIS FOLLOW UP #
         ##############################
-        carotid_stenosis_foll = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("carot_foll")})
-
-        carotid_stenosis_foll_color = workbook1.add_format({
-            'fg_color': colors.get("carot_foll"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# carotid stenosis followup - Yes')
-        last_index = column_names.index('% carotid stenosis followup - Referred to another centre')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CAROTID STENOSIS FOLLOW UP', carotid_stenosis_foll)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # IS + TIA', carotid_stenosis_foll_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', carotid_stenosis_foll_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='carot_foll', 
+            start_column='# carotid stenosis followup - Yes',
+            end_column='% carotid stenosis followup - Referred to another centre',
+            column_names=column_names,
+            group_name='CAROTID STENOSIS FOLLOW UP', 
+            out_of='out of # IS + TIA'
+        )
 
         ###############################
         # ANTIHYPERTENSIVE MEDICATION #
         ###############################
-        antihypertensive = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("antihypertensive")})
-
-        antihypertensive_color = workbook1.add_format({
-            'fg_color': colors.get("antihypertensive"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# prescribed antihypertensives - Not known')
-        last_index = column_names.index('% prescribed antihypertensives - No')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'ANTIHYPERTENSIVE MEDICATION', antihypertensive)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients - # ichemic reffered to another centre', antihypertensive_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', antihypertensive_color)
-
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='antihypertensive', 
+            start_column='# prescribed antihypertensives - Not known',
+            end_column='% prescribed antihypertensives - No',
+            column_names=column_names,
+            group_name='ANTIHYPERTENSIVE MEDICATION', 
+            out_of='out of # total patients - # ichemic reffered to another centre'
+        )
 
         #####################
         # SMOKING CESSATION #
         #####################
-        smoking = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("smoking")})
-
-        smoking_color = workbook1.add_format({
-            'fg_color': colors.get("smoking"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# recommended to a smoking cessation program - not a smoker')
-        last_index = column_names.index('% recommended to a smoking cessation program - No')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'SMOKING CESSATION', smoking)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients - # ichemic reffered to another centre', smoking_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', smoking_color)
-
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='smoking', 
+            start_column='# recommended to a smoking cessation program - not a smoker',
+            end_column='% recommended to a smoking cessation program - No',
+            column_names=column_names,
+            group_name='SMOKING CESSATION', 
+            out_of='out of # total patients - # ichemic reffered to another centre'
+        )
 
         ##########################
         # Cerebrovascular expert #
         ##########################
-        cerebrovascular = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("cerebrovascular")})
-
-        cerebrovascular_color = workbook1.add_format({
-            'fg_color': colors.get("cerebrovascular"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# recommended to a cerebrovascular expert - Recommended, and appointment was made')
-        last_index = column_names.index('% recommended to a cerebrovascular expert - Not recommended')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'CEREBROVASCULAR EXPERT', cerebrovascular)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients - # ichemic reffered to another centre', cerebrovascular_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', cerebrovascular_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='cerebrovascular', 
+            start_column='# recommended to a cerebrovascular expert - Recommended, and appointment was made',
+            end_column='% recommended to a cerebrovascular expert - Not recommended',
+            column_names=column_names,
+            group_name='CEREBROVASCULAR EXPERT', 
+            out_of='out of # total patients - # ichemic reffered to another centre'
+        )
 
         #########################
         # DISCHARGE DESTINATION #
         #########################
-
-        discharge_destination = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("discharge_destination")})
-
-        destination_color = workbook1.add_format({
-            'fg_color': colors.get("discharge_destination"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# discharge destination - Home')
-        last_index = column_names.index('% discharge destination - Dead')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DISCHARGE DESTINATION', discharge_destination)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # total patients - # ichemic reffered to another centre', destination_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', destination_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='discharge_destination', 
+            start_column='# discharge destination - Home',
+            end_column='% discharge destination - Dead',
+            column_names=column_names,
+            group_name='DISCHARGE DESTINATION', 
+            out_of='out of # total patients - # ichemic reffered to another centre'
+        )
 
         ##################################################
         # DISCHARGE DESTINATION - WITHIN THE SAME CENTRE #
         ##################################################
-
-        discharge_destination_same_centre = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("discharge_destination_same_centre")})
-
-        discharge_destination_same_centre_color = workbook1.add_format({
-            'fg_color': colors.get("discharge_destination_same_centre"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# transferred within the same centre - Acute rehabilitation')
-        last_index = column_names.index('% transferred within the same centre - Another department')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DISCHARGE DESTINATION WITHIN THE SAME CENTRE', discharge_destination_same_centre)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # transferred within the same centre', discharge_destination_same_centre_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', discharge_destination_same_centre_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='discharge_destination_same_centre', 
+            start_column='# transferred within the same centre - Acute rehabilitation',
+            end_column='% transferred within the same centre - Another department',
+            column_names=column_names,
+            group_name='DISCHARGE DESTINATION WITHIN THE SAME CENTRE', 
+            out_of='out of # transferred within the same centre'
+        )
 
         #########################################################
         # DISCHARGE DESTINATION - TRANSFERRED TO ANOTHER CENTRE #
         #########################################################
-
-        discharge_destination_another_centre = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("discharge_destination_another_centre")})
-
-        discharge_destination_another_centre_color = workbook1.add_format({
-            'fg_color': colors.get("discharge_destination_another_centre"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# transferred to another centre - Stroke centre')
-        last_index = column_names.index('% transferred to another centre - Another hospital')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DISCHARGE DESTINATION TRANSFERRED TO ANOTHER CENTRE', discharge_destination_another_centre)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # transferred to another centre', discharge_destination_another_centre_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', discharge_destination_another_centre_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='discharge_destination_another_centre', 
+            start_column='# transferred to another centre - Stroke centre',
+            end_column='% transferred to another centre - Another hospital',
+            column_names=column_names,
+            group_name='DISCHARGE DESTINATION TRANSFERRED TO ANOTHER CENTRE', 
+            out_of='out of # transferred to another centre'
+        )
 
         ################################################################
         # DISCHARGE DESTINATION - TRANSFERRED TO WITHIN ANOTHER CENTRE #
         ################################################################
-
-        discharge_destination_within_another_centre = workbook1.add_format({
-            'bold': 2,
-            'border': 0,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': colors.get("discharge_destination_within_another_centre")})
-
-        discharge_destination_within_another_centre_color = workbook1.add_format({
-            'fg_color': colors.get("discharge_destination_within_another_centre"),
-            'text_wrap': True})
-
-        first_index = column_names.index('# department transferred to within another centre - Acute rehabilitation')
-        last_index = column_names.index('% department transferred to within another centre - Another department')
-        first_cell = xl_rowcol_to_cell(0, first_index)
-        last_cell = xl_rowcol_to_cell(0, last_index)
-
-        worksheet.merge_range(first_cell + ":" + last_cell, 'DISCHARGE DESTINATION TRANSFERRED WITHIN TO ANOTHER CENTRE', discharge_destination_within_another_centre)
-
-        for i in range(first_index, last_index+1):
-            if column_names[i].startswith('%'):
-                worksheet.write(xl_rowcol_to_cell(1, i), 'out of # transferred to another centre', discharge_destination_within_another_centre_color)
-            else:
-                worksheet.write(xl_rowcol_to_cell(1, i), '', discharge_destination_within_another_centre_color)
+        self._add_group_text(
+            workbook=workbook1,
+            worksheet=worksheet, 
+            color='discharge_destination_within_another_centre', 
+            start_column='# department transferred to within another centre - Acute rehabilitation',
+            end_column='% department transferred to within another centre - Another department',
+            column_names=column_names,
+            group_name='DISCHARGE DESTINATION TRANSFERRED WITHIN TO ANOTHER CENTRE', 
+            out_of='out of # transferred to another centre'
+        )
 
         ################
         # angel awards #
@@ -1891,10 +1432,10 @@ class GenerateFormattedStats:
             'border': 0,
             'align': 'center',
             'valign': 'vcenter',
-            'fg_color': colors.get("angel_awards")})
+            'fg_color': self.colors.get("angel_awards")})
 
         awards_color = workbook1.add_format({
-            'fg_color': colors.get("angel_awards")})
+            'fg_color': self.colors.get("angel_awards")})
 
         first_index = column_names.index(self.total_patients_column)
         last_index = column_names.index('Proposed Award')
@@ -1921,21 +1462,21 @@ class GenerateFormattedStats:
             'bold': 2,
             'align': 'center',
             'valign': 'vcenter',
-            'bg_color': colors.get("green")})
+            'bg_color': self.colors.get("green")})
 
         # format for gold color
         gold = workbook1.add_format({
             'bold': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'bg_color': colors.get("gold")})
+            'bg_color': self.colors.get("gold")})
 
         # format for platinum color
         plat = workbook1.add_format({
             'bold': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'bg_color': colors.get("platinum")})
+            'bg_color': self.colors.get("platinum")})
 
         # format for gold black
         black = workbook1.add_format({
@@ -1943,14 +1484,14 @@ class GenerateFormattedStats:
             'align': 'center',
             'valign': 'vcenter',
             'bg_color': '#000000',
-            'color': colors.get("black")})
+            'color': self.colors.get("black")})
 
         # format for red color
         red = workbook1.add_format({
             'bold': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'bg_color': colors.get("red")})
+            'bg_color': self.colors.get("red")})
 
 
         # add table into worksheet
