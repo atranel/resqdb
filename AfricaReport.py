@@ -66,7 +66,7 @@ class AfricaReport():
             self.raw_data = self._preprocess_data(df=self.raw_data)
             logging.info('The preprocessed data were generated.')
         else:
-            # Convert hospital date into datetime if data were read from csv
+            # Convert hospital date into datetime if data were read from csv and derive the format of the date
             date = df['HOSPITAL_DATE'].iloc[0]
             if '/' in date:
                 dateForm = '%d/%m/%Y'
@@ -74,19 +74,10 @@ class AfricaReport():
                 dateForm = '%Y-%m-%d'
 
             self.raw_data = df.copy()
+            # Get all columns with DATE in the name
             columns = [x for x in self.raw_data.columns.tolist() if 'DATE' in x]
             for column in columns:
                 self.raw_data[column] = pd.to_datetime(self.raw_data[column], format=dateForm, errors='ignore')
-
-
-        # If start date and end date are defined, filter data by hospital date otherwise keep all data
-        if start_date is None and end_date is None:
-            self.preprocessed_data = self.raw_data
-        else:
-            self.preprocessed_data = self._filter_by_date(self.raw_data, start_date, end_date)
-            logging.info('The data has been filter by date.')
-
-        self._columns_to_be_deleted = []
 
         # Read regions mapping from the json file 
         path = os.path.join(os.path.dirname(__file__), 'tmp', 'south_africa_mapping.json')
@@ -97,6 +88,15 @@ class AfricaReport():
         self.raw_data['REGION'] = self.raw_data.apply(
             lambda x: self._get_region(x['SITE_ID']), axis=1
         )
+
+        # If start date and end date are defined, filter data by hospital date otherwise keep all data
+        if start_date is None and end_date is None:
+            self.preprocessed_data = self.raw_data
+        else:
+            self.preprocessed_data = self._filter_by_date(self.raw_data, start_date, end_date)
+            logging.info('The data has been filter by date.')
+
+        self._columns_to_be_deleted = []
 
         # Add all data into dataframe again, this data will be set as country results, therefore we have to modify beofre appending SITE_ID, FACILITY_NAME and REGION
         country_df = self.preprocessed_data.copy()
@@ -137,7 +137,9 @@ class AfricaReport():
             logging.info('The country vs regions report has been generated.')
 
         if site_reports:
+            # Get list of site ids in the filtered preprocessed data
             site_ids = [x for x in set(self.preprocessed_data['SITE_ID'].tolist()) if x != self.country_name]
+            # Iterate over site ID and for each site ID generate report
             for site_id in site_ids:
                 self.region_name = self._get_region(site_id)
                 # Filter data for site and country
@@ -145,6 +147,7 @@ class AfricaReport():
                     (self.preprocessed_data['SITE_ID'] == site_id) |
                     (self.preprocessed_data['SITE_ID'] == self.country_name)
                 ].copy()
+                print(site_preprocessed_data)
                 site_name = site_preprocessed_data.loc[site_preprocessed_data['SITE_ID'] == site_id]['FACILITY_NAME'].iloc[0]
                 # Append data for region to the site preprocessed data
                 region_preprocessed_data = self.preprocessed_data.loc[
