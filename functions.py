@@ -352,7 +352,7 @@ def get_zipfile(endings, path, quarter_name):
                     continue
                 zipf.close()
 
-def get_country_site(countries):
+def get_country(countries):
     """ Get country code as input from user and check if country code in the list of countries obtained from the preprocessed data. Return country code in uppercase. 
     
     :param countries: the list of country code 
@@ -474,7 +474,7 @@ def year_comparison(countries):
             continue
         elif comparison == "y":
             years_comp = True
-            country = get_country_site(countries)
+            country = get_country(countries)
             break
         else:
             years_comp = False
