@@ -455,6 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_description">Description</a></li>
 <li><a href="#_installation">Installation</a></li>
 <li><a href="#_usage">Usage</a></li>
+<li><a href="#_additional_files">Additional files</a></li>
 </ul>
 </div>
 </div>
@@ -463,7 +464,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the package that has been created for the RES-Q project. After the project started to grow up, we needed to generate feedbacks for the users. This packaged is used as one feedback in the form of presentations and tables with calculated statistics.</p>
+<p>This is the package that has been created for the RES-Q project. After the project started to grow up, we needed to generate feedbacks for the users automatical. This package is used to generate feedback in the form of presentations and excel sheets with calculated statistics.</p>
 </div>
 </div>
 </div>
@@ -471,31 +472,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_installation">Installation</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We haven&#8217;t used <code>pip</code> so far therefore copy the folder <code>resqdb</code> into <code>site-packages</code> of your python installation.</p>
-</div>
-<div class="paragraph">
-<p>Install the following packages as well:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="python"><span class="n">pip3</span> <span class="n">install</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">numpy</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">xlsxwriter</span><span class="p">,</span> <span class="n">pytz</span><span class="p">,</span> <span class="n">scipy</span><span class="p">,</span> <span class="n">psycopg2</span><span class="p">,</span> <span class="n">zipfile</span><span class="p">,</span> <span class="n">python</span><span class="o">-</span><span class="n">pptx</span><span class="p">,</span> <span class="n">statistics</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>We&#8217;ve made also one modification of the <code>python-pptx</code> script. This modification will set that each label is shown on category axis, the default is that label is shown only for each second label. There are two options how to fix this:</p>
+<p>Everything was tested with the <strong>Python 3.6 and higher version</strong>.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
+<li>
+<p>Copy the folder <code>resqdb</code> downloaded from the repository into <code>site-packages</code> folder in your python installation. Because I&#8217;m using Anaconda, the path to my python packages is <code>D:Anaconda\Lib\site-packages</code>.</p>
+</li>
+<li>
+<p>Install the following packages as well:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="n">pip3</span> <span class="n">install</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">numpy</span><span class="p">,</span> <span class="n">xlsxwriter</span><span class="p">,</span> <span class="n">pytz</span><span class="p">,</span> <span class="n">scipy</span><span class="p">,</span> <span class="n">psycopg2</span><span class="p">,</span> <span class="n">python</span><span class="o">-</span><span class="n">pptx</span><span class="p">,</span> <span class="n">statistics</span></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>We&#8217;ve made also one modification of the <code>python-pptx</code> script. This modification will set that all labels are shown on the category axis. Without modification, only each second label is shown.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>On Sept 9th, 2020 I found out that it is not necessary to modify the <code>python-pptx</code> package. But if you have the issue with labels, please follow the steps.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>There are two options how to fix this:</p>
+</div>
+<div class="ulist">
+<ul>
 <li>
 <p>Copy the <code>resqdb\tmp\xmlwriter.py</code> into <code>python-pptx\chart</code> folder.</p>
 </li>
 <li>
 <p>Modify the file <code>python-pptx\chart\xmlwriter.py</code>. We will modify the setting for the classes <code>BarChartXmlWriter</code> and <code>LineChartXmlWriter</code>. Into the function <code>cat_ax_xml</code> add the line <code>'&lt;c:tickLblSkip val="1"/&gt;\n'</code> into <code>return</code> function. I always put it after the line <code>&lt;c:tickLblPos val="nextTo"/&gt;</code>.</p>
-</li>
-</ol>
-</div>
 <div class="paragraph">
 <p>I prefer the last option because there can be during months/years the updated in the python-pptx package and if we copy the old file we can break something or loose updates.</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
 </div>
 </div>
 </div>
@@ -503,16 +528,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_usage">Usage</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_get_data">Get data</h3>
+<h3 id="_connection_py">Connection.py</h3>
+<div class="sect3">
+<h4 id="_get_data">Get data</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span> <i class="conum" data-value="1"></i><b>(1)</b>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s">'qasc'</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
 
-<span class="n">dictdb_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">df</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">dictdb_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">df</span> <i class="conum" data-value="4"></i><b>(4)</b>
 
-<span class="n">preprocessed_data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+<span class="n">preprocessed_data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span> <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -523,26 +551,33 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Create Connection object. You can provide number of processed (<code>nprocess</code>) as argument but to be honest it doesn&#8217;t work well. Or you can run it without argument and run it with 1 process.</td>
+<td>Create Connection object. You can provide number of processed (<code>nprocess</code>) as argument but to be honest it doesn&#8217;t work well. Or you can run it without argument and run it with 1 process. If create connection object without <code>data</code> argument the data from <code>resq_mix</code>, <code>ivttby_mix</code> and <code>thailand</code> are preprocessed.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>The raw data can be accessed with property <code>df</code>.</td>
+<td>This is example of the way how to provide argument to say which data you would like to obtain from the database. Another options is <code>atalaia</code> and <code>africa</code>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The raw data can be accessed with property <code>df</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
 <td>The preprocessed data can be accessed with property <code>preprocessed_data</code>. I strongly recommend save this data as <code>csv</code> with <code>,</code> (comma) as a seperator.</td>
 </tr>
 </table>
 </div>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_filter_data">Filter data</h3>
+<h3 id="_calculation_py">Calculation.py</h3>
+<div class="sect3">
+<h4 id="_filter_data">Filter data</h4>
 <div class="paragraph">
 <p>This script uses the preprocessed data obtained from the Connection object or provided as argument. I provided examples of how to filter data by dates (<a href="#filter_by_dates">Filter data by date</a>) or country (<a href="#filter_by_country">Filter data by country</a>), but you can combine it and filter by country and dates in one run. Create object without any other arguments will filter data by DISCHARGE_DATE column. There are cases when the data has to be filtered by HOSPITAL_DATE or include all patients who have HOSPITAL_DATE or DISCHARGE_DATE in the date range. Both these options are mentioned in the following code (<a href="#filter_by_dates">Filter data by date</a>).</p>
 </div>
-<div class="sect3">
-<h4 id="filter_by_dates">Filter data by date</h4>
+<div class="sect4">
+<h5 id="filter_by_dates">Filter data by date</h5>
 <div class="paragraph">
 <p>The following code is example how to filter data for the date range. The date is filtered based on discharge dates.</p>
 </div>
@@ -598,8 +633,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 </div>
-<div class="sect3">
-<h4 id="filter_by_country">Filter data by country</h4>
+<div class="sect4">
+<h5 id="filter_by_country">Filter data by country</h5>
 <div class="paragraph">
 <p>The following code is example how to filter data by country.</p>
 </div>
@@ -634,13 +669,909 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_compute_statistics">Compute statistics</h4>
+<div class="paragraph">
+<p>The class <code>ComputeStats</code> generate statistics from the preprocessed data.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">ComputeStats</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">comp_df</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">quarter_name</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_df</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">comp_df</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">quarter_name</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_df</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="n">stats_df</span> <span class="o">=</span> <span class="n">comp_df</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>ComputeStats</code> from the resqdb package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This is the example how to generate the statistics for all sites in one file, eg. for Angels Awards, etc. Arguments: <code>df</code> - the preprocessed/filtered data, <code>period</code> - the name of the period, <code>raw_data</code> - the preprocessed data.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This is the example how to generate the statistics per countries. Arguments: <code>df</code> - the preprocessed/filtered data, <code>period</code> - the name of the period, <code>raw_data</code> - the preprocessed data and <code>comparison</code> - True if you want to compare countries and not sites.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Obtainer calculated statistics from the object.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_formatdata_py">FormatData.py</h3>
+<div class="paragraph">
+<p>The following classes generate the formatted excel file with the data.</p>
+</div>
+<div class="sect3">
+<h4 id="_generate_preprocessed_data">Generate preprocessed data</h4>
+<div class="paragraph">
+<p>The following example will generate the preprocessed data as excel file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.FormatData</span> <span class="kn">import</span> <span class="n">GeneratePreprocessedData</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">GeneratePreprocessedData</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="n">quarter_name</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GeneratePreprocessedData</code> from the resqdb package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create new object that will generate prerpocessed data. You have to provide a few arguments, <code>df</code> - the preprocessed/filtered data, <code>report</code> &#8594; the report type, <code>quarter</code> &#8594; the quarter name and <code>csv</code> &#8594; True if data were loaded from csv file as false. The file with the similar filename <code>quarter_Q1_2020_preprocessed_data.xlsx</code> is generated.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_generate_formatted_angels_awards">Generate formatted angels awards</h4>
+<div class="paragraph">
+<p>The following example will generate the formatted angels awards results.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.FormatData</span> <span class="kn">import</span> <span class="n">GenerateFormattedAngelsAwards</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">GenerateFormattedAngelsAwards</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="n">quarter_name</span><span class="p">,</span> <span class="n">minimum_patients</span><span class="o">=</span><span class="n">min_tpts</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GenerateFormattedAngelsAwards</code> from the <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create new object that will generate formatted angels awards. Arguments: <code>df</code> - the calculated statistics, <code>report</code> - the report type, <code>quarter</code> - the name of quarter, <code>minimum_patients</code> - the minimum number of patients that site has to have to be evaluated for AA.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_generate_formatted_statistics">Generate formatted statistics</h4>
+<div class="paragraph">
+<p>The following example will generate the formatted statistics in excel file. All the main columns are included. In the following code are three examples based on needed results.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.FormatData</span> <span class="kn">import</span> <span class="n">GenerateFormattedStats</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">GenerateFormattedStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">GenerateFormattedStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">country_name</span><span class="o">=</span><span class="s">'Czech Republic'</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">GenerateFormattedStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">split_sites</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">country_name</span><span class="o">=</span><span class="s">'Czech Republic'</span><span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GenerateFormattedStats</code> from the <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create new object that will generate formatted statistics with all data and as a result it will generate the file with name 'quarter_Q1_2020.xlsx' (<a href="#quarter_Q1_2020">Example of the formatted statistics with all sites</a>). Arguments: <code>df</code> - the calculated statistics for all countries or can be filtered, <code>report</code> - the report type, <code>quarter</code> - the name of quarter.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This line of code will generated formatted statistics for the country with the filename such as  'quarter_CZ_Q1_2020.xlsx' (<a href="#quarter_CZ_Q1_2020">Example of the formatted statistics for CZ</a>). Arguments: <code>df</code> - the calculated statistics including data just for CZ, <code>report</code> - the report type, <code>quarter</code> - the name of quarter, <code>country_code</code> - the code of country and <code>country_name</code> - the name of country.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This line of the code will generate the formatted statistics for each site in the data with the filename such as  'quarter_CZ_001_Q1_2020.xlsx'. Arguments: <code>df</code> - the calculated statistics including data just for CZ, <code>country</code> - include country as site in report, <code>report</code> - the report type, <code>quarter</code> - the name of quarter, <code>country_code</code> - the code of country, <code>country_name</code> - the name of country and <code>split_sites</code> - generate reports per site. If you provide calculated statistics where are overall results for country, country will be included in the report as a site.</td>
+</tr>
+</table>
+</div>
+<div id="quarter_Q1_2020" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-10-16-03-27.png" alt="2020 09 10 16 03 27">
+</div>
+<div class="title">Figure 1. Example of the formatted statistics with all sites</div>
+</div>
+<div id="quarter_CZ_Q1_2020" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-11-08-22-50.png" alt="2020 09 11 08 22 50">
+</div>
+<div class="title">Figure 2. Example of the formatted statistics for CZ</div>
+</div>
+<div id="quarter_CZ_008_Q1_2020" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-11-08-31-30.png" alt="2020 09 11 08 31 30">
+</div>
+<div class="title">Figure 3. Example of the formatted statistics for CZ site</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_checkdata_py">CheckData.py</h3>
+<div class="paragraph">
+<p>The following example will generate the preprocessed data from the raw dataframe downloaded from the datamix database.</p>
+</div>
+<div class="sect3">
+<h4 id="_check_and_preprocess_data">Check and preprocess data</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.CheckData</span> <span class="kn">import</span> <span class="n">CheckData</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">chd_obj</span> <span class="o">=</span> <span class="n">CheckData</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">nprocess</span><span class="o">=</span><span class="n">nprocess</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">preprocessed_data</span> <span class="o">=</span> <span class="n">chd_obj</span><span class="o">.</span><span class="n">preprocessed_data</span> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>CheckData</code> from the <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create new <code>CheckData</code> object.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Get property <code>preprocessed_data</code> from the CheckData object.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generatepresentation_py">GeneratePresentation.py</h3>
+<div class="paragraph">
+<p>The following example will generate the presentation with the graphs based on the arguments. You can generate presentation for country or for site.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.GeneratePresentation</span> <span class="kn">import</span> <span class="n">GeneratePresentation</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">GeneratePresentation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">GeneratePresentation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">country_name</span><span class="o">=</span><span class="s">'Czech Republic'</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">GeneratePresentation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="s">'quarter'</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">country_name</span><span class="o">=</span><span class="s">'Czech Republic'</span><span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GeneratePresentation</code> module from the <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Generate the graphs. If you provide the statistics with all the sites the graphs will be huge therefore I recommend for this graph, the comparison stats between countries.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This will generate graphs for country. Each bar is one site. You have to provide calculations for country that is mentioned in the name. These reports are generated for a national coordinators.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This code will generate graphs for site. Therea are two bars in the graph. One is for site and one is for country. These reports are genrated for a local coordinators.</td>
+</tr>
+</table>
+</div>
+<div id="site_presentation" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-11-15-11-56.png" alt="2020 09 11 15 11 56">
+</div>
+<div class="title">Figure 4. Example of the site report</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generateperiodcomppresentation_py">GeneratePeriodCompPresentation.py</h3>
+<div class="paragraph">
+<p>The following examples can be used to generate the comparison graphs.</p>
+</div>
+<div class="sect3">
+<h4 id="_national_vs_site_level_samples">National vs site-level samples</h4>
+<div class="paragraph">
+<p>The following example of the code is the code for the generation of the comparison report, national samples vs. site-level samples. The example of the graph you can see below (<a href="#national_vs_site">Example of the national vs site-level samples comparison</a>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.GenerateComparisonPresentation</span> <span class="kn">import</span> <span class="n">GenerateCountriesCompPresentation</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">ComputeStats</span> <i class="conum" data-value="2"></i><b>(2)</b>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">raw_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span>
+
+<span class="n">raw_df</span><span class="p">[</span><span class="s">'COUNTRY_CODE'</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">'Protocol ID'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'_'</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="n">nationally_samples</span> <span class="o">=</span> <span class="p">[</span><span class="s">'TH'</span><span class="p">,</span> <span class="s">'VN'</span><span class="p">,</span> <span class="s">'CZ'</span><span class="p">,</span> <span class="s">'PL'</span><span class="p">,</span> <span class="s">'BG'</span><span class="p">,</span> <span class="s">'UA'</span><span class="p">,</span> <span class="s">'CO'</span><span class="p">,</span> <span class="s">'RS'</span><span class="p">,</span> <span class="s">'PT'</span><span class="p">,</span> <span class="s">'LV'</span><span class="p">,</span> <span class="s">'RO'</span><span class="p">,</span> <span class="s">'HR'</span><span class="p">,</span> <span class="s">'HU'</span><span class="p">,</span> <span class="s">'MD'</span><span class="p">,</span> <span class="s">'KG'</span><span class="p">,</span> <span class="s">'LT'</span><span class="p">]</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+<span class="n">ndf</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">raw_df</span><span class="p">[</span><span class="s">'COUNTRY_CODE'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">nationally_samples</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <i class="conum" data-value="5"></i><b>(5)</b>
+<span class="n">stats_ndf_obj</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndf</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">stats_ndf</span> <span class="o">=</span> <span class="n">stats_ndf_obj</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+<span class="n">site_samples</span> <span class="o">=</span> <span class="p">[</span><span class="s">'RU'</span><span class="p">,</span> <span class="s">'IN'</span><span class="p">,</span> <span class="s">'PH'</span><span class="p">,</span> <span class="s">'AR'</span><span class="p">,</span> <span class="s">'ID'</span><span class="p">,</span> <span class="s">'KR'</span><span class="p">,</span> <span class="s">'MY'</span><span class="p">,</span> <span class="s">'MX'</span><span class="p">,</span> <span class="s">'CL'</span><span class="p">,</span> <span class="s">'IR'</span><span class="p">,</span> <span class="s">'GR'</span><span class="p">,</span> <span class="s">'BY'</span><span class="p">,</span> <span class="s">'EG'</span><span class="p">,</span> <span class="s">'TR'</span><span class="p">,</span> <span class="s">'UZ'</span><span class="p">,</span> <span class="s">'IT'</span><span class="p">,</span> <span class="s">'GE'</span><span class="p">,</span> <span class="s">'SA'</span><span class="p">,</span> <span class="s">'DZ'</span><span class="p">,</span> <span class="s">'KZ'</span><span class="p">,</span> <span class="s">'AE'</span><span class="p">,</span> <span class="s">'AZ'</span><span class="p">,</span> <span class="s">'EE'</span><span class="p">]</span> <i class="conum" data-value="6"></i><b>(6)</b>
+
+<span class="n">sldf</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">raw_df</span><span class="p">[</span><span class="s">'COUNTRY_CODE'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">site_samples</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="7"></i><b>(7)</b>
+<span class="n">stats_sldf_obj</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">sldf</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">stats_sldf</span> <span class="o">=</span> <span class="n">stats_sldf_obj</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+<span class="n">GenerateCountriesCompPresentation</span><span class="p">(</span><span class="n">ndf</span><span class="o">=</span><span class="n">stats_ndf</span><span class="p">,</span> <span class="n">sldf</span><span class="o">=</span><span class="n">stats_sldf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'Q1_2020'</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">nationally_samples</span><span class="p">)</span> <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GenerateCountriesCompPresentation</code> package from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Import <code>ComputeStats</code> package from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Create a new column with the country codes to make filtration faster.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Define the nationally samples.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Filter the preprocessed data for the nationally samples and calculate statistics. Set <code>comparison</code> to True in the <code>ComputeStats</code> because you need comparison between countries not sites.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Define the site samples.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Filter the preprocessed data for the site samples and calculate statistics.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Generate presentation with the graphs for nationally vs site-level samples. Arguments: <code>ndf</code> - the calculated statistic for nationally samples, <code>sldf</code> - the calculated statistic for site-level samples, <code>name</code> - the name of quarter or the result presentation and <code>sampels</code> - the list of nationally samples &#8594; in the presentation these samples will be marked with different color.</td>
+</tr>
+</table>
+</div>
+<div id="national_vs_site" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-09-37-33.png" alt="2020 09 14 09 37 33">
+</div>
+<div class="title">Figure 5. Example of the national vs site-level samples comparison</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_national_yearly_comparison">National yearly comparison</h4>
+<div class="paragraph">
+<p>The following example of the code is the code for the generation of the comparison report for the national sites (only two years comparison). The example of the graph you can see below (<a href="#national_yearly">The example of the national comparison between two years</a>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.GenerateComparisonPresentation</span> <span class="kn">import</span> <span class="n">GeneratePeriodCompPresentation</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">ComputeStats</span><span class="p">,</span> <span class="n">FilterDataset</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">raw_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span>
+
+<span class="n">raw_df</span><span class="p">[</span><span class="s">'COUNTRY_CODE'</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">'Protocol ID'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'_'</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+
+<span class="n">nationally_samples</span> <span class="o">=</span> <span class="p">[</span><span class="s">'TH'</span><span class="p">,</span> <span class="s">'VN'</span><span class="p">,</span> <span class="s">'CZ'</span><span class="p">,</span> <span class="s">'PL'</span><span class="p">,</span> <span class="s">'BG'</span><span class="p">,</span> <span class="s">'UA'</span><span class="p">,</span> <span class="s">'CO'</span><span class="p">,</span> <span class="s">'RS'</span><span class="p">,</span> <span class="s">'PT'</span><span class="p">,</span> <span class="s">'LV'</span><span class="p">,</span> <span class="s">'RO'</span><span class="p">,</span> <span class="s">'HR'</span><span class="p">,</span> <span class="s">'HU'</span><span class="p">,</span> <span class="s">'MD'</span><span class="p">,</span> <span class="s">'KG'</span><span class="p">,</span> <span class="s">'LT'</span><span class="p">]</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="n">ndf</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">raw_df</span><span class="p">[</span><span class="s">'COUNTRY_CODE'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">nationally_samples</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+<span class="n">date11</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">date12</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="n">fndf1</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndf</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date11</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date12</span><span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b>
+<span class="n">ndf1</span> <span class="o">=</span> <span class="n">fndf1</span><span class="o">.</span><span class="n">fdf</span>
+
+<span class="n">stats_ndf1_obj</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndf1</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="6"></i><b>(6)</b>
+<span class="n">stats_ndf1</span> <span class="o">=</span> <span class="n">stats_ndf1_obj</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+<span class="n">date21</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">date22</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="n">fndf2</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndf</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date21</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date22</span><span class="p">)</span> <i class="conum" data-value="7"></i><b>(7)</b>
+<span class="n">ndf2</span> <span class="o">=</span> <span class="n">fndf2</span><span class="o">.</span><span class="n">fdf</span>
+
+<span class="n">stats_ndf2_obj</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndf2</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <i class="conum" data-value="8"></i><b>(8)</b>
+<span class="n">stats_ndf2</span> <span class="o">=</span> <span class="n">stats_ndf2_obj</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+<span class="n">GeneratePeriodCompPresentation</span><span class="p">(</span><span class="n">ndf1</span><span class="o">=</span><span class="n">stats_ndf1</span><span class="p">,</span> <span class="n">ndf2</span><span class="o">=</span><span class="n">stats_ndf2</span><span class="p">,</span> <span class="n">name1</span><span class="o">=</span><span class="s">'2019'</span><span class="p">,</span> <span class="n">name2</span><span class="o">=</span><span class="s">'2020'</span><span class="p">)</span> <i class="conum" data-value="9"></i><b>(9)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GeneratePeriodCompPresentation</code> package from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create a new column with the country codes to make filtration faster.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Define the nationally samples.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Filter the national dataframe for the nationally samples.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Define dates (eg. 2019) and filter national dataframe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Calculate statistics for the filtered dataframe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Define dates for another period (eg. 2020) and filter national dataframe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Calculate statistics for the filtered dataframe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Generate presentation with the graphs for the yearly comparison of national samples. Arguments: <code>ndf1</code> - the calculated statistic for the first period, <code>ndf2</code> - the calculated statistic for the second period, <code>name1</code> - the name of the first period (eg. 2019) and <code>name2</code> - the name of the second period (eg. 2020).</td>
+</tr>
+</table>
+</div>
+<div id="national_yearly" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-09-50-49.png" alt="2020 09 14 09 50 49">
+</div>
+<div class="title">Figure 6. The example of the national comparison between two years</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generatenationalcomparisongraphs_py">GenerateNationalComparisonGraphs.py</h3>
+<div class="paragraph">
+<p>The example of the national comparison graphs where the data for the last period are included as a general report (<a href="#national_comparison">The example of the national comparison reports</a>). Let&#8217;s generate comparison graphs per years for Q1 and include outcome and include the Q1 general presentation as well.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.GenerateNationalComparisonGraphs</span> <span class="kn">import</span> <span class="n">GenerateNationalComparisonGraphs</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">resqdb.Calculation</span> <span class="kn">import</span> <span class="n">FilterDataset</span><span class="p">,</span> <span class="n">ComputeStats</span>
+<span class="kn">from</span> <span class="nn">resqdb.functions</span> <span class="kn">import</span> <span class="n">calculate_outcome</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">raw_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span>
+
+<span class="n">years</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">2018</span><span class="p">,</span> <span class="mi">2019</span><span class="p">,</span> <span class="mi">2020</span><span class="p">]</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">report_type</span> <span class="o">=</span> <span class="s">'quarter'</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">period</span> <span class="o">=</span> <span class="s">'Q1'</span>
+
+<span class="n">dataframes</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span> <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="n">date1</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">date2</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+
+    <span class="n">fob</span> <span class="o">=</span> <span class="n">FilterDataset</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">raw_df</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">date1</span><span class="o">=</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="o">=</span><span class="n">date2</span><span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="n">fdf</span> <span class="o">=</span> <span class="n">fob</span><span class="o">.</span><span class="n">fdf</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <i class="conum" data-value="6"></i><b>(6)</b>
+
+        <span class="n">outcome_df</span> <span class="o">=</span> <span class="n">calculate_outcome</span><span class="p">(</span><span class="n">fdf</span><span class="p">)</span> <i class="conum" data-value="7"></i><b>(7)</b>
+        <span class="n">comp_df</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">fdf</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_df</span><span class="p">)</span> <i class="conum" data-value="8"></i><b>(8)</b>
+        <span class="n">last_df</span> <span class="o">=</span> <span class="n">comp_df</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+    <span class="n">dataframes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fdf</span> <i class="conum" data-value="9"></i><b>(9)</b>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span> <i class="conum" data-value="10"></i><b>(10)</b>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">years</span><span class="p">)):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataframes</span><span class="p">[</span><span class="n">years</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">sort</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s">'Protocol ID'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">'DISCHARGE_DATE'</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <i class="conum" data-value="11"></i><b>(11)</b>
+<span class="n">df</span><span class="p">[</span><span class="s">'Site Name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'Protocol ID'</span><span class="p">]</span>
+<span class="n">df</span><span class="p">[</span><span class="s">'ESO Angels name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'Protocol ID'</span><span class="p">]</span>
+
+<span class="n">comp_df</span> <span class="o">=</span> <span class="n">ComputeStats</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">comparison</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span>
+    <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">,</span>
+    <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_df</span>
+    <span class="p">)</span> <i class="conum" data-value="12"></i><b>(12)</b>
+<span class="n">stats_df</span> <span class="o">=</span> <span class="n">comp_df</span><span class="o">.</span><span class="n">_return_stats</span><span class="p">()</span>
+
+<span class="n">report_name</span> <span class="o">=</span> <span class="n">f</span><span class="s">'CZ_Q1_comparison'</span>
+
+<span class="n">GenerateNationalComparisonGraphs</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">last_df</span><span class="p">,</span>
+    <span class="n">fdf</span><span class="o">=</span><span class="n">stats_df</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="n">outcome_df</span><span class="p">,</span>
+    <span class="n">country</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">country_code</span><span class="o">=</span><span class="s">'CZ'</span><span class="p">,</span>
+    <span class="n">report</span><span class="o">=</span><span class="n">report_name</span><span class="p">,</span>
+    <span class="n">quarter</span><span class="o">=</span><span class="n">period</span><span class="p">)</span> <i class="conum" data-value="13"></i><b>(13)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GenerateNationalComparisonGraphs</code> from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Define years to be compared.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Set the period name to <code>quarter</code> and the quarter name to <code>Q1</code> because we are intrested in the results for Q1 in the example.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Iterate over years and filter raw data per years and add them into dictionary.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Filter dataframe for country and dates.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>If year is equal to the last year in the list of years, calculate also outcome resuls and statistics per site.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Calculate outcome results.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Calculate statisitcs per sites for country, eg. CZ.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Append filtered dataframe into dictionary of dataframes</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Create empty dataframe and append all the filtered dataframes and create one final dataframe.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Replace Protocol ID (the main column used in grouping) by year, also the Site Name and ESO Angels Name.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Calculated statistics for all the years.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="13"></i><b>13</b></td>
+<td>Generate presentation with graphs for all the years where the last quarter is included as a general country report.</td>
+</tr>
+</table>
+</div>
+<div id="national_comparison" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-10-23-45.png" alt="2020 09 14 10 23 45">
+</div>
+<div class="title">Figure 7. The example of the national comparison reports</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reports_py">Reports.py</h3>
+<div class="paragraph">
+<p>This class has been created for the Czech Republic and generates reports for recanalized patients. Two reports are generated, monthly report (<a href="#monthly">The example of the monthly report</a>) and cumulative reports (<a href="#cumulative">The example of the cumulative report</a>). Month-ly report creates one presentation included results for one month and cumulative reports creates one presentation including results from January to month from the monthly report of that year.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">resqdb.Reports</span> <span class="kn">import</span> <span class="n">GeneratePresentation</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">nprocess</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">raw_df</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">preprocessed_data</span> <i class="conum" data-value="2"></i><b>(2)</b>
+
+<span class="n">year</span> <span class="o">=</span> <span class="mi">2020</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">month</span> <span class="o">=</span> <span class="mi">5</span> <i class="conum" data-value="4"></i><b>(4)</b>
+<span class="n">country</span><span class="o">=</span><span class="s">'CZ'</span> <i class="conum" data-value="5"></i><b>(5)</b>
+
+<span class="n">month_name</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'</span><span class="si">%</span><span class="s">b'</span><span class="p">)</span> <i class="conum" data-value="6"></i><b>(6)</b>
+
+<span class="n">reports</span> <span class="o">=</span> <span class="n">GeneratePresentation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">raw_df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="n">country</span><span class="p">)</span> <i class="conum" data-value="7"></i><b>(7)</b>
+<span class="n">reports</span><span class="o">.</span><span class="n">generate_presentation</span><span class="p">()</span> <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>GeneratePresentation</code> from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Get <code>preprocessed_data</code> from the <code>Connection</code> class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Set year for which the statistics should be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Set month for which the statistics should be generated (eg. 5 = May)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Set country code for which the statistics should be generated (now only CZ available).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Get month name from the set month.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Create <code>GeneratePresentation</code> object. Arguments: <code>df</code> - the preprocessed data, <code>year</code> - the year, <code>month</code> - the month and <code>country</code> - the country code.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Generate presenation.</td>
+</tr>
+</table>
+</div>
+<div id="monthly" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-10-55-40.png" alt="2020 09 14 10 55 40">
+</div>
+<div class="title">Figure 8. The example of the monthly report</div>
+</div>
+<div id="cumulative" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-10-54-49.png" alt="2020 09 14 10 54 49">
+</div>
+<div class="title">Figure 9. The example of the cumulative report</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_qasc_py">Qasc.py</h3>
+<div class="paragraph">
+<p>This class has been created to generate Qasc reports. As a result, two presentations are produced, one with the pre phase report (<a href="#pre_phase">The example of the pre report</a>) and second includes comparison with post phase (<a href="#pre_post_phase">The example of the pre/post comparison report</a>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.Qasc</span> <span class="kn">import</span> <span class="n">Qasc</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+<span class="n">qasc</span> <span class="o">=</span> <span class="n">Qasc</span><span class="p">()</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">preprocessed_data</span> <span class="o">=</span> <span class="n">qasc</span><span class="o">.</span><span class="n">preprocessed_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+<span class="n">qasc</span><span class="o">.</span><span class="n">generate_reports</span><span class="p">(</span><span class="n">site_id</span><span class="o">=</span><span class="s">'AM_001'</span><span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>Qasc</code> class from the <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Create new Qasc object.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Get preprocessed data. You don&#8217;t need them directly, but it is always good to save them into csv file.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Generate reports QASC reports for the AM_001 site.</td>
+</tr>
+</table>
+</div>
+<div id="pre_phase" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-11-01-22.png" alt="2020 09 14 11 01 22">
+</div>
+<div class="title">Figure 10. The example of the pre report</div>
+</div>
+<div id="pre_post_phase" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-11-01-58.png" alt="2020 09 14 11 01 58">
+</div>
+<div class="title">Figure 11. The example of the pre/post comparison report</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_africareport_py">AfricaReport.py</h3>
+<div class="paragraph">
+<p>This class has been creatd to generate reports for the South Africa. As a results, reports similar to general reports are generated. The only change is, that South Africa requested just a few variables to be calculated.</p>
+</div>
+<div class="paragraph">
+<p>There are three types of reports to be generated for South Africa.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>COUNTRY REPORT</strong> (<a href="#ch_country_report">Country report</a>) &#8594; this reports contains overall results for the South Africa and results per sites.</p>
+</li>
+<li>
+<p><strong>REGION REPORT</strong> (<a href="#ch_region_report">Region report</a>) &#8594; this report contains overall results for the South Africa and results per countries.</p>
+</li>
+<li>
+<p><strong>SITE REPORT</strong> (<a href="#ch_site_report">Site report</a>) &#8594; this report contains overall results for South Africa, overall results for region and results for site.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can generate all of these type of reports in one run.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="ch_country_report">Country report</h4>
+<div class="paragraph">
+<p>The following code is example of the code used to generate country report.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.AfricaReport</span> <span class="kn">import</span> <span class="n">AfricaReport</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'preprocessed_data.csv'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">','</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">report_type</span> <span class="o">=</span> <span class="s">'quarter'</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">period_name</span> <span class="o">=</span> <span class="s">'Q1_2020'</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span>
+<span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span>
+<span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>AfricaReport</code> from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If you want to generate statistics from already saved preprocessed data (use africa preprocessed data, data for South Africa are not included in <code>resq</code> table).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Define report type, period name, start date and end date. Data will be filtered for start and end date.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Generate report for South Africa from the preprocessed data. Arguments: <code>df</code> - the preprocessed data, <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>report_type</code> - the report type name and <code>period_name</code> - the name of the period.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Generate report for South Africa from the database. Arguments: <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>report_type</code> - the report type name and <code>period_name</code> - the name of the period.</td>
+</tr>
+</table>
+</div>
+<div id="country_report" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-12-16-43.png" alt="2020 09 14 12 16 43">
+</div>
+<div class="title">Figure 12. The example of the country report for the South Africa</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ch_region_report">Region report</h4>
+<div class="paragraph">
+<p>The following code is example of the code used to generate region reports.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.AfricaReport</span> <span class="kn">import</span> <span class="n">AfricaReport</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'preprocessed_data.csv'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">','</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">report_type</span> <span class="o">=</span> <span class="s">'quarter'</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">period_name</span> <span class="o">=</span> <span class="s">'Q1_2020'</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span><span class="p">,</span>
+    <span class="n">region_reports</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span><span class="p">,</span>
+    <span class="n">region_reports</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>AfricaReport</code> from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If you want to generate statistics from already saved preprocessed data (use africa preprocessed data, data for South Africa are not included in <code>resq</code> table).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Define report type, period name, start date and end date. Data will be filtered for start and end date.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Generate report for South Africa from the preprocessed data. Arguments: <code>df</code> - the preprocessed data, <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>report_type</code> - the report type name, <code>period_name</code> - the name of the period and <code>region_reports</code> - True if region reports should be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Generate report for South Africa from the database. Arguments: <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>period_name</code> - the name of the period and <code>region_reports</code> - True if region reports should be generated.</td>
+</tr>
+</table>
+</div>
+<div id="region_reports" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-12-17-35.png" alt="2020 09 14 12 17 35">
+</div>
+<div class="title">Figure 13. The example of the region report for the South Africa</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ch_site_report">Site report</h4>
+<div class="paragraph">
+<p>The following code is example of the code used to generate site report.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="python"><span class="kn">from</span> <span class="nn">resqdb.AfricaReport</span> <span class="kn">import</span> <span class="n">AfricaReport</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'preprocessed_data.csv'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">','</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="n">report_type</span> <span class="o">=</span> <span class="s">'quarter'</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="n">period_name</span> <span class="o">=</span> <span class="s">'Q1_2020'</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span><span class="p">,</span>
+    <span class="n">site_reports</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">AfricaReport</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="n">report_type</span><span class="p">,</span>
+    <span class="n">period_name</span><span class="o">=</span><span class="n">period_name</span><span class="p">,</span>
+    <span class="n">site_reports</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span> <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Import <code>AfricaReport</code> from <code>resqdb</code> package.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If you want to generate statistics from already saved preprocessed data (use africa preprocessed data, data for South Africa are not included in <code>resq</code> table).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Define report type, period name, start date and end date. Data will be filtered for start and end date.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Generate report for South Africa from the preprocessed data. Arguments: <code>df</code> - the preprocessed data, <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>report_type</code> - the report type name, <code>period_name</code> - the name of the period and <code>site_reports</code> - True if site reports should be generated.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Generate report for South Africa from the database. Arguments: <code>start_date</code> - the start date for filtration, <code>end_date</code> - the end date for filtration, <code>period_name</code> - the name of the period and <code>site_reports</code> - True if site reports should be generated.</td>
+</tr>
+</table>
+</div>
+<div id="site_reports" class="imageblock">
+<div class="content">
+<img src="./assets/img/2020-09-14-12-18-11.png" alt="2020 09 14 12 18 11">
+</div>
+<div class="title">Figure 14. The example of the site report for the South Africa</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_additional_files">Additional files</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the folder <code>tmp</code> you can find all additional files necassary to run some packages.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>colors.json</strong> &#8594; this file contains colors used in the <code>FormatData.py</code> class.</p>
+</li>
+<li>
+<p><strong>czech_mapping.json</strong> &#8594; in this file you can find the names for the Czech Republic hospitals. They have different names for the monthly reports but also for Angels Awards results.</p>
+</li>
+<li>
+<p><strong>legends.csv</strong> &#8594; in this file you can modify the legend added into preprocessed data, such as add variables, change mapping etc.</p>
+</li>
+<li>
+<p><strong>regions.json</strong> &#8594; in this file you can find the region distribution for the Czech Republic. These data are used in the monthly reports. In this file is mentioned population and the hospital which belongs to which region. You can add/modify the data here.</p>
+</li>
+<li>
+<p><strong>sk_mapping.csv</strong> &#8594; Slovakia asked us to modify the hospital names before data are uploaded to the AA portal. In this file you can find the name mapping (how it is in the datamix and how it should be in the result calculation).</p>
+</li>
+<li>
+<p><strong>south_africa_mapping.json</strong> &#8594; this file includes mapping of the region code with region name for South Africa.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2020-09-03 11:48:22 +0200
+Last updated 2020-09-14 12:33:12 +0200
 </div>
 </div>
 <style>
