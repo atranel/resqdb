@@ -28,6 +28,10 @@ class FilterDataset:
     :type date1: date
     :param date2: the last date included in the filtered dataframe
     :type date2: date
+    :param column: the column used as main for filtration
+    :type column: str
+    :param by_columns: True if data should be filtered by hospital and discharge date together
+    :type by_columns: boolean
     """
 
     def __init__(self, df, country=None, date1=None, date2=None, column='DISCHARGE_DATE', by_columns=False):

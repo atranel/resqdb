@@ -675,6 +675,7 @@ class GenerateGraphsSites(GenerateGraphs):
             value_axis.minimum_scale = 0
             values = df[column_names[index+1]].tolist()
             max_value = max(values)
+            
             if '%' in title and max_value >= 90:
                 value_axis.maximum_scale = 100
             else:
