@@ -358,7 +358,8 @@ class AfricaReport():
             )
         
         # Get median of age per all patients
-        self._get_median(df, 'AGE', 'Median patient age')
+        self._get_median(df, 'AGE', 'Age (median)')
+        self._get_iqr(df, 'AGE', 'Age (IQR)')
        
         # Get # and % of males
         tmp_df = df.loc[df['GENDER'] == 1].copy()
@@ -429,7 +430,7 @@ class AfricaReport():
         
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '1'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '10'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -438,7 +439,7 @@ class AfricaReport():
         # # of patients with pneumonia
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '3'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '1'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -447,7 +448,7 @@ class AfricaReport():
         # # of patients with DVT
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '4'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '2'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -456,7 +457,7 @@ class AfricaReport():
         # # of patients with pulmonary embolus
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '5'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '3'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -465,7 +466,7 @@ class AfricaReport():
         # # of patients with worsening of stroke
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '6'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '4'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -474,7 +475,7 @@ class AfricaReport():
         # # of patients with drip sespis
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '10'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '7'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -483,7 +484,7 @@ class AfricaReport():
         # # of patients with UTI
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '7'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '5'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -492,7 +493,7 @@ class AfricaReport():
         # # of patients with pressure sore
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '9'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '6'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -510,7 +511,7 @@ class AfricaReport():
         # # of patients with other stroke complications
         if not stroke_not_referred.empty:
             stroke_not_referred['COMPLICATIONS'] = stroke_not_referred.apply(
-                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '11'), 
+                lambda x: check_if_value_selected(x['POST_STROKE_COMPLICATIONS'], '9'), 
                 axis=1
             )
             tmp_df = stroke_not_referred.loc[stroke_not_referred['COMPLICATIONS'] == 1].copy()
@@ -659,7 +660,7 @@ class AfricaReport():
         
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '3'), axis=1
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '1'), axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
         self._get_numbers(tmp_df, '# of patients with non-fatal symptomatic intracranial haemorrhage (SICH)', 'ischemic_recan_pts')
@@ -667,7 +668,7 @@ class AfricaReport():
         # # # of patients with fatal SICH
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '4'), axis=1
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '2'), axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
         self._get_numbers(tmp_df, '# of patients with fatal SICH', 'ischemic_recan_pts')
@@ -675,7 +676,7 @@ class AfricaReport():
         # # of patients with remote cerebral haemorrhage
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '5'), axis=1
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '3'), axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
         self._get_numbers(tmp_df, '# of patients with remote cerebral haemorrhage', 'ischemic_recan_pts')
@@ -683,7 +684,7 @@ class AfricaReport():
         # # of patients with vessel perforation
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '6'), 
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '4'), 
                 axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
@@ -692,7 +693,7 @@ class AfricaReport():
         # # of patients with procedure related dissection
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '7'), 
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '5'), 
                 axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
@@ -701,7 +702,7 @@ class AfricaReport():
         # # of patients with embolization to different vascular territorys
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '8'), 
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '6'), 
                 axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
@@ -710,7 +711,7 @@ class AfricaReport():
         # # of patients with groin haematoma requiring transfusion
         if not ischemic_recan.empty:
             ischemic_recan['COMPLICATIONS'] = ischemic_recan.apply(
-                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '9'), 
+                lambda x: check_if_value_selected(x['REPERFUSION_COMPLICATIONS'], '7'), 
                 axis=1
             )
             tmp_df = ischemic_recan.loc[ischemic_recan['COMPLICATIONS'] == 1].copy()
@@ -751,7 +752,7 @@ class AfricaReport():
             physiotherapy_done = is_ich_sah_cvt_not_referred.copy()
         else:
             physiotherapy_done = is_ich_sah_cvt_not_referred.loc[
-                is_ich_sah_cvt_not_referred['PHYSIOTHERAPIST_EVALUATION'].isin([1,2,3])
+                is_ich_sah_cvt_not_referred['PHYSIOTHERAPIST_EVALUATION'].isin([1])
             ].copy()
         self._get_numbers(physiotherapy_done, '# of patients who had physiotherapy assessment', 'is_ich_sah_cvt_not_referred_pts')
         del physiotherapy_done
@@ -761,7 +762,7 @@ class AfricaReport():
             occup_therapy_done = is_ich_sah_cvt_not_referred.copy()
         else:
             occup_therapy_done = is_ich_sah_cvt_not_referred.loc[
-                is_ich_sah_cvt_not_referred['OCCUP_PHYSIOTHERAPIST_EVALUATION'].isin([1,2,3])
+                is_ich_sah_cvt_not_referred['OCCUP_PHYSIOTHERAPIST_EVALUATION'].isin([1])
             ].copy()
         self._get_numbers(occup_therapy_done, '# of patients who had Occupational therapy assessment', 'is_ich_sah_cvt_not_referred_pts')
         del occup_therapy_done
@@ -805,15 +806,15 @@ class AfricaReport():
         self._get_numbers(antihypertensive_prescribed, '# of patients who received antihypertensive medication', 'all_not_referred_pts')
         del antihypertensive_prescribed
 
-        # % of patients who received a statin
-        if stroke_not_referred.empty:
-            statin_prescribed = stroke_not_referred.copy()
-        else:
-            statin_prescribed = stroke_not_referred.loc[
-                stroke_not_referred['STATIN'] == 1
-            ].copy()
-        self._get_numbers(statin_prescribed, '# of patients who received a statin', 'stroke_not_referred_pts')
-        del statin_prescribed
+        # # % of patients who received a statin
+        # if stroke_not_referred.empty:
+        #     statin_prescribed = stroke_not_referred.copy()
+        # else:
+        #     statin_prescribed = stroke_not_referred.loc[
+        #         stroke_not_referred['STATIN'] == 1
+        #     ].copy()
+        # self._get_numbers(statin_prescribed, '# of patients who received a statin', 'stroke_not_referred_pts')
+        # del statin_prescribed
 
         # % of patients who received an antiplatelet agent
         def get_antithrombotics_prescribed(values, selected_values):
@@ -830,7 +831,7 @@ class AfricaReport():
             else: 
                 return 2
             
-        antiplatelets = [1,2,3,4,5,6]
+        antiplatelets = [1,2,3,4]
         if all_not_referred.empty:
             antiplatelets_prescribed = all_not_referred.copy()
         else:
@@ -845,7 +846,7 @@ class AfricaReport():
         self._get_numbers(antiplatelets_prescribed, '# of patients who received an antiplatelet agent', 'all_not_referred_pts')
         
         # % of patients who received anticoagulation
-        anticoagulation = [8,9,10,11,12,13,14]
+        anticoagulation = [6,7,8,9,10]
         if all_not_referred.empty:
             anticoagulants_prescribed = all_not_referred.copy()
         else:
@@ -893,7 +894,7 @@ class AfricaReport():
             carotid_stenosis = is_tia_not_referred_hemi.copy()
         else:
             carotid_stenosis = is_tia_not_referred_hemi.loc[
-                is_tia_not_referred_hemi['CAROTID_STENOSIS'].isin([1,2])
+                is_tia_not_referred_hemi['CAROTID_STENOSIS'].isin([3,4])
             ].copy()
         self._get_numbers(carotid_stenosis, '# of patients who received carotid stenosis', 'is_tia_not_referred_hemi_pts')
 
