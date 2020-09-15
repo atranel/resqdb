@@ -611,4 +611,11 @@ In the folder `tmp` you can find all additional files necassary to run some pack
 * **sk_mapping.csv** -> Slovakia asked us to modify the hospital names before data are uploaded to the AA portal. In this file you can find the name mapping (how it is in the datamix and how it should be in the result calculation).
 * **south_africa_mapping.json** -> this file includes mapping of the region code with region name for South Africa.
 
-In the root directory of the package, you can find `database.ini` file. This file contains config for the connection to the database. You can change username and password in this file. 
+In the root directory of the package are also additional files. 
+
+* **database.ini** -> this file contains config for the database connection, you can modify username, database and password in this file.
+* **functions.py** -> this file contains the functions what I use in the scripts used to generate statistics very often. There is function to get date range from the user, to get if angels awards should be generated, save csv file if it is not opened etc. 
+
+
+
+

@@ -217,7 +217,8 @@ class AfricaReport():
 
         :param site_id: the site ID
         :type site_id: str
-        :returns: str
+        :returns: the name of the region
+        :rtype: str
         '''
         region_code = site_id.split('_')[1]
         if region_code in self.regions:
@@ -229,10 +230,14 @@ class AfricaReport():
     def _filter_by_date(self, df, start_date, end_date):
         ''' Filter data by DISCHARGE DATE where discharge date is between start and end date. 
 
+        :param df: the dataframe to be filtered
+        :type df: DataFrame
         :param start: first date to be included
         :type start: datetime
         :param end: last date to be included
         :type end: datetime
+        :returns: the filtered dataframe
+        :rtype: DataFrame
         '''
         if isinstance(start_date, datetime):
             start_date = start_date.date()            
@@ -257,7 +262,7 @@ class AfricaReport():
         self.stats.fillna(0, inplace=True)
 
     def _get_numbers(self, df, column_name, denominator):
-        ''' Get numbers of patients for dataframe grouped by SITE_ID column. 
+        ''' Get numbers of patients for dataframe grouped by SITE_ID column and merge data with already calculated statistics. 
         The % column is calculated as well. 
 
         :param df: the filtered dataframe
@@ -285,7 +290,7 @@ class AfricaReport():
         
 
     def _get_median(self, df, column, new_column):
-        ''' Calculate median for a column grouped by SITE_ID. 
+        ''' Calculate median for a column grouped by SITE_ID and merge data with the already calculated statistics. 
         
         :param df: the dataframe
         :type df: DataFrame
@@ -301,7 +306,7 @@ class AfricaReport():
             self._merge_stats(median_df)
 
     def _get_iqr(self, df, column, new_column):
-        ''' Get IQR for a column grouped by SITE_ID. 
+        ''' Get IQR for a column grouped by SITE_ID and merge data with the calculated statistics. 
 
         :param df: the dataframe
         :type df: DataFrame
@@ -319,7 +324,7 @@ class AfricaReport():
             self._merge_stats(iqr_df)
 
     def _get_total_patients(self, df, column_name, to_be_deleted=False):
-        ''' Get number of patients in dataframe grouped by SITE_ID. 
+        ''' Get number of patients in dataframe grouped by SITE_ID and merge data with already calculated statistics. 
 
         :param df: the dataframe
         :type df: DataFrame
@@ -338,9 +343,9 @@ class AfricaReport():
             self._merge_stats(tmp_df)
 
     def calculate_statistics(self, df=None):
-        ''' Calculate statistics for the South Africa. 
+        ''' Calculate statistics for the South Africa. The changes are made directly in stats dataframe. 
         
-        :param df: the preprocessed data that can be filtered (default: None)
+        :param df: the preprocessed data that can be filtered (default is None)
         :type df: DataFrame
         '''
         # Check if argument is provided
@@ -348,7 +353,7 @@ class AfricaReport():
             df = self.preprocessed_data.copy()
 
         self.stats = df.groupby(['SITE_ID', 'FACILITY_NAME']).size().reset_index(name='Total Patients')
-        print(self.stats)
+
         # Get patients with stroke
         tmp_df = df.loc[df['STROKE_TYPE'] != 6].copy() 
         self._get_numbers(
@@ -917,7 +922,8 @@ class AfricaReport():
             
         :param ct_mri: the value of CT/MRI for ischemic stroke
         :type ct_mri: int
-        :returns: int
+        :returns: 1 if ct was done else 2
+        :rtype: int
         '''
         if ct_mri in [1,2,3,4,5,6]:
             return 1
@@ -931,7 +937,8 @@ class AfricaReport():
         :type nihss: int
         :param discharge_nihss: nihss score at discharge
         :type discharge_nihss: int
-        :returns: int
+        :returns: 1 if state improved, 2 if same and 3 if deteriorated
+        :rtype: int
         '''
         if nihss > discharge_nihss:
             return 1
@@ -945,7 +952,8 @@ class AfricaReport():
         
         :param selected_mrs: the index from the dropdown
         :type selected_mrs: int
-        :returns: converted score
+        :returns: converted mrs_score
+        :rtype: int
         '''
         if selected_mrs == 1:
             return -2
@@ -959,7 +967,8 @@ class AfricaReport():
         :type date: str
         :param time: time
         :type time: str
-        :returns: timestamp
+        :returns: the timestamp created from provided date and time
+        :rtype: datetime
         '''
         combine = f'{date} {time}'
         dateFormat = '%Y-%m-%d %H:%M:%S'
@@ -972,7 +981,8 @@ class AfricaReport():
         :type start: datetime
         :param end: ending date
         :type end: datetime
-        :returns: int
+        :returns: the difference between two times in minutes
+        :rtype: int
         '''
         minutes_diff = (end - start).total_seconds() / 60.0
         return minutes_diff
@@ -982,7 +992,8 @@ class AfricaReport():
         
         :param df: the data from connection
         :type df: DataFrame
-        :returns: DataFrame
+        :returns: modified preprocessed data with additional and helper columns calculated
+        :rtype: DataFrames
         '''
         import numpy as np
 
@@ -1112,7 +1123,8 @@ class AfricaReport():
         :type workbook: Workbook
         :param color: the color in the hex format
         :type color: str
-        :returns: Format
+        :returns: the format added in the workbook
+        :rtype: format
         '''
         format1 = workbook.add_format({
             'bold': 2,
@@ -1402,6 +1414,10 @@ class AfricaReport():
 
         :param df: the calculated statisitcs
         :type df: DataFrame
+        :param filename: the name of the created filename
+        :type filename: str
+        :param site_name: the name of the site (default is None)
+        :type site_name: str
         '''
         script_dir = os.path.dirname(__file__)
         master = os.path.normpath(os.path.join(script_dir, 'backgrounds', 'master.pptx'))
@@ -1722,8 +1738,10 @@ class AfricaReport():
         :type presentation: Presentation
         :param title: the title of the graph
         :type title: str
-        :param graph_type: the type of the graph
+        :param graph_type: the type of the graph (default is barplot)
         :type graph_type: str
+        :param show_value_axis: True if the values should be shown on value axis, else False (default is True)
+        :type show_value_axis: boolean
         :param legend: list of legend
         :type legend: list
         '''

@@ -294,7 +294,13 @@ class Connection():
         logging.info('The conversion and merging run {0} minutes.'.format(tdelta))
 
     def __get_africa_df(self, datamix, nprocess):
-        ''' Get africa_mix data from the datamix database. '''
+        ''' Get africa_mix data from the datamix database. 
+        
+        :param datamix: the name of the setting from the database.ini file
+        :type datamix: str
+        :param nprocess: the number of process to be run
+        :type nprocess: int
+        '''
         df_name = 'africa_mix'
         self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
         self.africa_df = self.dictdb_df[df_name]
@@ -310,12 +316,17 @@ class Connection():
         self.africa_df.rename(columns=dict(zip(self.africa_df.columns[0:], column_names)), inplace=True)
             
         self.preprocessed_data = self.africa_df.copy()
-        print(self.preprocessed_data)
         del self.dictdb_df[df_name]
 
 
     def __get_qasc_df(self, datamix, nprocess):
-        ''' Get QASC data from the database. '''
+        ''' Get QASC data from the database. 
+        
+        :param datamix: the name of the setting from the database.ini file
+        :type datamix: str
+        :param nprocess: the number of process to be run
+        :type nprocess: int
+        '''
         # Get QASC data from the database
         df_name = 'qasc_mix'
         self.connect(self.sqls[0], datamix, nprocess, df_name=df_name)
@@ -348,6 +359,7 @@ class Connection():
         :param section: the name of the section in database.ini file
         :type section: str
         :returns: the dictionary with the parsed section values
+        :rtype: dictionary
         :raises: Exception
         """
         # Create a parser object
@@ -665,6 +677,7 @@ class Connection():
         :param afib: seelcted value for afib
         :type afib: int
         :returns: mapped value 
+        :rtype: int
         """
     
         if col_vals is not None:
@@ -737,6 +750,7 @@ class Connection():
         :param ct_time: the time when CT/MRI has been performed
         :type ct_time: time
         :returns: 1 if datetime > 0 and < 60, 2 if results > 60 else -2
+        :rtype: int
         """
         timeformat = '%H:%M:%S'
 
@@ -773,6 +787,7 @@ class Connection():
         :param df: the preprossed dataframe
         :type df: pandas dataframe
         :returns: the list of countries
+        :rtype: list
         """
 
         site_ids = df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
@@ -789,6 +804,7 @@ class Connection():
         :param value: the entered value in the glucose field
         :type value: str
         :returns: fixed number
+        :rtype: int
         """
         if value is None:
             return value
@@ -811,10 +827,11 @@ class Connection():
         """ The function calling the CheckData object. The dates and times are checked and if they are incorrect, they are fixed. 
 
         :param df: the raw dataframe 
-        :type df: pandas dataframe
+        :type df: DataFrame
         :param nprocess: the number of processes run simulataneously
         :type nprocess: int
         :returns: the dataframe with preprocessed data
+        :rtype: DataFrame
         """
         chd = CheckData(df=df, nprocess=nprocess)
 
@@ -827,8 +844,9 @@ class Connection():
         """ The function preparing the atalaia dataframe if data is equal to atalaia. The column names are renamed.
         
         :param df: the raw data exported from the database
-        :type df: pandas dataframe
+        :type df: DataFrame
         :returns: the prepared dataframe
+        :rtype: DataFrame
         """
 
         # Get only columns ending with _en
@@ -866,6 +884,7 @@ class Connection():
         :param hospital_date: the date of hospitalization
         :type hospital_date: date
         :returns: the difference in minutes
+        :rtype: int
         """
         if (type(visit_date) is pd.Timestamp or type(visit_date) is datetime.datetime) and (type(hospital_date) is pd.Timestamp or type(hospital_date) is datetime.datetime):
             time_diff = hospital_date - visit_date
@@ -880,7 +899,15 @@ class Connection():
         return total_minutes
 
     def fix_date(self, visit_date, hospital_date):
-        """ Fix date in the case that visit year is incorrect. """
+        """ Fix date in the case that visit year is incorrect. 
+        
+        :param visit_date: the visit date 
+        :type visit_date: date
+        :param hospital_date: the hospital date
+        :type hospital_date: date
+        :returns: fixed visit date
+        :rtype: date
+        """
         
         if visit_date is None:
             return None

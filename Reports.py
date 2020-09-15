@@ -1539,7 +1539,15 @@ class GenerateTable:
         self._slide = value
 
     def _create_table(self, df, new_slide=True, left=True):
-        """ The function generating new table in the presentation. """      
+        """ The function generating new table in the presentation. 
+        
+        :param df: the dataframe that should be shown in the table
+        :type df: DataFrame
+        :param new_slide: True if new slide should be created else False (default is True)
+        :type new_slide: boolean
+        :param left: True if the table should be shown on the left else False (default is True)
+        :type left: boolean
+        """      
         if new_slide:
             title_placeholders = self.slide.shapes.title
             title_placeholders.text = self.title

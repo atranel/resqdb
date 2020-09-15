@@ -34,7 +34,11 @@ def save_file(name, data=None, index=False):
 
 
 def repeat_answer():
-    """ Return True if the user would like to continue but with diferrent setting otherwise return False."""
+    """ Return True if the user would like to continue but with diferrent setting otherwise return False.
+    
+    :returns: True if user entered 'y' else False is returned
+    :rtype: boolean
+    """
     while True:
         repeat = input("Would you like to continue with different setting? (y/n)\n").lower()
         if repeat != "y" and repeat != "n":
@@ -52,7 +56,8 @@ def repeat_answer():
 def get_year():
     """ Funtion used to get input from user and return the selected year. 
     
-    :returns: string
+    :returns: the selected year
+    :rtype: str
     """
     while True:
         val = input("Please, select year: \n1) 2016\n2) 2017\n3) 2018\n4) 2019\n5) 2020\n")
@@ -117,7 +122,8 @@ def get_half(year):
 
     :param year: the year included in the dates
     :type year: str/int
-    :returns: name of period, date, date
+    :returns: name of the selected period, the first date, the second date
+    :rtype: str, date, date
     """
     year = int(year)
     year_str = str(year)
@@ -141,7 +147,8 @@ def get_half(year):
 def get_time_range():
     """ Return starting and closing date based on user preferences. Based on the selection other functions are called to obtain starting and closing date used for filtration. 
     
-    :returns: name of period, starting date, closing date, type of report
+    :returns: name of the period, the first date, the end date and type of report
+    :rtype: str, date, date, str
     """
     while True:
         report = input("Please, how you want to filter data? \n1) quarterly\n2) bi-annualy\n3) annualy\n4) differently\n5) all data\n")
@@ -214,7 +221,8 @@ def get_time_range():
 def get_angel_awards():
     """ Return True if only angels awards data should be generated. 
 
-    :returns: boolean
+    :returns: True if user enterd `y` otherwise returns False
+    :rtype: boolean
     """
     while True:
         angel_awards = input("Do you need only angels awards (Excel)? (y/n)\n").lower()
@@ -233,7 +241,8 @@ def get_angel_awards():
 def get_total_patients():
     """ Return True if only sites with >= 30 patients should be included in calculation. 
     
-    :returns: int
+    :returns: True if only sites with >= 30 patients in the period should be included
+    :rtype: boolean
     """
     while True:
         total_patients = input("Do you want to include only sites with >= 30 patients? (y/n)\n").lower()
@@ -252,7 +261,8 @@ def get_total_patients():
 def get_number_of_patients():
     """ Get minimum number of patients used as criterium for angels awards. 
     
-    :returns: int
+    :returns: the number of patients used as a criterion for AA calculation
+    :rtype: int
     """
     while True:        
         try:
@@ -271,7 +281,8 @@ def get_country_site(countries, site_ids):
     :type countries: list
     :param site_ids: list of sites in data
     :type site_ids: list
-    :returns: country, site, split_sites
+    :returns: country for which report should be generated, site id if provided otherwise None and True if reports should be generated per sites otherwise False
+    :rtype: str, str, boolean
     """
     
     while True:
@@ -357,7 +368,8 @@ def get_country(countries):
     
     :param countries: the list of country code 
     :type countries: list   
-    :returns: country code
+    :returns: the entered country code
+    :rtype: str
     """
     while True:
         country_input = input("Select country code which you want to compare yearly?\n").lower()
@@ -382,6 +394,8 @@ def period_comparison(countries_list, nationally_samples):
     :type countries_list: list
     :param nationally_samples: list of country codes used as nationally samples, the rest from countries_lsit will be used as site-level
     :type nationally_samples: list
+    :returns: True if countries should be compared otherwise false, the list of site samples and the list of nationally samples
+    :rtype: bool, list, list
     '''
     tmp = countries_list # Get countries list
     while True:
@@ -426,7 +440,8 @@ def nationally_samples_comparison(nationally_samples):
     
     :param nationally_samples: list of country codes to be used in comparison
     :type nationally_samples: list
-    :returns: bool, list
+    :returns: True if nationally sites should be compared in two periods else False, the list of nationally samples
+    :rtype: bool, list
     """
     while True:
         # Get user's input
@@ -465,7 +480,8 @@ def year_comparison(countries):
     
     :param countries: list of country codes that are available
     :type countries: list
-    :returns: bool, string
+    :returns: True if country should be compared through all years else False, country code if countries should be compared otherwise empty string returns
+    :rtype: bool, str
     """
     while True:
         comparison = input("Do you want to compare country per all years (e.g. all years in data) or in different period? (y/n)\n").lower()
@@ -488,7 +504,8 @@ def filter_by_pts(df):
     
     :param df: preprocessed data to be filtered by Total patients
     :type df: DataFrame
-    :returns: df
+    :returns: the dataframe with sites that do not have enough patients in period excluded
+    :rtype: DataFrame
     """
     # group dataframe by Site ID
     patients_df = df.groupby(['Protocol ID']).size().reset_index(name="Total Patients")
@@ -501,7 +518,8 @@ def filter_by_pts(df):
 def get_month():
     """ Function to get month from the user input. The month should be number from 1-12. 
     
-    :returns: month
+    :returns: the number of month enterd by user
+    :rtype: int
     """
     while True:
         val = input("Please, select which month should be included in reports as last? (1-12)\n")
@@ -535,6 +553,7 @@ def get_values_for_factors(tmp, default, column_name, value, new_column_name, co
     :param column: column included in the results
     :type column: str
     :returns: new dataframe with number of patients
+    :rtype: DataFrame
     """
     import numpy as np
     if (tmp[column_name].dtype != np.float64):
@@ -554,7 +573,8 @@ def mrs_function(x):
     
     :param x: the index of answer from the form, eg. first option of select has index 1 etc. 
     :type x: int
-    :returns: mRS score
+    :returns: the converted mRS score
+    :rtype: int
     """
     x = float(x)
     if (x == 1):
@@ -570,6 +590,7 @@ def calculate_outcome(df):
     :param df: the dataframe with preprocessed and filtered data
     :type df: DataFrame
     :returns: dataframe with calculated outcome
+    :rtype: DataFrame
     """
     import numpy as np
     stroke_df = df[df['STROKE_TYPE'].isin([1,2,4])].copy() # Filter dataframe by stroke type - IS, ICH and SAH

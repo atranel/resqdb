@@ -126,6 +126,7 @@ class Qasc():
         :param site_id: site ID for which the report should be generated
         :type site_id: str
         :returns: filtered data
+        :rtype: DataFrame
         '''
         return self.preprocessed_data.loc[self.preprocessed_data['SITE_ID'] == site_id].copy()
 
@@ -137,6 +138,7 @@ class Qasc():
         :param second_date: second date included in the filtration
         :type second_date: datetime
         :returns: the filtered dataframe
+        :rtype: DataFrame
         '''
         if self.site_df.empty or self.site_df is None:
             return self.preprocessed_data.loc[
@@ -170,6 +172,8 @@ class Qasc():
         
         :params column_name: column name to be replaced
         :type column_name: string
+        :returns: the modified column name where # was replaced by %
+        :rtype: str
         '''
         return column_name.replace('#', '%', 1)
 
@@ -179,9 +183,11 @@ class Qasc():
         :param column_name: name of column to be creatd
         :type column_name: string
         :param groups: grouped dataframe
-        :type groups: dataframe
+        :type groups: DataFrame
         :param out_of: the name of column to be used as denominator
         :type out_of: string
+        :returns: the calculated stats extends with the calculated column
+        :rtype: DataFrame
         ''' 
         stats = stats.merge(groups[[self.main_col, column_name]], how='outer')
         # get percentages out of # n
@@ -200,13 +206,20 @@ class Qasc():
         :param curr_name: new name of the column
         :type curr_name: str
         :returns: modified dataframe
+        :rtype: DataFrame
         '''
         if not prev_name in df.columns:
             df[prev_name] = 0
         return df.rename(columns={prev_name: curr_name})    
 
     def calculate_statistics(self, df=None):
-        ''' Calculate the statistics for the temperature, blood glucose and swallow screening. '''
+        ''' Calculate the statistics for the temperature, blood glucose and swallow screening. 
+        
+        :param df: the preprocessed data to be calculated, if not provided preprocessed data are used (default is None)
+        :type df: DataFrame
+        :returns: the calculated stats
+        :rtype: DataFrame
+        '''
         # Defina main column to be grouped by
         self.main_col = 'SITE_ID'
 
@@ -564,6 +577,8 @@ class Qasc():
         :type second_x: int
         :param second_y: 4th coordinate
         :type second_y: int
+        :returns: the merge cell
+        :rtype: cell 
         '''
         cell = table.cell(first_x, first_y)
         other_cell = table.cell(second_x, second_y)
@@ -719,7 +734,8 @@ class Qasc():
         :type column_name: str
         :param baseline: True if baseline report is generate
         :type baseline: boolean
-        :returns: list of values
+        :returns: list of column name based on the report type
+        :rtype: list
         '''
         if baseline:
             columns = [
@@ -747,6 +763,7 @@ class Qasc():
         :type tcol: int
         :param baseline: True if baseline report should be generated
         :type baseline: boolean
+        
         '''
         # Add table to the slide, we need table with 21 rows and 3 columns
         shape = slide.shapes.add_table(

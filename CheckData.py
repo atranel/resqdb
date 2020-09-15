@@ -67,7 +67,8 @@ class CheckData:
         :type visit_date: the timestamp
         :param hospital_date: the date of hospitalization
         :type hospital_date: the timestamp
-        :returns: the difference between two timestamps
+        :returns: the difference between two timestamps in minutes
+        :rtype: int
         """
         if type(visit_date) is pd.Timestamp and type(hospital_date) is pd.Timestamp:
             time_diff = hospital_date - visit_date
@@ -92,6 +93,7 @@ class CheckData:
         :param name: the name of dataframe used as key in the dictionary
         :type name: str
         :returns: preprocessed data if one process has been run
+        :rtype: DataFrame
         """     
         
         if self.nprocess is not None:
@@ -172,6 +174,7 @@ class CheckData:
         :param disc_date: the discharge date
         :type disc_date: date
         :returns: fixed visit_date, fixed hosp_date, fixed disc_date, hospital_days calculated from the fixed dates, `True` if values has been fixed
+        :rtype: date, date, date, int, boolean
         """
         # Set to True if hospital date or discharge date was fixed. Default: True
         fixed = False
@@ -343,6 +346,7 @@ class CheckData:
         :param disc_date: the discharge date
         :type disc_date: date
         :returns: the number of hospital days
+        :rtype: int
         """
 
         try: 
@@ -359,8 +363,9 @@ class CheckData:
         """ The function fixing the times for recanalization procedures. 
 
         :param df: the dataframe with raw data
-        :type df: pandas dataframe
+        :type df: DataFrame
         :returns: the dataframe with the fixed times
+        :rtype: DataFrame
         """
         # IVT_ONLY - 1) filled in minutes, 2) filled admission and bolus time
         # IVT_ONLY_ADMISSION_TIME - HH:MM format
@@ -755,6 +760,7 @@ class CheckData:
         :param max_time: the maximum time which is realistic for the type of the recanalization treatment
         :type max_time: int
         :returns: the calculated difference in minutes, `True` if time has been fixed else `False`
+        :rtype: int, boolean
         """
         
         fixed = False

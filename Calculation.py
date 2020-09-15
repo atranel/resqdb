@@ -132,8 +132,10 @@ class ComputeStats:
     :type country_code: str
     :param comparison: the value saying if it is comparative statistics
     :type comparison: bool
-    :param patient_limit: the number of patients used as limit when evaluating angels awards
+    :param patient_limit: the number of patients used as limit when evaluating angels awards (default is 30)
     :type patiet_limit: int
+    :param period: the name of the period (default is None)
+    :type period: str
     """
 
 
