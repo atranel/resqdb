@@ -1,6 +1,7 @@
 import os
 import time 
 from datetime import datetime, date
+import pandas as pd
 
 def save_file(name, data=None, index=False):
     """ If the file already exists, first try to rename it, it renaming is succes, rename it back and resaved the file else raise error and print warning to user, wait 2 seconds and try it again. 
@@ -89,31 +90,30 @@ def get_quarter(year):
     :returns: name of period, date, date
     """
     year = int(year)
-    year_str = str(year)
     while True:
         val = input("Please, select quarter: \n1) Q1\n2) Q2\n3) Q3\n4) Q4\n")
         if val != "1" and val != "2" and val != "3" and val != "4":
             print("Wrong option!")
             continue
         elif val == "1":
-            quarter = "Q1_" + year_str
-            date1 = date(year, 1, 1)
-            date2 = date(year, 3, 31)
+            quarter = f"Q1_{year}"
+            date1 = pd.Timestamp(date(year, 1, 1))
+            date2 = pd.Timestamp(date(year, 3, 31))
             break
         elif val == "2":
-            quarter = "Q2_" + year_str
-            date1 = date(year, 4, 1)
-            date2 = date(year, 6, 30)
+            quarter = f"Q2_{year}"
+            date1 = pd.Timestamp(date(year, 4, 1))
+            date2 = pd.Timestamp(date(year, 6, 30))
             break
         elif val == "3":
-            quarter = "Q3_" + year_str
-            date1 = date(year, 7, 1)
-            date2 = date(year, 9, 30)
+            quarter = f"Q3_{year}"
+            date1 = pd.Timestamp(date(year, 7, 1))
+            date2 = pd.Timestamp(date(year, 9, 30))
             break
         elif val == "4":
-            quarter = "Q4_" + year_str
-            date1 = date(year, 10, 1)
-            date2 = date(year, 12, 31)
+            quarter = f"Q4_{year}"
+            date1 = pd.Timestamp(date(year, 10, 1))
+            date2 = pd.Timestamp(date(year, 12, 31))
             break
     return quarter, date1, date2
 
@@ -126,24 +126,54 @@ def get_half(year):
     :rtype: str, date, date
     """
     year = int(year)
-    year_str = str(year)
     while True:
         val = input("Please, select half: \n1) H1\n2) H2\n")
         if val != "1" and val != "2":
             print("Wrong option!")
             continue
         elif val == "1":
-            half = "H1_" + year_str
-            date1 = date(year, 1, 1)
-            date2 = date(year, 6, 30)
+            half = f'H1_{year}'
+            date1 = pd.Timestamp(date(year, 1, 1))
+            date2 = pd.Timestamp(date(year, 6, 30))
             break
         elif val == "2":
-            half = "H2_" + year_str
-            date1 = date(year, 7, 1)
-            date2 = date(year, 12, 31)
+            half = f'H2_{year}'
+            date1 = pd.Timestamp(date(year, 7, 1))
+            date2 = pd.Timestamp(date(year, 12, 31))
             break
     return half, date1, date2
+
+def get_month_number(year):
+    """ Function to get month from the user input. The month should be number from 1-12. 
+    
+    :returns: the number of month enterd by user
+    :rtype: int
+    """
+    year = int(year)
+    while True:
+        val = input("Please, enter the number of month? (1-12)\n")
+        closed = False
+        try: 
+            month = int(val)
+            if (month <= 0 and month > 12):
+                continue
+            closed = True
+        except ValueError:
+            print("Invalid number!")
+            continue
         
+        if closed:
+            import calendar
+            week_day = calendar.monthrange(year, month) # get the tuple where the first number is weekday of first day of the month and second is number of days in month
+
+            date1 = pd.Timestamp(date(year, month, 1))
+            date2 = pd.Timestamp(date(year, month, week_day[1]))
+
+            month_name = f'{date1.strftime("%B")}_{year}' # get the name of month
+            break
+    
+    return month_name, date1, date2
+
 def get_time_range():
     """ Return starting and closing date based on user preferences. Based on the selection other functions are called to obtain starting and closing date used for filtration. 
     
@@ -151,7 +181,7 @@ def get_time_range():
     :rtype: str, date, date, str
     """
     while True:
-        report = input("Please, how you want to filter data? \n1) quarterly\n2) bi-annualy\n3) annualy\n4) differently\n5) all data\n")
+        report = input("Please, how you want to filter data? \n1) quarterly\n2) bi-annualy\n3) annualy\n4) monthly\n5) differently \n6) all data\n")
         if report != "1" and report != "2" and report != "3" and report != "4" and report != "5":
             print("Wrong option!")
             continue
@@ -171,18 +201,24 @@ def get_time_range():
         elif report == "3":
             report_type = "year"
             name = get_year()
-            date1 = date(int(name), 1, 1)
-            date2 = date(int(name), 12, 31)
+            date1 = pd.Timestamp(date(int(name), 1, 1))
+            date2 = pd.Timestamp(date(int(name), 12, 31))
             break
 
         elif report == "4":
+            report_type = "month"
+            year = get_year() # get the year
+            name, date1, date2 = get_month_number(year) # get number of month         
+            break
+
+        elif report == "5":
             
             while True:
                 date1_str = input("Please, write first date in the format - Y-M-D: ")
                 date1_l = date1_str.split("-")
                 closed = False
                 try:
-                    date1 = date(int(date1_l[0]), int(date1_l[1]), int(date1_l[2]))
+                    date1 = pd.Timestamp(date(int(date1_l[0]), int(date1_l[1]), int(date1_l[2])))
                     #date1 = pd.Timestamp(int(date1_l[0]), int(date1_l[1]), int(date1_l[2]), 0)
                     closed = True
                 except ValueError:
@@ -196,7 +232,7 @@ def get_time_range():
                 date2_l = date2_str.split("-")
                 closed = False
                 try:
-                    date2 = date(int(date2_l[0]), int(date2_l[1]), int(date2_l[2]))
+                    date2 = pd.Timestamp(date(int(date2_l[0]), int(date2_l[1]), int(date2_l[2])))
                     #date2 = pd.Timstamp(int(date2_l[0]), int(date2_l[1]), int(date2_l[2]), 0)
                     closed = True
                 except ValueError:
@@ -209,7 +245,7 @@ def get_time_range():
             report_type = "range"
             break
 
-        elif report == "5":
+        elif report == "6":
             name = "all"
             date1 = None
             date2 = None

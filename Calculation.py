@@ -83,12 +83,6 @@ class FilterDataset:
         
         :returns: df -- the dataframe including only rows where discharge date is in the period (date1, date2)
         """
-
-        if isinstance(self.date1, datetime):
-            self.date1 = self.date1.date()
-        if isinstance(self.date2, datetime):
-            self.date2 = self.date2.date()
-
         df = self.fdf[(self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2)].copy()
 
         return df
@@ -98,11 +92,6 @@ class FilterDataset:
 
         :returns df: the dataframe including only rows where admission date is between these two days
         '''
-        if isinstance(self.date1, datetime):
-            self.date1 = self.date1.date()
-        if isinstance(self.date2, datetime):
-            self.date2 = self.date2.date()
-
         df = self.fdf[(self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)].copy()
 
         return df
@@ -111,10 +100,6 @@ class FilterDataset:
         ''' The function filters dataframe by admission and discharge date. Eg. include patient if hospital date or discharge date are in the range.
 
         '''
-        if isinstance(self.date1, datetime):
-            self.date1 = self.date1.date()
-        if isinstance(self.date2, datetime):
-            self.date2 = self.date2.date()
 
         df = self.fdf[((self.fdf['HOSPITAL_DATE'] >= self.date1) & (self.fdf['HOSPITAL_DATE'] <= self.date2)) | ((self.fdf['DISCHARGE_DATE'] >= self.date1) & (self.fdf['DISCHARGE_DATE'] <= self.date2))].copy()
         return df

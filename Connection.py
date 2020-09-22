@@ -502,7 +502,7 @@ class Connection():
             self.dict_df[name] = res
 
         elif 'ivttby' in name:
-
+            df.to_csv('ivttby.csv', sep=',', index=False)
             # Get patients inserted in IVT_TBY_DEV
             ivttby_dev = df[df['oc_oid'].str.contains('')]
             #df = df[df['oc_oid'] != "F_RESQ_IVT_TBY_1565_DEVCZ10"].copy()

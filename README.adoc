@@ -27,7 +27,7 @@ Everything was tested with the **Python 3.6 and higher version**.
 +
 [source,python]
 ----
-pip3 install pandas, numpy, xlsxwriter, pytz, scipy, psycopg2, python-pptx, statistics
+pip3 install pandas, xlsxwriter, pytz, scipy, psycopg2, python-pptx, statistics
 ----
 
 
