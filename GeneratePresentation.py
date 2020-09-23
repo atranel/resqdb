@@ -237,13 +237,7 @@ class GeneratePresentation:
 
         title = self.titles["department"][self.language]
         legend = self.legends["department"][self.language]
-
-        if self.country_code == 'CZ':
-            title = 'ODDĚLENÍ, KDE BYL PACIENT HOSPITALIZOVÁN (%)'
-            legend = ['neurologie', 'neurochirurgie', 'ARO', 'interna', 'geriatrie', 'ostatní']
-            
-
-
+        
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
         ###################################
