@@ -1,0 +1,264 @@
+{
+  "gender": {
+    "en": ["Female", "Male"],
+    "cz": ["Žena", "Muž"]
+  },
+  "department": {
+    "en": [
+      "neurology",
+      "neurosurgery",
+      "anesthesiology resuscitation critical care",
+      "internal medicine",
+      "geriatrics",
+      "other"
+    ],
+    "cz": [
+      "neurologie",
+      "neurochirurgie",
+      "ARO",
+      "interna",
+      "geriatrie",
+      "ostatní"
+    ]
+  },
+  "hospitalization": {
+    "en": ["stroke unit", "monitored bed with telemetry", "standard bed"],
+    "cz": ["JIP ", "jiné monitorované lůžko (telemetrie)", "standardní lůžko"]
+  },
+  "stroke_type": {
+    "en": [
+      "ischemic",
+      "transient ischemic attack",
+      "intracerebral hemorrhage",
+      "subarrachnoid hemorrhage",
+      "cerebral venous thrombosis",
+      "undetermined"
+    ],
+    "cz": [
+      "ischemická CMP",
+      "tranzitorní ischemická ataka - TIA",
+      "intracerebrální krvácení",
+      "subarachnoidální krvácení",
+      "mozková žilní trombóza",
+      "neurčená"
+    ]
+  },
+  "consciousness_level": {
+    "en": ["GCS 15 - 13", "GCS 12 - 8", "GCS < 8"],
+    "cz": ["GCS 15 - 13", "GCS 12 - 8", "GCS < 8"]
+  },
+  "vascular_imaging": {
+    "en": ["CTA", "MRA", "DSA", "none"],
+    "cz": ["CTA", "MRA", "DSA", "Žádné"]
+  },
+  "ivtpa": {
+    "en": [
+      "IV tPa",
+      "IV tPa + endovascular treatment",
+      "IV tPa + another centre for endovascular treatment"
+    ],
+    "cz": [
+      "IV tPa",
+      "IV tPa + endovascular treatment",
+      "IV tPa + another centre for endovascular treatment"
+    ]
+  },
+  "comprehensive_recan": {
+    "en": ["IV tPa + endovascular treatment", "endovascular treatment"],
+    "cz": [
+      "IV tPA + endovaskulární výkon – KCC",
+      "pouze endovaskulární výkon – KCC"
+    ]
+  },
+  "transferred_recan": {
+    "en": [
+      "IV tPa + another centre for endovascular treatment",
+      "another centre for endovascular treatment",
+      "another centre for endovascular treatment and hospitalization continues",
+      "another centre for endovascular treatment and returned to the initial centre"
+    ],
+    "cz": [
+      "IV tPA + odeslán do jiného centra k endovaskulárnímu výkonu – IC",
+      "Pouze odeslán do jiného centra k endovaskulárnímu výkonu – IC",
+      "Pouze odeslán k endovaskulárnímu výkonu a hospitalizace pokračuje – KCC",
+      "Pouze odeslán k endovaskulárnímu výkonu a pacient přeložen zpět do jiného centra – KCC"
+    ]
+  },
+  "recan_proc": {
+    "en": [
+      "IV tPa",
+      "IV tPa + endovascular treatment",
+      "endovascular treatment",
+      "IV tPa + another centre for endovascular treatment"
+    ],
+    "cz": [
+      "IV tPA – IC / KCC",
+      "IV tPA + endovaskulární výkon – KCC",
+      "pouze endovaskulární výkon – KCC",
+      "IV tPA + odeslán do jiného centra k endovaskulárnímu výkonu – IC"
+    ]
+  },
+  "dysphagia": {
+    "en": ["GUSS test", "Other test", "Another centre"],
+    "cz": ["GUSS test", "Jiný test", "Jiné pracoviště"]
+  },
+  "neurosurgery_type": {
+    "en": [
+      "intracranial hematoma evacuation",
+      "external ventricular drainage",
+      "decompressive craniectomy"
+    ],
+    "cz": [
+      "Evakuace hematomu",
+      "Zevní komorová drenáž",
+      "Dekompresní kraniektomie"
+    ]
+  },
+  "bleeding_reason": {
+    "en": [
+      "arterial hypertension",
+      "aneurysm",
+      "arterio-venous malformation",
+      "anticoagulation therapy",
+      "amyloid angiopathy",
+      "other"
+    ],
+    "cz": [
+      " arteriální hypertenze",
+      "aneurysma",
+      "arteriovenózní malformace",
+      "antikoagulační terapie",
+      "amyloidní angiopatie",
+      "jiné / neznámé"
+    ]
+  },
+  "intervention": {
+    "en": [
+      "Endovascular (coiling)",
+      "Neurosurgical (clipping)",
+      "Other neurosurgical treatment",
+      "Patient referred to another centre",
+      "None"
+    ],
+    "cz": [
+      "Endovaskulární (coiling)",
+      "Neurochirurgická (clipping)",
+      "Jiný neurochirurgický výkon",
+      "Odeslán k intervenci do jiného centra"
+    ]
+  },
+  "vt_treatment": {
+    "en": [
+      "anticoagulation",
+      "thrombectomy",
+      "local thrombolysis",
+      "neurosurgical treatment"
+    ],
+    "cz": [
+      "Antikoagulace",
+      "Endovaskulární intervence - trombektomie",
+      "Endovaskulární intervence – lokální trombolýza",
+      "Neurochirurgický výkon"
+    ]
+  },
+  "afib": {
+    "en": [
+      "detected during hospitalization",
+      "newly-detected at admission",
+      "known aFib"
+    ],
+    "cz": [
+      "zjištěná během hospitalizace",
+      "nově zjištěná při přijetí",
+      "známá FS"
+    ]
+  },
+  "afib_detection": {
+    "en": [
+      "Telemetry with monitoring",
+      "Telemetry without monitoring",
+      "Holter-type monitoring",
+      "EKG monitoring in an ICU bed with automatic detection of aFib",
+      "EKG monitoring in an ICU bed without automatic detection of aFib"
+    ],
+    "cz": [
+      "Telemetrie s automatickou detekci FS",
+      "Telemetrie bez automatické detekce FS",
+      "Holterovo monitorování",
+      "EKG monitorace na JIP lůžku s automatickou detekcí FS",
+      "EKG monitorace na JIP lůžku bez automatické detekce FS"
+    ]
+  },
+  "antithrombotics": {
+    "en": [
+      "Antiplatelets",
+      "Vitamin K",
+      "Dabigatran",
+      "Rivaroxaban",
+      "Apixaban",
+      "Edoxaban",
+      "LMWH or heparin in prophylactic dose",
+      "LMWH or heparin in anticoagulant dose"
+    ],
+    "cz": [
+      "Protidestičkoé léky",
+      "Vitamin K",
+      "Dabigatran",
+      "Rivaroxaban",
+      "Apixaban",
+      "Edoxaban",
+      "LMWH, heparin - profylaktická dávka",
+      "LMWH, heparin - antikoagulační, terapeutická dávka"
+    ]
+  },
+  "carotid_stenosis_followup": {
+    "en": ["Yes or planned", "Referred to another centre"],
+    "cz": ["Ano nebo plánováno", "Odeslán/a do jiného centra"]
+  },
+  "discharge_destination": {
+    "en": [
+      "home",
+      "transferred within the same centre",
+      "transferred to another centre",
+      "social care facility",
+      "dead"
+    ],
+    "cz": [
+      "domů",
+      "překlad v rámci stejného zdravotnického zařízení (ZZ)",
+      "překlad do jiného zdravotnického zařízení (ZZ)",
+      "zařízení sociální péče",
+      "zemřel/a"
+    ]
+  },
+  "discharge_destination_same": {
+    "en": ["Acute rehabilitation", "Post-care bed", "Another department"],
+    "cz": [
+      "Oddělení akutní rehabilitace",
+      "Lůžko následné péče",
+      "Jiné oddělení"
+    ]
+  },
+  "discharge_destination_another": {
+    "en": ["Stroke centre", "Comprehensive stroke centre", "Another hospital"],
+    "cz": [
+      "Iktové centrum",
+      "Komplexní cerebrovaskulární centrum",
+      "Jiná nemocnice"
+    ]
+  },
+  "discharge_destination_another_department": {
+    "en": [
+      "Acute rehabilitation",
+      "Post-care bed",
+      "Neurology",
+      "Another department"
+    ],
+    "cz": [
+      "Oddělení akutní rehabilitace",
+      "Lůžko následné péče",
+      "Neurologie",
+      "Jiné oddělení"
+    ]
+  }
+}
