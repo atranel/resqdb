@@ -2112,17 +2112,3 @@ class GeneratePresentationSites(GeneratePresentation):
         presentation_path = os.path.normpath(os.path.join(working_dir, pptx))
 
         prs.save(presentation_path)
-
-    
-
-
-
-
-
-
-
-
-
-        
-
-

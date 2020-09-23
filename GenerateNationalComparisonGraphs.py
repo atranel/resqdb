@@ -304,7 +304,6 @@ class GenerateNationalComparisonGraphs:
         ###########################
         column_name = '% patients female'
         
-
         tmp_df = df[[main_col, '% patients female', '% patients male']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
         
