@@ -20,6 +20,7 @@ import xlsxwriter
 from pptx import Presentation
 from pptx.util import Cm, Pt, Inches
 from pptx.dml.color import RGBColor
+import json
 
 class GeneratePresentation:
     """ The class generating the general presentation for countries and sites. 
@@ -46,11 +47,26 @@ class GeneratePresentation:
         self.country_code = country_code
         self.report = report
         self.quarter = quarter
+        if self.country_code == 'CZ':
+            self._language = 'cz'
+        else: 
+            self._language = 'en'
+
+        
 
         #master_pptx = self.country_code + ".pptx"
         script_dir = os.path.dirname(__file__) 
         master_pptx = "master.pptx"
         self.master = os.path.normpath(os.path.join(script_dir, "backgrounds", master_pptx))
+
+        legend_path = os.path.join(os.path.dirname(__file__), 'tmp', 'graph_legend.json')
+        with open(legend_path, 'r', encoding='utf-8') as json_file:
+            self._legends = json.load(json_file)
+
+
+        title_path = os.path.join(os.path.dirname(__file__), 'tmp', 'graph_title.json')
+        with open(title_path, 'r', encoding='utf-8') as json_file:
+            self._titles = json.load(json_file)
 
         # Connect to database and get country name according to country code.
         def select_country(value):
@@ -90,6 +106,18 @@ class GeneratePresentation:
         # Produce formatted statistics for all sites + country as site
         if site is None:
             self._generate_graphs(df=self.df, site_code=country_code)
+
+    @property
+    def titles(self):
+        return self._titles
+
+    @property
+    def legends(self):
+        return self._legends
+
+    @property
+    def language(self):
+        return self._language
 
     def _generate_graphs(self, df, site_code=None):
         """ The function opening the presentation and generating graphs. 
@@ -136,7 +164,9 @@ class GeneratePresentation:
         #title = 'TOTAL PATIENTS'
         
         country_patients = str(max(tmp_df[column_name].tolist()))
-        title = 'TOTAL PATIENTS (n = {})'.format(country_patients)
+        title_text = self.titles['total_patients'][self.language]
+        title = f"{title_text} (n = {country_patients})"
+
         if self.country_name is not None:
             tmp_df = tmp_df.loc[tmp_df[main_col] != self.country_name]
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
@@ -149,21 +179,21 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "MEDIAN PATIENT AGE"
-
+        title = self.titles["age"][self.language]
+            
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
-
 
         ###########################
         ### GENDER DISTRIBUTION ###
         ###########################
         column_name = '% patients female'
-        legend = ['Female', 'Male']
+        
 
         tmp_df = df[[main_col, '% patients female', '% patients male']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "GENDER DISTRIBUTION"
+        title = self.titles["gender"][self.language]
+        legend = self.legends["gender"][self.language]            
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -201,12 +231,18 @@ class GeneratePresentation:
         ### DEPARTMENT TYPE ###
         #######################
         column_name = '% department type - neurology'
-        legend = ['neurology', 'neurosurgery', 'anesthesiology resuscitation critical care', 'internal medicine', 'geriatrics', 'other']
 
         tmp_df = df[[main_col, '% department type - neurology', '% department type - neurosurgery', '% department type - anesthesiology/resuscitation/critical care', '% department type - internal medicine', '% department type - geriatrics', '% department type - Other']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% DEPARTMENT TYPE ALLOCATION out of all cases" 
+        title = self.titles["department"][self.language]
+        legend = self.legends["department"][self.language]
+
+        if self.country_code == 'CZ':
+            title = 'ODDĚLENÍ, KDE BYL PACIENT HOSPITALIZOVÁN (%)'
+            legend = ['neurologie', 'neurochirurgie', 'ARO', 'interna', 'geriatrie', 'ostatní']
+            
+
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -214,12 +250,13 @@ class GeneratePresentation:
         ### HOSPITALIZATION DESTINATION ###
         ###################################
         column_name = '% patients hospitalized in stroke unit / ICU'
-        legend = ['stroke unit', 'monitored bed with telemetry', 'standard bed']
+        
 
         tmp_df = df[[main_col, '% patients hospitalized in stroke unit / ICU', '% patients hospitalized in monitored bed with telemetry', '% patients hospitalized in standard bed']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% HOSPITALIZATION DESTINATION out of all cases" 
+        title = self.titles["hospitalization"][self.language]
+        legend = self.legends["hospitalization"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -250,27 +287,28 @@ class GeneratePresentation:
         # STROKE TYPE #
         ###############
         column_name = '% stroke type - ischemic stroke'
-        legend = ['ischemic', 'transient ischemic attack', 'intracerebral hemorrhage', 'subarrachnoid hemorrhage', 'cerebral venous thrombosis', 'undetermined']
-
+        
         tmp_df = df[[main_col, '% stroke type - ischemic stroke', '% stroke type - transient ischemic attack', '% stroke type - intracerebral hemorrhage', '% stroke type - subarrachnoid hemorrhage', '% stroke type - cerebral venous thrombosis', '% stroke type - undetermined stroke']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% STROKE TYPE out of all cases"
+        title = self.titles["stroke_type"][self.language]
+        legend = self.legends["stroke_type"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
         ######################
         # CONSIOUSNESS LEVEL #
         ######################
-        column_name = 'alert_all_perc'
-        legend = ['alert', 'drowsy', 'comatose']
+        if self.country_code != 'CZ':
+            column_name = 'alert_all_perc'
+            legend = ['alert', 'drowsy', 'comatose']
 
-        tmp_df = df[[main_col, 'alert_all_perc', 'drowsy_all_perc', 'comatose_all_perc']]
-        tmp_df = tmp_df.sort_values([column_name], ascending = True)
+            tmp_df = df[[main_col, 'alert_all_perc', 'drowsy_all_perc', 'comatose_all_perc']]
+            tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% CONSCIOUSNESS LEVEL for IS, ICH, CVT, SAH"
+            title = "% CONSCIOUSNESS LEVEL for IS, ICH, CVT, SAH"
 
-        GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
+            GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
         '''
         #######
@@ -295,7 +333,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% NIHSS PERFORMED for IS, ICH, CVT"
+        title = self.titles["nihss"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -307,7 +345,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = False)
 
-        title = "NIHSS median score"
+        title = self.titles["nihss_score"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -319,7 +357,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% CT/MRI PERFORMED for IS, ICH, CVT, TIA"
+        title = self.titles["ct_mri"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -331,7 +369,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% CT/MRI PERFORMED WITHIN 1 HOUR AFTER ADMISSION for IS, ICH, CVT, TIA"
+        title = self.titles["ct_mri_within"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -340,12 +378,12 @@ class GeneratePresentation:
         ####################
         sorted_by = ['vascular_imaging_cta_norm', 'vascular_imaging_mra_norm', 'vascular_imaging_dsa_norm', 'vascular_imaging_none_norm']
         column_name = 'vascular_imaging_cta_norm'
-        legend = ['CTA', 'MRA', 'DSA', 'none']
 
         tmp_df = df[[main_col, 'vascular_imaging_cta_norm', 'vascular_imaging_mra_norm', 'vascular_imaging_dsa_norm', 'vascular_imaging_none_norm']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% VASCULAR IMAGING PERFORMED for ICH, SAH"
+        title = self.titles["vascular_imaging"][self.language]
+        legend = self.legends["vascular_imaging"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -354,12 +392,12 @@ class GeneratePresentation:
         # RECANALIZATION TREATMENT #
         ############################
         column_name = '% recanalization procedures - IV tPa'
-        legend = ['IV tPa', 'IV tPa + endovascular treatment', 'IV tPa + another centre for endovascular treatment']
 
         tmp_df = df[[main_col, '% recanalization procedures - IV tPa', '% recanalization procedures - IV tPa + endovascular treatment', '% recanalization procedures - IV tPa + referred to another centre for endovascular treatment']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% IV tPa for IS"
+        title = self.titles["ivtpa"][self.language]
+        legend = self.legends["ivtpa"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -369,12 +407,12 @@ class GeneratePresentation:
         ####################################################
         sorted_by = ['% recanalization procedures - IV tPa + endovascular treatment', '% recanalization procedures - Endovascular treatment alone']
         column_name = '% recanalization procedures - IV tPa + endovascular treatment'
-        legend = ['IV tPa + endovascular treatment', 'endovascular treatment']
 
         tmp_df = df[[main_col, '% recanalization procedures - IV tPa + endovascular treatment', '% recanalization procedures - Endovascular treatment alone']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% RECANALIZATION PROCEDURES IN COMPREHENSIVE CENTRES for IS"
+        title = self.titles["comprehensive_recan"][self.language]
+        legend = self.legends["comprehensive_recan"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -383,12 +421,12 @@ class GeneratePresentation:
         ##########################################################
         sorted_by = ['% recanalization procedures - IV tPa + referred to another centre for endovascular treatment', '% recanalization procedures - Referred to another centre for endovascular treatment', '% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre', '% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']
         column_name = '% recanalization procedures - IV tPa + referred to another centre for endovascular treatment'
-        legend = ['IV tPa + another centre for endovascular treatment', 'another centre for endovascular treatment', 'another centre for endovascular treatment and hospitalization continues', 'another centre for endovascular treatment and returned to the initial centre']
 
         tmp_df = df[[main_col, '% recanalization procedures - IV tPa + referred to another centre for endovascular treatment', '% recanalization procedures - Referred to another centre for endovascular treatment', '% recanalization procedures - Referred to another centre for endovascular treatment and hospitalization continues at the referred to centre', '% recanalization procedures - Referred for endovascular treatment and patient is returned to the initial centre']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% PATIENTS TRANSFERRED TO ANOTHER CENTRE FOR RECANALIZATION PROCEDURES FROM PRIMARY CENTRE for IS"
+        title = self.titles["transferred_recan"][self.language]
+        legend = self.legends["transferred_recan"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -396,12 +434,12 @@ class GeneratePresentation:
         # RECANALIZATION TREATMENT #
         ############################
         column_name = '% recanalization procedures - IV tPa'
-        legend = ['IV tPa', 'IV tPa + endovascular treatment', 'endovascular treatment', 'IV tPa + another centre for endovascular treatment']
 
         tmp_df = df[[main_col, '% patients recanalized', '% recanalization procedures - IV tPa', '% recanalization procedures - IV tPa + endovascular treatment', '% recanalization procedures - Endovascular treatment alone', '% recanalization procedures - IV tPa + referred to another centre for endovascular treatment']]
         tmp_df = tmp_df.sort_values(['% patients recanalized'], ascending = True)
 
-        title = "% RECANALIZATION PROCEDURES for IS"
+        title = self.titles["recan_proc"][self.language]
+        legend = self.legends["recan_proc"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -413,7 +451,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% of recanalized patients"
+        title = self.titles["recan_pts"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -426,7 +464,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = False)
 
-        title = "MEDIAN DOOR-TO-NEEDLE TIME (minutes) for thrombolyzed patients"
+        title = self.titles["dnt"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -438,7 +476,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = False)
 
-        title = "MEDIAN DOOR-TO-GROIN TIME (minutes) for patients receiving endovascular treatment in a comprehensive centre"
+        title = self.titles["dgt"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -450,7 +488,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = False)
 
-        title = "MEDIAN DOOR-IN-DOOR-OUT TIME (minutes) for patients referred from a primary centre to another centre for recanalization therapy"
+        title = self.titles["dido"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -459,12 +497,12 @@ class GeneratePresentation:
         #######################
         column_name = '% dysphagia screening - Guss test'
         column_names = ['% dysphagia screening - Guss test', '% dysphagia screening - Other test', '% dysphagia screening - Another centre']
-        legend = ['GUSS test', 'Other test', 'Another centre']
 
         tmp_df = df[[main_col, '% dysphagia screening - Guss test', '% dysphagia screening - Other test', '% dysphagia screening - Another centre']]
         tmp_df = tmp_df.sort_values(column_names, ascending = True)
 
-        title = "% DYSPHAGIA SCREENING PERFORMED for IS, ICH, CVT"
+        title = self.titles["dysphagia"][self.language]
+        legend = self.legends["dysphagia"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -476,7 +514,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% DYSPHAGIA SCREENING TIME WITHIN FIRST 24 HOURS AFTER ADMISSION"
+        title = self.titles["dypshagia_within"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -489,7 +527,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS PUT ON VENTILATOR for IS, ICH, CVT"
+        title = self.titles["ventilator"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -502,7 +540,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, '% hemicraniectomy - Yes', '% hemicraniectomy - Referred to another centre']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% HEMICRANIECTOMY PERFORMED for IS"
+        title = self.titles["hemicraniectomy"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -514,7 +552,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% NEUROSURGERY PERFORMED for ICH"
+        title = self.titles["neurosurgery"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -523,12 +561,12 @@ class GeneratePresentation:
         #######################################
         sorted_by = ['% neurosurgery type - intracranial hematoma evacuation', '% neurosurgery type - external ventricular drainage', '% neurosurgery type - decompressive craniectomy']
         column_name = '% neurosurgery type - intracranial hematoma evacuation'
-        legend = ['intracranial hematoma evacuation', 'external ventricular drainage', 'decompressive craniectomy']
 
         tmp_df = df[[main_col, '% neurosurgery type - intracranial hematoma evacuation', '% neurosurgery type - external ventricular drainage', '% neurosurgery type - decompressive craniectomy']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% NEUROSURGERY TYPE PERFORMED for ICH in comprehensive centres"
+        title = self.titles["neurosurgery_type"][self.language]
+        legend = self.legends["neurosurgery_type"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -540,7 +578,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS REFERRED TO ANOTHER CENTRE FOR NEUROSURGERY"
+        title = self.titles["referred_neurosurgery"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -549,12 +587,12 @@ class GeneratePresentation:
         ###################
         sorted_by = ['bleeding_arterial_hypertension_perc_norm', 'bleeding_aneurysm_perc_norm', 'bleeding_arterio_venous_malformation_perc_norm', 'bleeding_anticoagulation_therapy_perc_norm', 'bleeding_amyloid_angiopathy_perc_norm', 'bleeding_other_perc_norm']
         column_name = 'bleeding_arterial_hypertension_perc_norm'
-        legend = ['arterial hypertension', 'aneurysm', 'arterio-venous malformation', 'anticoagulation therapy', 'amyloid angiopathy', 'other']
 
         tmp_df = df[[main_col, 'bleeding_arterial_hypertension_perc_norm', 'bleeding_aneurysm_perc_norm', 'bleeding_arterio_venous_malformation_perc_norm', 'bleeding_anticoagulation_therapy_perc_norm', 'bleeding_amyloid_angiopathy_perc_norm', 'bleeding_other_perc_norm']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% BLEEDING REASON for ICH"
+        title = self.titles["bleeding_reason"][self.language]
+        legend = self.legends["bleeding_reason"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -563,12 +601,12 @@ class GeneratePresentation:
         ##########################
         sorted_by = ['intervention_endovascular_perc_norm', 'intervention_neurosurgical_perc_norm', 'intervention_other_perc_norm', 'intervention_referred_perc_norm', 'intervention_none_perc_norm']
         column_name = 'intervention_endovascular_perc_norm'
-        legend = ['Endovascular (coiling)', 'Neurosurgical (clipping)', 'Other neurosurgical treatment', 'Patient referred to another centre', 'None']
 
         tmp_df = df[[main_col, 'intervention_endovascular_perc_norm', 'intervention_neurosurgical_perc_norm', 'intervention_other_perc_norm', 'intervention_referred_perc_norm', 'intervention_none_perc_norm']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% INTERVENTION PERFORMED for SAH"
+        title = self.titles["intervention"][self.language]
+        legend = self.legends["intervention"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -580,7 +618,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% REHABILITATION ASSESSMENT for IS, ICH, CVT and SAH"
+        title = self.titles["rehab"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -589,12 +627,12 @@ class GeneratePresentation:
         ###############################
         sorted_by = ['vt_treatment_anticoagulation_perc_norm', 'vt_treatment_thrombectomy_perc_norm', 'vt_treatment_local_thrombolysis_perc_norm', 'vt_treatment_local_neurological_treatment_perc_norm']
         column_name = 'vt_treatment_anticoagulation_perc_norm'
-        legend = ['anticoagulation', 'thrombectomy', 'local thrombolysis', 'neurosurgical treatment']
 
         tmp_df = df[[main_col, 'vt_treatment_anticoagulation_perc_norm', 'vt_treatment_thrombectomy_perc_norm', 'vt_treatment_local_thrombolysis_perc_norm', 'vt_treatment_local_neurological_treatment_perc_norm']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% VENOUS THROMBOSIS TREATMENT for CVT"
+        title = self.titles["vt_treatment"][self.language]
+        legend = self.legends["vt_treatment"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -603,12 +641,12 @@ class GeneratePresentation:
         ################################
         sorted_by = ['% afib/flutter - Detected during hospitalization', '% afib/flutter - Newly-detected at admission', '% afib/flutter - Known']
         column_name = '% afib/flutter - Detected during hospitalization'
-        legend = ['detected during hospitalization', 'newly-detected at admission', 'known aFib']
 
         tmp_df = df[[main_col, '% afib/flutter - Detected during hospitalization', '% afib/flutter - Newly-detected at admission', '% afib/flutter - Known']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% ATRIAL FIBRILLATION DETECTED for IS, TIA"
+        title = self.titles["afib"][self.language]
+        legend = self.legends["afib"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -617,12 +655,12 @@ class GeneratePresentation:
         ########################################
         sorted_by = ['% afib detection method - Telemetry with monitor allowing automatic detection of aFib', '% afib detection method - Telemetry without monitor allowing automatic detection of aFib', '% afib detection method - Holter-type monitoring', '% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib', '% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib']
         column_name = '% afib detection method - Telemetry with monitor allowing automatic detection of aFib'
-        legend = ['Telemetry with monitoring', 'Telemetry without monitoring', 'Holter-type monitoring', 'EKG monitoring in an ICU bed with automatic detection of aFib', 'EKG monitoring in an ICU bed without automatic detection of aFib']
 
         tmp_df = df[[main_col, '% afib detection method - Telemetry with monitor allowing automatic detection of aFib', '% afib detection method - Telemetry without monitor allowing automatic detection of aFib', '% afib detection method - Holter-type monitoring', '% afib detection method - EKG monitoring in an ICU bed with automatic detection of aFib', '% afib detection method - EKG monitoring in an ICU bed without automatic detection of aFib']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% ATRIAL FIBRILLATION DETECTION METHOD"
+        title = self.titles["afib_detection"][self.language]
+        legend = self.legends["afib_detection"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -634,7 +672,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% AMBULATORY HEART RHYTHM RECOMMENDED for IS, TIA without AFib detection"
+        title = self.titles["afib_other_rec"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -646,7 +684,7 @@ class GeneratePresentation:
             tmp_df = df[[main_col, column_name]]
             tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-            title = "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA"
+            title = self.titles["carotid_arteries"][self.language]
 
             GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -674,7 +712,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA"
+        title = self.titles["anticoagulants_afib"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -686,7 +724,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS DISCHARGED HOME WITH AFIB, PRESCRIBED ANTICOAGULANTS \nfor IS, TIA"
+        title = self.titles["anticoagulants_afib_disc"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -698,7 +736,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA"
+        title = self.titles["antiplatelets"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -711,7 +749,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS for IS, TIA"
+        title = self.titles["antithrombotics_prescribed"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -722,13 +760,13 @@ class GeneratePresentation:
         # ANTITHROMBOTICS PRESCRIBED #
         ##############################
         column_name = '% patients receiving antiplatelets with CVT'
-        legend = ['Antiplatelets', 'Vitamin K', 'Dabigatran', 'Rivaroxaban', 'Apixaban', 'Edoxaban', 'LMWH or heparin in prophylactic dose', 'LMWH or heparin in anticoagulant dose']
 
         tmp_df = df[[main_col, '% patients prescribed antithrombotics with CVT', '% patients receiving antiplatelets with CVT', '% patients receiving Vit. K antagonist with CVT', '% patients receiving dabigatran with CVT', '% patients receiving rivaroxaban with CVT', '% patients receiving apixaban with CVT', '% patients receiving edoxaban with CVT', '% patients receiving LMWH or heparin in prophylactic dose with CVT', '% patients receiving LMWH or heparin in full anticoagulant dose with CVT']]
 
         tmp_df = tmp_df.sort_values(['% patients prescribed antithrombotics with CVT'], ascending = True)
 
-        title = "% ANTITHROMBOTICS PRESCRIBED for IS, TIA, CVT"
+        title = self.titles["antithrombotics"][self.language]
+        legend = self.legends["antithrombotics"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -740,7 +778,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA, CVT"
+        title = self.titles["anticoagulants_afib_with_cvt"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -752,7 +790,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT"
+        title = self.titles["antiplatelets_afib_with_cvt"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -765,7 +803,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS \nfor IS, TIA, CVT"
+        title = self.titles["antiplatelets_afib_with_cvt"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -777,7 +815,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% DISCHARGED WITH STATINS for IS, TIA"
+        title = self.titles["statin"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -789,8 +827,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        #title = "% CAROTID STENOSIS OF OVER 70 PERCENT for IS, TIA"
-        title = "% CAROTID STENOSIS OF OVER 50 PERCENT for IS, TIA"
+        title = self.titles["carotid_stenosis"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -799,12 +836,12 @@ class GeneratePresentation:
         ##################################################
         sorted_by = ['% carotid stenosis followup - Yes, but planned', '% carotid stenosis followup - Referred to another centre']
         column_name = '% carotid stenosis followup - Yes, but planned'
-        legend = ['Yes or planned', 'Referred to another centre']
 
         tmp_df = df[[main_col, '% carotid stenosis followup - Yes, but planned', '% carotid stenosis followup - Referred to another centre']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 50%"
+        title = self.titles["carotid_stenosis_followup"][self.language]
+        legend = self.legends["carotid_stenosis_followup"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -816,7 +853,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases"
+        title = self.titles["antihypertensive"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -828,7 +865,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% RECOMMENDED TO A SMOKING CESSATION PROGRAM out of smokers"
+        title = self.titles["smoking_cessation"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -840,7 +877,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "% RECOMMENDED TO A CEREBROVASCULAR EXPERT out of all cases"
+        title = self.titles["cerebrovascular_expert"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -849,12 +886,12 @@ class GeneratePresentation:
         #########################
         sorted_by = ['% discharge destination - Home', '% discharge destination - Transferred within the same centre', '% discharge destination - Transferred to another centre', '% discharge destination - Social care facility', '% discharge destination - Dead']
         column_name = '% discharge destination - Home'
-        legend = ['home', 'transferred within the same centre', 'transferred to another centre', 'social care facility', 'dead']
 
         tmp_df = df[[main_col, '% discharge destination - Home', '% discharge destination - Transferred within the same centre', '% discharge destination - Transferred to another centre', '% discharge destination - Social care facility', '% discharge destination - Dead']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% DISCHARGE DESTINATION"
+        title = self.titles["discharge_destination"][self.language]
+        legend = self.legends["discharge_destination"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -863,12 +900,12 @@ class GeneratePresentation:
         ############################################################################
         sorted_by = ['% transferred within the same centre - Acute rehabilitation', '% transferred within the same centre - Post-care bed', '% transferred within the same centre - Another department']
         column_name = '% transferred within the same centre - Acute rehabilitation'
-        legend = ['Acute rehabilitation', 'Post-care bed', 'Another department']
 
         tmp_df = df[[main_col, '% transferred within the same centre - Acute rehabilitation', '% transferred within the same centre - Post-care bed', '% transferred within the same centre - Another department']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% DISCHARGE DESTINATION - PATIENT TRANSFERRED WITHIN THE SAME CENTRE"
+        title = self.titles["discharge_destination_same"][self.language]
+        legend = self.legends["discharge_destination_same"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -877,12 +914,12 @@ class GeneratePresentation:
         ####################################################
         sorted_by = ['% transferred to another centre - Stroke centre', '% transferred to another centre - Comprehensive stroke centre', '% transferred to another centre - Another hospital']
         column_name = '% transferred to another centre - Stroke centre'
-        legend = ['Stroke centre', 'Comprehensive stroke centre', 'Another hospital']
 
         tmp_df = df[[main_col, '% transferred to another centre - Stroke centre', '% transferred to another centre - Comprehensive stroke centre', '% transferred to another centre - Another hospital']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE"
+        title = self.titles["discharge_destination_another"][self.language]
+        legend = self.legends["discharge_destination_another"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -891,12 +928,12 @@ class GeneratePresentation:
         #################################################################################
         sorted_by = ['% department transferred to within another centre - Acute rehabilitation', '% department transferred to within another centre - Post-care bed', '% department transferred to within another centre - Neurology', '% department transferred to within another centre - Another department']
         column_name = '% department transferred to within another centre - Acute rehabilitation'
-        legend = ['Acute rehabilitation', 'Post-care bed', 'Neurology', 'Another department']
 
         tmp_df = df[[main_col, '% department transferred to within another centre - Acute rehabilitation', '% department transferred to within another centre - Post-care bed', '% department transferred to within another centre - Neurology', '% department transferred to within another centre - Another department']]
         tmp_df = tmp_df.sort_values(sorted_by, ascending = True)
 
-        title = "% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE (DEPARTMENT)"
+        title = self.titles["discharge_destination_another_department"][self.language]
+        legend = self.legends["discharge_destination_another_department"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 
@@ -908,7 +945,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "MEDIAN DISCHARGE MRS"
+        title = self.titles["mrs"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 
@@ -920,7 +957,7 @@ class GeneratePresentation:
         tmp_df = df[[main_col, column_name]]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
 
-        title = "MEDIAN HOSPITAL STAY (DAYS)"
+        title = self.titles["hospital_stay"][self.language]
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name)
 

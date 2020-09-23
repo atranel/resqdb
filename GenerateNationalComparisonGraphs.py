@@ -303,15 +303,17 @@ class GenerateNationalComparisonGraphs:
         ### GENDER DISTRIBUTION ###
         ###########################
         column_name = '% patients female'
-        legend = ['Žena', 'Muž']
+        
 
         tmp_df = df[[main_col, '% patients female', '% patients male']]
         tmp_df = tmp_df.sort_values([column_name], ascending = True)
         
         if site_code == 'CZ':
             title = "Rozdělení podle pohlaví"
+            legend = ['Žena', 'Muž']
         else:
             title = "GENDER DISTRIBUTION"
+            legend = ['Female', 'Male']
 
         GenerateGraphs(dataframe=tmp_df, presentation=prs, title=title, column_name=column_name, country=self.country_name, legend=legend, number_of_series=len(legend), graph_type='stacked')
 

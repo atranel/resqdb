@@ -1,0 +1,222 @@
+{
+  "total_patients": {
+    "cz": "Celkový počet pacientů",
+    "en": "TOTAL PATIENTS"
+  },
+  "age": {
+    "en": "MEDIAN PATIENT AGE",
+    "cz": "Věk pacientů - medián"
+  },
+  "gender": {
+    "en": "GENDER DISTRIBUTION",
+    "cz": "Rozdělení podle pohlaví"
+  },
+  "department": {
+    "en": "% DEPARTMENT TYPE ALLOCATION out of all cases",
+    "cz": "ODDĚLENÍ, KDE BYL PACIENT HOSPITALIZOVÁN (%)"
+  },
+  "hospitalization": {
+    "en": "% HOSPITALIZATION DESTINATION out of all cases",
+    "cz": "TYP LŮŽKA, NA KTERÉM BYL PACIENT HOSPITALIZOVÁN (%)"
+  },
+  "stroke_type": {
+    "en": "% STROKE TYPE out of all cases",
+    "cz": "TYP CMP ze všech případů (%)"
+  },
+  "consciousness_level": {
+    "en": "% CONSCIOUSNESS LEVEL for IS, ICH, CVT, SAH",
+    "cz": "% STUPEŇ VĚDOMÍ u iCMP, ICH, CVT, SAK"
+  },
+  "nihss": {
+    "en": "% NIHSS PERFORMED for IS, ICH, CVT",
+    "cz": "% pacientů s iCMP nebo ICH, u nichž bylo provedeno NIHSS"
+  },
+  "nihss_score": {
+    "en": "NIHSS median score",
+    "cz": "NIHSS SKÓRE - medián"
+  },
+  "ct_mri": {
+    "en": "% CT/MRI PERFORMED for IS, ICH, CVT, TIA",
+    "cz": "% pacientů s iCMP, ICH, CVT nebo TIA, kterým bylo provedeno CT/MRI"
+  },
+  "ct_mri_within": {
+    "en": "% CT/MRI PERFORMED WITHIN 1 HOUR AFTER ADMISSION for IS, ICH, CVT, TIA",
+    "cz": "% CT/MRI provedených DO HODINY OD PŘIJETÍ u iCMP, ICH, CVT nebo TIA "
+  },
+  "vascular_imaging": {
+    "en": "% VASCULAR IMAGING PERFORMED for ICH, SAH",
+    "cz": "% VASKULÁRNÍCH ZOBRAZOVÁNÍ provedených u ICH nebo SAK"
+  },
+  "ivtpa": {
+    "en": "% IV tPa for IS",
+    "cz": "% PACIENTŮ LÉČENÝCH IV tPa u iCMP"
+  },
+  "comprehensive_recan": {
+    "en": "% RECANALIZATION PROCEDURES IN COMPREHENSIVE CENTRES for IS",
+    "cz": "% ENDOVASKULÁRNÍCH VÝKONŮ V KOMPLEXNÍCH CENTRECH u iCMP"
+  },
+  "transferred_recan": {
+    "en": "% PATIENTS TRANSFERRED TO ANOTHER CENTRE FOR RECANALIZATION PROCEDURES FROM PRIMARY CENTRE for IS",
+    "cz": "% PACIENTŮ PŘELOŽENÝCH K ENDOVASKULÁRNÍMU VÝKONU DO JINÉHO CENTRA Z PRIMÁRNÍHO CENTRA u iCMP"
+  },
+  "recan_proc": {
+    "en": "% RECANALIZATION PROCEDURES for IS",
+    "cz": "% všech REKANALIZAČNÍCH VÝKONŮ u iCMP"
+  },
+  "recan_pts": {
+    "en": "% of recanalized patients",
+    "cz": "% rekanalizovaných pacientů"
+  },
+  "dnt": {
+    "en": "MEDIAN DOOR-TO-NEEDLE TIME (minutes) for thrombolyzed patients",
+    "cz": "MEDIÁN DOOR-TO-NEEDLE TIME (v minutách) u trombolyzovaných pacientů"
+  },
+  "dgt": {
+    "en": "MEDIAN DOOR-TO-GROIN TIME (minutes) for patients receiving endovascular treatment in a comprehensive centre",
+    "cz": "MEDIÁN DOOR-TO-GROIN TIME (v minutách) u pacientů, kteří podstoupili endovaskulární zákrok v komplexním centru"
+  },
+  "dido": {
+    "en": "MEDIAN DOOR-IN-DOOR-OUT TIME (minutes) for patients referred from a primary centre to another centre for recanalization therapy",
+    "cz": "MEDIÁN DOOR-IN-DOOR-OUT TIME (v minutách) u pacientů transportovaných z primárního centra do jiného centra k rekanalizační terapii"
+  },
+  "dysphagia": {
+    "en": "% DYSPHAGIA SCREENING PERFORMED for IS, ICH, CVT",
+    "cz": "% SCREENINGŮ DYSFAGIE provedených u iCMP nebo ICH"
+  },
+  "dypshagia_within": {
+    "en": "% DYSPHAGIA SCREENING TIME WITHIN FIRST 24 HOURS AFTER ADMISSION",
+    "cz": "% SCREENINGŮ DYSFAGIE BĚHEM 24 HODIN OD PŘIJETÍ"
+  },
+  "ventilator": {
+    "en": "% PATIENTS PUT ON VENTILATOR for IS, ICH, CVT",
+    "cz": "% PACIENTŮ NA UPV u iCMP nebo ICH"
+  },
+  "hemicraniectomy": {
+    "en": "% HEMICRANIECTOMY PERFORMED for IS",
+    "cz": "% HEMIKRANIEKTOMIÍ provedených u iCMP"
+  },
+  "neurosurgery": {
+    "en": "% NEUROSURGERY PERFORMED for ICH",
+    "cz": "% NEUROCHIRURGICKÝCH ZÁKROKŮ U PACIENTŮ S ICH"
+  },
+  "neurosurgery_type": {
+    "en": "% NEUROSURGERY TYPE PERFORMED for ICH in comprehensive centres",
+    "cz": "% TYPŮ NEUROCHIRURGICKÉHO ZÁKROKU u PACIENTŮ s ICH v komplexních centrech"
+  },
+  "referred_neurosurgery": {
+    "en": "% PATIENTS REFERRED TO ANOTHER CENTRE FOR NEUROSURGERY",
+    "cz": "% PACIENTŮ ODESLANÝCH DO JINÉHO CENTRA K NEUROCHIRURGICKÉMU ZÁKROKU"
+  },
+  "bleeding_reason": {
+    "en": "% BLEEDING REASON for ICH",
+    "cz": "% PŘÍČINY KRVÁCENÍ u ICH"
+  },
+  "intervention": {
+    "en": "% INTERVENTION PERFORMED or SAH",
+    "cz": "% INTERVENCÍ PROVEDENÝCH u SAK"
+  },
+  "rehab": {
+    "en": "% REHABILITATION ASSESSMENT for IS, ICH, CVT and SAH",
+    "cz": "% VYŠETŘENÍ FYZIOTERAPEUTEM u iCMP, ICH, CVT a SAK"
+  },
+  "vt_treatment": {
+    "en": "% VENOUS THROMBOSIS TREATMENT for CVT",
+    "cz": "% TYPŮ LÉČBY VENÓZNÍ TROMBÓZY U CVT"
+  },
+  "afib": {
+    "en": "% ATRIAL FIBRILLATION DETECTED for IS, TIA",
+    "cz": "% FIBRILACÍ SÍNÍ DETEKOVANÝCH  u iCMP nebo TIA"
+  },
+  "afib_detection": {
+    "en": "% ATRIAL FIBRILLATION DETECTION METHOD",
+    "cz": "% METOD DETEKCE FIBRILACÍ SÍNÍ"
+  },
+  "afib_other_rec": {
+    "en": "% AMBULATORY HEART RHYTHM RECOMMENDED for IS, TIA without AFib detection",
+    "cz": "% pacientů s iCMP nebo TIA DOPORUČENÝCH NA AMBULANTNÍ MONITORACI SRDEČNÍHO RYTMU, u kterých nebyla detekována fibrilace síní"
+  },
+  "carotid_arteries": {
+    "en": "% CAROTID ARTERIES IMAGING PERFORMED for IS, TIA",
+    "cz": "% PROVEDENÉHO ZOBRAZOVÁNÍ KAROTID u iCMP, TIA"
+  },
+  "anticoagulants_afib": {
+    "en": "% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA",
+    "cz": "POUŽITÍ ANTIKOAGULAČNÍ LÉČBY U PACIENTŮ S FIBRILACÍ SÍNÍ a iCMP nebo TIA (%)"
+  },
+  "anticoagulants_afib_disc": {
+    "en": "% PATIENTS DISCHARGED HOME WITH AFIB, PRESCRIBED ANTICOAGULANTS \nfor IS, TIA",
+    "cz": "% pacientů s PŘEDEPSANÝMI ANTIKOAGULANTY u iCMP nebo TIA pro FIBRILACI SÍNÍ, pokud byli PROPUŠTĚNI DOMŮ"
+  },
+  "antiplatelets": {
+    "en": "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA",
+    "cz": "% pacientů LÉČENÝCH PROTIDESTIČKOVÝMI LÉKY pro iCMP nebo TIA, pokud neměli FIBRILACI SÍNÍ"
+  },
+  "antithrombotics_prescribed": {
+    "en": "% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS for IS, TIA",
+    "cz": "% PACIENTŮ BEZ PŘEDEPSANÝCH, ALE S DOPORUČENÝMI ANTITROMBOTIKY u iCMP, TIA"
+  },
+  "antithrombotics": {
+    "en": "% ANTITHROMBOTICS PRESCRIBED for IS, TIA, CVT",
+    "cz": "% PŘEDEPSANÉ ANTITROMBOTICKÉ LÉČBY u iCMP, TIA, CVT"
+  },
+  "anticoagulants_afib_with_cvt": {
+    "en": "% PATIENTS WITH AFIB, PRESCRIBED ANTICOAGULANTS for IS, TIA, CVT",
+    "cz": "% PACIENTŮ S FIBRILACÍ SÍNÍ A PŘEDEPSANÝMI ANTIKOAGULANTY u iCMP, TIA, CVT"
+  },
+  "antiplatelets_afib_with_cvt": {
+    "en": "% PATIENTS WITHOUT AFIB, PRESCRIBED ANTIPLATELETS for IS, TIA, CVT",
+    "cz": "% PACIENTŮ BEZ FIBRILACE SÍNÍ, S PŘEDEPSANOU ANTIAGREGACÍ u iCMP, TIA, CVT"
+  },
+  "antithrombotics_prescribed_with_cvt": {
+    "en": "% PATIENTS NOT PRESCRIBED, BUT RECOMMENDED ANTITHROMBOTICS \nfor IS, TIA, CVT",
+    "cz": "% PACIENTŮ S POUZE DOPORUČENOU LÉČBOU ANTITROMBOTIKY u iCMP, TIA, CVT"
+  },
+  "statin": {
+    "en": "% DISCHARGED WITH STATINS for IS, TIA",
+    "cz": "% DISCHARGED WITH STATINS for IS, TIA"
+  },
+  "carotid_stenosis": {
+    "en": "% CAROTID STENOSIS OF OVER 50 PERCENT for IS, TIA",
+    "cz": "% STENÓZY KAROTID NAD 70% u iCMP nebo TIA"
+  },
+  "carotid_stenosis_followup": {
+    "en": "% ENDARTERECTOMY OR ANGIOPLASTY / STENTING DONE OR PLANNED for IS, TIA with ICA STENOSIS > 50%",
+    "cz": "% ENDARTEREKTOMIÍ NEBO ANGIOPLASTIK / STENTINGŮ PROVEDENÝCH NEBO PLÁNOVANÝCH u iCMP, TIA s ICA STENÓZOU > 50%"
+  },
+  "antihypertensive": {
+    "en": "% ANTIHYPERTENSIVE MEDICATION PRESCRIBED out of all cases",
+    "cz": "% PŘEDEPSANÉ ANTIHYPERTENZNÍ LÉČBY ze všech případů"
+  },
+  "smoking_cessation": {
+    "en": "% RECOMMENDED TO A SMOKING CESSATION PROGRAM out of smokers",
+    "cz": "% KUŘÁKŮ, JIMŽ BYL DOPORUČEN PROGRAM K ODVYKÁNÍ KOUŘENÍ"
+  },
+  "cerebrovascular_expert": {
+    "en": "% RECOMMENDED TO A CEREBROVASCULAR EXPERT out of all cases",
+    "cz": "% PACIENTŮ ODESLANÝCH K CEREBROVASKULÁRNÍMU ODBORNÍKOVI ze všech případů"
+  },
+  "discharge_destination": {
+    "en": "% DISCHARGE DESTINATION",
+    "cz": "% MÍSTO URČENÍ U PROPUŠTĚNÍ / PŘEKLADU - DISCHARGE DESTINATION"
+  },
+  "discharge_destination_same": {
+    "en": "% DISCHARGE DESTINATION - PATIENT TRANSFERRED WITHIN THE SAME CENTRE",
+    "cz": "% PACIENTŮ PŘELOŽENÝCH V RÁMCI STEJNÉHO CENTRA"
+  },
+  "discharge_destination_another": {
+    "en": "% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE",
+    "cz": "% PACIENTŮ PŘELOŽENÝCH DO JINÉHO CENTRA"
+  },
+  "discharge_destination_another_department": {
+    "en": "% DISCHARGE DESTINATION - PATIENT TRANSFERRED TO ANOTHER CENTRE (DEPARTMENT)",
+    "cz": "% PACIENTŮ PŘELOŽENÝCH DO JINÉHO CENTRA PODLE TYPU CÍLOVÉHO ODDĚLENÍ"
+  },
+  "mrs": {
+    "en": "MEDIAN DISCHARGE MRS",
+    "cz": "MEDIÁN mRS U PROPUŠTĚNÍ"
+  },
+  "hospital_stay": {
+    "en": "MEDIAN HOSPITAL STAY (DAYS)",
+    "cz": "DÉLKA POBYTU V NEMOCNICI (VE DNECH)"
+  }
+}
