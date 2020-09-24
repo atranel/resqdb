@@ -31,7 +31,6 @@ class Connection:
     """
 
     def __init__(self, nprocess=1):
-
         start = time.time()
 
         debug = 'debug_' + datetime.now().strftime('%d-%m-%Y') + '.log' 

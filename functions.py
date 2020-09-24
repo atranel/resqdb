@@ -1,4 +1,5 @@
 import os
+import sys
 import time 
 from datetime import datetime, date
 import pandas as pd
@@ -6,11 +7,11 @@ import pandas as pd
 def save_file(name, data=None, index=False):
     """ If the file already exists, first try to rename it, it renaming is succes, rename it back and resaved the file else raise error and print warning to user, wait 2 seconds and try it again. 
 
-    :params name: name of results file
+    :param name: name of results file
     :type name: string
-    :params data: dataframe to be saved
+    :param data: dataframe to be saved
     :type data: dataframe
-    :params index: iclude index in the file
+    :param index: iclude index in the file
     :type index: boolean
     """
     path = os.path.join(os.getcwd(), name)
@@ -33,6 +34,59 @@ def save_file(name, data=None, index=False):
         if data is not None:
             data.to_csv(path, sep=",", encoding='utf-8', index=index)
 
+
+def read_file(path=None):
+    ''' Read file and return dataframe. If csv is True, read data from preprocessed data, otherwise, get data from the database. 
+
+    :param path: path to the csv if provided (defualt: None)
+    :type path: string
+    :returns: DataFrame, list of countries
+    '''
+    from resqdb.Connection import Connection
+
+    if path is None:
+        c = Connection(nprocess=2)
+        dictdb_df = c.dictdb_df
+        # Database dataframe
+        for k, v in dictdb_df.items():
+            name = k + "_raw_data_" + datetime.now().strftime('%d-%m-%Y') + ".csv"
+            save_file(name=name, data=v, index=False)
+
+        # get dataframe
+        df = c.df
+        # save raw data into csv
+        raw_data_name = f"raw_data_{datetime.now().strftime('%d-%m-%Y')}.csv"
+        save_file(name=raw_data_name, data=df, index=False)
+
+        # Get preprocessed data
+        raw_df = c.preprocessed_data
+        # Save raw data into csv
+        preprocessed_data_name = f"preprocessed_data_{datetime.now().strftime('%d-%m-%Y')}.csv"
+        save_file(name=preprocessed_data_name, data=raw_df, index=False)
+
+        # Get list of country codes from the raw dataframe
+        countries = c.countries
+    else:
+        try:
+            filename, file_extension = os.path.splitext(path)
+            print(filename, file_extension)
+            if file_extension == '.csv':
+                dateForm = '%Y-%m-%d'
+                raw_df = pd.read_csv(path, sep=',', encoding="utf-8", low_memory=False)
+                # Convert hospital date and discharge date into datetime
+                raw_df['HOSPITAL_DATE'] = pd.to_datetime(raw_df['HOSPITAL_DATE'], format=dateForm)
+                raw_df['DISCHARGE_DATE'] = pd.to_datetime(raw_df['DISCHARGE_DATE'], format=dateForm)
+
+                country_ids = raw_df['Protocol ID'].apply(lambda x: pd.Series(str(x).split("_")))
+                countries = list(set(country_ids[0]))
+            else:
+                print(f'Invalid input file. Detected {file_extension.upper()} instead of .CSV file.')
+                sys.exit()
+        except ValueError:
+            print(f'Invalid input file. Detected {file_extension.upper()} instead of .CSV file.')
+            sys.exit()
+
+    return raw_df, countries
 
 def repeat_answer():
     """ Return True if the user would like to continue but with diferrent setting otherwise return False.
