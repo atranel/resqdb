@@ -74,7 +74,7 @@ class GenerateGraphs:
         if (len(self.dataframe) > 60):
             self.category_font_size = Pt(4)
             self.data_label_font_size = Pt(4)
-        elif (len(self.dataframe) > 50 and len(self.dataframe) <= 60):
+        elif (len(self.dataframe) > 40 and len(self.dataframe) <= 60):
             self.category_font_size = Pt(6)
             self.data_label_font_size = Pt(6)
         else:
